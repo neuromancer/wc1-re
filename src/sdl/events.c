@@ -362,7 +362,12 @@ static int SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
 {
     int enterPressed;
     int modifierPressed;
+    int changed;
 
+    changed = SdlKeymapFullscreenShortcut(event->keysym.scancode,
+                                          event->keysym.mod | SDL_GetModState());
+    if (changed >= 0)
+        return changed;
     enterPressed = event->keysym.sym == SDLK_RETURN ||
         event->keysym.sym == SDLK_KP_ENTER ||
         event->keysym.scancode == SDL_SCANCODE_RETURN ||
@@ -444,6 +449,8 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     int pressed;
     int scanCode;
     int virtualKey;
+    SDL_Scancode key;
+    SDL_Keycode symbol;
 
     pressed = event->type == SDL_KEYDOWN;
     if (pressed && event->repeat == 0 && event->keysym.sym == SDLK_q &&
@@ -456,13 +463,18 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
             SdlToggleFullscreen(event->windowID);
         return 0;
     }
-    scanCode = SdlTranslateScanCode(event->keysym.scancode);
-    virtualKey = SdlTranslateVirtualKey(event->keysym.sym);
+    /* In flight, rebound keys stand in for the keys the game reads. */
+    key = SdlKeymapTranslateKey(event->keysym.scancode, event->keysym.mod, pressed);
+    if (key == SDL_SCANCODE_UNKNOWN)
+        return 0;
+    symbol = key == event->keysym.scancode ? event->keysym.sym : SDL_GetKeyFromScancode(key);
+    scanCode = SdlTranslateScanCode(key);
+    virtualKey = SdlTranslateVirtualKey(symbol);
     if ((event->keysym.mod & KMOD_ALT) != 0 ||
-        event->keysym.scancode == SDL_SCANCODE_LALT ||
-        event->keysym.scancode == SDL_SCANCODE_RALT)
+        key == SDL_SCANCODE_LALT ||
+        key == SDL_SCANCODE_RALT)
         nSystemKeyDown = pressed ? (unsigned int)virtualKey : 0;
-    if (event->keysym.scancode == SDL_SCANCODE_F1)
+    if (key == SDL_SCANCODE_F1)
         bF1KeyLatch = pressed && event->repeat == 0;
     if (pressed && scanCode == SCAN_ESCAPE)
         bEscapePressedFlag = 1;
@@ -592,6 +604,9 @@ void SdlPumpEvents(void)
             break;
         case SDL_MOUSEWHEEL:
             SdlHandleMouseWheelEvent(&event.wheel);
+            break;
+        case SDL_KEYMAPCHANGED:
+            SdlKeymapInvalidate();
             break;
         case SDL_MOUSEMOTION:
         case SDL_MOUSEBUTTONDOWN:

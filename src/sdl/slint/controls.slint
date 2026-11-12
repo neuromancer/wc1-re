@@ -1,0 +1,1072 @@
+// Flight bindings for the game controller, drawn in the style of SC
+// Controller's binding display with its CC0 artwork (third_party/sc-controller),
+// and for the keyboard and mouse, as a table that names each key in text so
+// that any key can appear in it. Only WC1's DOS/Kilrathi Saga bindings exist so
+// far; other games add their own.
+import { Button, ComboBox, ListView, Palette } from "std-widgets.slint";
+
+export enum PadControl {
+    left-trigger, left-shoulder, left-stick, left-stick-click,
+    dpad-up, dpad-down, dpad-left, dpad-right,
+    right-trigger, right-shoulder, y, x, b, a, right-stick, right-stick-click,
+    back, start
+}
+
+struct PadRow {
+    control: PadControl,
+    glyph: image,
+    caption: string,
+}
+
+// One labelled box: rows of glyph and action, joined to the drawing by a
+// horizontal then a vertical line ending in a dot.
+component BindingBox inherits Rectangle {
+    in property <[PadRow]> rows;
+    in property <string> title;
+    // Where the connector leaves the box; the middle unless set.
+    in property <length> line-y: self.y + self.height / 2;
+    pure callback binding(PadControl) -> string;
+
+    width: 236px;
+    height: 30px + self.rows.length * 26px;
+    background: Palette.alternate-background;
+    border-color: Palette.border;
+    border-width: 1px;
+    border-radius: 6px;
+
+    Text {
+        x: 10px;
+        y: 5px;
+        text: root.title;
+        font-size: 12px;
+        font-weight: 700;
+        color: Palette.alternate-foreground;
+        opacity: 0.7;
+    }
+
+    for row[index] in root.rows: HorizontalLayout {
+        x: 8px;
+        y: 24px + index * 26px;
+        width: root.width - 16px;
+        height: 24px;
+        spacing: 8px;
+
+        Image {
+            width: 22px;
+            height: 22px;
+            source: row.glyph;
+            image-fit: contain;
+        }
+
+        Text {
+            horizontal-stretch: 1;
+            vertical-alignment: center;
+            text: (row.caption == "" ? "" : row.caption + ": ")
+                + (root.binding(row.control) == "" ? "—" : root.binding(row.control));
+            color: Palette.alternate-foreground;
+            opacity: root.binding(row.control) == "" ? 0.45 : 1;
+            font-size: 13px;
+            overflow: elide;
+        }
+    }
+}
+
+// A connector made of one horizontal and one vertical rule, in the
+// coordinates of the window it covers.
+component Connector inherits Rectangle {
+    x: 0px;
+    y: 0px;
+    width: 100%;
+    height: 100%;
+    in property <length> from-x;
+    in property <length> from-y;
+    in property <length> to-x;
+    in property <length> to-y;
+    in property <brush> ink: Palette.foreground;
+
+    Rectangle {
+        x: min(root.from-x, root.to-x);
+        y: root.from-y - 0.5px;
+        width: abs(root.to-x - root.from-x);
+        height: 1px;
+        background: root.ink;
+    }
+
+    Rectangle {
+        x: root.to-x - 0.5px;
+        y: min(root.from-y, root.to-y);
+        width: 1px;
+        height: abs(root.to-y - root.from-y);
+        background: root.ink;
+    }
+
+    Rectangle {
+        x: root.to-x - 3px;
+        y: root.to-y - 3px;
+        width: 6px;
+        height: 6px;
+        border-radius: 3px;
+        background: root.ink;
+    }
+}
+
+// One way to give a game input: inputs used together (joiner "+"), a range
+// of keys (joiner "–") or a single input, with a hint on how to use it.
+// Inputs are names, not pictures, so any key can be shown: a typed character
+// such as "e" or "ñ", or a name such as "up", "ctrl" or "mouse-left" (see
+// ControlsWindow.input-label). A fixed binding cannot be changed: a mouse
+// input, which the game handles itself, or Escape, which also closes menus.
+struct InputBinding {
+    inputs: [string],
+    joiner: string,
+    hint: string,
+    fixed: bool,
+}
+
+// A row of the keyboard and mouse table: a section heading, or a game input,
+// how to use it, and its original bindings. The id names the input in the
+// launcher settings and in src/sdl/keymap.c. A fixed row cannot be changed.
+struct InputRow {
+    id: string,
+    section: string,
+    action: string,
+    hint: string,
+    fixed: bool,
+    bindings: [InputBinding],
+}
+
+// A key, drawn as a keycap with a thicker lower edge, or a mouse action,
+// drawn as a pill.
+component KeyCap inherits Rectangle {
+    in property <string> label;
+    in property <bool> mouse;
+
+    min-width: 26px;
+    height: 26px;
+    border-radius: root.mouse ? 13px : 5px;
+    background: Palette.border;
+
+    Rectangle {
+        x: 1px;
+        y: 1px;
+        width: parent.width - 2px;
+        height: parent.height - (root.mouse ? 2px : 3px);
+        border-radius: root.mouse ? 12px : 4px;
+        background: Palette.control-background;
+    }
+
+    HorizontalLayout {
+        padding-left: root.mouse ? 11px : 8px;
+        padding-right: root.mouse ? 11px : 8px;
+
+        Text {
+            text: root.label;
+            vertical-alignment: center;
+            horizontal-alignment: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: Palette.control-foreground;
+        }
+    }
+}
+
+export component ControlsWindow inherits Window {
+    title: @tr("Wing Commander controls");
+    width: 1040px;
+    height: 660px;
+    background: Palette.background;
+
+    // The launcher's joystick selectors: 0 original, 1 WCAT four buttons
+    // and two axes, 2 WCAT four buttons and four axes; axis layouts 0-6.
+    // The window has its own copies of the selectors.
+    in-out property <int> joystick-mode;
+    in-out property <int> joystick-axes;
+    // The window's selectors changed joystick-mode or joystick-axes.
+    callback layout-changed();
+    // The selectors' entries, in the launcher's order.
+    out property <[string]> mode-names: [
+        @tr("Original — two axes / two buttons"),
+        @tr("WCAT — four buttons / two axes"),
+        @tr("WCAT — four buttons / four axes")
+    ];
+    out property <[string]> axis-names: [
+        @tr("Twin-stick roll"),
+        @tr("Twin-stick yaw"),
+        @tr("HOTAS yaw"),
+        @tr("HOTAS roll"),
+        @tr("Linear throttle"),
+        @tr("Rudder yaw"),
+        @tr("Rudder roll")
+    ];
+    // 0 shows the game controller, 1 the keyboard and mouse.
+    in-out property <int> page;
+    // macOS toggles full screen with Command-Return rather than Alt-Enter.
+    in property <bool> apple-keys;
+
+    // WC1 flight keys (src/main.c: HandleSpaceFlightControls and
+    // process_player_input) and mouse (player_input), one game input per row.
+    // The arrows steer like a stick: up pitches the nose down. The wheel is this
+    // port's.
+    out property <[InputRow]> keyboard-rows: [
+        { section: @tr("Flight") },
+        { id: "pitch-down", action: @tr("Pitch down"), bindings: [{ inputs: ["up"] }] },
+        { id: "pitch-up", action: @tr("Pitch up"), bindings: [{ inputs: ["down"] }] },
+        { id: "yaw-left", action: @tr("Yaw left"), bindings: [{ inputs: ["left"] }] },
+        { id: "yaw-right", action: @tr("Yaw right"), bindings: [{ inputs: ["right"] }] },
+        { id: "pitch-down-yaw-left", action: @tr("Pitch down and yaw left"), bindings: [{ inputs: ["home"] }] },
+        { id: "pitch-down-yaw-right", action: @tr("Pitch down and yaw right"), bindings: [{ inputs: ["page-up"] }] },
+        { id: "pitch-up-yaw-left", action: @tr("Pitch up and yaw left"), bindings: [{ inputs: ["end"] }] },
+        { id: "pitch-up-yaw-right", action: @tr("Pitch up and yaw right"), bindings: [{ inputs: ["page-down"] }] },
+        { id: "pitch-and-yaw", action: @tr("Pitch and yaw"), fixed: true, bindings: [{ inputs: ["mouse-move"], fixed: true }] },
+        { id: "roll-left", action: @tr("Roll left"), bindings: [{ inputs: [","] }, { inputs: ["insert"] }] },
+        { id: "roll-right", action: @tr("Roll right"), bindings: [{ inputs: ["."] }, { inputs: ["delete"] }] },
+        { id: "roll-and-speed", action: @tr("Roll and change speed"), hint: @tr("hold and move"), fixed: true, bindings: [
+            { inputs: ["mouse-right", "mouse-move"], joiner: "+", fixed: true }
+        ] },
+        { id: "full-turn-rate", action: @tr("Full turn rate"), hint: @tr("hold with a turn key"), bindings: [{ inputs: ["shift"] }] },
+        { id: "speed-up", action: @tr("Speed up"), bindings: [{ inputs: ["+"] }, { inputs: ["wheel-up"], fixed: true }] },
+        { id: "slow-down", action: @tr("Slow down"), bindings: [{ inputs: ["-"] }, { inputs: ["wheel-down"], fixed: true }] },
+        { id: "full-speed", action: @tr("Full speed"), bindings: [{ inputs: ["\\"] }] },
+        { id: "stop", action: @tr("Stop"), bindings: [{ inputs: ["backspace"] }] },
+        { id: "afterburner", action: @tr("Afterburner"), hint: @tr("hold"), bindings: [
+            { inputs: ["tab"] },
+            { inputs: ["mouse-right"], hint: @tr("double-click"), fixed: true }
+        ] },
+        { section: @tr("Weapons") },
+        { id: "fire-guns", action: @tr("Fire guns"), bindings: [{ inputs: ["space"] }, { inputs: ["mouse-left"], fixed: true }] },
+        { id: "fire-missile", action: @tr("Fire missile or drop mine"), bindings: [
+            { inputs: ["enter"] },
+            { inputs: ["mouse-left", "mouse-right"], joiner: "+", fixed: true }
+        ] },
+        { id: "next-gun", action: @tr("Weapons display, next gun"), bindings: [{ inputs: ["g"] }] },
+        { id: "next-missile", action: @tr("Weapons display, next missile"), bindings: [{ inputs: ["w"] }] },
+        { section: @tr("Cockpit") },
+        { id: "next-target", action: @tr("Target display, next target"), bindings: [{ inputs: ["t"] }] },
+        { id: "lock-target", action: @tr("Lock target"), bindings: [{ inputs: ["l"] }] },
+        { id: "damage-display", action: @tr("Damage display"), bindings: [{ inputs: ["d"] }] },
+        { id: "navigation", action: @tr("Navigation display, then map"), bindings: [{ inputs: ["n"] }] },
+        { id: "autopilot", action: @tr("Autopilot"), bindings: [{ inputs: ["a"] }] },
+        { id: "eject", action: @tr("Eject"), bindings: [{ inputs: ["ctrl", "e"], joiner: "+" }] },
+        { section: @tr("Wingman") },
+        { id: "communications", action: @tr("Communications"), bindings: [{ inputs: ["c"] }] },
+        { id: "choose-message", action: @tr("Choose a message"), fixed: true, bindings: [{ inputs: ["1", "9"], joiner: "–", fixed: true }] },
+        { id: "break-and-attack", action: @tr("Break and attack"), bindings: [{ inputs: ["b"] }] },
+        { id: "form-on-wing", action: @tr("Form on my wing"), bindings: [{ inputs: ["h"] }] },
+        { section: @tr("Views") },
+        { id: "front-view", action: @tr("Front view; again: cockpit on/off"), bindings: [{ inputs: ["f1"] }] },
+        { id: "left-view", action: @tr("Left view"), bindings: [{ inputs: ["f2"] }] },
+        { id: "right-view", action: @tr("Right view"), bindings: [{ inputs: ["f3"] }] },
+        { id: "rear-view", action: @tr("Rear view"), bindings: [{ inputs: ["f4"] }] },
+        { id: "chase-view", action: @tr("Chase view"), bindings: [{ inputs: ["f5"] }] },
+        { id: "battle-view", action: @tr("Battle view"), bindings: [{ inputs: ["f6"] }] },
+        { id: "tactical-view", action: @tr("Tactical view, with a target"), bindings: [{ inputs: ["f7"] }] },
+        { id: "missile-camera", action: @tr("Missile camera on/off"), bindings: [{ inputs: ["f8"] }] },
+        { id: "other-ships", action: @tr("Other ships"), bindings: [{ inputs: ["f9"] }] },
+        { section: @tr("Game") },
+        { id: "pause", action: @tr("Pause"), bindings: [{ inputs: ["p"] }, { inputs: ["escape"], fixed: true }] },
+        { id: "message-speed", action: @tr("Message speed"), bindings: [{ inputs: ["m"] }] },
+        { id: "comm-videos", action: @tr("Comm videos on/off"), bindings: [{ inputs: ["v"] }] },
+        { id: "music", action: @tr("Music on/off"), bindings: [{ inputs: ["ctrl", "m"], joiner: "+" }] },
+        { id: "sound", action: @tr("Sound on/off"), bindings: [{ inputs: ["ctrl", "s"], joiner: "+" }] },
+        { id: "full-screen", action: @tr("Full screen"), bindings: [
+            { inputs: [root.apple-keys ? "meta" : "alt", "enter"], joiner: "+" }
+        ] }
+    ];
+    // The current bindings, row by row. The launcher fills this with a copy of
+    // keyboard-rows' bindings and the saved changes, applies the changes asked
+    // for below, and hands the changed rows to the game when it starts.
+    in-out property <[[InputBinding]]> keyboard-bindings;
+    // Replace a row's binding, or add one when slot is the row's binding count.
+    callback binding-changed(row: int, slot: int, binding: InputBinding);
+    callback binding-removed(row: int, slot: int);
+    callback bindings-reset();
+    // Each game input takes two bindings at most.
+    out property <int> max-bindings: 2;
+    // The binding being changed: its row (-1 when none) and slot.
+    out property <int> capture-row: -1;
+    property <int> capture-slot;
+    property <bool> capture-replaces;
+    // A modifier pressed while capturing, bound alone if released first.
+    property <string> capture-modifier;
+
+    // Names a keyboard or mouse input for the table.
+    pure function input-label(input: string) -> string {
+        if input == "up" { return "↑"; }
+        if input == "down" { return "↓"; }
+        if input == "left" { return "←"; }
+        if input == "right" { return "→"; }
+        if input == "home" { return @tr("Home"); }
+        if input == "end" { return @tr("End"); }
+        if input == "page-up" { return @tr("PgUp"); }
+        if input == "page-down" { return @tr("PgDn"); }
+        if input == "insert" { return @tr("Ins"); }
+        if input == "delete" { return @tr("Del"); }
+        if input == "backspace" { return @tr("Backspace"); }
+        if input == "tab" { return @tr("Tab"); }
+        if input == "space" { return @tr("Space"); }
+        if input == "enter" { return @tr("Enter"); }
+        if input == "escape" { return @tr("Esc"); }
+        if input == "shift" { return @tr("Shift"); }
+        if input == "ctrl" { return @tr("Ctrl"); }
+        if input == "alt" { return @tr("Alt"); }
+        if input == "alt-gr" { return "AltGr"; }
+        if input == "meta" { return root.apple-keys ? "⌘" : "Win"; }
+        if input == "caps-lock" { return @tr("Caps Lock"); }
+        if input == "scroll-lock" { return @tr("Scroll Lock"); }
+        if input == "pause" { return @tr("Pause"); }
+        if input == "print-screen" { return @tr("Print Screen"); }
+        if input == "menu" { return @tr("Menu"); }
+        if input == "-" { return "−"; }
+        if input == "mouse-move" { return @tr("Mouse movement"); }
+        if input == "mouse-left" { return @tr("Left mouse button"); }
+        if input == "mouse-right" { return @tr("Right mouse button"); }
+        if input == "mouse-middle" { return @tr("Middle mouse button"); }
+        if input == "mouse-back" { return @tr("Mouse button 4"); }
+        if input == "mouse-forward" { return @tr("Mouse button 5"); }
+        if input == "wheel-up" { return @tr("Mouse wheel up"); }
+        if input == "wheel-down" { return @tr("Mouse wheel down"); }
+        return input.to-uppercase();
+    }
+
+    pure function is-mouse(input: string) -> bool {
+        return input.starts-with("mouse-") || input.starts-with("wheel-");
+    }
+
+    // The input name of a key event's text. Slint reports macOS's Command key
+    // as Control and its Control key as Meta; swap them back.
+    pure function key-input(text: string) -> string {
+        if text == Key.UpArrow { return "up"; }
+        if text == Key.DownArrow { return "down"; }
+        if text == Key.LeftArrow { return "left"; }
+        if text == Key.RightArrow { return "right"; }
+        if text == Key.Home { return "home"; }
+        if text == Key.End { return "end"; }
+        if text == Key.PageUp { return "page-up"; }
+        if text == Key.PageDown { return "page-down"; }
+        if text == Key.Insert { return "insert"; }
+        if text == Key.Delete { return "delete"; }
+        if text == Key.Backspace { return "backspace"; }
+        if text == Key.Tab || text == Key.Backtab { return "tab"; }
+        if text == Key.Space { return "space"; }
+        if text == Key.Return { return "enter"; }
+        if text == Key.Escape { return "escape"; }
+        if text == Key.Shift || text == Key.ShiftR { return "shift"; }
+        if text == Key.Control || text == Key.ControlR { return root.apple-keys ? "meta" : "ctrl"; }
+        if text == Key.Meta || text == Key.MetaR { return root.apple-keys ? "ctrl" : "meta"; }
+        if text == Key.Alt { return "alt"; }
+        if text == Key.AltGr { return "alt-gr"; }
+        if text == Key.CapsLock { return "caps-lock"; }
+        if text == Key.ScrollLock { return "scroll-lock"; }
+        if text == Key.Pause { return "pause"; }
+        if text == Key.SysReq { return "print-screen"; }
+        if text == Key.Menu { return "menu"; }
+        if text == Key.F1 { return "f1"; }
+        if text == Key.F2 { return "f2"; }
+        if text == Key.F3 { return "f3"; }
+        if text == Key.F4 { return "f4"; }
+        if text == Key.F5 { return "f5"; }
+        if text == Key.F6 { return "f6"; }
+        if text == Key.F7 { return "f7"; }
+        if text == Key.F8 { return "f8"; }
+        if text == Key.F9 { return "f9"; }
+        if text == Key.F10 { return "f10"; }
+        if text == Key.F11 { return "f11"; }
+        if text == Key.F12 { return "f12"; }
+        return text.to-lowercase();
+    }
+
+    pure function is-modifier(input: string) -> bool {
+        return input == "shift" || input == "ctrl" || input == "alt" || input == "alt-gr" || input == "meta";
+    }
+
+    // The one modifier held with a key, if any. Shift counts only with named
+    // keys and letters: it already chose a symbol such as "+".
+    pure function held-modifier(modifiers: KeyboardModifiers, input: string) -> string {
+        if modifiers.control && !root.is-modifier(input) { return root.apple-keys ? "meta" : "ctrl"; }
+        if modifiers.meta && !root.is-modifier(input) { return root.apple-keys ? "ctrl" : "meta"; }
+        if modifiers.alt && !root.is-modifier(input) { return "alt"; }
+        if modifiers.shift && !root.is-modifier(input)
+                && (input.character-count > 1 || input.to-uppercase() != input) {
+            return "shift";
+        }
+        return "";
+    }
+
+    function start-capture(row: int, slot: int, replaces: bool) {
+        root.capture-slot = slot;
+        root.capture-replaces = replaces;
+        root.capture-modifier = "";
+        root.capture-row = row;
+    }
+
+    function finish-capture(binding: InputBinding) {
+        root.binding-changed(root.capture-row, root.capture-slot, binding);
+        root.capture-row = -1;
+    }
+
+    function capture-key(modifiers: KeyboardModifiers, input: string) {
+        if root.held-modifier(modifiers, input) == "" {
+            root.finish-capture({ inputs: [input] });
+        } else {
+            root.finish-capture({ inputs: [root.held-modifier(modifiers, input), input], joiner: "+" });
+        }
+    }
+
+    // Where the table's binding column starts.
+    property <length> input-column: 380px;
+
+    // SC Controller's x360.svg is 446x345; its hidden AREA_* rectangles give
+    // the anchors below, in drawing units, scaled into the canvas.
+    property <float> scale: 1.2;
+    property <length> pad-x: (root.width - 446px * root.scale) / 2;
+    property <length> pad-y: 160px;
+    property <brush> ink: Palette.foreground.with-alpha(0.55);
+
+    pure function at-x(drawing-x: float) -> length {
+        return root.pad-x + drawing-x * 1px * root.scale;
+    }
+
+    pure function at-y(drawing-y: float) -> length {
+        return root.pad-y + drawing-y * 1px * root.scale;
+    }
+
+    // WC1 flight bindings (src/sdl/joystick.c). An empty string is unbound.
+    public pure function wc1-binding(control: PadControl) -> string {
+        if control == PadControl.left-stick {
+            if root.joystick-mode == 2 && (root.joystick-axes == 1 || root.joystick-axes == 2
+                    || root.joystick-axes == 5) {
+                return @tr("roll and pitch");
+            }
+            return @tr("pitch and yaw");
+        }
+        if control == PadControl.a { return @tr("fire guns"); }
+        if control == PadControl.back { return @tr("Escape (pause)"); }
+        if control == PadControl.start { return @tr("pause"); }
+        if root.joystick-mode == 0 {
+            if control == PadControl.b { return @tr("hold to roll and change speed"); }
+            return "";
+        }
+        if control == PadControl.b { return @tr("fire missile"); }
+        if control == PadControl.x { return @tr("afterburner"); }
+        if control == PadControl.y {
+            return root.joystick-mode == 1 ? @tr("hold to roll and change speed") : @tr("cycle targets");
+        }
+        if control == PadControl.left-shoulder { return @tr("cycle guns"); }
+        if control == PadControl.right-shoulder { return @tr("cycle missiles"); }
+        if control == PadControl.left-stick-click { return @tr("navigation display"); }
+        if control == PadControl.right-stick-click { return @tr("autopilot"); }
+        if control == PadControl.dpad-up { return @tr("full speed"); }
+        if control == PadControl.dpad-down { return @tr("stop"); }
+        if control == PadControl.dpad-left { return @tr("communications"); }
+        if control == PadControl.dpad-right { return @tr("lock target"); }
+        if control == PadControl.right-stick && root.joystick-mode == 2 {
+            if root.joystick-axes == 0 { return @tr("roll, speed"); }
+            if root.joystick-axes == 1 { return @tr("yaw, speed"); }
+            if root.joystick-axes == 2 { return @tr("yaw, throttle position"); }
+            if root.joystick-axes == 3 { return @tr("roll, throttle position"); }
+            if root.joystick-axes == 4 { return @tr("throttle position"); }
+            if root.joystick-axes == 5 { return @tr("yaw"); }
+            if root.joystick-axes == 6 { return @tr("roll"); }
+        }
+        return "";
+    }
+
+    public pure function notes() -> string {
+        if root.joystick-mode == 0 {
+            return @tr("Original joystick: A and B together fire a missile; double-click B and hold it for the afterburner.");
+        }
+        return @tr("In the communications display, the D-pad's up and down choose, right sends and left closes.");
+    }
+
+    Text {
+        x: 24px;
+        y: 14px;
+        text: root.page == 0 ? @tr("Game controller — Wing Commander") : @tr("Keyboard and mouse — Wing Commander");
+        font-size: 20px;
+        font-weight: 700;
+        color: Palette.foreground;
+    }
+
+    HorizontalLayout {
+        x: root.width - self.width - 16px;
+        y: 14px;
+        width: 420px;
+        height: 32px;
+        spacing: 6px;
+        alignment: end;
+
+        Button {
+            text: @tr("Game controller");
+            primary: root.page == 0;
+            clicked => {
+                root.page = 0;
+            }
+        }
+
+        Button {
+            text: @tr("Keyboard and mouse");
+            primary: root.page == 1;
+            clicked => {
+                root.page = 1;
+            }
+        }
+    }
+
+    if root.page == 0: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: 100%;
+        height: 100%;
+
+        HorizontalLayout {
+            x: 24px;
+            y: 50px;
+            width: root.width - 48px;
+            height: 32px;
+            spacing: 8px;
+            alignment: start;
+
+            Text {
+                text: @tr("Control mode");
+                vertical-alignment: center;
+                color: Palette.foreground;
+            }
+
+            ComboBox {
+                width: 300px;
+                model: root.mode-names;
+                current-index <=> root.joystick-mode;
+                selected => {
+                    root.layout-changed();
+                }
+            }
+
+            Rectangle {
+                width: 16px;
+            }
+
+            Text {
+                text: @tr("Axis layout");
+                vertical-alignment: center;
+                color: Palette.foreground;
+            }
+
+            ComboBox {
+                width: 210px;
+                enabled: root.joystick-mode == 2;
+                model: root.axis-names;
+                current-index <=> root.joystick-axes;
+                selected => {
+                    root.layout-changed();
+                }
+            }
+        }
+
+        Image {
+            x: root.pad-x;
+            y: root.pad-y;
+            width: 446px * root.scale;
+            height: 345px * root.scale;
+            source: @image-url("../../../third_party/sc-controller/images/controller-images/x360.svg");
+        }
+
+        // Face buttons and Back/Start sit on the drawing's AREA_* rectangles.
+        for glyph in [
+            { x: 319.0, y: 127.8, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/A.svg") },
+            { x: 349.0, y: 98.5, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/B.svg") },
+            { x: 289.9, y: 98.5, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/X.svg") },
+            { x: 319.0, y: 69.4, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/Y.svg") },
+            { x: 172.9, y: 103.6, w: 27.9, h: 23.9, image: @image-url("../../../third_party/sc-controller/images/button-images/BACK.svg") },
+            { x: 243.1, y: 103.6, w: 27.9, h: 23.9, image: @image-url("../../../third_party/sc-controller/images/button-images/START.svg") }
+        ]: Image {
+            x: root.at-x(glyph.x);
+            y: root.at-y(glyph.y);
+            width: glyph.w * 1px * root.scale;
+            height: glyph.h * 1px * root.scale;
+            source: glyph.image;
+            image-fit: contain;
+        }
+
+        // Connectors first, so the boxes cover their starting ends.
+        Connector { from-x: lt.x + lt.width; from-y: lt.line-y; to-x: root.at-x(97.9); to-y: root.at-y(35); ink: root.ink; }
+        Connector { from-x: lb.x + lb.width; from-y: lb.line-y; to-x: root.at-x(75); to-y: root.at-y(52); ink: root.ink; }
+        Connector { from-x: ls.x + ls.width; from-y: ls.line-y; to-x: root.at-x(84.6); to-y: root.at-y(111.3); ink: root.ink; }
+        Connector { from-x: dp.x + dp.width; from-y: dp.line-y; to-x: root.at-x(140); to-y: root.at-y(180); ink: root.ink; }
+        Connector { from-x: rt.x; from-y: rt.line-y; to-x: root.at-x(346.7); to-y: root.at-y(35); ink: root.ink; }
+        Connector { from-x: rb.x; from-y: rb.line-y; to-x: root.at-x(370); to-y: root.at-y(52); ink: root.ink; }
+        Connector { from-x: fb.x; from-y: fb.line-y; to-x: root.at-x(374); to-y: root.at-y(111); ink: root.ink; }
+        Connector { from-x: rs.x; from-y: rs.line-y; to-x: root.at-x(309.7); to-y: root.at-y(180); ink: root.ink; }
+        Connector { from-x: root.at-x(186.8); from-y: bk.y + bk.height; to-x: root.at-x(186.8); to-y: root.at-y(115.5); ink: root.ink; }
+        Connector { from-x: root.at-x(257.0); from-y: st.y + st.height; to-x: root.at-x(257.0); to-y: root.at-y(115.5); ink: root.ink; }
+
+        lt := BindingBox {
+            x: 16px;
+            y: root.pad-y + 8px - self.height / 2;
+            title: "LT";
+            rows: [{ control: PadControl.left-trigger, glyph: @image-url("../../../third_party/sc-controller/images/button-images/LT.svg") }];
+            binding(c) => { return root.wc1-binding(c); }
+        }
+
+        lb := BindingBox {
+            x: 16px;
+            y: root.pad-y + 74px - self.height / 2;
+            title: "LB";
+            rows: [{ control: PadControl.left-shoulder, glyph: @image-url("../../../third_party/sc-controller/images/button-images/LB.svg") }];
+            binding(c) => { return root.wc1-binding(c); }
+        }
+
+        ls := BindingBox {
+            x: 16px;
+            y: root.pad-y + 168px - self.height / 2;
+            title: @tr("Left stick");
+            rows: [
+                { control: PadControl.left-stick, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("move") },
+                { control: PadControl.left-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
+            ];
+            binding(c) => { return root.wc1-binding(c); }
+        }
+
+        dp := BindingBox {
+            x: 16px;
+            y: root.pad-y + 308px - self.height / 2;
+            title: @tr("D-pad");
+            rows: [
+                { control: PadControl.dpad-up, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_UP.svg") },
+                { control: PadControl.dpad-down, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_DOWN.svg") },
+                { control: PadControl.dpad-left, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_LEFT.svg") },
+                { control: PadControl.dpad-right, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_RIGHT.svg") }
+            ];
+            binding(c) => { return root.wc1-binding(c); }
+        }
+
+        rt := BindingBox {
+            x: root.width - 16px - self.width;
+            y: root.pad-y + 8px - self.height / 2;
+            title: "RT";
+            rows: [{ control: PadControl.right-trigger, glyph: @image-url("../../../third_party/sc-controller/images/button-images/RT.svg") }];
+            binding(c) => { return root.wc1-binding(c); }
+        }
+
+        rb := BindingBox {
+            x: root.width - 16px - self.width;
+            y: root.pad-y + 74px - self.height / 2;
+            title: "RB";
+            rows: [{ control: PadControl.right-shoulder, glyph: @image-url("../../../third_party/sc-controller/images/button-images/RB.svg") }];
+            binding(c) => { return root.wc1-binding(c); }
+        }
+
+        fb := BindingBox {
+            x: root.width - 16px - self.width;
+            y: root.pad-y + 198px - self.height / 2;
+            title: @tr("Buttons");
+            line-y: root.at-y(111);
+            rows: [
+                { control: PadControl.y, glyph: @image-url("../../../third_party/sc-controller/images/button-images/Y.svg") },
+                { control: PadControl.x, glyph: @image-url("../../../third_party/sc-controller/images/button-images/X.svg") },
+                { control: PadControl.b, glyph: @image-url("../../../third_party/sc-controller/images/button-images/B.svg") },
+                { control: PadControl.a, glyph: @image-url("../../../third_party/sc-controller/images/button-images/A.svg") }
+            ];
+            binding(c) => { return root.wc1-binding(c); }
+        }
+
+        rs := BindingBox {
+            x: root.width - 16px - self.width;
+            y: root.pad-y + 338px - self.height / 2;
+            title: @tr("Right stick");
+            rows: [
+                { control: PadControl.right-stick, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("move") },
+                { control: PadControl.right-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
+            ];
+            binding(c) => { return root.wc1-binding(c); }
+        }
+
+        bk := BindingBox {
+            x: root.at-x(186.8) - self.width + 30px;
+            y: root.pad-y - 60px;
+            title: "Back";
+            rows: [{ control: PadControl.back, glyph: @image-url("../../../third_party/sc-controller/images/button-images/BACK.svg") }];
+            binding(c) => { return root.wc1-binding(c); }
+        }
+
+        st := BindingBox {
+            x: root.at-x(257.0) - 30px;
+            y: root.pad-y - 60px;
+            title: "Start";
+            rows: [{ control: PadControl.start, glyph: @image-url("../../../third_party/sc-controller/images/button-images/START.svg") }];
+            binding(c) => { return root.wc1-binding(c); }
+        }
+
+        Text {
+            x: 24px;
+            y: root.height - 76px;
+            width: root.width - 48px;
+            text: root.notes() + " " + @tr("Y answers Yes in prompts. Game controllers leave LT and RT unused.");
+            wrap: word-wrap;
+            font-size: 13px;
+            color: Palette.foreground;
+            opacity: 0.75;
+        }
+    }
+
+    // The keyboard and mouse table: game inputs on the left, the keys and
+    // mouse actions bound to them on the right.
+    if root.page == 1: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: 100%;
+        height: 100%;
+
+        Text {
+            x: 24px;
+            y: 42px;
+            text: @tr("In flight. Click a key to change it, or + to add one (two at most); changes apply when the game starts.");
+            font-size: 13px;
+            color: Palette.foreground;
+            opacity: 0.7;
+        }
+
+        Rectangle {
+            x: 16px;
+            y: 72px;
+            width: root.width - 32px;
+            height: root.height - 72px - 64px;
+            background: Palette.alternate-background;
+            border-color: Palette.border;
+            border-width: 1px;
+            border-radius: 6px;
+            clip: true;
+
+            Text {
+                x: 14px;
+                y: 0px;
+                height: 32px;
+                vertical-alignment: center;
+                text: @tr("Game input");
+                font-size: 12px;
+                font-weight: 700;
+                color: Palette.alternate-foreground;
+                opacity: 0.7;
+            }
+
+            Text {
+                x: root.input-column;
+                y: 0px;
+                height: 32px;
+                vertical-alignment: center;
+                text: @tr("Key or mouse");
+                font-size: 12px;
+                font-weight: 700;
+                color: Palette.alternate-foreground;
+                opacity: 0.7;
+            }
+
+            Rectangle {
+                x: 0px;
+                y: 32px;
+                width: 100%;
+                height: 1px;
+                background: Palette.border;
+            }
+
+            ListView {
+                x: 0px;
+                y: 33px;
+                width: 100%;
+                height: parent.height - 34px;
+
+                for row[index] in root.keyboard-rows: line := Rectangle {
+                    // The row's current bindings, or its original ones before
+                    // the launcher supplies a copy.
+                    property <[InputBinding]> current: root.keyboard-bindings.length > index
+                        ? root.keyboard-bindings[index] : row.bindings;
+
+                    height: 40px;
+                    background: row.section != "" ? Palette.background : transparent;
+
+                    if row.section != "": Text {
+                        x: 14px;
+                        y: 0px;
+                        height: 40px;
+                        vertical-alignment: center;
+                        text: row.section;
+                        font-size: 13px;
+                        font-weight: 700;
+                        color: Palette.foreground;
+                    }
+
+                    if row.section == "": HorizontalLayout {
+                        x: 14px;
+                        y: 0px;
+                        width: root.input-column - 28px;
+                        height: 40px;
+                        spacing: 8px;
+                        alignment: start;
+
+                        Text {
+                            vertical-alignment: center;
+                            text: row.action;
+                            font-size: 13px;
+                            color: Palette.alternate-foreground;
+                            overflow: elide;
+                        }
+
+                        if row.hint != "": Text {
+                            vertical-alignment: center;
+                            text: row.hint;
+                            font-size: 12px;
+                            color: Palette.alternate-foreground;
+                            opacity: 0.6;
+                        }
+                    }
+
+                    if row.section == "": HorizontalLayout {
+                        x: root.input-column;
+                        y: 5px;
+                        width: parent.width - root.input-column - 14px;
+                        height: 30px;
+                        spacing: 7px;
+                        alignment: start;
+
+                        for binding[slot] in line.current: HorizontalLayout {
+                            spacing: 7px;
+
+                            if slot > 0: Text {
+                                text: "/";
+                                vertical-alignment: center;
+                                font-size: 13px;
+                                color: Palette.alternate-foreground;
+                                opacity: 0.6;
+                            }
+
+                            // Clicking a binding changes it.
+                            Rectangle {
+                                border-radius: 6px;
+                                border-width: choose.has-hover ? 1px : 0px;
+                                border-color: Palette.accent-background;
+                                background: choose.has-hover ? Palette.accent-background.with-alpha(0.12) : transparent;
+
+                                HorizontalLayout {
+                                    padding: 2px;
+                                    spacing: 5px;
+
+                                    for input[part] in binding.inputs: HorizontalLayout {
+                                        spacing: 5px;
+
+                                        if part > 0 && binding.joiner != "": Text {
+                                            text: binding.joiner;
+                                            vertical-alignment: center;
+                                            font-size: 13px;
+                                            color: Palette.alternate-foreground;
+                                        }
+
+                                        KeyCap {
+                                            label: root.input-label(input);
+                                            mouse: root.is-mouse(input);
+                                        }
+                                    }
+
+                                    if binding.hint != "": Text {
+                                        text: binding.hint;
+                                        vertical-alignment: center;
+                                        font-size: 12px;
+                                        color: Palette.alternate-foreground;
+                                        opacity: 0.7;
+                                    }
+                                }
+
+                                choose := TouchArea {
+                                    enabled: !row.fixed && !binding.fixed;
+                                    mouse-cursor: self.enabled ? MouseCursor.pointer : MouseCursor.default;
+                                    clicked => {
+                                        root.start-capture(index, slot, true);
+                                    }
+                                }
+                            }
+                        }
+
+                        if line.current.length == 0: Text {
+                            text: "—";
+                            vertical-alignment: center;
+                            color: Palette.alternate-foreground;
+                            opacity: 0.45;
+                        }
+
+                        // Adds another binding, up to max-bindings.
+                        if !row.fixed && line.current.length < root.max-bindings: Rectangle {
+                            width: 26px;
+                            height: 26px;
+                            border-radius: 13px;
+                            border-width: 1px;
+                            border-color: add.has-hover ? Palette.accent-background : Palette.border;
+                            background: add.has-hover ? Palette.accent-background.with-alpha(0.12) : transparent;
+
+                            Text {
+                                text: "+";
+                                vertical-alignment: center;
+                                horizontal-alignment: center;
+                                font-size: 14px;
+                                color: Palette.alternate-foreground;
+                            }
+
+                            add := TouchArea {
+                                mouse-cursor: MouseCursor.pointer;
+                                clicked => {
+                                    root.start-capture(index, line.current.length, false);
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        y: parent.height - 1px;
+                        width: 100%;
+                        height: 1px;
+                        background: Palette.border;
+                        opacity: 0.6;
+                    }
+                }
+            }
+        }
+
+        Text {
+            x: 24px;
+            y: root.height - 56px;
+            width: root.width - 48px - 170px;
+            text: @tr("The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, 5 stops turning, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Mouse inputs and Escape cannot be changed.");
+            wrap: word-wrap;
+            font-size: 13px;
+            color: Palette.foreground;
+            opacity: 0.75;
+        }
+
+        Button {
+            x: root.width - 16px - self.width;
+            y: root.height - 56px;
+            text: @tr("Restore defaults");
+            clicked => {
+                root.bindings-reset();
+            }
+        }
+
+        // Captures the next key, with at most one modifier, for the binding
+        // being changed. Escape or a click outside the box cancels.
+        if root.capture-row >= 0: Rectangle {
+            x: 0px;
+            y: 0px;
+            width: 100%;
+            height: 100%;
+            background: #00000060;
+
+            TouchArea {
+                clicked => {
+                    root.capture-row = -1;
+                }
+            }
+
+            capture := FocusScope {
+                x: (parent.width - 480px) / 2;
+                y: (parent.height - 230px) / 2;
+                width: 480px;
+                height: 230px;
+                init => {
+                    self.focus();
+                }
+
+                key-pressed(event) => {
+                    if event.text == Key.Escape {
+                        root.capture-row = -1;
+                        return accept;
+                    }
+                    if root.is-modifier(root.key-input(event.text)) {
+                        root.capture-modifier = root.key-input(event.text);
+                        return accept;
+                    }
+                    root.capture-key(event.modifiers, root.key-input(event.text));
+                    accept
+                }
+
+                key-released(event) => {
+                    if root.capture-modifier != "" && root.key-input(event.text) == root.capture-modifier {
+                        root.finish-capture({ inputs: [root.capture-modifier] });
+                    }
+                    accept
+                }
+
+                Rectangle {
+                    background: Palette.background;
+                    border-color: Palette.border;
+                    border-width: 1px;
+                    border-radius: 8px;
+
+                    // Swallow clicks on the panel so they do not cancel.
+                    TouchArea { }
+
+                    Text {
+                        x: 20px;
+                        y: 16px;
+                        text: @tr("Change binding");
+                        font-size: 16px;
+                        font-weight: 700;
+                        color: Palette.foreground;
+                    }
+
+                    Text {
+                        x: 20px;
+                        y: 42px;
+                        width: parent.width - 40px;
+                        text: root.keyboard-rows[root.capture-row].action;
+                        font-size: 13px;
+                        color: Palette.foreground;
+                        opacity: 0.75;
+                        overflow: elide;
+                    }
+
+                    Rectangle {
+                        x: 20px;
+                        y: 70px;
+                        width: parent.width - 40px;
+                        height: 90px;
+                        border-radius: 6px;
+                        border-width: 1px;
+                        border-color: Palette.accent-background;
+                        background: Palette.accent-background.with-alpha(0.08);
+
+                        Text {
+                            width: parent.width - 24px;
+                            text: @tr("Press a key, or a modifier and a key. Esc cancels.");
+                            wrap: word-wrap;
+                            horizontal-alignment: center;
+                            vertical-alignment: center;
+                            font-size: 13px;
+                            color: Palette.foreground;
+                        }
+                    }
+
+                    HorizontalLayout {
+                        x: 20px;
+                        y: parent.height - 52px;
+                        width: parent.width - 40px;
+                        height: 32px;
+                        spacing: 8px;
+                        alignment: end;
+
+                        if root.capture-replaces: Button {
+                            text: @tr("Remove");
+                            clicked => {
+                                root.binding-removed(root.capture-row, root.capture-slot);
+                                root.capture-row = -1;
+                            }
+                        }
+
+                        Button {
+                            text: @tr("Cancel");
+                            clicked => {
+                                root.capture-row = -1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

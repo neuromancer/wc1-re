@@ -206,6 +206,7 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     }
     SdlSetJoystickMode(g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
+    SdlSetKeyBindings(options->keyBindings);
     SdlConfigureAutosave(options->autosave);
     if (*options->voiceCatalog && !options->swcDemo && !SdlLoadVoiceCatalog(options->voiceCatalog)) {
         fprintf(stderr, "Cannot load voices: %s\n", SDL_GetError());

@@ -807,6 +807,12 @@ void SdlApplyJoystickFlightControls(void)
     }
 }
 
+int SdlSpaceflightInputActive(void)
+{
+    return g_bSdlJoystickSpaceflightActive &&
+        pCurrentEventManagerPump == get_player_input && !SdlSwcFlightActive();
+}
+
 void SdlEndJoystickSpaceflight(void)
 {
     g_bSdlJoystickSpaceflightActive = 0;

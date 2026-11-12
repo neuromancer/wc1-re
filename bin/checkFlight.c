@@ -342,6 +342,8 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     const char *campaignName = getenv("WC1_FLIGHT_CAMPAIGN");
     const char *ticks = getenv("WC1_FLIGHT_TICKS");
     const char *seeds = getenv("WC1_FLIGHT_SEEDS");
+    /* Changed flight keys, as the launcher passes them (src/sdl/keymap.c). */
+    const char *keyBindings = getenv("WC1_FLIGHT_KEYS");
     const int seriesCounts[] = {13, 8, 9};
     int campaign, series, mission, legs, cases = 0;
     int list = getenv("WC1_FLIGHT_LIST") != NULL;
@@ -351,6 +353,8 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     Require(atexit(CheckFuzzExit) == 0, "register early-exit check");
     inputActive = 1;
     traceInputs = getenv("WC1_FLIGHT_TRACE") != NULL;
+    if (keyBindings != NULL)
+        SdlSetKeyBindings(keyBindings);
     Require(scratch != NULL, "use runGameTests.py --fuzz to prepare disposable data");
     if (campaignName)
         campaignFilter = atoi(campaignName);
@@ -553,8 +557,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     }
     if (traceInputs)
         fprintf(stderr, "TRACE campaign %d series %d mission %d: nav %d -> %d (%d legs asked) "
-                "-> %d, %d ticks, arcade state %d\n", campaign, series, mission, startLeg,
-                reachedLeg, simulator ? 0 : data[3] & 15, cCurrentNavPtIdx, tick, nArcadeState);
+                "-> %d, %d ticks, arcade state %d, speed %d at %d %d %d\n", campaign, series,
+                mission, startLeg, reachedLeg, simulator ? 0 : data[3] & 15, cCurrentNavPtIdx,
+                tick, nArcadeState, anShipSpeed[0], aShipPositionsArray[0].x,
+                aShipPositionsArray[0].y, aShipPositionsArray[0].z);
     ReleaseFlightControls();
     SdlPumpEvents();
     FlushInputEvents();

@@ -143,6 +143,7 @@ int SdlGetAsyncKeyState(int virtualKey)
         SDL_PumpEvents();
         keys = SDL_GetKeyboardState(0);
     }
+    keys = SdlKeymapKeyboardState(keys);
     switch (virtualKey) {
     case VK_SHIFT:
         return (keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT])

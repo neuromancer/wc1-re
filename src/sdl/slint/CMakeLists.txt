@@ -64,6 +64,9 @@ set_target_properties(wc1-slint-gui PROPERTIES
     SLINT_BUNDLE_TRANSLATIONS "${CMAKE_CURRENT_SOURCE_DIR}/../../../translations"
     SLINT_TRANSLATION_DOMAIN launcher
 )
+# Embed images such as the controls window's SC Controller artwork; Slint's
+# C++ default would load them from the source tree at run time.
+set_property(TARGET wc1-slint-gui PROPERTY SLINT_EMBED_RESOURCES embed-files)
 slint_target_sources(wc1-slint-gui launcher.slint)
 
 add_executable(wc1-launcher-check EXCLUDE_FROM_ALL ../../../bin/checkLauncher.cpp)

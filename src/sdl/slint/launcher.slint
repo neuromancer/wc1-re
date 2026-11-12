@@ -7,6 +7,8 @@ import {
     VerticalBox
 } from "std-widgets.slint";
 
+export { ControlsWindow, PadControl } from "controls.slint";
+
 export enum LauncherMessage {
     choose-directory, path-too-long, not-directory, missing-swc-file,
     invalid-swc-archive, missing-swc-resources, choose-data-directory,
@@ -54,6 +56,9 @@ export component LauncherWindow inherits Window {
     out property <string> voice-label: @tr("Sega CD voices");
     out property <string> installation-prompt: root.has-installations
         ? @tr("Select game data…") : @tr("No game data found — add a path");
+    // The controller bindings window covers WC1's DOS and Kilrathi Saga data.
+    out property <bool> controls-available: root.path-valid
+        && (root.status == LauncherMessage.dos || root.status == LauncherMessage.kilrathi-saga);
 
     public pure function edition-text(edition: LauncherMessage) -> string {
         if edition == LauncherMessage.fm-towns { return "FM Towns"; }
@@ -90,6 +95,16 @@ export component LauncherWindow inherits Window {
     callback launch-requested(int, bool);
     callback credits-requested();
     callback cancel-requested();
+    callback controls-requested();
+    // The selectors the controls window follows while it is open.
+    callback controls-layout-changed();
+
+    changed joystick-mode-index => {
+        root.controls-layout-changed();
+    }
+    changed joystick-axes-index => {
+        root.controls-layout-changed();
+    }
 
     VerticalBox {
         padding: 18px;
@@ -305,12 +320,26 @@ export component LauncherWindow inherits Window {
                     }
                 }
 
-                CheckBox {
+                HorizontalLayout {
                     row: 2;
                     col: 1;
-                    height: 26px;
-                    text: @tr("Rumble");
-                    checked <=> root.joystick-rumble;
+                    spacing: 8px;
+
+                    CheckBox {
+                        height: 26px;
+                        text: @tr("Rumble");
+                        checked <=> root.joystick-rumble;
+                    }
+
+                    Rectangle { horizontal-stretch: 1; }
+
+                    Button {
+                        text: @tr("Show controls…");
+                        enabled: root.controls-available;
+                        clicked => {
+                            root.controls-requested();
+                        }
+                    }
                 }
             }
         }

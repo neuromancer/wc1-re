@@ -291,6 +291,18 @@ void SdlQueueJoystickDamageRumble(int damage);
 void SdlQueueJoystickCollisionRumble(int collisionSpeed);
 void SdlApplyJoystickFlightControls(void);
 void SdlEndJoystickSpaceflight(void);
+/* WC1 is flying and reading its flight controls (not a menu or the map). */
+int SdlSpaceflightInputActive(void);
+/* Keyboard rebinding (keymap.c): the launcher's changed bindings, one
+ * "action=bindings" line each. */
+void SdlSetKeyBindings(const char *bindings);
+void SdlKeymapInvalidate(void);
+/* The key the game should see for a key event; SDL_SCANCODE_UNKNOWN drops it. */
+SDL_Scancode SdlKeymapTranslateKey(SDL_Scancode key, Uint16 modifiers, int pressed);
+/* The keys the game should see held, given the keys that are. */
+const Uint8 *SdlKeymapKeyboardState(const Uint8 *keys);
+/* 1 or 0 when the full-screen keys were changed, -1 when they were not. */
+int SdlKeymapFullscreenShortcut(SDL_Scancode key, Uint16 modifiers);
 void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
                                       int button, int pressed,
                                       int controllerEvent);

@@ -147,7 +147,8 @@ MODERN_GUI_SOURCE_DIR = src/sdl/slint
 MODERN_GUI_BUILD_DIR = $(MODERN_OUT_DIR)/slint-gui
 MODERN_GUI_BUILD_TYPE ?= Release
 MODERN_GUI_CMAKE_ARGS ?=
-MODERN_GUI_SRCS = $(wildcard $(MODERN_GUI_SOURCE_DIR)/* translations/*/LC_MESSAGES/*.po)
+MODERN_GUI_SRCS = $(wildcard $(MODERN_GUI_SOURCE_DIR)/* translations/*/LC_MESSAGES/*.po \
+	third_party/sc-controller/images/*.svg third_party/sc-controller/images/*/*.svg)
 MODERN_EMPTY :=
 MODERN_SPACE := $(MODERN_EMPTY) $(MODERN_EMPTY)
 MODERN_RUN_DIR ?= data/full
@@ -567,6 +568,7 @@ MODERN_GAME_HOST_SRCS = \
 	src/sdl/events.c \
 	src/sdl/gl_renderer.c \
 	src/sdl/joystick.c \
+	src/sdl/keymap.c \
 	src/sdl/music.c \
 	src/sdl/video.c
 MODERN_GAME_HOST_CXX_SRCS = \
@@ -1509,3 +1511,12 @@ $(MODERN_OUT_DIR)/towns-input-probe: $(MODERN_OUT_DIR)/obj/towns_input_probe.o \
 .PHONY: check-towns-input
 check-towns-input: $(MODERN_OUT_DIR)/towns-input-probe
 	$(MODERN_OUT_DIR)/towns-input-probe
+
+$(MODERN_OUT_DIR)/keymap-probe: bin/checkKeymap.c src/sdl/keymap.c src/sdl/keymap_actions.h include/wc1sdl.h | modern-check-sdl
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		bin/checkKeymap.c src/sdl/keymap.c $(MODERN_SDL_LIBS) -o $@
+
+.PHONY: check-keymap
+check-keymap: $(MODERN_OUT_DIR)/keymap-probe
+	SDL_VIDEODRIVER=dummy $(MODERN_OUT_DIR)/keymap-probe

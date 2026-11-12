@@ -303,3 +303,718 @@ msgstr "Transferir piloto a SM1…"
 msgctxt "LauncherWindow"
 msgid "Transfer pilot to SM2…"
 msgstr "Transferir piloto a SM2…"
+
+#: src/sdl/slint/launcher.slint:337
+msgctxt "LauncherWindow"
+msgid "Show controls…"
+msgstr "Ver controles…"
+
+#: src/sdl/slint/controls.slint:174
+msgctxt "ControlsWindow"
+msgid "Wing Commander controls"
+msgstr "Controles de Wing Commander"
+
+#: src/sdl/slint/controls.slint:188
+msgctxt "ControlsWindow"
+msgid "Original — two axes / two buttons"
+msgstr "Original — 2 ejes / 2 botones"
+
+#: src/sdl/slint/controls.slint:189
+msgctxt "ControlsWindow"
+msgid "WCAT — four buttons / two axes"
+msgstr "WCAT — 4 botones / 2 ejes"
+
+#: src/sdl/slint/controls.slint:190
+msgctxt "ControlsWindow"
+msgid "WCAT — four buttons / four axes"
+msgstr "WCAT — 4 botones / 4 ejes"
+
+#: src/sdl/slint/controls.slint:193
+msgctxt "ControlsWindow"
+msgid "Twin-stick roll"
+msgstr "Doble palanca: alabeo"
+
+#: src/sdl/slint/controls.slint:194
+msgctxt "ControlsWindow"
+msgid "Twin-stick yaw"
+msgstr "Doble palanca: guiñada"
+
+#: src/sdl/slint/controls.slint:195
+msgctxt "ControlsWindow"
+msgid "HOTAS yaw"
+msgstr "HOTAS: guiñada"
+
+#: src/sdl/slint/controls.slint:196
+msgctxt "ControlsWindow"
+msgid "HOTAS roll"
+msgstr "HOTAS: alabeo"
+
+#: src/sdl/slint/controls.slint:197
+msgctxt "ControlsWindow"
+msgid "Linear throttle"
+msgstr "Acelerador lineal"
+
+#: src/sdl/slint/controls.slint:198
+msgctxt "ControlsWindow"
+msgid "Rudder yaw"
+msgstr "Timón: guiñada"
+
+#: src/sdl/slint/controls.slint:199
+msgctxt "ControlsWindow"
+msgid "Rudder roll"
+msgstr "Timón: alabeo"
+
+#: src/sdl/slint/controls.slint:211
+msgctxt "ControlsWindow"
+msgid "Flight"
+msgstr "Vuelo"
+
+#: src/sdl/slint/controls.slint:212
+msgctxt "ControlsWindow"
+msgid "Pitch down"
+msgstr "Cabeceo abajo"
+
+#: src/sdl/slint/controls.slint:213
+msgctxt "ControlsWindow"
+msgid "Pitch up"
+msgstr "Cabeceo arriba"
+
+#: src/sdl/slint/controls.slint:214
+msgctxt "ControlsWindow"
+msgid "Yaw left"
+msgstr "Guiñada a la izquierda"
+
+#: src/sdl/slint/controls.slint:215
+msgctxt "ControlsWindow"
+msgid "Yaw right"
+msgstr "Guiñada a la derecha"
+
+#: src/sdl/slint/controls.slint:216
+msgctxt "ControlsWindow"
+msgid "Pitch down and yaw left"
+msgstr "Cabeceo abajo y guiñada a la izquierda"
+
+#: src/sdl/slint/controls.slint:217
+msgctxt "ControlsWindow"
+msgid "Pitch down and yaw right"
+msgstr "Cabeceo abajo y guiñada a la derecha"
+
+#: src/sdl/slint/controls.slint:218
+msgctxt "ControlsWindow"
+msgid "Pitch up and yaw left"
+msgstr "Cabeceo arriba y guiñada a la izquierda"
+
+#: src/sdl/slint/controls.slint:219
+msgctxt "ControlsWindow"
+msgid "Pitch up and yaw right"
+msgstr "Cabeceo arriba y guiñada a la derecha"
+
+#: src/sdl/slint/controls.slint:220
+msgctxt "ControlsWindow"
+msgid "Pitch and yaw"
+msgstr "Cabeceo y guiñada"
+
+#: src/sdl/slint/controls.slint:221
+msgctxt "ControlsWindow"
+msgid "Roll left"
+msgstr "Alabeo a la izquierda"
+
+#: src/sdl/slint/controls.slint:222
+msgctxt "ControlsWindow"
+msgid "Roll right"
+msgstr "Alabeo a la derecha"
+
+#: src/sdl/slint/controls.slint:223
+msgctxt "ControlsWindow"
+msgid "Roll and change speed"
+msgstr "Alabeo y cambio de velocidad"
+
+#: src/sdl/slint/controls.slint:223
+msgctxt "ControlsWindow"
+msgid "hold and move"
+msgstr "mantener y mover"
+
+#: src/sdl/slint/controls.slint:226
+msgctxt "ControlsWindow"
+msgid "Full turn rate"
+msgstr "Giro máximo"
+
+#: src/sdl/slint/controls.slint:226
+msgctxt "ControlsWindow"
+msgid "hold with a turn key"
+msgstr "mantener con una tecla de giro"
+
+#: src/sdl/slint/controls.slint:227
+msgctxt "ControlsWindow"
+msgid "Speed up"
+msgstr "Acelerar"
+
+#: src/sdl/slint/controls.slint:228
+msgctxt "ControlsWindow"
+msgid "Slow down"
+msgstr "Frenar"
+
+#: src/sdl/slint/controls.slint:229
+msgctxt "ControlsWindow"
+msgid "Full speed"
+msgstr "Velocidad máxima"
+
+#: src/sdl/slint/controls.slint:230
+msgctxt "ControlsWindow"
+msgid "Stop"
+msgstr "Parar"
+
+#: src/sdl/slint/controls.slint:231
+msgctxt "ControlsWindow"
+msgid "Afterburner"
+msgstr "Postquemador"
+
+#: src/sdl/slint/controls.slint:231
+msgctxt "ControlsWindow"
+msgid "hold"
+msgstr "mantener"
+
+#: src/sdl/slint/controls.slint:233
+msgctxt "ControlsWindow"
+msgid "double-click"
+msgstr "doble clic"
+
+#: src/sdl/slint/controls.slint:235
+msgctxt "ControlsWindow"
+msgid "Weapons"
+msgstr "Armas"
+
+#: src/sdl/slint/controls.slint:236
+msgctxt "ControlsWindow"
+msgid "Fire guns"
+msgstr "Disparar cañones"
+
+#: src/sdl/slint/controls.slint:237
+msgctxt "ControlsWindow"
+msgid "Fire missile or drop mine"
+msgstr "Lanzar misil o soltar mina"
+
+#: src/sdl/slint/controls.slint:241
+msgctxt "ControlsWindow"
+msgid "Weapons display, next gun"
+msgstr "Pantalla de armas, siguiente cañón"
+
+#: src/sdl/slint/controls.slint:242
+msgctxt "ControlsWindow"
+msgid "Weapons display, next missile"
+msgstr "Pantalla de armas, siguiente misil"
+
+#: src/sdl/slint/controls.slint:243
+msgctxt "ControlsWindow"
+msgid "Cockpit"
+msgstr "Cabina"
+
+#: src/sdl/slint/controls.slint:244
+msgctxt "ControlsWindow"
+msgid "Target display, next target"
+msgstr "Pantalla de objetivo, siguiente objetivo"
+
+#: src/sdl/slint/controls.slint:245
+msgctxt "ControlsWindow"
+msgid "Lock target"
+msgstr "Fijar objetivo"
+
+#: src/sdl/slint/controls.slint:246
+msgctxt "ControlsWindow"
+msgid "Damage display"
+msgstr "Pantalla de daños"
+
+#: src/sdl/slint/controls.slint:247
+msgctxt "ControlsWindow"
+msgid "Navigation display, then map"
+msgstr "Pantalla de navegación, luego mapa"
+
+#: src/sdl/slint/controls.slint:248
+msgctxt "ControlsWindow"
+msgid "Autopilot"
+msgstr "Piloto automático"
+
+#: src/sdl/slint/controls.slint:249
+msgctxt "ControlsWindow"
+msgid "Eject"
+msgstr "Eyectarse"
+
+#: src/sdl/slint/controls.slint:250
+msgctxt "ControlsWindow"
+msgid "Wingman"
+msgstr "Compañero"
+
+#: src/sdl/slint/controls.slint:251
+msgctxt "ControlsWindow"
+msgid "Communications"
+msgstr "Comunicaciones"
+
+#: src/sdl/slint/controls.slint:252
+msgctxt "ControlsWindow"
+msgid "Choose a message"
+msgstr "Elegir mensaje"
+
+#: src/sdl/slint/controls.slint:253
+msgctxt "ControlsWindow"
+msgid "Break and attack"
+msgstr "Romper y atacar"
+
+#: src/sdl/slint/controls.slint:254
+msgctxt "ControlsWindow"
+msgid "Form on my wing"
+msgstr "Formar en mi ala"
+
+#: src/sdl/slint/controls.slint:255
+msgctxt "ControlsWindow"
+msgid "Views"
+msgstr "Vistas"
+
+#: src/sdl/slint/controls.slint:256
+msgctxt "ControlsWindow"
+msgid "Front view; again: cockpit on/off"
+msgstr "Vista frontal; otra vez: con/sin cabina"
+
+#: src/sdl/slint/controls.slint:257
+msgctxt "ControlsWindow"
+msgid "Left view"
+msgstr "Vista izquierda"
+
+#: src/sdl/slint/controls.slint:258
+msgctxt "ControlsWindow"
+msgid "Right view"
+msgstr "Vista derecha"
+
+#: src/sdl/slint/controls.slint:259
+msgctxt "ControlsWindow"
+msgid "Rear view"
+msgstr "Vista trasera"
+
+#: src/sdl/slint/controls.slint:260
+msgctxt "ControlsWindow"
+msgid "Chase view"
+msgstr "Vista de persecución"
+
+#: src/sdl/slint/controls.slint:261
+msgctxt "ControlsWindow"
+msgid "Battle view"
+msgstr "Vista de batalla"
+
+#: src/sdl/slint/controls.slint:262
+msgctxt "ControlsWindow"
+msgid "Tactical view, with a target"
+msgstr "Vista táctica, con objetivo"
+
+#: src/sdl/slint/controls.slint:263
+msgctxt "ControlsWindow"
+msgid "Missile camera on/off"
+msgstr "Activar/desactivar cámara de misil"
+
+#: src/sdl/slint/controls.slint:264
+msgctxt "ControlsWindow"
+msgid "Other ships"
+msgstr "Otras naves"
+
+#: src/sdl/slint/controls.slint:265
+msgctxt "ControlsWindow"
+msgid "Game"
+msgstr "Juego"
+
+#: src/sdl/slint/controls.slint:266 src/sdl/slint/controls.slint:316
+msgctxt "ControlsWindow"
+msgid "Pause"
+msgstr "Pausa"
+
+#: src/sdl/slint/controls.slint:267
+msgctxt "ControlsWindow"
+msgid "Message speed"
+msgstr "Velocidad de mensajes"
+
+#: src/sdl/slint/controls.slint:268
+msgctxt "ControlsWindow"
+msgid "Comm videos on/off"
+msgstr "Activar/desactivar vídeos de comunicación"
+
+#: src/sdl/slint/controls.slint:269
+msgctxt "ControlsWindow"
+msgid "Music on/off"
+msgstr "Activar/desactivar música"
+
+#: src/sdl/slint/controls.slint:270
+msgctxt "ControlsWindow"
+msgid "Sound on/off"
+msgstr "Activar/desactivar sonido"
+
+#: src/sdl/slint/controls.slint:271
+msgctxt "ControlsWindow"
+msgid "Full screen"
+msgstr "Pantalla completa"
+
+#: src/sdl/slint/controls.slint:298
+msgctxt "ControlsWindow"
+msgid "Home"
+msgstr "Inicio"
+
+#: src/sdl/slint/controls.slint:299
+msgctxt "ControlsWindow"
+msgid "End"
+msgstr "Fin"
+
+#: src/sdl/slint/controls.slint:300
+msgctxt "ControlsWindow"
+msgid "PgUp"
+msgstr "RePág"
+
+#: src/sdl/slint/controls.slint:301
+msgctxt "ControlsWindow"
+msgid "PgDn"
+msgstr "AvPág"
+
+#: src/sdl/slint/controls.slint:302
+msgctxt "ControlsWindow"
+msgid "Ins"
+msgstr "Insert"
+
+#: src/sdl/slint/controls.slint:303
+msgctxt "ControlsWindow"
+msgid "Del"
+msgstr "Supr"
+
+#: src/sdl/slint/controls.slint:304
+msgctxt "ControlsWindow"
+msgid "Backspace"
+msgstr "Retroceso"
+
+#: src/sdl/slint/controls.slint:305
+msgctxt "ControlsWindow"
+msgid "Tab"
+msgstr "Tab"
+
+#: src/sdl/slint/controls.slint:306
+msgctxt "ControlsWindow"
+msgid "Space"
+msgstr "Espacio"
+
+#: src/sdl/slint/controls.slint:307
+msgctxt "ControlsWindow"
+msgid "Enter"
+msgstr "Intro"
+
+#: src/sdl/slint/controls.slint:308
+msgctxt "ControlsWindow"
+msgid "Esc"
+msgstr "Esc"
+
+#: src/sdl/slint/controls.slint:309
+msgctxt "ControlsWindow"
+msgid "Shift"
+msgstr "Mayús"
+
+#: src/sdl/slint/controls.slint:310
+msgctxt "ControlsWindow"
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: src/sdl/slint/controls.slint:311
+msgctxt "ControlsWindow"
+msgid "Alt"
+msgstr "Alt"
+
+#: src/sdl/slint/controls.slint:314
+msgctxt "ControlsWindow"
+msgid "Caps Lock"
+msgstr "Bloq Mayús"
+
+#: src/sdl/slint/controls.slint:315
+msgctxt "ControlsWindow"
+msgid "Scroll Lock"
+msgstr "Bloq Despl"
+
+#: src/sdl/slint/controls.slint:317
+msgctxt "ControlsWindow"
+msgid "Print Screen"
+msgstr "Impr Pant"
+
+#: src/sdl/slint/controls.slint:318
+msgctxt "ControlsWindow"
+msgid "Menu"
+msgstr "Menú"
+
+#: src/sdl/slint/controls.slint:320
+msgctxt "ControlsWindow"
+msgid "Mouse movement"
+msgstr "Movimiento del ratón"
+
+#: src/sdl/slint/controls.slint:321
+msgctxt "ControlsWindow"
+msgid "Left mouse button"
+msgstr "Botón izquierdo del ratón"
+
+#: src/sdl/slint/controls.slint:322
+msgctxt "ControlsWindow"
+msgid "Right mouse button"
+msgstr "Botón derecho del ratón"
+
+#: src/sdl/slint/controls.slint:323
+msgctxt "ControlsWindow"
+msgid "Middle mouse button"
+msgstr "Botón central del ratón"
+
+#: src/sdl/slint/controls.slint:324
+msgctxt "ControlsWindow"
+msgid "Mouse button 4"
+msgstr "Botón 4 del ratón"
+
+#: src/sdl/slint/controls.slint:325
+msgctxt "ControlsWindow"
+msgid "Mouse button 5"
+msgstr "Botón 5 del ratón"
+
+#: src/sdl/slint/controls.slint:326
+msgctxt "ControlsWindow"
+msgid "Mouse wheel up"
+msgstr "Rueda del ratón hacia arriba"
+
+#: src/sdl/slint/controls.slint:327
+msgctxt "ControlsWindow"
+msgid "Mouse wheel down"
+msgstr "Rueda del ratón hacia abajo"
+
+#: src/sdl/slint/controls.slint:438
+msgctxt "ControlsWindow"
+msgid "roll and pitch"
+msgstr "alabeo y cabeceo"
+
+#: src/sdl/slint/controls.slint:440
+msgctxt "ControlsWindow"
+msgid "pitch and yaw"
+msgstr "cabeceo y guiñada"
+
+#: src/sdl/slint/controls.slint:442
+msgctxt "ControlsWindow"
+msgid "fire guns"
+msgstr "disparar cañones"
+
+#: src/sdl/slint/controls.slint:443
+msgctxt "ControlsWindow"
+msgid "Escape (pause)"
+msgstr "Escape (pausa)"
+
+#: src/sdl/slint/controls.slint:444
+msgctxt "ControlsWindow"
+msgid "pause"
+msgstr "pausa"
+
+#: src/sdl/slint/controls.slint:446 src/sdl/slint/controls.slint:452
+msgctxt "ControlsWindow"
+msgid "hold to roll and change speed"
+msgstr "mantener: alabeo y velocidad"
+
+#: src/sdl/slint/controls.slint:449
+msgctxt "ControlsWindow"
+msgid "fire missile"
+msgstr "lanzar misil"
+
+#: src/sdl/slint/controls.slint:450
+msgctxt "ControlsWindow"
+msgid "afterburner"
+msgstr "postquemador"
+
+#: src/sdl/slint/controls.slint:452
+msgctxt "ControlsWindow"
+msgid "cycle targets"
+msgstr "cambiar de objetivo"
+
+#: src/sdl/slint/controls.slint:454
+msgctxt "ControlsWindow"
+msgid "cycle guns"
+msgstr "cambiar de cañones"
+
+#: src/sdl/slint/controls.slint:455
+msgctxt "ControlsWindow"
+msgid "cycle missiles"
+msgstr "cambiar de misil"
+
+#: src/sdl/slint/controls.slint:456
+msgctxt "ControlsWindow"
+msgid "navigation display"
+msgstr "pantalla de navegación"
+
+#: src/sdl/slint/controls.slint:457
+msgctxt "ControlsWindow"
+msgid "autopilot"
+msgstr "piloto automático"
+
+#: src/sdl/slint/controls.slint:458
+msgctxt "ControlsWindow"
+msgid "full speed"
+msgstr "velocidad máxima"
+
+#: src/sdl/slint/controls.slint:459
+msgctxt "ControlsWindow"
+msgid "stop"
+msgstr "parar"
+
+#: src/sdl/slint/controls.slint:460
+msgctxt "ControlsWindow"
+msgid "communications"
+msgstr "comunicaciones"
+
+#: src/sdl/slint/controls.slint:461
+msgctxt "ControlsWindow"
+msgid "lock target"
+msgstr "fijar objetivo"
+
+#: src/sdl/slint/controls.slint:463
+msgctxt "ControlsWindow"
+msgid "roll, speed"
+msgstr "alabeo, velocidad"
+
+#: src/sdl/slint/controls.slint:464
+msgctxt "ControlsWindow"
+msgid "yaw, speed"
+msgstr "guiñada, velocidad"
+
+#: src/sdl/slint/controls.slint:465
+msgctxt "ControlsWindow"
+msgid "yaw, throttle position"
+msgstr "guiñada, posición del acelerador"
+
+#: src/sdl/slint/controls.slint:466
+msgctxt "ControlsWindow"
+msgid "roll, throttle position"
+msgstr "alabeo, posición del acelerador"
+
+#: src/sdl/slint/controls.slint:467
+msgctxt "ControlsWindow"
+msgid "throttle position"
+msgstr "posición del acelerador"
+
+#: src/sdl/slint/controls.slint:468
+msgctxt "ControlsWindow"
+msgid "yaw"
+msgstr "guiñada"
+
+#: src/sdl/slint/controls.slint:469
+msgctxt "ControlsWindow"
+msgid "roll"
+msgstr "alabeo"
+
+#: src/sdl/slint/controls.slint:476
+msgctxt "ControlsWindow"
+msgid "Original joystick: A and B together fire a missile; double-click B and hold it for the afterburner."
+msgstr "Joystick original: A y B a la vez lanzan un misil; pulsa B dos veces y mantenlo para el postquemador."
+
+#: src/sdl/slint/controls.slint:478
+msgctxt "ControlsWindow"
+msgid "In the communications display, the D-pad's up and down choose, right sends and left closes."
+msgstr "En la pantalla de comunicaciones, arriba y abajo en la cruceta eligen, derecha envía e izquierda cierra."
+
+#: src/sdl/slint/controls.slint:484
+msgctxt "ControlsWindow"
+msgid "Game controller — Wing Commander"
+msgstr "Mando — Wing Commander"
+
+#: src/sdl/slint/controls.slint:484
+msgctxt "ControlsWindow"
+msgid "Keyboard and mouse — Wing Commander"
+msgstr "Teclado y ratón — Wing Commander"
+
+#: src/sdl/slint/controls.slint:499
+msgctxt "ControlsWindow"
+msgid "Game controller"
+msgstr "Mando"
+
+#: src/sdl/slint/controls.slint:507
+msgctxt "ControlsWindow"
+msgid "Keyboard and mouse"
+msgstr "Teclado y ratón"
+
+#: src/sdl/slint/controls.slint:530
+msgctxt "ControlsWindow"
+msgid "Control mode"
+msgstr "Modo de control"
+
+#: src/sdl/slint/controls.slint:549
+msgctxt "ControlsWindow"
+msgid "Axis layout"
+msgstr "Asignación de ejes"
+
+#: src/sdl/slint/controls.slint:621
+msgctxt "ControlsWindow"
+msgid "Left stick"
+msgstr "Palanca izquierda"
+
+#: src/sdl/slint/controls.slint:623 src/sdl/slint/controls.slint:677
+msgctxt "ControlsWindow"
+msgid "move"
+msgstr "mover"
+
+#: src/sdl/slint/controls.slint:624 src/sdl/slint/controls.slint:678
+msgctxt "ControlsWindow"
+msgid "click"
+msgstr "pulsar"
+
+#: src/sdl/slint/controls.slint:632
+msgctxt "ControlsWindow"
+msgid "D-pad"
+msgstr "Cruceta"
+
+#: src/sdl/slint/controls.slint:661
+msgctxt "ControlsWindow"
+msgid "Buttons"
+msgstr "Botones"
+
+#: src/sdl/slint/controls.slint:675
+msgctxt "ControlsWindow"
+msgid "Right stick"
+msgstr "Palanca derecha"
+
+#: src/sdl/slint/controls.slint:703
+msgctxt "ControlsWindow"
+msgid "Y answers Yes in prompts. Game controllers leave LT and RT unused."
+msgstr "Y responde Sí en las preguntas. Los mandos no usan LT ni RT."
+
+#: src/sdl/slint/controls.slint:722
+msgctxt "ControlsWindow"
+msgid "In flight. Click a key to change it, or + to add one (two at most); changes apply when the game starts."
+msgstr "En vuelo. Haz clic en una tecla para cambiarla, o en + para añadir otra (dos como máximo); los cambios se aplican al iniciar el juego."
+
+#: src/sdl/slint/controls.slint:744
+msgctxt "ControlsWindow"
+msgid "Game input"
+msgstr "Acción del juego"
+
+#: src/sdl/slint/controls.slint:756
+msgctxt "ControlsWindow"
+msgid "Key or mouse"
+msgstr "Tecla o ratón"
+
+#: src/sdl/slint/controls.slint:935
+msgctxt "ControlsWindow"
+msgid "The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, 5 stops turning, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Mouse inputs and Escape cannot be changed."
+msgstr "El teclado numérico también sirve: 8, 2, 4 y 6 actúan como las flechas, 7, 9, 1 y 3 como las diagonales, 0 y . alabean, 5 deja de girar, * es el postquemador y + y − cambian la velocidad. Esta versión añade Escape para pausar y la rueda del ratón para la velocidad. El ratón y Escape no se pueden cambiar."
+
+#: src/sdl/slint/controls.slint:945
+msgctxt "ControlsWindow"
+msgid "Restore defaults"
+msgstr "Restaurar valores"
+
+#: src/sdl/slint/controls.slint:1007
+msgctxt "ControlsWindow"
+msgid "Change binding"
+msgstr "Cambiar asignación"
+
+#: src/sdl/slint/controls.slint:1036
+msgctxt "ControlsWindow"
+msgid "Press a key, or a modifier and a key. Esc cancels."
+msgstr "Pulsa una tecla, o un modificador y una tecla. Esc cancela."
+
+#: src/sdl/slint/controls.slint:1054
+msgctxt "ControlsWindow"
+msgid "Remove"
+msgstr "Quitar"
+
+#: src/sdl/slint/controls.slint:1062
+msgctxt "ControlsWindow"
+msgid "Cancel"
+msgstr "Cancelar"
