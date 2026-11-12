@@ -57,7 +57,14 @@ Uint32 SDL_GetWindowFlags(SDL_Window *window)
 
 #include "../src/sdl/swc_flight.c"
 
-enum { ACTION_NONE, ACTION_KEY, ACTION_POINTER, ACTION_BUTTONS, ACTION_WHEEL };
+enum { ACTION_NONE, ACTION_KEY, ACTION_POINTER, ACTION_BUTTONS, ACTION_WHEEL, ACTION_EJECT };
+
+/* The Mac menus' key equivalents: Command on macOS, Control elsewhere. */
+#ifdef __APPLE__
+#define MENU_KEY KMOD_GUI
+#else
+#define MENU_KEY KMOD_CTRL
+#endif
 
 typedef struct FlightAction {
     unsigned char kind;
@@ -66,29 +73,34 @@ typedef struct FlightAction {
     short y;
 } FlightAction;
 
-/* Keys repeat SdlRunSwcMission's flight handlers and SwcFlightTick's held
- * controls; pointer, buttons and wheel repeat its mouse handlers. The
- * computer and pause are modal and need a separate driver. */
+/* Keys repeat SdlRunSwcMission's flight handlers (the Mac demo's keys, its
+ * menus' Command keys and F1-F3) and SwcFlightTick's held controls; pointer,
+ * buttons and wheel repeat its mouse handlers. The computer (C) and pause
+ * are modal and need a separate driver; ACTION_EJECT performs the computer's
+ * Eject page, which has no key of its own. */
 static const FlightAction actions[] = {
     {ACTION_NONE, 0, 0, 0},
     {ACTION_KEY, SDLK_UP, 0, 0}, {ACTION_KEY, SDLK_DOWN, 0, 0},
     {ACTION_KEY, SDLK_LEFT, 0, 0}, {ACTION_KEY, SDLK_RIGHT, 0, 0},
-    {ACTION_KEY, SDLK_HOME, 0, 0}, {ACTION_KEY, SDLK_PAGEUP, 0, 0},
-    {ACTION_KEY, SDLK_END, 0, 0}, {ACTION_KEY, SDLK_PAGEDOWN, 0, 0},
+    {ACTION_KEY, SDLK_i, 0, 0}, {ACTION_KEY, SDLK_k, 0, 0},
+    {ACTION_KEY, SDLK_j, 0, 0}, {ACTION_KEY, SDLK_l, 0, 0},
+    {ACTION_KEY, SDLK_1, 0, 0}, {ACTION_KEY, SDLK_2, 0, 0}, {ACTION_KEY, SDLK_3, 0, 0},
+    {ACTION_KEY, SDLK_4, 0, 0}, {ACTION_KEY, SDLK_6, 0, 0}, {ACTION_KEY, SDLK_7, 0, 0},
+    {ACTION_KEY, SDLK_8, 0, 0}, {ACTION_KEY, SDLK_9, 0, 0},
     {ACTION_KEY, SDLK_COMMA, 0, 0}, {ACTION_KEY, SDLK_PERIOD, 0, 0},
-    {ACTION_KEY, SDLK_INSERT, 0, 0}, {ACTION_KEY, SDLK_DELETE, 0, 0},
     {ACTION_KEY, SDLK_SPACE, 0, 0}, {ACTION_KEY, SDLK_SPACE, 0, 0},
     {ACTION_KEY, SDLK_EQUALS, 0, 0}, {ACTION_KEY, SDLK_MINUS, 0, 0},
-    {ACTION_KEY, SDLK_TAB, 0, 0}, {ACTION_KEY, SDLK_BACKSPACE, 0, 0},
-    {ACTION_KEY, SDLK_BACKSLASH, 0, 0}, {ACTION_KEY, SDLK_RETURN, 0, 0},
-    {ACTION_KEY, SDLK_g, 0, 0}, {ACTION_KEY, SDLK_w, 0, 0}, {ACTION_KEY, SDLK_t, 0, 0},
-    {ACTION_KEY, SDLK_l, 0, 0}, {ACTION_KEY, SDLK_n, 0, 0}, {ACTION_KEY, SDLK_c, 0, 0},
-    {ACTION_KEY, SDLK_1, 0, 0}, {ACTION_KEY, SDLK_2, 0, 0}, {ACTION_KEY, SDLK_3, 0, 0},
-    {ACTION_KEY, SDLK_4, 0, 0}, {ACTION_KEY, SDLK_5, 0, 0}, {ACTION_KEY, SDLK_6, 0, 0},
-    {ACTION_KEY, SDLK_7, 0, 0}, {ACTION_KEY, SDLK_y, 0, 0}, {ACTION_KEY, SDLK_d, 0, 0},
-    {ACTION_KEY, SDLK_f, 0, 0}, {ACTION_KEY, SDLK_F1, 0, 0}, {ACTION_KEY, SDLK_a, 0, 0},
-    {ACTION_KEY, SDLK_e, 0, 0}, {ACTION_KEY, SDLK_e, KMOD_CTRL, 0},
-    {ACTION_KEY, SDLK_b, 0, 0}, {ACTION_KEY, SDLK_r, 0, 0}, {ACTION_KEY, SDLK_h, 0, 0},
+    {ACTION_KEY, SDLK_TAB, 0, 0}, {ACTION_KEY, SDLK_RETURN, 0, 0},
+    {ACTION_KEY, SDLK_g, 0, 0}, {ACTION_KEY, SDLK_w, 0, 0},
+    {ACTION_KEY, SDLK_t, 0, 0}, {ACTION_KEY, SDLK_a, 0, 0},
+    {ACTION_KEY, SDLK_b, 0, 0}, {ACTION_KEY, SDLK_r, 0, 0},
+    {ACTION_KEY, SDLK_h, 0, 0}, {ACTION_KEY, SDLK_e, 0, 0},
+    {ACTION_KEY, SDLK_F1, 0, 0}, {ACTION_KEY, SDLK_F2, 0, 0}, {ACTION_KEY, SDLK_F3, 0, 0},
+    {ACTION_KEY, SDLK_F1, KMOD_CTRL, 0},
+    {ACTION_KEY, SDLK_y, MENU_KEY, 0}, {ACTION_KEY, SDLK_d, MENU_KEY, 0},
+    {ACTION_KEY, SDLK_f, MENU_KEY, 0},
+    {ACTION_KEY, SDLK_EQUALS, MENU_KEY, 0}, {ACTION_KEY, SDLK_MINUS, MENU_KEY, 0},
+    {ACTION_EJECT, 0, 0, 0},
     {ACTION_POINTER, 0, 40, 25}, {ACTION_POINTER, 0, 160, 25}, {ACTION_POINTER, 0, 280, 25},
     {ACTION_POINTER, 0, 40, 100}, {ACTION_POINTER, 0, 160, 100}, {ACTION_POINTER, 0, 280, 100},
     {ACTION_POINTER, 0, 40, 175}, {ACTION_POINTER, 0, 160, 175}, {ACTION_POINTER, 0, 280, 175},
@@ -148,38 +160,26 @@ static void FlightStep(int draw)
 static void PressFlightKey(SDL_Keycode key, Uint16 modifiers)
 {
     FixedVector departure;
-    int view;
-    int choice;
-    int command;
-    int recipient;
+    int menuKey = SwcMenuShortcut(modifiers);
+    int plainKey = !(modifiers & (KMOD_CTRL | KMOD_GUI | KMOD_ALT));
+    int view = -1;
 
     switch (key) {
     case SDLK_SPACE:
-        swcGunFirePending = 1;
+        if (plainKey)
+            swcGunFirePending = 1;
         break;
-    case SDLK_BACKSPACE:
-        anShipSpeed[0] = 0;
+    case SDLK_RETURN:
+        if (plainKey)
+            swcReleaseWeaponPending = 1;
         break;
-    case SDLK_BACKSLASH:
-        celerate(0, asShipMaximumSpeedArray[0] * 256 - anShipSpeed[0]);
-        break;
-    case SDLK_n:
-        if (abFlightPathList[0] != -1)
-            cycle_next_objective();
-        break;
-    case SDLK_y:
-    case SDLK_d:
-    case SDLK_f:
-        if (FlightContinues()) {
-            view = key == SDLK_y ? 0 : key == SDLK_d ? 14 : 4;
-            if (view == nCameraViewMode)
-                view = 0;
-            if (view != nCameraViewMode)
-                SwcSelectFlightView(view);
-        }
+    case SDLK_EQUALS:
+    case SDLK_MINUS:
+        if (menuKey && FlightContinues())
+            accelerate(key == SDLK_EQUALS ? 1 : -1);
         break;
     case SDLK_a:
-        if (FlightContinues() && !nTrainSimActive) {
+        if ((plainKey || menuKey) && FlightContinues() && !nTrainSimActive) {
             departure = aShipPositionsArray[0];
             auto_pilot_sequence();
             Require(nSwcCinemaResult == 0, "SWC autopilot camera");
@@ -188,74 +188,56 @@ static void PressFlightKey(SDL_Keycode key, Uint16 modifiers)
                 SwcSelectFlightView(nCameraViewMode);
         }
         break;
-    case SDLK_l:
-        nTargetLockMode = (nTargetLockMode == 0);
-        break;
     case SDLK_t:
-        cycle_onscreen_targets();
+        if (plainKey || menuKey)
+            cycle_onscreen_targets();
         break;
     case SDLK_g:
-        select_new_gun();
+        if (plainKey || menuKey)
+            select_new_gun();
         break;
     case SDLK_w:
-        select_new_release_weapon((enum ObjectType)-1);
-        SdlSwcLockOff();
-        break;
-    case SDLK_RETURN:
-        swcReleaseWeaponPending = 1;
-        break;
-    case SDLK_c:
-        if (FlightContinues()) {
-            if (IsCommChoiceMenuOpen())
-                CloseCommChoiceMenu();
-            else
-                HandleCommunicationMenuRequest();
+        if (plainKey || menuKey) {
+            select_new_release_weapon((enum ObjectType)-1);
+            SdlSwcLockOff();
         }
         break;
     case SDLK_b:
     case SDLK_r:
     case SDLK_h:
-        if (FlightContinues())
+        if (plainKey && FlightContinues())
             SdlSwcCommunicate(key == SDLK_b ? 0 : key == SDLK_r ? 1 : 2);
         break;
-    case SDLK_e: /* Taunt; Ctrl+E ejects. */
-        if (FlightContinues() && !(modifiers & KMOD_CTRL))
+    case SDLK_e:
+        if (plainKey && FlightContinues())
             SdlSwcCommunicate(3);
-        if (FlightContinues() && (modifiers & KMOD_CTRL) && acPlayerComponentDamageList[7] < 4) {
-            if (acPlayerComponentDamageList[7] <= 1 ||
-                RandomBelowOrEqual((acPlayerComponentDamageList[7] - 1)) == 0)
-                nArcadeState = 2;
-            else
-                SdlPlaySwcSound(25, 127);
-        }
         break;
-    case SDLK_1:
-    case SDLK_2:
-    case SDLK_3:
-    case SDLK_4:
-    case SDLK_5:
-    case SDLK_6:
-    case SDLK_7:
-        choice = key - SDLK_1;
-        if (!bCurrentPlayerDestroyed && IsCommChoiceMenuOpen() && choice < nCommMenuChoiceCount) {
-            command = GetPendingMenuAction() == 2 ? abCommMenuChoiceCommands[choice] : -1;
-            recipient = cCommMenuRecipient;
-            Chosen_communicate_option(choice);
-            if (command > 0)
-                SdlSwcVocalizeMessage(command);
-            if (command == 12)
-                SdlSwcCockpitMessage(bLandingAuthorized ? "Landing clearance granted" :
-                    "Landing clearance denied", 0x81, 0, -1);
-            else if (command > 0 && recipient > 0 && recipient < 10)
-                SdlSwcCockpitMessage(acWingmanMessageStatesArray[recipient] == 1 ?
-                    "Unable to comply" : "Message sent", 0x81, 0, -1);
-        }
+    case SDLK_F1:
+        if (modifiers & KMOD_CTRL)
+            fuzzCockpitless = !fuzzCockpitless;
+        else
+            view = 0;
         break;
-    case SDLK_F1: /* Ctrl+F1 in the host. */
-        fuzzCockpitless = !fuzzCockpitless;
+    case SDLK_F2:
+        view = 14;
+        break;
+    case SDLK_F3:
+        view = 4;
+        break;
+    case SDLK_y:
+    case SDLK_d:
+    case SDLK_f:
+        if (menuKey)
+            view = key == SDLK_y ? 0 : key == SDLK_d ? 14 : 4;
         break;
     default:
         break;
+    }
+    if (view >= 0 && FlightContinues()) {
+        if (view == nCameraViewMode)
+            view = 0;
+        if (view != nCameraViewMode)
+            SwcSelectFlightView(view);
     }
 }
 
@@ -295,6 +277,16 @@ static void ApplyFlightAction(const FlightAction *action)
     case ACTION_WHEEL:
         if (FlightContinues())
             accelerate(action->x > 0 ? 1 : -1);
+        break;
+    case ACTION_EJECT:
+        /* SdlShowSwcComputer's Eject page activation. */
+        if (FlightContinues() && acPlayerComponentDamageList[7] < 4) {
+            if (acPlayerComponentDamageList[7] <= 1 ||
+                RandomBelowOrEqual((acPlayerComponentDamageList[7] - 1)) == 0)
+                nArcadeState = 2;
+            else
+                SdlPlaySwcSound(25, 127);
+        }
         break;
     default:
         break;
@@ -405,7 +397,7 @@ static void WriteSeed(const char *directory, int campaign, int series, int missi
     size_t size = 8;
 
     /* Throttle, steer while firing, aim and click, cycle weapons, fire a
-     * missile, call a wingman, light the afterburner, then try autopilot. */
+     * missile, order the wingman, light the afterburner, then try autopilot. */
     seed[size++] = ActionIndex(ACTION_KEY, SDLK_EQUALS, 0); seed[size++] = 31;
     seed[size++] = ActionIndex(ACTION_KEY, SDLK_UP, 0); seed[size++] = 15;
     seed[size++] = ActionIndex(ACTION_KEY, SDLK_SPACE, 0) | 0x40; seed[size++] = 31;
@@ -414,8 +406,8 @@ static void WriteSeed(const char *directory, int campaign, int series, int missi
     seed[size++] = ActionIndex(ACTION_KEY, SDLK_g, 0); seed[size++] = 0;
     seed[size++] = ActionIndex(ACTION_KEY, SDLK_w, 0); seed[size++] = 0;
     seed[size++] = ActionIndex(ACTION_KEY, SDLK_RETURN, 0); seed[size++] = 7;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_c, 0); seed[size++] = 3;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_1, 0); seed[size++] = 15;
+    seed[size++] = ActionIndex(ACTION_KEY, SDLK_b, 0); seed[size++] = 3;
+    seed[size++] = ActionIndex(ACTION_KEY, SDLK_r, 0); seed[size++] = 15;
     seed[size++] = ActionIndex(ACTION_KEY, SDLK_TAB, 0); seed[size++] = 15;
     seed[size++] = ActionIndex(ACTION_KEY, SDLK_a, 0); seed[size++] = 31;
     SDL_snprintf(path, sizeof(path), "%s/%s%d-%d-%d-leg%d", directory,

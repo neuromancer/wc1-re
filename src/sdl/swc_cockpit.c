@@ -211,8 +211,8 @@ void SdlSwcVocalizeMessage(int command)
 }
 
 /* CODE_06 Chosen_communicate_option +0x0276. The Actions menu's message
- * items 13..16 and SetGInputForChar's B, R, H and E keys (CODE_01 +0x3ef4,
- * dispatched by process_player_input +0x3e92..+0x3ed2) send one order each,
+ * items 13..16 and SetGInputForChar's B, R, H and E keys (CODE_01 +0x3ec4,
+ * dispatched by process_player_input +0x3e62..+0x3ea2) send one order each,
  * with no recipient menu: 0 break/attack, 1 request landing from a targeted
  * Tiger's Claw or else form on my wing, 2 help me out, 3 taunt the target.
  * The Mac reads the wingman's objective and the target's side before

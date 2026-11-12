@@ -21,6 +21,16 @@ enum SwcComputerPage {
 /* InflightComputer retains DATA+0x466e between visits. */
 static int swcComputerPage;
 
+/* Command chords are the Mac menus' keys; other platforms use Control. */
+static int SwcComputerMenuKey(Uint16 modifiers)
+{
+#ifdef __APPLE__
+    return (modifiers & KMOD_GUI) != 0;
+#else
+    return (modifiers & KMOD_CTRL) != 0;
+#endif
+}
+
 /* CODE_14 CheckPoint +0x1c04, with Q8-to-world conversion at its callers. */
 static void SwcNavCheckPoint(SwcNavMap *map, FixedVector point)
 {
@@ -558,15 +568,28 @@ int SdlShowSwcComputer(SDL_Window *window, SDL_Renderer *renderer, const char *r
                 count = SwcBuildComputerComms(recipient, options, names);
                 selected = count > 0 ? SDL_clamp(selected, 0, count - 1) : -1;
             }
+            /* SetGInputForChar's arrow, Tab, Return, Escape, Space and C flags
+             * (CODE_01 +0x3ec4): Up/Down change pages (+0x3526/+0x353c);
+             * Left/Right step the nav or comm selection, and Right or Tab
+             * cycles guns and missiles (+0x3072, +0x3154, +0x32ec). Escape,
+             * Space, Cmd-. and C close (+0x3554/+0x355c); with a recipient
+             * chosen, UpdateCommStatus +0x2da2 returns Escape, Space and
+             * Cmd-. to the recipients and C does nothing. */
             if (event.type == SDL_KEYDOWN && !event.key.repeat) {
                 switch (event.key.keysym.sym) {
-                case SDLK_m:
+                case SDLK_PERIOD:
+                    if (!SwcComputerMenuKey(event.key.keysym.mod))
+                        break;
+                    /* fall through: Cmd-. sets the Escape flag. */
                 case SDLK_ESCAPE:
-                case SDLK_BACKSPACE:
                 case SDLK_SPACE:
                 case SDLK_RETURN:
                 case SDLK_KP_ENTER:
                     pendingKey = event.key.keysym.sym;
+                    break;
+                case SDLK_c:
+                    if (!(event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI | KMOD_ALT)))
+                        pendingKey = SDLK_c;
                     break;
                 case SDLK_UP:
                     page = SDL_max(0, page - 1);
@@ -582,31 +605,24 @@ int SdlShowSwcComputer(SDL_Window *window, SDL_Renderer *renderer, const char *r
                     step = 1;
                     break;
                 case SDLK_TAB:
-                    step = (event.key.keysym.mod & KMOD_SHIFT) &&
-                        (page == SWC_COMPUTER_NAV || page == SWC_COMPUTER_COMM) ? -1 : 1;
-                    break;
-                case SDLK_n:
-                    if (page == SWC_COMPUTER_NAV)
+                    /* Shift-Tab sets a different flag, which no page reads. */
+                    if (!(event.key.keysym.mod & KMOD_SHIFT) &&
+                        (page == SWC_COMPUTER_GUNS || page == SWC_COMPUTER_WEAPONS))
                         step = 1;
                     break;
                 default:
-                    if (page == SWC_COMPUTER_COMM && event.key.keysym.sym >= SDLK_1 &&
-                        event.key.keysym.sym <= SDLK_9 &&
-                        event.key.keysym.sym - SDLK_1 < count) {
-                        selected = (event.key.keysym.sym - SDLK_1);
-                        pendingKey = event.key.keysym.sym;
-                    }
                     break;
                 }
             }
             if (event.type == SDL_KEYUP && pendingKey != SDLK_UNKNOWN &&
                 event.key.keysym.sym == pendingKey) {
-                if (pendingKey == SDLK_BACKSPACE && page == SWC_COMPUTER_COMM && recipient >= 0) {
-                    recipient = -1;
-                    selected = 0;
-                } else if (pendingKey == SDLK_RETURN || pendingKey == SDLK_KP_ENTER ||
-                           (pendingKey >= SDLK_1 && pendingKey <= SDLK_9)) {
+                if (pendingKey == SDLK_RETURN || pendingKey == SDLK_KP_ENTER) {
                     activate = 1;
+                } else if (page == SWC_COMPUTER_COMM && recipient >= 0) {
+                    if (pendingKey != SDLK_c) {
+                        recipient = -1;
+                        selected = 0;
+                    }
                 } else {
                     close = 1;
                 }
@@ -679,7 +695,7 @@ int SdlShowSwcComputer(SDL_Window *window, SDL_Renderer *renderer, const char *r
                 mouseDown = 0;
                 pendingKey = SDLK_UNKNOWN;
             }
-            if (close || (activate && page == SWC_COMPUTER_NAV)) {
+            if (close) {
                 result = SWC_MOVIE_FINISHED;
                 goto done;
             }

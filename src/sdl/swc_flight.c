@@ -816,8 +816,62 @@ static void SwcCentreFlightMouse(void)
     bMouseCursorVisible = 1;
 }
 
-static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
+/* The Mac menus' key equivalents use Command; as for the option shortcuts
+   (swc_options.c), other platforms use Control. */
+static int SwcMenuShortcut(Uint16 modifiers)
 {
+#ifdef __APPLE__
+    return (modifiers & KMOD_GUI) != 0;
+#else
+    return (modifiers & KMOD_CTRL) != 0;
+#endif
+}
+
+static int SwcCharacterHeld(const Uint8 *keys, SDL_Keycode character)
+{
+    SDL_Scancode code = SDL_GetScancodeFromKey(character);
+
+    return code != SDL_SCANCODE_UNKNOWN && keys[code];
+}
+
+/* CODE_01 SetGInputForChar +0x3ec4 reads characters: the arrows, J/K/L/I
+ * and the digits steer (7/9/1/3 diagonally), ',' '<' and '.' '>' roll,
+ * '+' '=' and '-' '_' change speed, Tab lights the afterburner and Space
+ * fires. Keypad keys type the same digits and signs. Present those keys to
+ * the WC1 input code as the arrows, keypad diagonals, comma/period and
+ * throttle keys it reads, and leave out WC1's other flight keys: Home, End,
+ * Page Up/Down, Insert, Delete, keypad 0, 5 and *, Backspace and Shift's fast
+ * steering. */
+static void SwcTranslateFlightKeys(const Uint8 *keys, Uint8 translated[SDL_NUM_SCANCODES])
+{
+    memset(translated, 0, SDL_NUM_SCANCODES);
+    translated[SDL_SCANCODE_UP] = keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_KP_8] ||
+        SwcCharacterHeld(keys, SDLK_i) || SwcCharacterHeld(keys, SDLK_8);
+    translated[SDL_SCANCODE_DOWN] = keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_KP_2] ||
+        SwcCharacterHeld(keys, SDLK_k) || SwcCharacterHeld(keys, SDLK_2);
+    translated[SDL_SCANCODE_LEFT] = keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_KP_4] ||
+        SwcCharacterHeld(keys, SDLK_j) || SwcCharacterHeld(keys, SDLK_4);
+    translated[SDL_SCANCODE_RIGHT] = keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_KP_6] ||
+        SwcCharacterHeld(keys, SDLK_l) || SwcCharacterHeld(keys, SDLK_6);
+    translated[SDL_SCANCODE_KP_7] = keys[SDL_SCANCODE_KP_7] || SwcCharacterHeld(keys, SDLK_7);
+    translated[SDL_SCANCODE_KP_9] = keys[SDL_SCANCODE_KP_9] || SwcCharacterHeld(keys, SDLK_9);
+    translated[SDL_SCANCODE_KP_1] = keys[SDL_SCANCODE_KP_1] || SwcCharacterHeld(keys, SDLK_1);
+    translated[SDL_SCANCODE_KP_3] = keys[SDL_SCANCODE_KP_3] || SwcCharacterHeld(keys, SDLK_3);
+    translated[SDL_SCANCODE_COMMA] = SwcCharacterHeld(keys, SDLK_COMMA) ||
+        SwcCharacterHeld(keys, SDLK_LESS);
+    translated[SDL_SCANCODE_PERIOD] = SwcCharacterHeld(keys, SDLK_PERIOD) ||
+        SwcCharacterHeld(keys, SDLK_GREATER) || keys[SDL_SCANCODE_KP_PERIOD];
+    translated[SDL_SCANCODE_EQUALS] = SwcCharacterHeld(keys, SDLK_EQUALS) ||
+        SwcCharacterHeld(keys, SDLK_PLUS) || keys[SDL_SCANCODE_KP_PLUS];
+    translated[SDL_SCANCODE_MINUS] = SwcCharacterHeld(keys, SDLK_MINUS) ||
+        SwcCharacterHeld(keys, SDLK_UNDERSCORE) || keys[SDL_SCANCODE_KP_MINUS];
+    translated[SDL_SCANCODE_TAB] = keys[SDL_SCANCODE_TAB];
+    translated[SDL_SCANCODE_SPACE] = keys[SDL_SCANCODE_SPACE];
+}
+
+static void SwcFlightTick(const Uint8 *heldKeys, Uint32 mouseButtons)
+{
+    Uint8 keys[SDL_NUM_SCANCODES];
     InputDeviceSample joystick;
     Uint32 now = SDL_GetTicks();
     short throttle;
@@ -833,6 +887,7 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
         SwcResetFlightInput();
         return;
     }
+    SwcTranslateFlightKeys(heldKeys, keys);
     haveJoystick = SdlReadSwcJoystickFlightSample(&joystick);
     if (!enhancedJoystick && (joystick.buttons & JOY_BUTTON2) &&
         !(swcJoystickButtons & JOY_BUTTON2)) {
@@ -901,15 +956,13 @@ static void SwcFlightTick(const Uint8 *keys, Uint32 mouseButtons)
     }
     SdlSetKeyboardSnapshot(NULL);
 
-    /* Movement commands from WC1's HandleSpaceFlightControls. Poll held keys
-       separately so thrust can change while steering, without host key repeat. */
-    throttle = ((keys[SDL_SCANCODE_EQUALS] || keys[SDL_SCANCODE_KP_PLUS]) -
-                       (keys[SDL_SCANCODE_MINUS] || keys[SDL_SCANCODE_KP_MINUS]));
-    if (keys[SDL_SCANCODE_BACKSPACE])
-        anShipSpeed[0] = 0;
-    else if (throttle != 0)
+    /* SetGInputForChar's speed and afterburner keys (process_player_input
+       +0x3d04..+0x3d30). Poll held keys separately so thrust can change while
+       steering, without host key repeat. */
+    throttle = keys[SDL_SCANCODE_EQUALS] - keys[SDL_SCANCODE_MINUS];
+    if (throttle != 0)
         accelerate(throttle);
-    if (keys[SDL_SCANCODE_TAB] || keys[SDL_SCANCODE_KP_MULTIPLY] ||
+    if (keys[SDL_SCANCODE_TAB] ||
         (swcMouseAfterburner && (mouseButtons & SDL_BUTTON_RMASK)) ||
         swcJoystickAfterburner)
         your_afterburner();
@@ -1275,12 +1328,18 @@ border:
 /* Retail CODE_09 FlyingLoop +0x0ab8..+0x0b46: three CenterPrint lines in
  * a 300-pixel text layer at x=10 (centred on 160), Helvetica 10, colour
  * 0x81, baselines 180/200/220, over the frozen picture. The original lines
- * (A5-0x28cb/-0x28a8/-0x2886) point to Cmd-P and the Actions menu, which
- * SDL lacks; the first two name the keys that resume this port's flight. */
+ * (A5-0x28cb/-0x28a8/-0x2886) read "Press Cmd-P again or choose Resume /
+ * from the Actions menu to continue / playing Super Wing Commander."; SDL
+ * has no Actions menu, so the first two name the menu key alone. */
 static int SwcDrawPauseMessage(SDL_Renderer *renderer, const SDL_Color colors[256])
 {
     static const char *const lines[] = {
-        "Press P or Esc again", "to continue", "playing Super Wing Commander."
+#ifdef __APPLE__
+        "Press Cmd-P again",
+#else
+        "Press Ctrl-P again",
+#endif
+        "to continue", "playing Super Wing Commander."
     };
     int line;
 
@@ -1333,11 +1392,11 @@ static int SwcConfirmMissionRetry(SDL_Window *window, SDL_Renderer *renderer,
 
 /* SWC CODE_14 +0x000c: visit_the_cinema. CODE_02 new_view's case 12
  * (+0x3474) supplies the camera setup; the shared case-12 camera update
- * matches CODE_02 +0x29f0. SDL owns pacing, window events and presentation. */
+ * matches CODE_02 +0x29f0. SDL owns pacing, window events and presentation.
+ * The original reads no input while the camera runs, so no key skips it. */
 int SdlSwcVisitCinema(int view, int obj, short frames)
 {
     SDL_Event event;
-    SDL_Scancode skipKey = SDL_SCANCODE_UNKNOWN;
     Uint32 previous;
     Uint32 current;
     Uint32 elapsed = 0;
@@ -1366,7 +1425,7 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
     SdlPlaySwcSound(17, 255); /* CODE_14 visit_the_cinema +0x0028. */
     focused = (SDL_GetWindowFlags(swcCinemaWindow) & SDL_WINDOW_INPUT_FOCUS) != 0;
     previous = SDL_GetTicks();
-    while (frames > 0 || skipKey != SDL_SCANCODE_UNKNOWN) {
+    while (frames > 0) {
         current = SDL_GetTicks();
         if (focused)
             elapsed += SDL_min(current - previous, 250);
@@ -1381,22 +1440,12 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
             }
             if (event.type == SDL_WINDOWEVENT) {
                 if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST ||
-                    event.window.event == SDL_WINDOWEVENT_MINIMIZED) {
+                    event.window.event == SDL_WINDOWEVENT_MINIMIZED)
                     focused = 0;
-                    skipKey = SDL_SCANCODE_UNKNOWN;
-                } else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED ||
+                else if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED ||
                          event.window.event == SDL_WINDOWEVENT_RESTORED)
                     focused = (SDL_GetWindowFlags(swcCinemaWindow) & SDL_WINDOW_INPUT_FOCUS) != 0;
             }
-            /* visit_the_cinema never tests the Pause flag; only Escape skips. */
-            if (event.type == SDL_KEYDOWN && !event.key.repeat && focused &&
-                (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_BACKSPACE))
-                skipKey = event.key.keysym.scancode;
-            /* Consume the release before returning to flight. A skipped
-             * camera finishes normally so autopilot still completes travel. */
-            if (event.type == SDL_KEYUP && skipKey != SDL_SCANCODE_UNKNOWN &&
-                event.key.keysym.scancode == skipKey)
-                goto done;
         }
         SDL_SetWindowMouseGrab(swcCinemaWindow, focused ? SDL_TRUE : SDL_FALSE);
         SDL_ShowCursor(focused ? SDL_DISABLE : SDL_ENABLE);
@@ -1905,8 +1954,9 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen,
     int objectsConfigured = 0;
     int movieResult;
     int choice;
-    int command;
-    int recipient;
+    int menuKey;
+    int plainKey;
+    int flying;
     int done = 0;
     int result = -1;
 
@@ -2246,39 +2296,32 @@ begin_flight:
                 }
             }
             if (event.type == SDL_KEYDOWN && !event.key.repeat) {
+                /* CODE_01 get_player_input +0x4634..+0x46fe: Command keys go
+                   to the menus, other characters to SetGInputForChar, and F1-F3
+                   select views. Control and Option chords type no letter. */
+                menuKey = SwcMenuShortcut(event.key.keysym.mod);
+                plainKey = !(event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI | KMOD_ALT));
+                flying = focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0;
+                view = -1;
                 switch (event.key.keysym.sym) {
                 case SDLK_SPACE:
-                    if (focused && !paused)
+                    if (plainKey && focused && !paused)
                         swcGunFirePending = 1;
                     break;
-                case SDLK_BACKSPACE:
-                    if (focused && !paused)
-                        anShipSpeed[0] = 0;
+                case SDLK_RETURN:
+                case SDLK_KP_ENTER:
+                    if (plainKey && focused && !paused)
+                        swcReleaseWeaponPending = 1;
                     break;
-                case SDLK_BACKSLASH:
-                    if (focused && !paused)
-                        celerate(0, asShipMaximumSpeedArray[0] * 256 - anShipSpeed[0]);
-                    break;
-                case SDLK_n:
-                    /* Retail SWC has no N key; its cycle_next_objective callers
-                     * never run without a flight path, as in the simulator. */
-                    if (focused && !paused && abFlightPathList[0] != -1)
-                        cycle_next_objective();
-                    break;
-                case SDLK_y:
-                case SDLK_d:
-                case SDLK_f:
-                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0) {
-                        view = event.key.keysym.sym == SDLK_y ? 0 :
-                            event.key.keysym.sym == SDLK_d ? 14 : 4;
-                        if (view == nCameraViewMode)
-                            view = 0;
-                        if (view != nCameraViewMode)
-                            SwcSelectFlightView(view);
-                    }
+                case SDLK_EQUALS:
+                case SDLK_MINUS:
+                    /* Actions menu Accelerate/Decelerate (Cmd-= / Cmd--);
+                       the plain keys are polled by SwcFlightTick. */
+                    if (menuKey && flying)
+                        accelerate(event.key.keysym.sym == SDLK_EQUALS ? 1 : -1);
                     break;
                 case SDLK_a:
-                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0 && !nTrainSimActive) {
+                    if ((plainKey || menuKey) && flying && !nTrainSimActive) {
                         FixedVector departure = aShipPositionsArray[0];
 
                         auto_pilot_sequence();
@@ -2301,100 +2344,39 @@ begin_flight:
                             SwcCentreFlightMouse();
                     }
                     break;
-                case SDLK_l:
-                    if (focused && !paused)
-                        nTargetLockMode = (nTargetLockMode == 0);
-                    break;
                 case SDLK_t:
-                    if (focused && !paused)
+                    if ((plainKey || menuKey) && focused && !paused)
                         cycle_onscreen_targets();
                     break;
                 case SDLK_g:
-                    if (focused && !paused)
+                    if ((plainKey || menuKey) && focused && !paused)
                         select_new_gun();
                     break;
                 case SDLK_w:
-                    if (focused && !paused) {
+                    if ((plainKey || menuKey) && focused && !paused) {
                         select_new_release_weapon((enum ObjectType)-1);
                         SdlSwcLockOff();
-                    }
-                    break;
-                case SDLK_RETURN:
-                case SDLK_KP_ENTER:
-                    if (focused && !paused)
-                        swcReleaseWeaponPending = 1;
-                    break;
-                case SDLK_c:
-                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0) {
-                        if (IsCommChoiceMenuOpen())
-                            CloseCommChoiceMenu();
-                        else
-                            HandleCommunicationMenuRequest();
                     }
                     break;
                 case SDLK_b:
                 case SDLK_r:
                 case SDLK_h:
-                    /* SetGInputForChar: Break/Attack Msg, Req Land/Form Wing
-                       and Help me out here! (Actions menu items 13, 16, 15).
-                       Control and Command chords never reach it as letters. */
-                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0 &&
-                        !(event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI)))
+                    /* Break/Attack Msg, Req Land/Form Wing and Help me out
+                       here! (Actions menu items 13, 16 and 15). */
+                    if (plainKey && flying)
                         SdlSwcCommunicate(event.key.keysym.sym == SDLK_b ? 0 :
                                           event.key.keysym.sym == SDLK_r ? 1 : 2);
                     break;
                 case SDLK_e:
-                    /* Plain E is Taunt Enemy (Actions menu item 14). */
-                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0 &&
-                        !(event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI)))
+                    /* Taunt Enemy (Actions menu item 14). Eject from Ship has
+                       no key; the computer's Eject page offers it. */
+                    if (plainKey && flying)
                         SdlSwcCommunicate(3);
-                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0 &&
-                        (event.key.keysym.mod & KMOD_CTRL) && acPlayerComponentDamageList[7] < 4) {
-                        /* CODE_01 process_player_input +0x3cbe: an intact
-                         * ejector succeeds; damaged ejectors use Random3DO
-                         * (0, damage), with its exclusive upper bound. */
-                        if (acPlayerComponentDamageList[7] <= 1 ||
-                            RandomBelowOrEqual((acPlayerComponentDamageList[7] - 1)) == 0)
-                            nArcadeState = 2;
-                        else
-                            SdlPlaySwcSound(25, 127);
-                    }
                     break;
-                case SDLK_1:
-                case SDLK_2:
-                case SDLK_3:
-                case SDLK_4:
-                case SDLK_5:
-                case SDLK_6:
-                case SDLK_7:
-                    choice = (event.key.keysym.sym - SDLK_1);
-                    if (focused && !paused && !bCurrentPlayerDestroyed && IsCommChoiceMenuOpen() &&
-                        choice < nCommMenuChoiceCount) {
-                        command = GetPendingMenuAction() == 2 ? abCommMenuChoiceCommands[choice] : -1;
-                        recipient = cCommMenuRecipient;
-                        Chosen_communicate_option(choice);
-                        if (command > 0)
-                            SdlSwcVocalizeMessage(command);
-                        if (command == 12)
-                            SdlSwcCockpitMessage(bLandingAuthorized ? "Landing clearance granted" :
-                                "Landing clearance denied", 0x81, 0, -1);
-                        else if (command > 0 && recipient > 0 && recipient < 10)
-                            SdlSwcCockpitMessage(acWingmanMessageStatesArray[recipient] == 1 ?
-                                "Unable to comply" : "Message sent", 0x81, 0, -1);
-                    }
-                    break;
-                case SDLK_F1:
-                    if (event.key.keysym.mod & KMOD_CTRL) {
-                        cockpitless = !cockpitless;
-                        if (focused && !paused)
-                            SwcCentreFlightMouse();
-                    }
-                    break;
-                case SDLK_m:
-                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0) {
+                case SDLK_c:
+                    /* process_player_input +0x3e56: InflightComputer. */
+                    if (plainKey && flying) {
                         SwcResetFlightInput();
-                        if (IsCommChoiceMenuOpen())
-                            CloseCommChoiceMenu();
                         movieResult = SdlShowSwcComputer(window, renderer, path);
                         if (movieResult == SWC_MOVIE_ERROR)
                             goto done;
@@ -2410,8 +2392,34 @@ begin_flight:
                             SwcCentreFlightMouse();
                     }
                     break;
-                case SDLK_ESCAPE:
+                case SDLK_F1:
+                    /* Ctrl+F1 keeps this port's cockpitless view. */
+                    if (event.key.keysym.mod & KMOD_CTRL) {
+                        cockpitless = !cockpitless;
+                        if (focused && !paused)
+                            SwcCentreFlightMouse();
+                    } else {
+                        view = 0;
+                    }
+                    break;
+                case SDLK_F2:
+                    view = 14;
+                    break;
+                case SDLK_F3:
+                    view = 4;
+                    break;
+                case SDLK_y:
+                case SDLK_d:
+                case SDLK_f:
+                    /* Views menu: Cmd-Y cockpit, Cmd-D battle, Cmd-F chase. */
+                    if (menuKey)
+                        view = event.key.keysym.sym == SDLK_y ? 0 :
+                            event.key.keysym.sym == SDLK_d ? 14 : 4;
+                    break;
                 case SDLK_p:
+                    /* Actions menu Pause/Resume (Cmd-P) is the only pause key. */
+                    if (!menuKey)
+                        break;
                     paused = !paused;
                     elapsed = 0;
                     previous = SDL_GetTicks();
@@ -2424,6 +2432,14 @@ begin_flight:
                     break;
                 default:
                     break;
+                }
+                /* process_player_input +0x3de8..+0x3e56: the cockpit view
+                   always applies; battle and chase return to the cockpit. */
+                if (view >= 0 && flying) {
+                    if (view == nCameraViewMode)
+                        view = 0;
+                    if (view != nCameraViewMode)
+                        SwcSelectFlightView(view);
                 }
             }
         }

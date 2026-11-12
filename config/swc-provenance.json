@@ -92,7 +92,7 @@
       "source": "src/sdl/swc_flight.c",
       "symbol": "SwcSelectFlightView",
       "relationship": "partial-algorithm-and-presentation-adaptation",
-      "differences": "Views 0/4/14 follow CODE_01 DoViewsMenu +0x3052 and MENU/206 Y/D/F bindings. Chase case 4 targets +0x35ba: -0x4b000 initial offset, despite an incorrect 0x5000 in Ghidra pseudocode. SDL owns cockpit visibility and input. Selected view persists through navigation and is repositioned after autopilot travel."
+      "differences": "Views 0/4/14 follow CODE_01 DoViewsMenu +0x3052 (MENU/206 Cmd-Y/D/F) and get_player_input's F1-F3 key codes, as process_player_input +0x3de8..+0x3e56 applies them. Chase case 4 targets +0x35ba: -0x4b000 initial offset, despite an incorrect 0x5000 in Ghidra pseudocode. SDL owns cockpit visibility and input. Selected view persists through navigation and is repositioned after autopilot travel."
     },
     {
       "original_name": "set_eye_direction_and_position",
@@ -132,7 +132,7 @@
       "source": "src/sdl/swc_nav.c",
       "symbol": "SdlShowSwcComputer",
       "relationship": "algorithm-and-presentation-adaptation",
-      "differences": "All five pages use ComputerInflight.CMF CKPT/2,3,4,9,10,12,13 and clut/250; comm/guns/weapons backgrounds are intentionally empty. DATA+0x466e retains the selected tab, DATA+0x210 supplies tab coordinates. Navigation uses UpdateInflightNavText +0x273a and a bounded set_new_objective search. Gun/weapon selection uses shared selectors; CKPT/9 mount icons use DATA+0x30 x/y/Q8 scales and blink ten of twenty updates. Native quantities appear with weapon names. Guard frames advance every five updates and alternate 13/14 while open; eject background alternates every ten. Ejection follows +0x34e6..+0x351c damage/exclusive-random/failure-sound logic. SDL owns frozen simulation/audio, 50 ms animation pacing, mouse/controller input, fullscreen, focus/cursor restoration and release-to-activate. Classic-Mac font pixels remain approximate."
+      "differences": "All five pages use ComputerInflight.CMF CKPT/2,3,4,9,10,12,13 and clut/250; comm/guns/weapons backgrounds are intentionally empty. DATA+0x466e retains the selected tab, DATA+0x210 supplies tab coordinates. Navigation uses UpdateInflightNavText +0x273a and a bounded set_new_objective search. Gun/weapon selection uses shared selectors; CKPT/9 mount icons use DATA+0x30 x/y/Q8 scales and blink ten of twenty updates. Native quantities appear with weapon names. Guard frames advance every five updates and alternate 13/14 while open; eject background alternates every ten. Ejection follows +0x34e6..+0x351c damage/exclusive-random/failure-sound logic. Keys follow SetGInputForChar's flags: C opens it; Up/Down change pages (+0x3526/+0x353c); Left/Right select nav or comm entries and Right or Tab cycles guns and missiles (+0x3072, +0x3154, +0x32ec); Return activates (+0x34e6); Escape, Space, Cmd-. or C close it (+0x3554/+0x355c). SDL owns frozen simulation/audio, 50 ms animation pacing, mouse/controller input, fullscreen, focus/cursor restoration and release-to-activate. Classic-Mac font pixels remain approximate."
     },
     {
       "original_name": "UpdateCommStatus",
@@ -142,7 +142,17 @@
       "source": "src/sdl/swc_nav.c",
       "symbol": "SwcBuildComputerComms",
       "relationship": "algorithm-and-presentation-adaptation",
-      "differences": "Wingman/carrier/current hostile-fighter recipients, original conditional order list and DATA+0x2c70 strings. SwcDrawComputerComms also adapts print_message_text +0x289a: size-10 text, twelve-pixel rows, selected color 1/unselected 0xb0, size-9 prompts at (42,179). Sending queues Vocalize_Message then calls request(0,recipient,command) directly rather than WC1's quick-menu index handler. SDL bounds active objects and adds mouse, numbered-key and Backspace input."
+      "differences": "Wingman/carrier/current hostile-fighter recipients, original conditional order list and DATA+0x2c70 strings. SwcDrawComputerComms also adapts print_message_text +0x289a: size-10 text, twelve-pixel rows, selected color 1/unselected 0xb0, size-9 prompts at (42,179). Sending queues Vocalize_Message then calls request(0,recipient,command) directly rather than WC1's quick-menu index handler. SDL bounds active objects and adds mouse input; Left/Right, Return and Escape follow +0x2b38..+0x2b68 and +0x2d3e..+0x2da2, Escape returning from orders to the recipients."
+    },
+    {
+      "original_name": "Chosen_communicate_option",
+      "resource": "CODE_06.bin",
+      "entry_offset": "0x0276",
+      "end_offset": "0x03da",
+      "source": "src/sdl/swc_cockpit.c",
+      "symbol": "SdlSwcCommunicate",
+      "relationship": "algorithm",
+      "differences": "Actions menu items 13-16 and SetGInputForChar's B, R, H and E keys, dispatched by process_player_input +0x3e62..+0x3ea2: break and attack, request landing from a targeted Tiger's Claw or else form on my wing, help me out here, taunt the targeted enemy. Random3DO(0,3) becomes RandomInRange(0,2). The original reads the wingman's objective and the target's side before testing those indices; SDL tests the indices first."
     },
     {
       "original_name": "remove_weapon",
@@ -1009,15 +1019,16 @@
       "source": "src/sdl/swc_flight.c",
       "symbol": "SwcDrawPauseMessage",
       "evidence": "Demo CODE_09 FlyingLoop +0x0ad2..+0x0b60 (A5-0x2845/-0x2822/-0x2800) and retail +0x0ab8..+0x0b46 (A5-0x28cb/-0x28a8/-0x2886) redraw the prompt only after a quit dialog is cancelled while paused. tprintf %X%Y%C%F selects colour 0x81 and font 10; CenterPrint centres each line in the 300-pixel layer that init_text allocates and MoveTextLayer places at x=10, so lines centre on x=160 at baselines 180/200/220. The retail lines are Press Cmd-P again or choose Resume / from the Actions menu to continue / playing Super Wing Commander. CODE_01 DoActionsMenu item 1 toggles the pause byte and the Pause/Resume label; ShowMenuBar disables the Actions menu outside flight mode 8 and during Title_Sequence, and visit_the_cinema never tests the pause byte.",
-      "adaptation": "Flight only, as in the original: P or Esc replaces Cmd-P and the Actions menu in the SWC flight loop. The three lines are drawn centred over the frozen picture without a panel or heading; the first two name SDL's keys (Press P or Esc again / to continue). Focus loss freezes flight silently. The title, autopilot camera, carrier rooms, movies and other scenes have no pause; they freeze only while the window is unfocused.",
+      "adaptation": "Flight only, as in the original: Cmd-P (Ctrl-P on other platforms), the Actions menu's key equivalent, pauses and resumes. The three lines are drawn centred over the frozen picture without a panel or heading; SDL has no Actions menu, so the first two name the key alone (Press Cmd-P again / to continue). Focus loss freezes flight silently. The title, autopilot camera, carrier rooms, movies and other scenes have no pause; they freeze only while the window is unfocused.",
       "validation": "Retail exports of FlyingLoop, DoActionsMenu, ShowMenuBar, init_text, CenterPrint and Title_Sequence; native/GUI builds and launcher check. A scratch ASan/UBSan harness on retail data checked the three line texts and positions, 14 title selections and the credits-only launch. SDL-only source change; Win32 source and flags unchanged."
     },
     "functions": ["PollKeyboardState", "process_player_input", "player_input", "QueueInputEvent", "WarpMouseTo", "accelerate", "your_afterburner", "SetSpaceFlightFrameTiming"],
-    "qualification": "DOS/Win32 controls are intentional. Held keyboard input is sampled per tick, with independent axis release. Mouse motion is passed to WC1 player_input using an initialized SWC viewport, preserving its response tables, signs and right-button roll/throttle. Only motion/modifier events are queued; the SWC host owns SDL event pumping and leaves weapon button states clear. Right double-click/hold uses WC1's timing-only 20/60-second interval and shared afterburner routine. Pointer capture is released on pause/focus loss, and SDL logical coordinates handle resizing and warping. The SDL host calls the shared gun/missile, weapon selection and target-list/cycling routines directly; native automatic acquisition and missile locking live in swc_cockpit.c. HandleSpaceFlightControls remains bypassed; unsupported mission/VDU commands are not dispatched. SWC's Mac event/device code differs.",
+    "qualification": "Keys follow the Mac demo, not WC1: get_player_input +0x4634..+0x46fe sends Command chords to the menus' key equivalents (Control on other platforms), other characters to SetGInputForChar and F1-F3 to the views. SwcTranslateFlightKeys presents the demo's steering, roll, speed, afterburner and gun keys to WC1 player_input as the arrows, keypad diagonals, comma/period and throttle keys it reads; WC1-only keys (Home/End/Page Up/Down, Insert/Delete, keypad 0, 5 and *, Backspace, backslash, Shift steering, L, N, M, digits 1-7, plain Y/D/F/P/Escape and Ctrl+E) are unbound. The autopilot camera reads no keys. Held keyboard input is sampled per tick, with independent axis release. Mouse motion is passed to WC1 player_input using an initialized SWC viewport, preserving its response tables, signs and right-button roll/throttle. Only motion/modifier events are queued; the SWC host owns SDL event pumping and leaves weapon button states clear. Right double-click/hold uses WC1's timing-only 20/60-second interval and shared afterburner routine. Pointer capture is released on pause/focus loss, and SDL logical coordinates handle resizing and warping. The SDL host calls the shared gun/missile, weapon selection and target-list/cycling routines directly; native automatic acquisition and missile locking live in swc_cockpit.c. HandleSpaceFlightControls remains bypassed; unsupported mission/VDU commands are not dispatched. SWC's Mac event/device code differs.",
     "wc1_mouse_evidence": {"source": "src/main.c", "wc1_address": "0x004285d0", "response_tables": ["0x0046a030", "0x0046a040"]},
     "mac_input_evidence": [
       {"name": "get_player_input", "resource": "CODE_01.bin", "entry_offset": "0x4508"},
-      {"name": "process_player_input", "resource": "CODE_01.bin", "entry_offset": "0x3cba"}
+      {"name": "process_player_input", "resource": "CODE_01.bin", "entry_offset": "0x3cba"},
+      {"name": "SetGInputForChar", "resource": "CODE_01.bin", "entry_offset": "0x3ec4"}
     ],
     "validation": "Original-instruction review, static source review, and native/GUI compilation only for the movement and mouse updates; no interactive execution."
   },

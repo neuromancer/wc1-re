@@ -973,6 +973,7 @@ void SdlTranslateSwcJoystickEvent(SDL_Event *event, int flight)
     Uint32 timestamp = event->common.timestamp;
     Uint8 hatPressed;
     unsigned short scanCode = 0;
+    Uint16 modifiers = KMOD_NONE;
     int controller = event->type == SDL_CONTROLLERBUTTONDOWN ||
                      event->type == SDL_CONTROLLERBUTTONUP;
     int pressed;
@@ -1033,14 +1034,21 @@ void SdlTranslateSwcJoystickEvent(SDL_Event *event, int flight)
                  button == SDL_PORT_JOYSTICK_BUTTON_BACK)
             key = SDLK_ESCAPE;
     } else if (button == SDL_PORT_JOYSTICK_BUTTON_BACK)
-        key = flight ? SDLK_ESCAPE : SDLK_BACKSPACE;
-    else if (button == SDL_PORT_JOYSTICK_BUTTON_START)
+        key = SDLK_ESCAPE;
+    else if (button == SDL_PORT_JOYSTICK_BUTTON_START) {
+        /* SWC pauses only through the Actions menu's Cmd-P. */
         key = SDLK_p;
+#ifdef __APPLE__
+        modifiers = KMOD_GUI;
+#else
+        modifiers = KMOD_CTRL;
+#endif
+    }
     else if (button == SDL_PORT_JOYSTICK_BUTTON_A)
         key = flight ? SDLK_SPACE : SDLK_RETURN;
     else if (!flight) {
         switch ((SdlJoystickButton)button) {
-        case SDL_PORT_JOYSTICK_BUTTON_B: key = SDLK_BACKSPACE; break;
+        case SDL_PORT_JOYSTICK_BUTTON_B: key = SDLK_ESCAPE; break;
         case SDL_PORT_JOYSTICK_BUTTON_X: key = SDLK_SPACE; break;
         case SDL_PORT_JOYSTICK_BUTTON_DPAD_UP: key = SDLK_UP; break;
         case SDL_PORT_JOYSTICK_BUTTON_DPAD_DOWN: key = SDLK_DOWN; break;
@@ -1091,6 +1099,7 @@ void SdlTranslateSwcJoystickEvent(SDL_Event *event, int flight)
         event->key.state = pressed ? SDL_PRESSED : SDL_RELEASED;
         event->key.keysym.sym = key;
         event->key.keysym.scancode = SDL_GetScancodeFromKey(key);
+        event->key.keysym.mod = modifiers;
     }
 }
 
