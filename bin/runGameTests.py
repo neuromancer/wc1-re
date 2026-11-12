@@ -22,10 +22,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("probe", type=Path)
     parser.add_argument("data", type=Path, help="Kilrathi Saga installation containing GAMEDAT and STREAMS")
-    parser.add_argument("--campaign", choices=("wc1", "sm1", "sm2", "all"), default="all")
+    parser.add_argument("--campaign", choices=("wc1", "sm1", "sm2", "sim", "all"), default="all",
+                        help="sim is the training simulator")
     parser.add_argument("--fuzz", action="store_true", help="run libFuzzer; pass its flags after --")
     parser.add_argument("--ticks", type=positive, default=600, help="maximum flight ticks per input (1..3600)")
-    parser.add_argument("--case", help="restrict to one mission, e.g. wc1:1:0 (mission is zero-based)")
+    parser.add_argument("--case", help="restrict to one mission, e.g. wc1:1:0 or sim:0:2 (mission is zero-based)")
     parser.add_argument("--timeout", type=positive, help="seconds per input or regression process")
     parser.add_argument("--corpus", type=Path, help="persistent input corpus; defaults beside the fuzzer")
     parser.add_argument("--replay", type=Path, help="replay a saved libFuzzer input without mutations")
@@ -50,7 +51,7 @@ def main():
                ASAN_OPTIONS="detect_leaks=0", UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
     timeout = args.timeout or (120 if args.fuzz else
                               1800 if os.environ.get("WC1_CAMPAIGN_FULL_SCENES") else 600)
-    names = ("wc1", "sm1", "sm2")
+    names = ("wc1", "sm1", "sm2", "sim")
     if args.fuzz:
         env["UBSAN_OPTIONS"] = "halt_on_error=0:print_stacktrace=1"
         env.pop("WC1_FLIGHT_CASE", None)
@@ -60,7 +61,11 @@ def main():
             try:
                 campaign, series, mission = args.case.split(":")
                 series, mission = int(series), int(mission)
-                if campaign not in names or not 1 <= series <= 13 or not 0 <= mission < 256:
+                if campaign not in names or not 0 <= mission < 256:
+                    raise ValueError
+                if campaign == "sim" and (series != 0 or mission > 3):
+                    raise ValueError
+                if campaign != "sim" and not 1 <= series <= 13:
                     raise ValueError
                 if args.campaign not in ("all", campaign):
                     raise ValueError
@@ -116,13 +121,8 @@ def main():
             inputs = [str(args.replay.resolve())]
         else:
             corpus.mkdir(parents=True, exist_ok=True)
-            # Small, asset-free seeds cover every mission/nav; libFuzzer owns mutation.
-            for campaign, series, mission in cases:
-                for nav in range(16):
-                    path = corpus / f"{names[campaign]}-{series}-{mission}-{nav}"
-                    if not path.exists():
-                        path.write_bytes(bytes((campaign, series, mission, nav, 0, 0, 0, 0,
-                                                10, 31, 3, 15, 7, 31, 17, 7, 14, 15)))
+            # The probe adds small seeds for every selected mission and start leg.
+            env["WC1_FLIGHT_SEEDS"] = str(corpus)
             inputs = [str(corpus)]
         command = [str(probe), *inputs, f"-max_len={8 + 2 * args.ticks}",
                    f"-timeout={timeout}", "-detect_leaks=0", f"-artifact_prefix={artifacts}{os.sep}",

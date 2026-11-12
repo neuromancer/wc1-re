@@ -341,8 +341,13 @@ static void TravelFlightPath(int legs)
                 anShipSpeed[ship] = anShipSpeed[0];
                 aShipVelocity[ship] = aShipVelocity[0];
             }
-            ReleaseStaleNavTarget();
+            /* Enter the sphere from the arrival view, as house_keep does after
+               manual flight: set_up_action_sphere explodes the ships it removes
+               while they are on screen, so stale departure positions would
+               destroy ships left far behind. */
             SwcSelectFlightView(nCameraViewMode);
+            SwcTransformObjectsToView();
+            ReleaseStaleNavTarget();
         }
         /* update_objective_location checks one objective per tick. */
         for (tick = 0; tick <= cMissionObjectiveCountValue && FlightContinues(); tick++)
