@@ -9,8 +9,13 @@
  * Actions the player did not change keep the game's own handling, which
  * follows key positions. During flight, the keys of a changed action are
  * looked up on the current layout and stand in for the key the game reads,
- * and the action's original keys stop working. Mouse buttons and Escape keep
- * their original meanings. */
+ * and the action's original keys stop working. Escape keeps its meanings.
+ *
+ * Mouse buttons and the wheel can be bound like keys ("mouse-back",
+ * "wheel-up"); in flight they press the action's key. Two rows choose the
+ * game's own mouse buttons: "mouse-guns", which fires the guns and with the
+ * other fires a missile, and "mouse-afterburner", which lights the
+ * afterburner on a double-click and rolls and changes speed while dragged. */
 #include "wc1sdl.h"
 #include "keymap_actions.h"
 
@@ -24,6 +29,9 @@ typedef struct SdlKeyBinding {
     /* The other side of a modifier key, or the keypad Enter. */
     SDL_Scancode otherKey;
     Uint16 modifier;
+    /* An SDL mouse button, or a wheel direction (1 up, -1 down). */
+    Uint8 button;
+    Sint8 wheel;
 } SdlKeyBinding;
 
 typedef struct SdlKeyAction {
@@ -58,7 +66,11 @@ typedef struct SdlChangedAction {
 
 static SdlChangedAction g_aSdlChangedActions[SDL_KEYMAP_ACTIONS];
 static SdlChangedAction g_stSdlFullscreenBindings;
+/* The game's own buttons: guns (primary) and afterburner (secondary). */
+static SdlChangedAction g_stSdlGunsButton;
+static SdlChangedAction g_stSdlAfterburnerButton;
 static int g_bSdlKeymapChanged;
+static int g_bSdlMouseChanged;
 static int g_bSdlKeymapResolved;
 /* What each pressed key was turned into: -1 untouched, 0 dropped. */
 static int g_aSdlKeyTranslations[SDL_NUM_SCANCODES];
@@ -94,6 +106,18 @@ static const SdlNamedKey g_aSdlNamedKeys[] = {
     {"f4", SDL_SCANCODE_F4}, {"f5", SDL_SCANCODE_F5}, {"f6", SDL_SCANCODE_F6},
     {"f7", SDL_SCANCODE_F7}, {"f8", SDL_SCANCODE_F8}, {"f9", SDL_SCANCODE_F9},
     {"f10", SDL_SCANCODE_F10}, {"f11", SDL_SCANCODE_F11}, {"f12", SDL_SCANCODE_F12}
+};
+
+typedef struct SdlMouseInput {
+    const char *name;
+    Uint8 button;
+    Sint8 wheel;
+} SdlMouseInput;
+
+static const SdlMouseInput g_aSdlMouseInputs[] = {
+    {"mouse-left", SDL_BUTTON_LEFT}, {"mouse-right", SDL_BUTTON_RIGHT},
+    {"mouse-middle", SDL_BUTTON_MIDDLE}, {"mouse-back", SDL_BUTTON_X1},
+    {"mouse-forward", SDL_BUTTON_X2}, {"wheel-up", 0, 1}, {"wheel-down", 0, -1}
 };
 
 /* The original keys' symbols where a layout lacks them as unshifted keys,
@@ -160,6 +184,15 @@ static int SdlKeymapIsMouse(const char *name)
     return strncmp(name, "mouse-", 6) == 0 || strncmp(name, "wheel-", 6) == 0;
 }
 
+/* Mouse movement is a gesture of the game's own mouse code, and a mouse
+ * input takes no modifier. */
+static int SdlKeymapBindable(const SdlKeyNames *names)
+{
+    return strcmp(names->key, "mouse-move") != 0 &&
+        (names->modifier[0] == '\0' ||
+         (!SdlKeymapIsMouse(names->modifier) && !SdlKeymapIsMouse(names->key)));
+}
+
 static int SdlKeymapFindAction(const char *id, size_t length)
 {
     int action;
@@ -172,7 +205,7 @@ static int SdlKeymapFindAction(const char *id, size_t length)
     return -1;
 }
 
-/* Reads one "binding,binding" value into names; mouse bindings are skipped. */
+/* Reads one "binding,binding" value into names. */
 static void SdlKeymapParseValue(const char *value, size_t length,
                                 SdlChangedAction *action)
 {
@@ -193,11 +226,11 @@ static void SdlKeymapParseValue(const char *value, size_t length,
         if (plus < end) {
             if (SdlKeymapDecodeName(value + start, plus - start, names.modifier) &&
                 SdlKeymapDecodeName(value + plus + 1, end - plus - 1, names.key) &&
-                !SdlKeymapIsMouse(names.key))
+                SdlKeymapBindable(&names))
                 action->names[action->count++] = names;
         } else if (end > start &&
                    SdlKeymapDecodeName(value + start, end - start, names.key) &&
-                   !SdlKeymapIsMouse(names.key)) {
+                   SdlKeymapBindable(&names)) {
             action->names[action->count++] = names;
         }
         if (end >= length)
@@ -206,13 +239,28 @@ static void SdlKeymapParseValue(const char *value, size_t length,
     }
 }
 
+static int SdlKeymapHasMouse(const SdlChangedAction *action)
+{
+    int index;
+
+    for (index = 0; index < action->count; index++) {
+        if (SdlKeymapIsMouse(action->names[index].key))
+            return 1;
+    }
+    return 0;
+}
+
 void SdlSetKeyBindings(const char *text)
 {
     const char *line = text;
+    int action;
 
     memset(g_aSdlChangedActions, 0, sizeof(g_aSdlChangedActions));
     memset(&g_stSdlFullscreenBindings, 0, sizeof(g_stSdlFullscreenBindings));
+    memset(&g_stSdlGunsButton, 0, sizeof(g_stSdlGunsButton));
+    memset(&g_stSdlAfterburnerButton, 0, sizeof(g_stSdlAfterburnerButton));
     g_bSdlKeymapChanged = 0;
+    g_bSdlMouseChanged = 0;
     g_bSdlKeymapResolved = 0;
     while (line != NULL && *line != '\0') {
         const char *end = strchr(line, '\n');
@@ -229,12 +277,35 @@ void SdlSetKeyBindings(const char *text)
             if (idLength == strlen("full-screen") &&
                 memcmp(line, "full-screen", idLength) == 0) {
                 SdlKeymapParseValue(value, valueLength, &g_stSdlFullscreenBindings);
+            } else if (idLength == strlen("mouse-guns") &&
+                       memcmp(line, "mouse-guns", idLength) == 0) {
+                SdlKeymapParseValue(value, valueLength, &g_stSdlGunsButton);
+                g_bSdlMouseChanged = 1;
+            } else if (idLength == strlen("mouse-afterburner") &&
+                       memcmp(line, "mouse-afterburner", idLength) == 0) {
+                SdlKeymapParseValue(value, valueLength, &g_stSdlAfterburnerButton);
+                g_bSdlMouseChanged = 1;
             } else if ((action = SdlKeymapFindAction(line, idLength)) >= 0) {
                 SdlKeymapParseValue(value, valueLength, &g_aSdlChangedActions[action]);
                 g_bSdlKeymapChanged = 1;
             }
         }
         line = end != NULL ? end + 1 : NULL;
+    }
+    /* The mouse needs remapping once a binding uses it, or once the wheel's
+     * original actions change. */
+    for (action = 0; action < SDL_KEYMAP_ACTIONS; action++) {
+        const SdlChangedAction *changed = &g_aSdlChangedActions[action];
+        int index;
+
+        if (!changed->changed)
+            continue;
+        if (SdlKeymapHasMouse(changed))
+            g_bSdlMouseChanged = 1;
+        for (index = 0; index < SDL_KEYMAP_BINDINGS; index++) {
+            if (g_aSdlKeyActions[action].defaults[index].wheel != 0)
+                g_bSdlMouseChanged = 1;
+        }
     }
 }
 
@@ -281,12 +352,21 @@ static Uint32 SdlKeymapCodePoint(const char *name)
     return bytes[extra + 1] == '\0' ? codePoint : 0;
 }
 
-/* Finds the key that types name on the current layout. */
+/* Finds the key that types name on the current layout, or the mouse
+ * input it names. */
 static int SdlKeymapResolveKey(const char *name, SdlKeyBinding *binding)
 {
     const SdlNamedKey *named;
     Uint32 codePoint;
     size_t index;
+
+    for (index = 0; index < sizeof(g_aSdlMouseInputs) / sizeof(g_aSdlMouseInputs[0]); index++) {
+        if (strcmp(g_aSdlMouseInputs[index].name, name) == 0) {
+            binding->button = g_aSdlMouseInputs[index].button;
+            binding->wheel = g_aSdlMouseInputs[index].wheel;
+            return 1;
+        }
+    }
 
     named = SdlKeymapFindNamed(g_aSdlNamedKeys,
                                sizeof(g_aSdlNamedKeys) / sizeof(g_aSdlNamedKeys[0]), name);
@@ -364,6 +444,10 @@ static void SdlKeymapResolve(void)
     }
     if (g_stSdlFullscreenBindings.changed)
         SdlKeymapResolveAction("full-screen", &g_stSdlFullscreenBindings);
+    if (g_stSdlGunsButton.changed)
+        SdlKeymapResolveAction("mouse-guns", &g_stSdlGunsButton);
+    if (g_stSdlAfterburnerButton.changed)
+        SdlKeymapResolveAction("mouse-afterburner", &g_stSdlAfterburnerButton);
 }
 
 void SdlKeymapInvalidate(void)
@@ -546,6 +630,92 @@ static void SdlKeymapReleaseModifier(Uint16 modifier)
     }
 }
 
+/* The game's guns and afterburner buttons: the original left and right
+ * buttons, or the first button bound to each row; 0 when none is. */
+static Uint8 SdlKeymapRoleButton(const SdlChangedAction *role, Uint8 original)
+{
+    int index;
+
+    if (!role->changed)
+        return original;
+    SdlKeymapResolve();
+    for (index = 0; index < role->count; index++) {
+        if (role->bindings[index].button != 0)
+            return role->bindings[index].button;
+    }
+    return 0;
+}
+
+int SdlKeymapIsGameButton(Uint8 button)
+{
+    return button == SdlKeymapRoleButton(&g_stSdlGunsButton, SDL_BUTTON_LEFT) ||
+        button == SdlKeymapRoleButton(&g_stSdlAfterburnerButton, SDL_BUTTON_RIGHT);
+}
+
+int SdlKeymapMouseActive(void)
+{
+    return g_bSdlMouseChanged && SdlSpaceflightInputActive();
+}
+
+void SdlKeymapGameButtons(Uint32 buttons, int *primary, int *secondary)
+{
+    Uint8 guns = SdlKeymapRoleButton(&g_stSdlGunsButton, SDL_BUTTON_LEFT);
+    Uint8 afterburner = SdlKeymapRoleButton(&g_stSdlAfterburnerButton, SDL_BUTTON_RIGHT);
+
+    *primary = guns != 0 && (buttons & SDL_BUTTON(guns)) != 0;
+    *secondary = afterburner != 0 && (buttons & SDL_BUTTON(afterburner)) != 0;
+}
+
+/* The key of the action a mouse button or a wheel step is bound to, a
+ * changed binding winning over an original one; SDL_SCANCODE_UNKNOWN when
+ * it is bound to none. */
+static SDL_Scancode SdlKeymapMouseAction(Uint8 button, Sint8 wheel)
+{
+    int pass;
+    int action;
+    int index;
+
+    SdlKeymapResolve();
+    for (pass = 0; pass < 2; pass++) {
+        for (action = 0; action < SDL_KEYMAP_ACTIONS; action++) {
+            const SdlChangedAction *changed = &g_aSdlChangedActions[action];
+
+            if ((pass == 0) != (changed->changed != 0))
+                continue;
+            for (index = 0; index < SDL_KEYMAP_BINDINGS; index++) {
+                const SdlKeyBinding *binding = changed->changed
+                    ? (index < changed->count ? &changed->bindings[index] : NULL)
+                    : &g_aSdlKeyActions[action].defaults[index];
+
+                if (binding != NULL &&
+                    (button != 0 ? binding->button == button : binding->wheel == wheel))
+                    return g_aSdlKeyActions[action].gameKey;
+            }
+        }
+    }
+    return SDL_SCANCODE_UNKNOWN;
+}
+
+SDL_Scancode SdlKeymapMouseKey(Uint8 button)
+{
+    if (button == 0 || SdlKeymapIsGameButton(button))
+        return SDL_SCANCODE_UNKNOWN;
+    return SdlKeymapMouseAction(button, 0);
+}
+
+SDL_Scancode SdlKeymapWheelKey(int direction)
+{
+    return SdlKeymapMouseAction(0, direction > 0 ? 1 : -1);
+}
+
+/* A bound mouse button that is not one of the game's own counts as held
+ * while it is down. */
+static int SdlKeymapMouseHeld(const SdlKeyBinding *binding, Uint32 mouse)
+{
+    return binding->button != 0 && (mouse & SDL_BUTTON(binding->button)) != 0 &&
+        !SdlKeymapIsGameButton(binding->button);
+}
+
 /* The keys the game should see held: a changed action's keys hold the key
  * the game reads, keys whose action moved away read as released, and a
  * modifier used by a binding stands only for that binding. */
@@ -554,12 +724,14 @@ const Uint8 *SdlKeymapKeyboardState(const Uint8 *keys)
     Uint16 modifiers;
     Uint16 consumed = 0;
     Uint16 required = 0;
+    Uint32 mouse;
     int key;
     int action;
     int index;
 
     if (!SdlKeymapActive())
         return keys;
+    mouse = g_bSdlMouseChanged ? SDL_GetMouseState(NULL, NULL) : 0;
     memcpy(g_abSdlVirtualKeys, keys, sizeof(g_abSdlVirtualKeys));
     modifiers = SdlKeymapHeldModifiers(keys);
     for (key = SDL_SCANCODE_UNKNOWN + 1; key < SDL_NUM_SCANCODES; key++) {
@@ -588,7 +760,8 @@ const Uint8 *SdlKeymapKeyboardState(const Uint8 *keys)
         const SdlChangedAction *changed = &g_aSdlChangedActions[action];
 
         for (index = 0; changed->changed && index < changed->count; index++) {
-            if (!SdlKeymapActiveBinding(&changed->bindings[index], keys, modifiers))
+            if (!SdlKeymapActiveBinding(&changed->bindings[index], keys, modifiers) &&
+                !SdlKeymapMouseHeld(&changed->bindings[index], mouse))
                 continue;
             g_abSdlVirtualKeys[g_aSdlKeyActions[action].gameKey] = 1;
             required |= g_aSdlKeyActions[action].gameModifier;

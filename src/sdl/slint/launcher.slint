@@ -56,9 +56,12 @@ export component LauncherWindow inherits Window {
     out property <string> voice-label: @tr("Sega CD voices");
     out property <string> installation-prompt: root.has-installations
         ? @tr("Select game data…") : @tr("No game data found — add a path");
-    // The controller bindings window covers WC1's DOS and Kilrathi Saga data.
+    // The controls window covers WC1's DOS and Kilrathi Saga data and SWC.
     out property <bool> controls-available: root.path-valid
-        && (root.status == LauncherMessage.dos || root.status == LauncherMessage.kilrathi-saga);
+        && (root.status == LauncherMessage.dos || root.status == LauncherMessage.kilrathi-saga
+            || root.swc-demo);
+    // The game it shows: 0 WC1, 1 SWC.
+    out property <int> controls-game: root.swc-demo ? 1 : 0;
 
     public pure function edition-text(edition: LauncherMessage) -> string {
         if edition == LauncherMessage.fm-towns { return "FM Towns"; }
@@ -103,6 +106,9 @@ export component LauncherWindow inherits Window {
         root.controls-layout-changed();
     }
     changed joystick-axes-index => {
+        root.controls-layout-changed();
+    }
+    changed controls-game => {
         root.controls-layout-changed();
     }
 

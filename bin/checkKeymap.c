@@ -9,10 +9,21 @@
 
 static int g_bFlight;
 static int g_nFailures;
+static Uint32 g_dwMouseButtons;
 
 int SdlSpaceflightInputActive(void)
 {
     return g_bFlight;
+}
+
+/* The buttons the keymap sees held. */
+Uint32 SDL_GetMouseState(int *x, int *y)
+{
+    if (x != NULL)
+        *x = 0;
+    if (y != NULL)
+        *y = 0;
+    return g_dwMouseButtons;
 }
 
 static void Expect(int condition, const char *what)
@@ -153,9 +164,55 @@ int main(void)
     Expect(SdlKeymapFullscreenShortcut(SDL_SCANCODE_RETURN, KMOD_LALT) == 0,
            "Alt-Enter no longer does");
 
+    /* Keys alone leave the mouse as it is. */
+    g_bFlight = 1;
+    SdlSetKeyBindings("pitch-down=k\n");
+    Expect(!SdlKeymapMouseActive(), "changed keys leave the mouse alone");
+
+    /* The game's two buttons can swap or move, and other buttons and the
+     * wheel press the keys of the actions bound to them. */
+    SdlSetKeyBindings("mouse-guns=mouse-right\n"
+                      "mouse-afterburner=mouse-left\n"
+                      "lock-target=l,mouse-back\n"
+                      "pitch-down=up,mouse-middle\n"
+                      "slow-down=-,wheel-up\n"
+                      "eject=mouse-forward\n");
+    {
+        int primary;
+        int secondary;
+
+        Expect(SdlKeymapMouseActive(), "the mouse is remapped in flight");
+        SdlKeymapGameButtons(SDL_BUTTON_RMASK, &primary, &secondary);
+        Expect(primary && !secondary, "the right button fires the guns");
+        SdlKeymapGameButtons(SDL_BUTTON_LMASK, &primary, &secondary);
+        Expect(!primary && secondary, "the left button lights the afterburner");
+        SdlKeymapGameButtons(SDL_BUTTON_MMASK, &primary, &secondary);
+        Expect(!primary && !secondary, "the middle button is neither");
+    }
+    Expect(SdlKeymapIsGameButton(SDL_BUTTON_LEFT) && SdlKeymapIsGameButton(SDL_BUTTON_RIGHT) &&
+           !SdlKeymapIsGameButton(SDL_BUTTON_MIDDLE), "the game's buttons");
+    Expect(SdlKeymapMouseKey(SDL_BUTTON_X1) == SDL_SCANCODE_L, "button 4 locks targets");
+    Expect(SdlKeymapMouseKey(SDL_BUTTON_MIDDLE) == SDL_SCANCODE_UP, "the middle button pitches down");
+    Expect(SdlKeymapMouseKey(SDL_BUTTON_LEFT) == SDL_SCANCODE_UNKNOWN, "a game button presses no key");
+    Expect(SdlKeymapWheelKey(1) == SDL_SCANCODE_MINUS, "wheel up now slows down");
+    Expect(SdlKeymapWheelKey(-1) == SDL_SCANCODE_UNKNOWN, "wheel down is unbound");
+    g_dwMouseButtons = SDL_BUTTON(SDL_BUTTON_MIDDLE);
+    held = Hold(SDL_SCANCODE_UNKNOWN, SDL_SCANCODE_UNKNOWN);
+    Expect(held[SDL_SCANCODE_UP], "holding the middle button holds Up");
+    g_dwMouseButtons = SDL_BUTTON(SDL_BUTTON_X2);
+    held = Hold(SDL_SCANCODE_UNKNOWN, SDL_SCANCODE_UNKNOWN);
+    Expect(held[SDL_SCANCODE_E] && held[SDL_SCANCODE_LCTRL], "button 5 holds Ctrl+E to eject");
+    g_dwMouseButtons = SDL_BUTTON(SDL_BUTTON_LEFT);
+    held = Hold(SDL_SCANCODE_UNKNOWN, SDL_SCANCODE_UNKNOWN);
+    Expect(!held[SDL_SCANCODE_UP] && !held[SDL_SCANCODE_LCTRL], "a game button holds no key");
+    g_dwMouseButtons = 0;
+    Expect(Tap(SDL_SCANCODE_UP, 0) == SDL_SCANCODE_UP, "Up still pitches down");
+    g_bFlight = 0;
+    Expect(!SdlKeymapMouseActive(), "menus keep the mouse as it is");
+
     SDL_Quit();
     if (g_nFailures != 0)
         return 1;
-    puts("PASS: rebound WC1 flight keys stand in for the original keys, only in flight.");
+    puts("PASS: rebound WC1 flight keys and mouse inputs stand in for the original ones, only in flight.");
     return 0;
 }

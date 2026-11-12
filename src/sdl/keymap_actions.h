@@ -1,10 +1,11 @@
 /* The WC1 flight inputs that the launcher's keyboard and mouse table can
  * rebind, shared by src/sdl/keymap.c and the launcher check. Each entry
  * names the input as the launcher settings and the table do, the key and
- * modifier that the game's own handler reads, and the original keys by
- * position: a key, its other side for modifier keys, and a modifier. The
- * arrows steer like a stick, so up pitches the nose down. Full screen is a
- * port shortcut and is handled separately. */
+ * modifier that the game's own handler reads, and the original bindings: a
+ * key by position, its other side for modifier keys, a modifier, a mouse
+ * button, and a wheel direction. The arrows steer like a stick, so up
+ * pitches the nose down. Full screen, a port shortcut, and the mouse buttons
+ * that fire the guns and light the afterburner are handled separately. */
 #ifndef WC1_SDL_KEYMAP_ACTIONS_H
 #define WC1_SDL_KEYMAP_ACTIONS_H
 
@@ -20,8 +21,10 @@
     ACTION("roll-left", SDL_SCANCODE_COMMA, 0, {SDL_SCANCODE_COMMA}, {SDL_SCANCODE_INSERT}) \
     ACTION("roll-right", SDL_SCANCODE_PERIOD, 0, {SDL_SCANCODE_PERIOD}, {SDL_SCANCODE_DELETE}) \
     ACTION("full-turn-rate", SDL_SCANCODE_LSHIFT, 0, {SDL_SCANCODE_LSHIFT, SDL_SCANCODE_RSHIFT}) \
-    ACTION("speed-up", SDL_SCANCODE_EQUALS, 0, {SDL_SCANCODE_EQUALS}) \
-    ACTION("slow-down", SDL_SCANCODE_MINUS, 0, {SDL_SCANCODE_MINUS}) \
+    ACTION("speed-up", SDL_SCANCODE_EQUALS, 0, {SDL_SCANCODE_EQUALS}, \
+           {SDL_SCANCODE_UNKNOWN, SDL_SCANCODE_UNKNOWN, 0, 0, 1}) \
+    ACTION("slow-down", SDL_SCANCODE_MINUS, 0, {SDL_SCANCODE_MINUS}, \
+           {SDL_SCANCODE_UNKNOWN, SDL_SCANCODE_UNKNOWN, 0, 0, -1}) \
     ACTION("full-speed", SDL_SCANCODE_BACKSLASH, 0, {SDL_SCANCODE_BACKSLASH}) \
     ACTION("stop", SDL_SCANCODE_BACKSPACE, 0, {SDL_SCANCODE_BACKSPACE}) \
     ACTION("afterburner", SDL_SCANCODE_TAB, 0, {SDL_SCANCODE_TAB}) \

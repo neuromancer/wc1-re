@@ -1,8 +1,8 @@
 // Flight bindings for the game controller, drawn in the style of SC
 // Controller's binding display with its CC0 artwork (third_party/sc-controller),
 // and for the keyboard and mouse, as a table that names each key in text so
-// that any key can appear in it. Only WC1's DOS/Kilrathi Saga bindings exist so
-// far; other games add their own.
+// that any key can appear in it. It covers WC1's DOS and Kilrathi Saga data,
+// whose keys and mouse can be rebound, and the SWC Mac data.
 import { Button, ComboBox, ListView, Palette } from "std-widgets.slint";
 
 export enum PadControl {
@@ -114,8 +114,8 @@ component Connector inherits Rectangle {
 // of keys (joiner "–") or a single input, with a hint on how to use it.
 // Inputs are names, not pictures, so any key can be shown: a typed character
 // such as "e" or "ñ", or a name such as "up", "ctrl" or "mouse-left" (see
-// ControlsWindow.input-label). A fixed binding cannot be changed: a mouse
-// input, which the game handles itself, or Escape, which also closes menus.
+// ControlsWindow.input-label). A fixed binding cannot be changed: mouse
+// movement, which steers, or Escape, which also closes menus.
 struct InputBinding {
     inputs: [string],
     joiner: string,
@@ -125,13 +125,17 @@ struct InputBinding {
 
 // A row of the keyboard and mouse table: a section heading, or a game input,
 // how to use it, and its original bindings. The id names the input in the
-// launcher settings and in src/sdl/keymap.c. A fixed row cannot be changed.
+// launcher settings and in src/sdl/keymap.c. A fixed row cannot be changed; a
+// mouse-only row takes only mouse buttons; limit caps its bindings (0 uses
+// ControlsWindow.max-bindings).
 struct InputRow {
     id: string,
     section: string,
     action: string,
     hint: string,
     fixed: bool,
+    mouse-only: bool,
+    limit: int,
     bindings: [InputBinding],
 }
 
@@ -171,7 +175,7 @@ component KeyCap inherits Rectangle {
 }
 
 export component ControlsWindow inherits Window {
-    title: @tr("Wing Commander controls");
+    title: root.game == 1 ? @tr("Super Wing Commander controls") : @tr("Wing Commander controls");
     width: 1040px;
     height: 660px;
     background: Palette.background;
@@ -202,6 +206,10 @@ export component ControlsWindow inherits Window {
     in-out property <int> page;
     // macOS toggles full screen with Command-Return rather than Alt-Enter.
     in property <bool> apple-keys;
+    // 0 shows WC1 (DOS and Kilrathi Saga data), 1 SWC (Mac data).
+    in property <int> game;
+    // The Mac menus' shortcuts use Command; SWC uses Control elsewhere.
+    property <string> menu-key: root.apple-keys ? "meta" : "ctrl";
 
     // WC1 flight keys (src/main.c: HandleSpaceFlightControls and
     // process_player_input) and mouse (player_input), one game input per row.
@@ -217,29 +225,32 @@ export component ControlsWindow inherits Window {
         { id: "pitch-down-yaw-right", action: @tr("Pitch down and yaw right"), bindings: [{ inputs: ["page-up"] }] },
         { id: "pitch-up-yaw-left", action: @tr("Pitch up and yaw left"), bindings: [{ inputs: ["end"] }] },
         { id: "pitch-up-yaw-right", action: @tr("Pitch up and yaw right"), bindings: [{ inputs: ["page-down"] }] },
-        { id: "pitch-and-yaw", action: @tr("Pitch and yaw"), fixed: true, bindings: [{ inputs: ["mouse-move"], fixed: true }] },
         { id: "roll-left", action: @tr("Roll left"), bindings: [{ inputs: [","] }, { inputs: ["insert"] }] },
         { id: "roll-right", action: @tr("Roll right"), bindings: [{ inputs: ["."] }, { inputs: ["delete"] }] },
-        { id: "roll-and-speed", action: @tr("Roll and change speed"), hint: @tr("hold and move"), fixed: true, bindings: [
-            { inputs: ["mouse-right", "mouse-move"], joiner: "+", fixed: true }
-        ] },
         { id: "full-turn-rate", action: @tr("Full turn rate"), hint: @tr("hold with a turn key"), bindings: [{ inputs: ["shift"] }] },
-        { id: "speed-up", action: @tr("Speed up"), bindings: [{ inputs: ["+"] }, { inputs: ["wheel-up"], fixed: true }] },
-        { id: "slow-down", action: @tr("Slow down"), bindings: [{ inputs: ["-"] }, { inputs: ["wheel-down"], fixed: true }] },
+        { id: "speed-up", action: @tr("Speed up"), bindings: [{ inputs: ["+"] }, { inputs: ["wheel-up"] }] },
+        { id: "slow-down", action: @tr("Slow down"), bindings: [{ inputs: ["-"] }, { inputs: ["wheel-down"] }] },
         { id: "full-speed", action: @tr("Full speed"), bindings: [{ inputs: ["\\"] }] },
         { id: "stop", action: @tr("Stop"), bindings: [{ inputs: ["backspace"] }] },
-        { id: "afterburner", action: @tr("Afterburner"), hint: @tr("hold"), bindings: [
-            { inputs: ["tab"] },
-            { inputs: ["mouse-right"], hint: @tr("double-click"), fixed: true }
-        ] },
+        { id: "afterburner", action: @tr("Afterburner"), hint: @tr("hold"), bindings: [{ inputs: ["tab"] }] },
         { section: @tr("Weapons") },
-        { id: "fire-guns", action: @tr("Fire guns"), bindings: [{ inputs: ["space"] }, { inputs: ["mouse-left"], fixed: true }] },
-        { id: "fire-missile", action: @tr("Fire missile or drop mine"), bindings: [
-            { inputs: ["enter"] },
-            { inputs: ["mouse-left", "mouse-right"], joiner: "+", fixed: true }
-        ] },
+        { id: "fire-guns", action: @tr("Fire guns"), bindings: [{ inputs: ["space"] }] },
+        { id: "fire-missile", action: @tr("Fire missile or drop mine"), bindings: [{ inputs: ["enter"] }] },
         { id: "next-gun", action: @tr("Weapons display, next gun"), bindings: [{ inputs: ["g"] }] },
         { id: "next-missile", action: @tr("Weapons display, next missile"), bindings: [{ inputs: ["w"] }] },
+        // The game's own mouse code: the guns button fires and, with the
+        // afterburner button, fires a missile; the afterburner button lights
+        // it on a double-click and rolls and changes speed while dragged. The
+        // launcher fills in the missile and roll rows from the two buttons.
+        { section: @tr("Mouse") },
+        { id: "mouse-steer", action: @tr("Pitch and yaw"), fixed: true, bindings: [{ inputs: ["mouse-move"], fixed: true }] },
+        { id: "mouse-guns", action: @tr("Fire guns"), mouse-only: true, limit: 1, bindings: [{ inputs: ["mouse-left"] }] },
+        { id: "mouse-afterburner", action: @tr("Afterburner"), hint: @tr("double-click and hold"), mouse-only: true, limit: 1,
+          bindings: [{ inputs: ["mouse-right"] }] },
+        { id: "mouse-missile", action: @tr("Fire missile or drop mine"), hint: @tr("both buttons"), fixed: true,
+          bindings: [{ inputs: ["mouse-left", "mouse-right"], joiner: "+", fixed: true }] },
+        { id: "mouse-roll", action: @tr("Roll and change speed"), hint: @tr("hold and move"), fixed: true,
+          bindings: [{ inputs: ["mouse-right", "mouse-move"], joiner: "+", fixed: true }] },
         { section: @tr("Cockpit") },
         { id: "next-target", action: @tr("Target display, next target"), bindings: [{ inputs: ["t"] }] },
         { id: "lock-target", action: @tr("Lock target"), bindings: [{ inputs: ["l"] }] },
@@ -272,6 +283,75 @@ export component ControlsWindow inherits Window {
             { inputs: [root.apple-keys ? "meta" : "alt", "enter"], joiner: "+" }
         ] }
     ];
+    // SWC's keys: the Mac demo's (src/sdl/swc_flight.c, swc_nav.c and
+    // swc_options.c). They cannot be rebound yet.
+    out property <[InputRow]> swc-rows: [
+        { section: @tr("Flight") },
+        { action: @tr("Pitch down"), fixed: true, bindings: [{ inputs: ["up"] }, { inputs: ["i"] }, { inputs: ["8"] }] },
+        { action: @tr("Pitch up"), fixed: true, bindings: [{ inputs: ["down"] }, { inputs: ["k"] }, { inputs: ["2"] }] },
+        { action: @tr("Yaw left"), fixed: true, bindings: [{ inputs: ["left"] }, { inputs: ["j"] }, { inputs: ["4"] }] },
+        { action: @tr("Yaw right"), fixed: true, bindings: [{ inputs: ["right"] }, { inputs: ["l"] }, { inputs: ["6"] }] },
+        { action: @tr("Pitch down and yaw left"), fixed: true, bindings: [{ inputs: ["7"] }] },
+        { action: @tr("Pitch down and yaw right"), fixed: true, bindings: [{ inputs: ["9"] }] },
+        { action: @tr("Pitch up and yaw left"), fixed: true, bindings: [{ inputs: ["1"] }] },
+        { action: @tr("Pitch up and yaw right"), fixed: true, bindings: [{ inputs: ["3"] }] },
+        { action: @tr("Roll left"), fixed: true, bindings: [{ inputs: [","] }, { inputs: ["<"] }] },
+        { action: @tr("Roll right"), fixed: true, bindings: [{ inputs: ["."] }, { inputs: [">"] }] },
+        { action: @tr("Speed up"), fixed: true, bindings: [
+            { inputs: ["+"] }, { inputs: [root.menu-key, "="], joiner: "+" }, { inputs: ["wheel-up"] }
+        ] },
+        { action: @tr("Slow down"), fixed: true, bindings: [
+            { inputs: ["-"] }, { inputs: [root.menu-key, "-"], joiner: "+" }, { inputs: ["wheel-down"] }
+        ] },
+        { action: @tr("Afterburner"), hint: @tr("hold"), fixed: true, bindings: [{ inputs: ["tab"] }] },
+        { section: @tr("Weapons") },
+        { action: @tr("Fire guns"), fixed: true, bindings: [{ inputs: ["space"] }] },
+        { action: @tr("Fire missile or drop mine"), fixed: true, bindings: [{ inputs: ["enter"] }] },
+        { action: @tr("Next gun"), fixed: true, bindings: [{ inputs: ["g"] }, { inputs: [root.menu-key, "g"], joiner: "+" }] },
+        { action: @tr("Next missile"), fixed: true, bindings: [{ inputs: ["w"] }, { inputs: [root.menu-key, "w"], joiner: "+" }] },
+        { action: @tr("Next target"), fixed: true, bindings: [{ inputs: ["t"] }, { inputs: [root.menu-key, "t"], joiner: "+" }] },
+        { section: @tr("Cockpit") },
+        { action: @tr("Autopilot"), hint: @tr("not in the simulator"), fixed: true, bindings: [
+            { inputs: ["a"] }, { inputs: [root.menu-key, "a"], joiner: "+" }
+        ] },
+        { action: @tr("In-flight computer"), fixed: true, bindings: [{ inputs: ["c"] }] },
+        { section: @tr("Messages") },
+        { action: @tr("Break and attack"), fixed: true, bindings: [{ inputs: ["b"] }] },
+        { action: @tr("Request landing, or form on my wing"), fixed: true, bindings: [{ inputs: ["r"] }] },
+        { action: @tr("Help me out here"), fixed: true, bindings: [{ inputs: ["h"] }] },
+        { action: @tr("Taunt the targeted enemy"), fixed: true, bindings: [{ inputs: ["e"] }] },
+        { section: @tr("Views") },
+        { action: @tr("Cockpit view"), fixed: true, bindings: [{ inputs: ["f1"] }, { inputs: [root.menu-key, "y"], joiner: "+" }] },
+        { action: @tr("Battle view; again: cockpit"), fixed: true, bindings: [{ inputs: ["f2"] }, { inputs: [root.menu-key, "d"], joiner: "+" }] },
+        { action: @tr("Chase view; again: cockpit"), fixed: true, bindings: [{ inputs: ["f3"] }, { inputs: [root.menu-key, "f"], joiner: "+" }] },
+        { action: @tr("Cockpit on/off"), hint: @tr("this port"), fixed: true, bindings: [{ inputs: ["ctrl", "f1"], joiner: "+" }] },
+        { section: @tr("In-flight computer") },
+        { action: @tr("Previous or next page"), fixed: true, bindings: [{ inputs: ["up"] }, { inputs: ["down"] }] },
+        { action: @tr("Previous or next choice"), fixed: true, bindings: [{ inputs: ["left"] }, { inputs: ["right"] }] },
+        { action: @tr("Next gun or missile"), fixed: true, bindings: [{ inputs: ["right"] }, { inputs: ["tab"] }] },
+        { action: @tr("Select"), fixed: true, bindings: [{ inputs: ["enter"] }, { inputs: ["mouse-left"] }] },
+        { action: @tr("Close, or back to the recipients"), fixed: true, bindings: [
+            { inputs: ["escape"] }, { inputs: ["space"] }, { inputs: [root.menu-key, "."], joiner: "+" }
+        ] },
+        { action: @tr("Close"), fixed: true, bindings: [{ inputs: ["c"] }] },
+        { section: @tr("Game") },
+        { action: @tr("Pause"), fixed: true, bindings: [{ inputs: [root.menu-key, "p"], joiner: "+" }] },
+        { action: @tr("Music on/off"), fixed: true, bindings: [{ inputs: [root.menu-key, "u"], joiner: "+" }] },
+        { action: @tr("Sound on/off"), fixed: true, bindings: [{ inputs: [root.menu-key, "n"], joiner: "+" }] },
+        { action: @tr("Text on/off"), fixed: true, bindings: [{ inputs: [root.menu-key, "b"], joiner: "+" }] },
+        { action: @tr("Volume"), fixed: true, bindings: [{ inputs: [root.menu-key, "v"], joiner: "+" }] },
+        { action: @tr("Full screen"), fixed: true, bindings: [{ inputs: [root.apple-keys ? "meta" : "alt", "enter"], joiner: "+" }] },
+        { section: @tr("Mouse") },
+        { action: @tr("Pitch and yaw"), fixed: true, bindings: [{ inputs: ["mouse-move"] }] },
+        { action: @tr("Fire guns"), fixed: true, bindings: [{ inputs: ["mouse-left"] }] },
+        { action: @tr("Afterburner"), hint: @tr("double-click and hold"), fixed: true, bindings: [{ inputs: ["mouse-right"] }] },
+        { action: @tr("Fire missile or drop mine"), hint: @tr("both buttons"), fixed: true, bindings: [
+            { inputs: ["mouse-left", "mouse-right"], joiner: "+" }
+        ] },
+        { action: @tr("Roll and change speed"), hint: @tr("hold and move"), fixed: true, bindings: [
+            { inputs: ["mouse-right", "mouse-move"], joiner: "+" }
+        ] }
+    ];
     // The current bindings, row by row. The launcher fills this with a copy of
     // keyboard-rows' bindings and the saved changes, applies the changes asked
     // for below, and hands the changed rows to the game when it starts.
@@ -288,6 +368,8 @@ export component ControlsWindow inherits Window {
     property <bool> capture-replaces;
     // A modifier pressed while capturing, bound alone if released first.
     property <string> capture-modifier;
+    // The row being changed takes only mouse buttons.
+    property <bool> capture-mouse-only;
 
     // Names a keyboard or mouse input for the table.
     pure function input-label(input: string) -> string {
@@ -396,6 +478,7 @@ export component ControlsWindow inherits Window {
         root.capture-slot = slot;
         root.capture-replaces = replaces;
         root.capture-modifier = "";
+        root.capture-mouse-only = root.keyboard-rows[row].mouse-only;
         root.capture-row = row;
     }
 
@@ -471,17 +554,44 @@ export component ControlsWindow inherits Window {
         return "";
     }
 
-    public pure function notes() -> string {
-        if root.joystick-mode == 0 {
-            return @tr("Original joystick: A and B together fire a missile; double-click B and hold it for the afterburner.");
+    // SWC reads the game controller through WC1's code (src/sdl/joystick.c,
+    // SdlTranslateSwcJoystickEvent) but keeps the Mac demo's keys, so the
+    // buttons that send keys only WC1 binds do nothing in flight.
+    public pure function swc-binding(control: PadControl) -> string {
+        if control == PadControl.back { return @tr("Escape in menus"); }
+        if control == PadControl.dpad-up || control == PadControl.dpad-down
+                || control == PadControl.dpad-right || control == PadControl.left-stick-click {
+            return "";
         }
-        return @tr("In the communications display, the D-pad's up and down choose, right sends and left closes.");
+        if control == PadControl.dpad-left {
+            return root.joystick-mode == 0 ? "" : @tr("in-flight computer");
+        }
+        return root.wc1-binding(control);
+    }
+
+    public pure function pad-binding(control: PadControl) -> string {
+        return root.game == 1 ? root.swc-binding(control) : root.wc1-binding(control);
+    }
+
+    public pure function notes() -> string {
+        if root.game == 1 {
+            return (root.joystick-mode == 0
+                    ? @tr("Original joystick: A and B together fire a missile; double-click B and hold it for the afterburner.")
+                    : @tr("SWC has no keys for the left stick's click or for D-pad up, down and right."))
+                + " " + @tr("In menus, A selects, B and Back go back, X presses Space and the D-pad moves.");
+        }
+        return (root.joystick-mode == 0
+                ? @tr("Original joystick: A and B together fire a missile; double-click B and hold it for the afterburner.")
+                : @tr("In the communications display, the D-pad's up and down choose, right sends and left closes."))
+            + " " + @tr("Y answers Yes in prompts. Game controllers leave LT and RT unused.");
     }
 
     Text {
         x: 24px;
         y: 14px;
-        text: root.page == 0 ? @tr("Game controller — Wing Commander") : @tr("Keyboard and mouse — Wing Commander");
+        text: root.game == 1
+            ? (root.page == 0 ? @tr("Game controller — Super Wing Commander") : @tr("Keyboard and mouse — Super Wing Commander"))
+            : (root.page == 0 ? @tr("Game controller — Wing Commander") : @tr("Keyboard and mouse — Wing Commander"));
         font-size: 20px;
         font-weight: 700;
         color: Palette.foreground;
@@ -604,7 +714,7 @@ export component ControlsWindow inherits Window {
             y: root.pad-y + 8px - self.height / 2;
             title: "LT";
             rows: [{ control: PadControl.left-trigger, glyph: @image-url("../../../third_party/sc-controller/images/button-images/LT.svg") }];
-            binding(c) => { return root.wc1-binding(c); }
+            binding(c) => { return root.pad-binding(c); }
         }
 
         lb := BindingBox {
@@ -612,7 +722,7 @@ export component ControlsWindow inherits Window {
             y: root.pad-y + 74px - self.height / 2;
             title: "LB";
             rows: [{ control: PadControl.left-shoulder, glyph: @image-url("../../../third_party/sc-controller/images/button-images/LB.svg") }];
-            binding(c) => { return root.wc1-binding(c); }
+            binding(c) => { return root.pad-binding(c); }
         }
 
         ls := BindingBox {
@@ -623,7 +733,7 @@ export component ControlsWindow inherits Window {
                 { control: PadControl.left-stick, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("move") },
                 { control: PadControl.left-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
             ];
-            binding(c) => { return root.wc1-binding(c); }
+            binding(c) => { return root.pad-binding(c); }
         }
 
         dp := BindingBox {
@@ -636,7 +746,7 @@ export component ControlsWindow inherits Window {
                 { control: PadControl.dpad-left, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_LEFT.svg") },
                 { control: PadControl.dpad-right, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_RIGHT.svg") }
             ];
-            binding(c) => { return root.wc1-binding(c); }
+            binding(c) => { return root.pad-binding(c); }
         }
 
         rt := BindingBox {
@@ -644,7 +754,7 @@ export component ControlsWindow inherits Window {
             y: root.pad-y + 8px - self.height / 2;
             title: "RT";
             rows: [{ control: PadControl.right-trigger, glyph: @image-url("../../../third_party/sc-controller/images/button-images/RT.svg") }];
-            binding(c) => { return root.wc1-binding(c); }
+            binding(c) => { return root.pad-binding(c); }
         }
 
         rb := BindingBox {
@@ -652,7 +762,7 @@ export component ControlsWindow inherits Window {
             y: root.pad-y + 74px - self.height / 2;
             title: "RB";
             rows: [{ control: PadControl.right-shoulder, glyph: @image-url("../../../third_party/sc-controller/images/button-images/RB.svg") }];
-            binding(c) => { return root.wc1-binding(c); }
+            binding(c) => { return root.pad-binding(c); }
         }
 
         fb := BindingBox {
@@ -666,7 +776,7 @@ export component ControlsWindow inherits Window {
                 { control: PadControl.b, glyph: @image-url("../../../third_party/sc-controller/images/button-images/B.svg") },
                 { control: PadControl.a, glyph: @image-url("../../../third_party/sc-controller/images/button-images/A.svg") }
             ];
-            binding(c) => { return root.wc1-binding(c); }
+            binding(c) => { return root.pad-binding(c); }
         }
 
         rs := BindingBox {
@@ -677,7 +787,7 @@ export component ControlsWindow inherits Window {
                 { control: PadControl.right-stick, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("move") },
                 { control: PadControl.right-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
             ];
-            binding(c) => { return root.wc1-binding(c); }
+            binding(c) => { return root.pad-binding(c); }
         }
 
         bk := BindingBox {
@@ -685,7 +795,7 @@ export component ControlsWindow inherits Window {
             y: root.pad-y - 60px;
             title: "Back";
             rows: [{ control: PadControl.back, glyph: @image-url("../../../third_party/sc-controller/images/button-images/BACK.svg") }];
-            binding(c) => { return root.wc1-binding(c); }
+            binding(c) => { return root.pad-binding(c); }
         }
 
         st := BindingBox {
@@ -693,14 +803,14 @@ export component ControlsWindow inherits Window {
             y: root.pad-y - 60px;
             title: "Start";
             rows: [{ control: PadControl.start, glyph: @image-url("../../../third_party/sc-controller/images/button-images/START.svg") }];
-            binding(c) => { return root.wc1-binding(c); }
+            binding(c) => { return root.pad-binding(c); }
         }
 
         Text {
             x: 24px;
             y: root.height - 76px;
             width: root.width - 48px;
-            text: root.notes() + " " + @tr("Y answers Yes in prompts. Game controllers leave LT and RT unused.");
+            text: root.notes();
             wrap: word-wrap;
             font-size: 13px;
             color: Palette.foreground;
@@ -719,7 +829,9 @@ export component ControlsWindow inherits Window {
         Text {
             x: 24px;
             y: 42px;
-            text: @tr("In flight. Click a key to change it, or + to add one (two at most); changes apply when the game starts.");
+            text: root.game == 1
+                ? @tr("In flight, with the Mac demo's keys. They cannot be changed yet.")
+                : @tr("In flight. Click a key or button to change it, or + to add one; changes apply when the game starts.");
             font-size: 13px;
             color: Palette.foreground;
             opacity: 0.7;
@@ -774,10 +886,10 @@ export component ControlsWindow inherits Window {
                 width: 100%;
                 height: parent.height - 34px;
 
-                for row[index] in root.keyboard-rows: line := Rectangle {
+                for row[index] in (root.game == 1 ? root.swc-rows : root.keyboard-rows): line := Rectangle {
                     // The row's current bindings, or its original ones before
-                    // the launcher supplies a copy.
-                    property <[InputBinding]> current: root.keyboard-bindings.length > index
+                    // the launcher supplies a copy (and for SWC).
+                    property <[InputBinding]> current: root.game == 0 && root.keyboard-bindings.length > index
                         ? root.keyboard-bindings[index] : row.bindings;
 
                     height: 40px;
@@ -875,7 +987,7 @@ export component ControlsWindow inherits Window {
                                 }
 
                                 choose := TouchArea {
-                                    enabled: !row.fixed && !binding.fixed;
+                                    enabled: root.game == 0 && !row.fixed && !binding.fixed;
                                     mouse-cursor: self.enabled ? MouseCursor.pointer : MouseCursor.default;
                                     clicked => {
                                         root.start-capture(index, slot, true);
@@ -891,8 +1003,9 @@ export component ControlsWindow inherits Window {
                             opacity: 0.45;
                         }
 
-                        // Adds another binding, up to max-bindings.
-                        if !row.fixed && line.current.length < root.max-bindings: Rectangle {
+                        // Adds another binding, up to the row's limit.
+                        if root.game == 0 && !row.fixed
+                                && line.current.length < (row.limit > 0 ? row.limit : root.max-bindings): Rectangle {
                             width: 26px;
                             height: 26px;
                             border-radius: 13px;
@@ -932,14 +1045,16 @@ export component ControlsWindow inherits Window {
             x: 24px;
             y: root.height - 56px;
             width: root.width - 48px - 170px;
-            text: @tr("The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, 5 stops turning, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Mouse inputs and Escape cannot be changed.");
+            text: root.game == 1
+                ? @tr("The keypad steers with its digits, rolls right with . and changes speed with + and −; keypad Enter fires a missile. Menu shortcuts use ⌘ on macOS and Ctrl elsewhere.")
+                : @tr("The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, 5 stops turning, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Two inputs at most per action; Escape and mouse movement cannot be changed.");
             wrap: word-wrap;
             font-size: 13px;
             color: Palette.foreground;
             opacity: 0.75;
         }
 
-        Button {
+        if root.game == 0: Button {
             x: root.width - 16px - self.width;
             y: root.height - 56px;
             text: @tr("Restore defaults");
@@ -948,8 +1063,9 @@ export component ControlsWindow inherits Window {
             }
         }
 
-        // Captures the next key, with at most one modifier, for the binding
-        // being changed. Escape or a click outside the box cancels.
+        // Captures the next key (with at most one modifier), mouse button or
+        // wheel step for the binding being changed; a mouse-only row takes
+        // only buttons. Escape or a click outside the box cancels.
         if root.capture-row >= 0: Rectangle {
             x: 0px;
             y: 0px;
@@ -977,6 +1093,9 @@ export component ControlsWindow inherits Window {
                         root.capture-row = -1;
                         return accept;
                     }
+                    if root.capture-mouse-only {
+                        return accept;
+                    }
                     if root.is-modifier(root.key-input(event.text)) {
                         root.capture-modifier = root.key-input(event.text);
                         return accept;
@@ -986,7 +1105,8 @@ export component ControlsWindow inherits Window {
                 }
 
                 key-released(event) => {
-                    if root.capture-modifier != "" && root.key-input(event.text) == root.capture-modifier {
+                    if !root.capture-mouse-only && root.capture-modifier != ""
+                            && root.key-input(event.text) == root.capture-modifier {
                         root.finish-capture({ inputs: [root.capture-modifier] });
                     }
                     accept
@@ -1033,12 +1153,45 @@ export component ControlsWindow inherits Window {
 
                         Text {
                             width: parent.width - 24px;
-                            text: @tr("Press a key, or a modifier and a key. Esc cancels.");
+                            text: root.capture-mouse-only
+                                ? @tr("Click a mouse button in this box. Esc cancels.")
+                                : @tr("Press a key, or click or scroll in this box with the mouse. Esc cancels.");
                             wrap: word-wrap;
                             horizontal-alignment: center;
                             vertical-alignment: center;
                             font-size: 13px;
                             color: Palette.foreground;
+                        }
+
+                        TouchArea {
+                            pointer-event(event) => {
+                                if event.kind != PointerEventKind.down {
+                                    return;
+                                }
+                                if event.button == PointerEventButton.left {
+                                    root.finish-capture({ inputs: ["mouse-left"] });
+                                } else if event.button == PointerEventButton.right {
+                                    root.finish-capture({ inputs: ["mouse-right"] });
+                                } else if event.button == PointerEventButton.middle {
+                                    root.finish-capture({ inputs: ["mouse-middle"] });
+                                } else if event.button == PointerEventButton.back {
+                                    root.finish-capture({ inputs: ["mouse-back"] });
+                                } else if event.button == PointerEventButton.forward {
+                                    root.finish-capture({ inputs: ["mouse-forward"] });
+                                }
+                            }
+
+                            scroll-event(event) => {
+                                if root.capture-mouse-only {
+                                    return accept;
+                                }
+                                if event.delta-y > 0 {
+                                    root.finish-capture({ inputs: ["wheel-up"] });
+                                } else if event.delta-y < 0 {
+                                    root.finish-capture({ inputs: ["wheel-down"] });
+                                }
+                                accept
+                            }
                         }
                     }
 

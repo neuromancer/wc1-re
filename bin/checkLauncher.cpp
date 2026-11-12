@@ -4,6 +4,7 @@
 #include <slint-platform.h>
 #include <SDL.h>
 #include "../src/sdl/keymap_actions.h"
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstdlib>
@@ -292,7 +293,8 @@ int main(int argc, char **argv)
         credits = 0;
         clickLaunchRows();
         require(launched == 1 && !transferred, "SWC offers only its own start button");
-        require(!window->get_controls_available(), "no controller bindings window for SWC yet");
+        require(window->get_controls_available() && window->get_controls_game() == 1,
+                "SWC data offers its own controls");
         require((credits != 0) == available, "SWC credits button follows detected credits data");
     }
     saved.campaign = 2;
@@ -393,15 +395,18 @@ int main(int argc, char **argv)
     controlsWindow->window().dispatch_pointer_release_event(slint::LogicalPosition {{1040 - 16 - 60, 30}}, slint::PointerEventButton::Left);
     require(controlsWindow->get_page() == 1, "keyboard and mouse button switches pages");
 
-    // One table row per game input, each with its keys and mouse actions.
+    // One table row per game input, each with its keys and mouse inputs.
     const auto rows = controlsWindow->get_keyboard_rows();
-    const auto find_row = [&rows](const char *action) {
+    const auto find_row = [&rows](const char *id) {
         for (size_t index = 0; index < rows->row_count(); ++index) {
             const auto row = rows->row_data(index);
-            if (row && row->action == action)
-                return *row;
+            if (row && row->id == id)
+                return static_cast<int>(index);
         }
-        return InputRow {};
+        return -1;
+    };
+    const auto row_at = [&rows](int index) {
+        return index >= 0 ? rows->row_data(index).value_or(InputRow {}) : InputRow {};
     };
     const auto binding_at = [](const InputRow &row, size_t index) {
         return row.bindings ? row.bindings->row_data(index).value_or(InputBinding {}) : InputBinding {};
@@ -412,31 +417,38 @@ int main(int argc, char **argv)
             text += (index ? "|" : "") + std::string(binding.inputs->row_data(index).value_or(slint::SharedString()));
         return text;
     };
-    const auto eject = find_row("Eject");
-    const auto pause = find_row("Pause");
-    const auto afterburner = find_row("Afterburner");
-    const auto missile = find_row("Fire missile or drop mine");
-    require(rows->row_count() == 53 && eject.bindings && eject.bindings->row_count() == 1 &&
+    const int gunsRow = find_row("mouse-guns");
+    const int afterburnerRow = find_row("mouse-afterburner");
+    const int missileRow = find_row("mouse-missile");
+    const int rollRow = find_row("mouse-roll");
+    const auto eject = row_at(find_row("eject"));
+    const auto pause = row_at(find_row("pause"));
+    const auto afterburner = row_at(find_row("afterburner"));
+    const auto gunsButton = row_at(gunsRow);
+    require(rows->row_count() == 57 && eject.bindings && eject.bindings->row_count() == 1 &&
             inputs(binding_at(eject, 0)) == "ctrl|e" && binding_at(eject, 0).joiner == "+" &&
             pause.bindings && pause.bindings->row_count() == 2 &&
             inputs(binding_at(pause, 0)) == "p" && inputs(binding_at(pause, 1)) == "escape" &&
-            inputs(binding_at(afterburner, 1)) == "mouse-right" && binding_at(afterburner, 1).fixed &&
-            binding_at(afterburner, 1).hint == "double-click" && afterburner.hint == "hold" &&
-            !binding_at(afterburner, 0).fixed && binding_at(pause, 1).fixed &&
-            inputs(binding_at(missile, 1)) == "mouse-left|mouse-right" && find_row("Choose a message").fixed,
-            "keyboard and mouse table names each game input's keys and mouse actions");
+            binding_at(pause, 1).fixed && afterburner.hint == "hold" && afterburner.bindings->row_count() == 1 &&
+            inputs(binding_at(gunsButton, 0)) == "mouse-left" && gunsButton.mouse_only && gunsButton.limit == 1 &&
+            inputs(binding_at(row_at(afterburnerRow), 0)) == "mouse-right" &&
+            row_at(find_row("choose-message")).fixed && row_at(find_row("mouse-steer")).fixed &&
+            row_at(missileRow).fixed && row_at(rollRow).fixed,
+            "keyboard and mouse table names each game input's keys and mouse inputs");
     // The window changes a copy of those bindings that the launcher keeps.
     const auto current = [&controlsWindow, &inputs](int row) {
         std::string text;
         const auto table = controlsWindow->get_keyboard_bindings();
-        const auto bindings = table && static_cast<size_t>(row) < table->row_count()
+        const auto bindings = table && row >= 0 && static_cast<size_t>(row) < table->row_count()
             ? table->row_data(row).value_or(nullptr) : nullptr;
         for (size_t slot = 0; bindings && slot < bindings->row_count(); ++slot)
             text += (slot ? "/" : "") + inputs(bindings->row_data(slot).value_or(InputBinding {}));
         return text;
     };
-    require(controlsWindow->get_keyboard_bindings()->row_count() == 53 && current(1) == "up" &&
-            current(10) == ",/insert", "the launcher copies the original bindings for the window");
+    require(controlsWindow->get_keyboard_bindings()->row_count() == 57 && current(1) == "up" &&
+            current(find_row("roll-left")) == ",/insert" && current(find_row("speed-up")) == "+/wheel-up" &&
+            current(missileRow) == "mouse-left|mouse-right" && current(rollRow) == "mouse-right|mouse-move",
+            "the launcher copies the original bindings for the window");
     // The rows the game can rebind, in src/sdl/keymap_actions.h's order.
     {
 #define LAUNCHER_KEYMAP_ID(id, ...) id,
@@ -446,7 +458,8 @@ int main(int argc, char **argv)
         bool matches = true;
         for (size_t index = 0; index < rows->row_count(); ++index) {
             const auto row = rows->row_data(index);
-            if (!row || row->id.empty() || row->fixed || row->id == "full-screen")
+            if (!row || row->id.empty() || row->fixed || row->id == "full-screen" ||
+                row->id == "mouse-guns" || row->id == "mouse-afterburner")
                 continue;
             matches = matches && next < std::size(gameActions) && row->id == gameActions[next];
             ++next;
@@ -455,8 +468,9 @@ int main(int argc, char **argv)
     }
     for (size_t index = 0; index < rows->row_count(); ++index) {
         const auto row = rows->row_data(index);
-        require(row && (!row->bindings || row->bindings->row_count() <= static_cast<size_t>(controlsWindow->get_max_bindings())),
-                "no game input starts with more than two bindings");
+        const auto limit = static_cast<size_t>(row && row->limit > 0 ? row->limit : controlsWindow->get_max_bindings());
+        require(row && (!row->bindings || row->bindings->row_count() <= limit),
+                "no game input starts with more bindings than it takes");
     }
 
     // The table scrolls; save it a page at a time, down to its end.
@@ -473,13 +487,14 @@ int main(int argc, char **argv)
 #else
     require(!controlsWindow->get_apple_keys(), "Alt-Enter toggles full screen");
 #endif
+    const int fullScreen = find_row("full-screen");
     controlsWindow->set_apple_keys(false);
     controlsWindow->invoke_bindings_reset();
-    require(current(52) == "alt|enter", "Alt-Enter toggles full screen outside macOS");
+    require(current(fullScreen) == "alt|enter", "Alt-Enter toggles full screen outside macOS");
     save_keyboard(".keyboard");
     controlsWindow->set_apple_keys(true);
     controlsWindow->invoke_bindings_reset();
-    require(current(52) == "meta|enter", "Command-Return toggles full screen on macOS");
+    require(current(fullScreen) == "meta|enter", "Command-Return toggles full screen on macOS");
     save_keyboard(".keyboard-mac");
     for (const std::string language : {"es", "fr"}) {
         require(slint::select_bundled_translation(language), "translated controls window");
@@ -505,9 +520,32 @@ int main(int argc, char **argv)
     const auto release = [&controlsWindow](const slint::SharedString &key) {
         controlsWindow->window().dispatch_key_release_event(key);
     };
-    // Rows are 40 pixels from y 105, and bindings start at x 396.
+    const auto scroll_table = [&controlsWindow](float delta) {
+        controlsWindow->window().dispatch_pointer_scroll_event(slint::LogicalPosition {{500, 300}}, 0, delta);
+    };
+    // Rows are 40 pixels from y 105 in a 490-pixel list, and bindings start
+    // at x 396. show_row scrolls a row into view and gives its y. The list
+    // lays out the rows it reaches when drawn, so draw between steps, as the
+    // screen would between wheel events.
     const auto row_y = [](int row) {
         return 105.f + 40.f * row + 20.f;
+    };
+    const auto show_row = [&rows, &scroll_table, &platform](int row) {
+        std::vector<slint::Rgb8Pixel> pixels(1040 * 660);
+        const auto step = [&](float delta) {
+            scroll_table(delta);
+            platform->view->pixels.render(pixels, 1040);
+        };
+        for (int index = 0; index < 15; ++index)
+            step(400);
+        const float target = std::clamp(40.f * row - 200.f, 0.f, 40.f * rows->row_count() - 490.f);
+        for (float done = 0; done < target; done += 200.f)
+            step(-std::min(200.f, target - done));
+        // Let the list settle, as a frame or two would on screen.
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        slint::platform::update_timers_and_animations();
+        platform->view->pixels.render(pixels, 1040);
+        return 105.f + 40.f * row - target + 20.f;
     };
     const auto left = slint::PointerEventButton::Left;
     click(410, row_y(1), left);
@@ -527,19 +565,12 @@ int main(int argc, char **argv)
     release(slint::SharedString(slint::platform::key_codes::Shift));
     require(current(3) == "shift", "a modifier alone is a binding");
     click(410, row_y(4), left);
-    click(520, 330, slint::PointerEventButton::Right);
+    click(520, 330, slint::PointerEventButton::Middle);
+    require(controlsWindow->get_capture_row() == -1 && current(4) == "mouse-middle",
+            "a mouse button in the capture box is a binding");
+    click(410, row_y(5), left);
     controlsWindow->window().dispatch_pointer_scroll_event(slint::LogicalPosition {{520, 330}}, 0, 40);
-    require(controlsWindow->get_capture_row() == 4 && current(4) == "right",
-            "the mouse cannot be bound yet");
-    press("j");
-    release("j");
-    require(current(4) == "j", "the capture still takes a key after mouse clicks");
-    // Mouse inputs keep their bindings: clicking one does nothing. Scrolled
-    // by ten rows, Fire guns (row 20) shows where row 10 was.
-    controlsWindow->window().dispatch_pointer_scroll_event(slint::LogicalPosition {{500, 300}}, 0, -400);
-    click(520, row_y(10), left);
-    require(controlsWindow->get_capture_row() == -1, "a mouse binding cannot be changed");
-    controlsWindow->window().dispatch_pointer_scroll_event(slint::LogicalPosition {{500, 300}}, 0, 400);
+    require(current(5) == "wheel-up", "a wheel step in the capture box is a binding");
     click(446, row_y(1), left);
     press("k");
     release("k");
@@ -558,38 +589,76 @@ int main(int argc, char **argv)
     click(410, row_y(7), left);
     click(100, 100, left);
     require(controlsWindow->get_capture_row() == -1 && current(7) == "end", "a click outside the box cancels");
-    click(410, row_y(9), left);
+    click(430, show_row(find_row("mouse-steer")), left);
     require(controlsWindow->get_capture_row() == -1, "fixed rows cannot be changed");
+
+    // The game's two mouse buttons take only mouse buttons; the missile and
+    // roll rows follow them, and giving one the other's button swaps them.
+    click(430, show_row(gunsRow), left);
+    require(controlsWindow->get_capture_row() == gunsRow, "the guns button row asks for a button");
+    save_controls(".keyboard-capture-mouse.bmp", "save mouse button capture preview");
+    press("k");
+    release("k");
+    controlsWindow->window().dispatch_pointer_scroll_event(slint::LogicalPosition {{520, 330}}, 0, 40);
+    require(controlsWindow->get_capture_row() == gunsRow, "the guns button row ignores keys and the wheel");
+    click(520, 330, slint::PointerEventButton::Middle);
+    require(current(gunsRow) == "mouse-middle" && current(missileRow) == "mouse-middle|mouse-right",
+            "the missile row follows the guns button");
+    click(430, show_row(afterburnerRow), left);
+    click(520, 330, slint::PointerEventButton::Back);
+    require(current(afterburnerRow) == "mouse-back" && current(rollRow) == "mouse-back|mouse-move",
+            "the roll row follows the afterburner button");
+    click(430, show_row(gunsRow), left);
+    click(520, 330, slint::PointerEventButton::Back);
+    require(current(gunsRow) == "mouse-back" && current(afterburnerRow) == "mouse-middle",
+            "giving the guns the afterburner's button swaps them");
+    save_controls(".keyboard-mouse.bmp", "save changed mouse buttons preview");
+    show_row(0);
     save_controls(".keyboard-edited.bmp", "save changed bindings preview");
     click(410, row_y(8), left);
     click(617, 409, left);
     require(controlsWindow->get_capture_row() == -1 && current(8).empty(), "Remove clears a binding");
     save_controls(".keyboard-removed.bmp", "save removed binding preview");
     click(1024 - 40, 620, left);
-    require(current(1) == "up" && current(2) == "down" && current(8) == "page-down",
+    require(current(1) == "up" && current(2) == "down" && current(8) == "page-down" &&
+            current(gunsRow) == "mouse-left" && current(missileRow) == "mouse-left|mouse-right",
             "Restore defaults brings back the original bindings");
     require(changed_key_bindings(*controlsWindow).empty(), "restored defaults save no keys");
     click(410, row_y(1), left);
     press("ñ");
     release("ñ");
-    click(410, row_y(10), left);
+    click(410, row_y(find_row("roll-left")), left);
     press(slint::SharedString(slint::platform::key_codes::Control));
     press(",");
     release(",");
     release(slint::SharedString(slint::platform::key_codes::Control));
-    require(changed_key_bindings(*controlsWindow) == "pitch-down=%c3%b1\nroll-left=ctrl+%2c,insert\n",
+    click(430, show_row(gunsRow), left);
+    click(520, 330, slint::PointerEventButton::Right);
+    show_row(0);
+    require(changed_key_bindings(*controlsWindow) ==
+                "pitch-down=%c3%b1\nroll-left=ctrl+%2c,insert\nmouse-guns=mouse-right\nmouse-afterburner=mouse-left\n",
             "only changed rows are kept, percent-encoded");
     {
         // A second window gets its own adapter; keep rendering the first.
         auto *const controlsView = platform->view;
         auto reopened = create_controls_window(window, changed_key_bindings(*controlsWindow) +
-                                                   "fire-guns=k,mouse-left\nchoose-message=x\n");
-        const auto table = reopened->get_keyboard_bindings();
-        const auto guns = table->row_data(20).value_or(nullptr);
-        require(changed_key_bindings(*reopened) == "pitch-down=%c3%b1\nroll-left=ctrl+%2c,insert\n"
-                                                   "fire-guns=k,mouse-left\n" &&
-                guns && guns->row_count() == 2 && guns->row_data(1)->fixed,
-                "saved keys come back, with fixed mouse bindings, and fixed rows stay");
+                                                   "lock-target=l,mouse-forward\nchoose-message=x\n"
+                                                   "next-target=\nmouse-steer=k\n");
+        const auto reloaded = changed_key_bindings(*reopened);
+        if (reloaded != "pitch-down=%c3%b1\nroll-left=ctrl+%2c,insert\nmouse-guns=mouse-right\n"
+                        "mouse-afterburner=mouse-left\nnext-target=\nlock-target=l,mouse-forward\n")
+            std::fprintf(stderr, "Reloaded keys:\n%s", reloaded.c_str());
+        require(reloaded == "pitch-down=%c3%b1\nroll-left=ctrl+%2c,insert\nmouse-guns=mouse-right\n"
+                            "mouse-afterburner=mouse-left\nnext-target=\nlock-target=l,mouse-forward\n",
+                "saved keys and mouse inputs come back, and fixed rows stay");
+        reopened->hide();
+        platform->view = controlsView;
+    }
+    {
+        auto *const controlsView = platform->view;
+        auto reopened = create_controls_window(window, "mouse-afterburner=k\nfire-guns=ctrl+mouse-left\n");
+        require(changed_key_bindings(*reopened).empty(),
+                "a key for a mouse button row, or a modifier with the mouse, is not kept");
         reopened->hide();
         platform->view = controlsView;
     }
@@ -600,10 +669,35 @@ int main(int argc, char **argv)
     press(slint::SharedString(slint::platform::key_codes::Escape));
     require(slint::select_bundled_translation("en") && controlsWindow->get_capture_row() == -1,
             "the capture dialog closes in French too");
+
+    // SWC: its own gamepad bindings and keys, shown as they are.
+    controlsWindow->set_game(1);
+    controlsWindow->set_joystick_mode(2);
+    controlsWindow->set_joystick_axes(0);
+    const auto pad = [&controlsWindow](PadControl control) {
+        return std::string(controlsWindow->invoke_pad_binding(control));
+    };
+    require(pad(PadControl::DpadLeft) == "in-flight computer" && pad(PadControl::DpadUp).empty() &&
+            pad(PadControl::DpadRight).empty() && pad(PadControl::LeftStickClick).empty() &&
+            pad(PadControl::Back) == "Escape in menus" && pad(PadControl::B) == "fire missile" &&
+            pad(PadControl::X) == "afterburner" && pad(PadControl::Y) == "cycle targets" &&
+            pad(PadControl::RightStickClick) == "autopilot", "SWC's WCAT gamepad bindings");
+    controlsWindow->set_joystick_mode(0);
+    require(pad(PadControl::DpadLeft).empty() && pad(PadControl::B) == "hold to roll and change speed",
+            "SWC's original joystick bindings");
+    controlsWindow->set_joystick_mode(2);
+    require(controlsWindow->get_swc_rows()->row_count() == 53, "SWC lists all its keys");
+    controlsWindow->set_page(0);
+    save_controls(".swc-controls.bmp", "save SWC game controller preview");
+    controlsWindow->set_page(1);
+    click(410, row_y(1), left);
+    require(controlsWindow->get_capture_row() == -1, "SWC's keys cannot be changed yet");
+    save_keyboard(".swc-keyboard");
+    controlsWindow->set_game(0);
     controlsWindow->hide();
     window->hide();
     fs::remove_all(fixture);
-    std::puts("PASS: WC1 controls window: DOS/Win32 only, its own joystick selectors, keyboard and mouse table.");
+    std::puts("PASS: controls window: WC1 and SWC bindings, joystick selectors, rebindable WC1 keys and mouse.");
     std::puts("PASS: WC1/SM1/SM2 and SWC credits buttons, independent detection, missing data, edition switching and click routing.");
     std::puts("PASS: live English/Spanish/French switching, redraw, errors, installation labels and language settings.");
 }

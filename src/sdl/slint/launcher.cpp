@@ -216,13 +216,64 @@ std::string changed_key_bindings(const ControlsWindow &controls)
     return text;
 }
 
+/* How many bindings a row takes: its own limit, or the window's. */
+size_t binding_limit(const ControlsWindow &controls, const InputRow &row)
+{
+    return static_cast<size_t>(row.limit > 0 ? row.limit : controls.get_max_bindings());
+}
+
+/* The index of the row with this id, or -1. */
+int keyboard_row(const ControlsWindow &controls, std::string_view id)
+{
+    const auto rows = controls.get_keyboard_rows();
+    for (size_t row = 0; row < rows->row_count(); ++row) {
+        const auto data = rows->row_data(row);
+        if (data && std::string_view(data->id) == id)
+            return static_cast<int>(row);
+    }
+    return -1;
+}
+
+/* The missile and roll rows show the game's two mouse buttons: whatever the
+   guns and afterburner rows hold now. */
+void refresh_mouse_rows(const ControlsWindow &controls)
+{
+    const auto table = std::dynamic_pointer_cast<KeyboardBindings>(controls.get_keyboard_bindings());
+    const auto button = [&controls, &table](std::string_view id) -> std::optional<slint::SharedString> {
+        const auto row = keyboard_row(controls, id);
+        const auto bindings = table && row >= 0 ? table->row_data(row).value_or(nullptr) : nullptr;
+        if (!bindings || bindings->row_count() == 0)
+            return std::nullopt;
+        const auto binding = bindings->row_data(0).value_or(InputBinding {});
+        if (!binding.inputs || binding.inputs->row_count() == 0)
+            return std::nullopt;
+        return binding.inputs->row_data(0);
+    };
+    const auto gesture = [](std::vector<slint::SharedString> inputs) {
+        InputBinding binding;
+        binding.inputs = std::make_shared<slint::VectorModel<slint::SharedString>>(std::move(inputs));
+        binding.joiner = "+";
+        binding.fixed = true;
+        return std::vector<InputBinding> {binding};
+    };
+    const auto guns = button("mouse-guns");
+    const auto afterburner = button("mouse-afterburner");
+    const auto missile = keyboard_row(controls, "mouse-missile");
+    const auto roll = keyboard_row(controls, "mouse-roll");
+    if (!table || missile < 0 || roll < 0)
+        return;
+    table->set_row_data(missile, std::make_shared<slint::VectorModel<InputBinding>>(
+        guns && afterburner ? gesture({*guns, *afterburner}) : std::vector<InputBinding> {}));
+    table->set_row_data(roll, std::make_shared<slint::VectorModel<InputBinding>>(
+        afterburner ? gesture({*afterburner, "mouse-move"}) : std::vector<InputBinding> {}));
+}
+
 /* Puts saved [keys] lines into the window's current bindings. A saved
    binding that matches a fixed original one keeps it, with its hint. */
 void apply_key_bindings(const ControlsWindow &controls, std::string_view saved)
 {
     const auto rows = controls.get_keyboard_rows();
     const auto table = std::dynamic_pointer_cast<KeyboardBindings>(controls.get_keyboard_bindings());
-    const auto limit = static_cast<size_t>(controls.get_max_bindings());
     while (table && !saved.empty()) {
         const auto end = saved.find('\n');
         const auto line = saved.substr(0, end);
@@ -236,6 +287,8 @@ void apply_key_bindings(const ControlsWindow &controls, std::string_view saved)
             const auto data = rows->row_data(row);
             if (!data || data->fixed || std::string_view(data->id) != id)
                 continue;
+            const auto limit = binding_limit(controls, *data);
+            const bool unbound = value.empty();
             std::vector<InputBinding> bindings;
             while (!value.empty() && bindings.size() < limit) {
                 const auto comma = value.find(',');
@@ -248,7 +301,13 @@ void apply_key_bindings(const ControlsWindow &controls, std::string_view saved)
                         inputs.emplace_back(*input);
                     text = plus == std::string_view::npos ? std::string_view() : text.substr(plus + 1);
                 }
-                if (inputs.empty() || inputs.size() > 2)
+                const auto mouse = [](const slint::SharedString &input) {
+                    const std::string_view name(input);
+                    return name.starts_with("mouse-") || name.starts_with("wheel-");
+                };
+                if (inputs.empty() || inputs.size() > 2 ||
+                    (data->mouse_only && (inputs.size() > 1 || !std::string_view(inputs[0]).starts_with("mouse-"))) ||
+                    (inputs.size() > 1 && (mouse(inputs[0]) || mouse(inputs[1]))))
                     continue;
                 InputBinding binding;
                 binding.inputs = std::make_shared<slint::VectorModel<slint::SharedString>>(inputs);
@@ -260,10 +319,14 @@ void apply_key_bindings(const ControlsWindow &controls, std::string_view saved)
                 }
                 bindings.push_back(binding);
             }
-            table->set_row_data(row, std::make_shared<slint::VectorModel<InputBinding>>(std::move(bindings)));
+            /* An empty value leaves the input unbound; nothing valid in a
+               value leaves the row as it was. */
+            if (unbound || !bindings.empty())
+                table->set_row_data(row, std::make_shared<slint::VectorModel<InputBinding>>(std::move(bindings)));
             break;
         }
     }
+    refresh_mouse_rows(controls);
 }
 
 /* One row of the controls window's current bindings, if it exists. */
@@ -299,12 +362,29 @@ slint::ComponentHandle<ControlsWindow> create_controls_window(
             if (!controlsWindow)
                 return;
             const auto bindings = keyboard_binding_row(**controlsWindow, row);
-            if (!bindings || slot < 0)
+            const auto data = (*controlsWindow)->get_keyboard_rows()->row_data(row);
+            if (!bindings || !data || slot < 0)
                 return;
+            /* The guns and afterburner buttons cannot share a button: giving
+               one the other's swaps them. */
+            const std::string_view id(data->id);
+            if (id == "mouse-guns" || id == "mouse-afterburner") {
+                const auto other = keyboard_binding_row(
+                    **controlsWindow,
+                    keyboard_row(**controlsWindow, id == "mouse-guns" ? "mouse-afterburner" : "mouse-guns"));
+                if (other && other->row_count() > 0 &&
+                    encode_binding(other->row_data(0).value_or(InputBinding {})) == encode_binding(binding)) {
+                    if (bindings->row_count() > 0)
+                        other->set_row_data(0, bindings->row_data(0).value_or(InputBinding {}));
+                    else
+                        other->erase(0);
+                }
+            }
             if (static_cast<size_t>(slot) < bindings->row_count())
                 bindings->set_row_data(slot, binding);
-            else if (bindings->row_count() < static_cast<size_t>((*controlsWindow)->get_max_bindings()))
+            else if (bindings->row_count() < binding_limit(**controlsWindow, *data))
                 bindings->push_back(binding);
+            refresh_mouse_rows(**controlsWindow);
         });
     controls->on_binding_removed(
         [self = slint::ComponentWeakHandle<ControlsWindow>(controls)](int row, int slot) {
@@ -314,6 +394,7 @@ slint::ComponentHandle<ControlsWindow> create_controls_window(
             const auto bindings = keyboard_binding_row(**controlsWindow, row);
             if (bindings && slot >= 0 && static_cast<size_t>(slot) < bindings->row_count())
                 bindings->erase(slot);
+            refresh_mouse_rows(**controlsWindow);
         });
     controls->on_bindings_reset([self = slint::ComponentWeakHandle<ControlsWindow>(controls)]() {
         if (const auto controlsWindow = self.lock())
@@ -368,6 +449,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
             return;
         (*controls)->set_joystick_mode(window->get_joystick_mode_index());
         (*controls)->set_joystick_axes(window->get_joystick_axes_index());
+        (*controls)->set_game(window->get_controls_game());
     };
     const auto hide_controls = [&controls]() {
         if (controls)

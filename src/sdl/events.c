@@ -444,11 +444,83 @@ int SdlHandleSwcEvent(SDL_Window *window, SDL_Event *event, int flight)
     return 0;
 }
 
+/* Hands the game one key transition, as WC1's keyboard reads it. */
+static void SdlQueueGameKey(SDL_Scancode key, SDL_Keycode symbol, Uint16 modifiers,
+                            int pressed, int repeat)
+{
+    int scanCode;
+    int virtualKey;
+
+    scanCode = SdlTranslateScanCode(key);
+    virtualKey = SdlTranslateVirtualKey(symbol);
+    if ((modifiers & KMOD_ALT) != 0 ||
+        key == SDL_SCANCODE_LALT ||
+        key == SDL_SCANCODE_RALT)
+        nSystemKeyDown = pressed ? (unsigned int)virtualKey : 0;
+    if (key == SDL_SCANCODE_F1)
+        bF1KeyLatch = pressed && repeat == 0;
+    if (pressed && scanCode == SCAN_ESCAPE)
+        bEscapePressedFlag = 1;
+    if (scanCode != SCAN_NONE) {
+        if (bKeyEventQueueEnabled != 0) {
+            QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
+                            0, 0,
+                            (unsigned short)virtualKey, 0, 0, 0);
+        }
+        QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
+                        0, 0,
+                        (unsigned short)scanCode, 0, 0, 0);
+        SetInputKeyState(scanCode, pressed);
+    }
+    if (!pressed) {
+        dwDebugOverlayKey = virtualKey;
+        dwDebugOverlayKeyLatch = virtualKey;
+    }
+}
+
+/* Mouse buttons bound to an action press its key, repeating like a held
+ * key; each records the key it pressed so the release matches it. */
+#define SDL_MOUSE_KEY_DELAY 250
+#define SDL_MOUSE_KEY_REPEAT 33
+
+static SDL_Scancode g_aSdlMouseKeys[8];
+static Uint32 g_adwSdlMouseKeyRepeat[8];
+
+static void SdlPressMouseKey(Uint8 button, SDL_Scancode key, int pressed)
+{
+    if (button >= sizeof(g_aSdlMouseKeys) / sizeof(g_aSdlMouseKeys[0]))
+        return;
+    if (pressed) {
+        if (key == SDL_SCANCODE_UNKNOWN)
+            return;
+        g_aSdlMouseKeys[button] = key;
+        g_adwSdlMouseKeyRepeat[button] = SDL_GetTicks() + SDL_MOUSE_KEY_DELAY;
+        SdlQueueGameKey(key, SDL_GetKeyFromScancode(key), 0, 1, 0);
+    } else if (g_aSdlMouseKeys[button] != SDL_SCANCODE_UNKNOWN) {
+        key = g_aSdlMouseKeys[button];
+        g_aSdlMouseKeys[button] = SDL_SCANCODE_UNKNOWN;
+        SdlQueueGameKey(key, SDL_GetKeyFromScancode(key), 0, 0, 0);
+    }
+}
+
+static void SdlRepeatMouseKeys(void)
+{
+    Uint32 now = SDL_GetTicks();
+    size_t button;
+
+    for (button = 0; button < sizeof(g_aSdlMouseKeys) / sizeof(g_aSdlMouseKeys[0]); button++) {
+        SDL_Scancode key = g_aSdlMouseKeys[button];
+
+        if (key == SDL_SCANCODE_UNKNOWN || (Sint32)(now - g_adwSdlMouseKeyRepeat[button]) < 0)
+            continue;
+        g_adwSdlMouseKeyRepeat[button] = now + SDL_MOUSE_KEY_REPEAT;
+        SdlQueueGameKey(key, SDL_GetKeyFromScancode(key), 0, 1, 1);
+    }
+}
+
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
     int pressed;
-    int scanCode;
-    int virtualKey;
     SDL_Scancode key;
     SDL_Keycode symbol;
 
@@ -468,31 +540,7 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     if (key == SDL_SCANCODE_UNKNOWN)
         return 0;
     symbol = key == event->keysym.scancode ? event->keysym.sym : SDL_GetKeyFromScancode(key);
-    scanCode = SdlTranslateScanCode(key);
-    virtualKey = SdlTranslateVirtualKey(symbol);
-    if ((event->keysym.mod & KMOD_ALT) != 0 ||
-        key == SDL_SCANCODE_LALT ||
-        key == SDL_SCANCODE_RALT)
-        nSystemKeyDown = pressed ? (unsigned int)virtualKey : 0;
-    if (key == SDL_SCANCODE_F1)
-        bF1KeyLatch = pressed && event->repeat == 0;
-    if (pressed && scanCode == SCAN_ESCAPE)
-        bEscapePressedFlag = 1;
-    if (scanCode != SCAN_NONE) {
-        if (bKeyEventQueueEnabled != 0) {
-            QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
-                            0, 0,
-                            (unsigned short)virtualKey, 0, 0, 0);
-        }
-        QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
-                        0, 0,
-                        (unsigned short)scanCode, 0, 0, 0);
-        SetInputKeyState(scanCode, pressed);
-    }
-    if (!pressed) {
-        dwDebugOverlayKey = virtualKey;
-        dwDebugOverlayKeyLatch = virtualKey;
-    }
+    SdlQueueGameKey(key, symbol, event->keysym.mod, pressed, event->repeat);
     return 0;
 }
 
@@ -507,6 +555,16 @@ static void SdlHandleMouseWheelEvent(const SDL_MouseWheelEvent *event)
     if (wheelY == 0)
         return;
     scanCode = wheelY > 0 ? SCAN_EQUALS : SCAN_MINUS;
+    if (SdlKeymapMouseActive()) {
+        /* In flight, the wheel presses the key of the action bound to it. */
+        SDL_Scancode key = SdlKeymapWheelKey(wheelY);
+
+        if (key == SDL_SCANCODE_UNKNOWN)
+            return;
+        scanCode = SdlTranslateScanCode(key);
+        if (scanCode == SCAN_NONE)
+            return;
+    }
     /* player_input samples one transition before consuming the remaining
        queue, so lead with the release for this impulse. */
     QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, (unsigned short)scanCode, 0, 0, 0);
@@ -549,6 +607,24 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
         mouseY = 199;
     primaryButton = (buttons & SDL_BUTTON_LMASK) != 0;
     secondaryButton = (buttons & SDL_BUTTON_RMASK) != 0;
+    if (SdlKeymapMouseActive()) {
+        /* In flight, the bound buttons stand in for the game's two buttons,
+           and other bound buttons press their action's key. */
+        SdlKeymapGameButtons(buttons, &primaryButton, &secondaryButton);
+        if (event->type != SDL_MOUSEMOTION && !SdlKeymapIsGameButton(event->button.button)) {
+            SdlPressMouseKey(event->button.button,
+                             SdlKeymapMouseKey(event->button.button),
+                             event->type == SDL_MOUSEBUTTONDOWN);
+            nHostMouseMessageX = mouseX;
+            nHostMouseMessageY = mouseY;
+            bHostPrimaryMouseButton = primaryButton;
+            bHostSecondaryMouseButton = secondaryButton;
+            return;
+        }
+    } else if (event->type == SDL_MOUSEBUTTONUP) {
+        /* Release a key that a button pressed during flight. */
+        SdlPressMouseKey(event->button.button, SDL_SCANCODE_UNKNOWN, 0);
+    }
 
     if (event->type == SDL_MOUSEMOTION) {
         if (bPtrMovedByKeyboardState != 0) {
@@ -585,6 +661,7 @@ void SdlPumpEvents(void)
         return;
 
     SdlServiceOriginFxMusic();
+    SdlRepeatMouseKeys();
     while (SDL_PollEvent(&event)) {
         if (SdlHandleTownsTextInputEvent(&event))
             continue;
