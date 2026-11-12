@@ -62,7 +62,7 @@ enum { ACTION_NONE, ACTION_KEY, ACTION_POINTER, ACTION_BUTTONS, ACTION_WHEEL };
 typedef struct FlightAction {
     unsigned char kind;
     SDL_Keycode key;
-    short x; /* pointer x, button mask or wheel step */
+    short x; /* key modifiers, pointer x, button mask or wheel step */
     short y;
 } FlightAction;
 
@@ -87,7 +87,8 @@ static const FlightAction actions[] = {
     {ACTION_KEY, SDLK_4, 0, 0}, {ACTION_KEY, SDLK_5, 0, 0}, {ACTION_KEY, SDLK_6, 0, 0},
     {ACTION_KEY, SDLK_7, 0, 0}, {ACTION_KEY, SDLK_y, 0, 0}, {ACTION_KEY, SDLK_d, 0, 0},
     {ACTION_KEY, SDLK_f, 0, 0}, {ACTION_KEY, SDLK_F1, 0, 0}, {ACTION_KEY, SDLK_a, 0, 0},
-    {ACTION_KEY, SDLK_e, 0, 0},
+    {ACTION_KEY, SDLK_e, 0, 0}, {ACTION_KEY, SDLK_e, KMOD_CTRL, 0},
+    {ACTION_KEY, SDLK_b, 0, 0}, {ACTION_KEY, SDLK_r, 0, 0}, {ACTION_KEY, SDLK_h, 0, 0},
     {ACTION_POINTER, 0, 40, 25}, {ACTION_POINTER, 0, 160, 25}, {ACTION_POINTER, 0, 280, 25},
     {ACTION_POINTER, 0, 40, 100}, {ACTION_POINTER, 0, 160, 100}, {ACTION_POINTER, 0, 280, 100},
     {ACTION_POINTER, 0, 40, 175}, {ACTION_POINTER, 0, 160, 175}, {ACTION_POINTER, 0, 280, 175},
@@ -144,7 +145,7 @@ static void FlightStep(int draw)
                               fuzzColors, fuzzImages, fuzzCockpitless) == 0, "draw SWC flight");
 }
 
-static void PressFlightKey(SDL_Keycode key)
+static void PressFlightKey(SDL_Keycode key, Uint16 modifiers)
 {
     FixedVector departure;
     int view;
@@ -211,8 +212,16 @@ static void PressFlightKey(SDL_Keycode key)
                 HandleCommunicationMenuRequest();
         }
         break;
-    case SDLK_e: /* Ctrl+E in the host. */
-        if (FlightContinues() && acPlayerComponentDamageList[7] < 4) {
+    case SDLK_b:
+    case SDLK_r:
+    case SDLK_h:
+        if (FlightContinues())
+            SdlSwcCommunicate(key == SDLK_b ? 0 : key == SDLK_r ? 1 : 2);
+        break;
+    case SDLK_e: /* Taunt; Ctrl+E ejects. */
+        if (FlightContinues() && !(modifiers & KMOD_CTRL))
+            SdlSwcCommunicate(3);
+        if (FlightContinues() && (modifiers & KMOD_CTRL) && acPlayerComponentDamageList[7] < 4) {
             if (acPlayerComponentDamageList[7] <= 1 ||
                 RandomBelowOrEqual((acPlayerComponentDamageList[7] - 1)) == 0)
                 nArcadeState = 2;
@@ -260,7 +269,7 @@ static void ApplyFlightAction(const FlightAction *action)
     switch (action->kind) {
     case ACTION_KEY:
         keys[SDL_GetScancodeFromKey(action->key)] = 1;
-        PressFlightKey(action->key);
+        PressFlightKey(action->key, (Uint16)action->x);
         break;
     case ACTION_POINTER:
         swcJoystickSteering = 0;
@@ -378,7 +387,7 @@ static int ActionIndex(unsigned char kind, SDL_Keycode key, short x)
 
     for (index = 0; index < (int)SDL_arraysize(actions); index++) {
         if (actions[index].kind == kind && actions[index].key == key &&
-            ((kind != ACTION_POINTER && kind != ACTION_BUTTONS) || actions[index].x == x))
+            actions[index].x == x)
             return index;
     }
     Require(0, "seed action");

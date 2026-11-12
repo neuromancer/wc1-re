@@ -210,6 +210,60 @@ void SdlSwcVocalizeMessage(int command)
     }
 }
 
+/* CODE_06 Chosen_communicate_option +0x0276. The Actions menu's message
+ * items 13..16 and SetGInputForChar's B, R, H and E keys (CODE_01 +0x3ef4,
+ * dispatched by process_player_input +0x3e92..+0x3ed2) send one order each,
+ * with no recipient menu: 0 break/attack, 1 request landing from a targeted
+ * Tiger's Claw or else form on my wing, 2 help me out, 3 taunt the target.
+ * The Mac reads the wingman's objective and the target's side before
+ * checking either index; test the indices first. */
+void SdlSwcCommunicate(int choice)
+{
+    short wingman = nYourWingman;
+    short recipient = acShipTargetTable[0];
+    short command = -1;
+
+    if (nTrainSimActive)
+        return;
+    switch (choice) {
+    case 0:
+        if (wingman_dead() || acShipRating[wingman] == -1 || !any_enemy(0, 14000))
+            break;
+        command = aeShipObjectiveList[wingman] == OBJECTIVE_HOLD_FORMATION ? 7 : 1;
+        recipient = wingman;
+        break;
+    case 1:
+        if (recipient == -1)
+            break;
+        if (aeObjectTypeList[recipient] == OBJECT_TYPE_TIGERS_CLAW && !bLandingAuthorized) {
+            command = 12;
+            break;
+        }
+        if (wingman_dead() || aeShipObjectiveList[wingman] == OBJECTIVE_HOLD_FORMATION ||
+            acShipRating[wingman] == -1)
+            break;
+        command = 9;
+        recipient = wingman;
+        break;
+    case 2:
+        if (wingman_dead() || acShipRating[wingman] == -1)
+            break;
+        recipient = wingman;
+        if (any_enemy(0, 14000))
+            command = 2;
+        break;
+    case 3:
+        /* Random3DO(0,3) excludes its upper bound: taunts 4..6. */
+        if (recipient != -1 && aeShipSide[recipient] == SIDE_KILRATHI && !unactive(recipient))
+            command = 4 + RandomInRange(0, 2);
+        break;
+    }
+    if (command == -1)
+        return;
+    SdlSwcVocalizeMessage(command);
+    request(0, recipient, command);
+}
+
 /* CODE_06 vid_equiv +0x000c, talk_equiv +0x00c4 and real_vid_transmit
  * +0x049e. Enyo 1 uses the base-game faces; later expansion substitutions
  * stay outside the currently supported fresh-demo mission. */

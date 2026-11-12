@@ -347,6 +347,7 @@ int SdlSwcSoundEffect(int sound, int object);
 short SdlSwcMessageShowing(void);
 void SdlSwcTransmit(short object, short message);
 void SdlSwcVocalizeMessage(int command);
+void SdlSwcCommunicate(int choice);
 short SdlSwcAutopilotValid(short showReason);
 void SdlSwcFlagReached(short objective, short reached);
 void SdlUpdateSwcFlightCamera(void);

@@ -2332,7 +2332,22 @@ begin_flight:
                             HandleCommunicationMenuRequest();
                     }
                     break;
+                case SDLK_b:
+                case SDLK_r:
+                case SDLK_h:
+                    /* SetGInputForChar: Break/Attack Msg, Req Land/Form Wing
+                       and Help me out here! (Actions menu items 13, 16, 15).
+                       Control and Command chords never reach it as letters. */
+                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0 &&
+                        !(event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI)))
+                        SdlSwcCommunicate(event.key.keysym.sym == SDLK_b ? 0 :
+                                          event.key.keysym.sym == SDLK_r ? 1 : 2);
+                    break;
                 case SDLK_e:
+                    /* Plain E is Taunt Enemy (Actions menu item 14). */
+                    if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0 &&
+                        !(event.key.keysym.mod & (KMOD_CTRL | KMOD_GUI)))
+                        SdlSwcCommunicate(3);
                     if (focused && !paused && !bCurrentPlayerDestroyed && nArcadeState == 0 &&
                         (event.key.keysym.mod & KMOD_CTRL) && acPlayerComponentDamageList[7] < 4) {
                         /* CODE_01 process_player_input +0x3cbe: an intact
