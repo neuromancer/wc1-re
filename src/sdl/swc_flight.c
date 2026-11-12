@@ -399,7 +399,10 @@ static int SwcLoadFlightImages(const SwcCmf *cockpit, const SwcCmf *space,
        init_3Space_objects aliases. Mac OBJT IDs differ from WC1 packets. */
     switch (type) {
     case OBJECT_TYPE_THRUSTERS: chunk = 1; expected = 20; break;
-    case OBJECT_TYPE_LASER_CANNON: chunk = 7; expected = 4; break;
+    /* Retail CODE_03 init_3Space_objects +0x0b34/+0x0b42 gives the
+       capital ships' flak (fire_flack) the laser's shape and animation. */
+    case OBJECT_TYPE_LASER_CANNON:
+    case OBJECT_TYPE_TURRET: chunk = 7; expected = 4; break;
     case OBJECT_TYPE_NEUTRON_PARTICLE_GUN:
         cmf = cockpit; chunk = 9; expected = 6; break;
     case OBJECT_TYPE_MASS_DRIVER_CANNON: chunk = 8; expected = 3; break;
@@ -407,6 +410,9 @@ static int SwcLoadFlightImages(const SwcCmf *cockpit, const SwcCmf *space,
     case OBJECT_TYPE_EXPLOSION1: chunk = 3; expected = 20; break;
     case OBJECT_TYPE_EXPLOSION2: chunk = 4; expected = 22; break;
     case OBJECT_TYPE_LASER_SPARK: chunk = 10; expected = 6; break;
+    /* CODE_04 unwarp +0x6072..+0x6092 and warp +0x6152..+0x6172 load
+       OBJT/15 into the jump flash's shape (0x2e2e = 57 * 0xcc + 0xc2). */
+    case OBJECT_TYPE_HYPERSPACE_JUMP_FLASH: chunk = 15; expected = 10; break;
     case OBJECT_TYPE_RED_SPARK: chunk = 12; expected = 4; break;
     case OBJECT_TYPE_BLUE_SPARK: chunk = 11; expected = 4; break;
     case OBJECT_TYPE_SPARK_TRAIL: chunk = 13; expected = 8; break;
@@ -479,10 +485,12 @@ static int SwcLoadFlightImages(const SwcCmf *cockpit, const SwcCmf *space,
         return -1;
     if (SwcGetFrameCount(&set, &count) != 0)
         goto done;
-    /* PCShipV01 carries an extra frame for the Krant and Gratha. Retail
-     * load_ship uses the shape set directly; the 37 directional views stay
-     * at the same indices. Keep validating every decoded frame. */
-    if (count != expected && !(cmf == cockpit && expected == 37 && count == 38) &&
+    /* PCShipV01 carries an extra frame for the Krant and Gratha, and
+     * Spaceflight.CMF SH20/1 repeats its last view (frame 37 is a byte copy
+     * of frame 36). Retail load_ship +0x05bc/+0x0770 uses the shape set
+     * without checking its count; the 37 directional views stay at the same
+     * indices. Keep validating every decoded frame. */
+    if (count != expected && !(expected == 37 && count == 38) &&
         !(type == OBJECT_TYPE_SWC_WRECKAGE_BASE + 1 && count == 15)) {
         SDL_SetError("Unexpected SWC frame count in %s/%u", chunkType, chunk);
         goto done;
