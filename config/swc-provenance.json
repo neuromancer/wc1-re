@@ -272,7 +272,7 @@
       "source": "src/sdl/swc_flight.c",
       "symbol": "SwcRunFlightScene",
       "relationship": "partial-presentation-adaptation",
-      "differences": "Original title art and four-ship combat background with view 16, eliminated-side respawn, six-update highlight cycle and 10,001-update intro replay. The disabled saved-game choice reflects the absent host save loader; New Game resets Enyo 1."
+      "differences": "Original title art and four-ship combat background with view 16, eliminated-side respawn, six-update highlight cycle and 10,001-update intro replay. As retail +0x2018..+0x20d4, only New Game and Continue exist: either step wraps between them, Continue needs a session or save, and Escape, P and I are inert: the original title has no such keys and disables the Actions menu with Pause. The Apple-menu About credits (retail CODE_01 DoAppleMenu +0x2a86) are the launcher's Credits action (--credits), not a title choice. New Game resets Enyo 1."
     },
     {
       "original_name": "death_sequence",
@@ -362,7 +362,7 @@
       "source": "src/sdl/swc_movie.c",
       "symbol": "SdlPlaySwcMovie",
       "relationship": "partial-presentation-adaptation",
-      "differences": "SDL textures, per-movie palette conversion, shared PCM/music mixing and events replace QuickDraw/Sound Manager. Adds pause/focus handling, explicit quit and skip-on-release for a complete movie group. movie_dim_screen halves all palette entries at native group boundaries; MovieDisplay +0x0738 halves only entries 1..254 on skip. Both changes are immediate. The native +0x07d0 skip-time zero-index pixel rewrite is not reproduced. A missing file returns quietly after the STR/128 retry (+0x08c6); the SDL sequences skip that clip."
+      "differences": "SDL textures, per-movie palette conversion, shared PCM/music mixing and events replace QuickDraw/Sound Manager. Adds focus-loss freezing, explicit quit and skip-on-release for a complete movie group; the original Pause command is flight-only. movie_dim_screen halves all palette entries at native group boundaries; MovieDisplay +0x0738 halves only entries 1..254 on skip. Both changes are immediate. The native +0x07d0 skip-time zero-index pixel rewrite is not reproduced. A missing file returns quietly after the STR/128 retry (+0x08c6); the SDL sequences skip that clip."
     },
     {
       "original_name": "LMovieOpen",
@@ -694,7 +694,7 @@
       "source": "src/sdl/swc_rooms.c",
       "symbol": "SwcPlayDismissal",
       "relationship": "partial-presentation-adaptation",
-      "differences": "SwcPlayRoomScene owns speech/reverse-angle mouth frames. The post-speech phase uses BRFG/32 stand frames every third update, BRFG/31 turn frames every second update, then independent one-in-five walk starts and BRFG/30/33 terminal frames 10/9. SDL pause/focus/release-skip handling and 30 Hz cadence replace the redraw loop. Original BRIEFING.MooV is absent; BRIEFIN0 continues."
+      "differences": "SwcPlayRoomScene owns speech/reverse-angle mouth frames. The post-speech phase uses BRFG/32 stand frames every third update, BRFG/31 turn frames every second update, then independent one-in-five walk starts and BRFG/30/33 terminal frames 10/9. SDL focus/release-skip handling and 30 Hz cadence replace the redraw loop. Original BRIEFING.MooV is absent; BRIEFIN0 continues."
     },
     {
       "original_name": "generate_stars",
@@ -1008,9 +1008,9 @@
     "pause_message": {
       "source": "src/sdl/swc_flight.c",
       "symbol": "SwcDrawPauseMessage",
-      "evidence": "CODE_09 FlyingLoop +0x0ad2..+0x0b60 redraws the native prompt after cancelling a quit dialog while paused: Helvetica 10, color 0x81, x=10 and baselines 180/200/220. A5-0x2845/-0x2822/-0x2800 contain Cmd-P / Actions-menu resume instructions. CODE_01 DoActionsMenu +0x3100 toggles pause byte DATA+0xa7fc and the Pause/Resume menu label.",
-      "adaptation": "SDL overlays an opaque panel on the frozen picture, adds WC1's GAME PAUSED heading (ShowGamePausedBanner 0x4290a0, string 0x46a24c), and replaces Mac menu shortcuts with Esc/P for flight/title or P for camera cutscenes. Explicit pause and focus loss show the message. Paused title/camera redraws preserve simulation, animation and idle counters. Normal resume removes the panel; camera Escape skip behavior remains unchanged. Movie and carrier pause presentation remain separate.",
-      "validation": "Fresh Ghidra CODE_09 export, original instructions and expanded A5-string review, native/GUI builds and Clang static analysis. No tests or game/GUI execution. SDL-only source change; Win32 source and flags unchanged."
+      "evidence": "Demo CODE_09 FlyingLoop +0x0ad2..+0x0b60 (A5-0x2845/-0x2822/-0x2800) and retail +0x0ab8..+0x0b46 (A5-0x28cb/-0x28a8/-0x2886) redraw the prompt only after a quit dialog is cancelled while paused. tprintf %X%Y%C%F selects colour 0x81 and font 10; CenterPrint centres each line in the 300-pixel layer that init_text allocates and MoveTextLayer places at x=10, so lines centre on x=160 at baselines 180/200/220. The retail lines are Press Cmd-P again or choose Resume / from the Actions menu to continue / playing Super Wing Commander. CODE_01 DoActionsMenu item 1 toggles the pause byte and the Pause/Resume label; ShowMenuBar disables the Actions menu outside flight mode 8 and during Title_Sequence, and visit_the_cinema never tests the pause byte.",
+      "adaptation": "Flight only, as in the original: P or Esc replaces Cmd-P and the Actions menu in the SWC flight loop. The three lines are drawn centred over the frozen picture without a panel or heading; the first two name SDL's keys (Press P or Esc again / to continue). Focus loss freezes flight silently. The title, autopilot camera, carrier rooms, movies and other scenes have no pause; they freeze only while the window is unfocused.",
+      "validation": "Retail exports of FlyingLoop, DoActionsMenu, ShowMenuBar, init_text, CenterPrint and Title_Sequence; native/GUI builds and launcher check. A scratch ASan/UBSan harness on retail data checked the three line texts and positions, 14 title selections and the credits-only launch. SDL-only source change; Win32 source and flags unchanged."
     },
     "functions": ["PollKeyboardState", "process_player_input", "player_input", "QueueInputEvent", "WarpMouseTo", "accelerate", "your_afterburner", "SetSpaceFlightFrameTiming"],
     "qualification": "DOS/Win32 controls are intentional. Held keyboard input is sampled per tick, with independent axis release. Mouse motion is passed to WC1 player_input using an initialized SWC viewport, preserving its response tables, signs and right-button roll/throttle. Only motion/modifier events are queued; the SWC host owns SDL event pumping and leaves weapon button states clear. Right double-click/hold uses WC1's timing-only 20/60-second interval and shared afterburner routine. Pointer capture is released on pause/focus loss, and SDL logical coordinates handle resizing and warping. The SDL host calls the shared gun/missile, weapon selection and target-list/cycling routines directly; native automatic acquisition and missile locking live in swc_cockpit.c. HandleSpaceFlightControls remains bypassed; unsupported mission/VDU commands are not dispatched. SWC's Mac event/device code differs.",
@@ -1213,7 +1213,7 @@
     "the_end": {
       "source": "CODE_03 +0x4b1e",
       "presentation": "63 moving PLNT/1 particles, then centered Helvetica 14 THE END at baseline 110, color 4. Funeral music continues until dismissal. The original funeral skip latch bypasses this screen.",
-      "routing": "Death, stranded and completed Enyo 1 paths return to the title menu. Window close exits. P/focus loss pause scenes/audio; activation completes on release."
+      "routing": "Death, stranded and completed Enyo 1 paths return to the title menu. Window close exits. Focus loss pauses scenes/audio; activation completes on release."
     },
     "limits": "No save/load or campaign progression. Fixed 20 Hz pacing and shared WC1 RNG/AI remain. Exact classic font pixels require a supplied Helvetica resource; fallback fonts and interactive parity are unverified. Native movie palette dimming is connected.",
     "validation": "Fresh Ghidra CODE_02/04/14 exports plus original CODE_03/05/07/09/13 instructions; A5 calls/strings and expanded DATA inspected; title frame dimensions, palettes and original artwork inspected offline. All three SDL targets built and changed units checked with Clang static analysis. No tests added/run, no game/GUI execution, playback or audio device. No original Win32 source or flags changed."
@@ -1239,7 +1239,7 @@
         {"resource": "CODE_05.bin", "entry_offset": "0x4480", "name": "init_3d_shards", "qualification": "Intro-only stationary 180-degree camera case; update_3d_shards +0x4598, generate_new_3d_shard +0x4362, 63 PLNT/1 sprites and frame table DATA/0 +0x2ede. Shared WC1 vector/RNG routines use adjusted exclusive ranges; no flight shard state is changed."},
         {"resource": "CODE_15.bin", "entry_offset": "0x046c", "name": "movie_dim_screen", "qualification": "Clears a830 skip latch after Lion and at the end of IntroFilm, otherwise halves all 256 palette colors immediately. SDL now applies native group-end dimming and avoids double-dimming skips."}
       ],
-      "controls": "Splash and Lion dismiss separately. A prologue movie or speech skip exits the remaining prologue. Key/mouse releases complete skips; P/focus loss pause the shared audio device and animation clock. Quit/error propagate to session cleanup. Missing startup movies, CMFs or speech skip the group.",
+      "controls": "Splash and Lion dismiss separately. A prologue movie or speech skip exits the remaining prologue. Key/mouse releases complete skips; focus loss pauses the shared audio device and animation clock. Quit/error propagate to session cleanup. Missing startup movies, CMFs or speech skip the group.",
       "limits": "The title battle and idle IntroFilm replay are connected; saved-game selection remains disabled until a save loader exists. Palette fades and exact original frame/RNG timing remain pending. BUC belongs to stranded_sequence +0x0a06, now connected from arcade state 3. No original picture/audio assets are embedded in source.",
       "validation": "Fresh Ghidra CODE_07/04/05/15 exports, original CODE_01/09/12 instructions, expanded A5 strings/tables and original PICT/movie/CMF/AIFF metadata; static source review and make -j4 modern modern-gui modern-swc. No tests, game, GUI, audio device or playback executed. Interactive appearance/synchronization unverified; Win32 sources and source selection unchanged."
     },

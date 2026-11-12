@@ -47,6 +47,7 @@ export component LauncherWindow inherits Window {
     in property <bool> swc-demo: false;
     in property <bool> sm1-data: false;
     in property <bool> sm2-data: false;
+    in property <bool> swc-credits: false;
     in property <LauncherMessage> status;
     in property <string> status-detail;
     out property <string> status-text: message-text(root.status, root.status-detail);
@@ -87,6 +88,7 @@ export component LauncherWindow inherits Window {
     callback installation-selected(int);
     callback language-selected(int);
     callback launch-requested(int, bool);
+    callback credits-requested();
     callback cancel-requested();
 
     VerticalBox {
@@ -378,6 +380,13 @@ export component LauncherWindow inherits Window {
                 text: @tr("Start SM2");
                 clicked => {
                     root.launch-requested(2, false);
+                }
+            }
+
+            if root.path-valid && root.swc-demo && root.swc-credits: Button {
+                text: @tr("Credits");
+                clicked => {
+                    root.credits-requested();
                 }
             }
         }

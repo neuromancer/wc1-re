@@ -21,7 +21,7 @@ enum SwcFlightScene {
     SWC_FLIGHT_EJECTION
 };
 
-enum { SWC_TITLE_CONTINUE = 3, SWC_TITLE_CREDITS = 4 };
+enum { SWC_TITLE_CONTINUE = 3 };
 
 static int swcFlightActive;
 unsigned char aSwcWeaponAmmo[10][10]; /* Mac loadout byte +9 per slot. */
@@ -1264,25 +1264,24 @@ border:
     return 0;
 }
 
-/* CODE_09 FlyingLoop +0x0ad2..+0x0b60 restores its pause prompt after a
- * cancelled quit dialog: Helvetica 10, color 0x81, x=10, y=180/200/220.
- * Use that layout with SDL's resume keys and WC1's explicit pause heading.
- * The opaque panel keeps it legible over the retained flight/title picture. */
-static int SwcDrawPauseMessage(SDL_Renderer *renderer, const SDL_Color colors[256],
-                                 int flightControls, int paused)
+/* Retail CODE_09 FlyingLoop +0x0ab8..+0x0b46: three CenterPrint lines in
+ * a 300-pixel text layer at x=10 (centred on 160), Helvetica 10, colour
+ * 0x81, baselines 180/200/220, over the frozen picture. The original lines
+ * (A5-0x28cb/-0x28a8/-0x2886) point to Cmd-P and the Actions menu, which
+ * SDL lacks; the first two name the keys that resume this port's flight. */
+static int SwcDrawPauseMessage(SDL_Renderer *renderer, const SDL_Color colors[256])
 {
-    const SDL_Rect panel = {8, 166, 304, 62};
+    static const char *const lines[] = {
+        "Press P or Esc again", "to continue", "playing Super Wing Commander."
+    };
+    int line;
 
-    if (SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255) != 0 ||
-        SDL_RenderFillRect(renderer, &panel) != 0 ||
-        SdlDrawSwcProportionalText(renderer, &swcPauseFont, 10, 180,
-            colors[0x81], "GAME PAUSED") != 0 ||
-        SdlDrawSwcProportionalText(renderer, &swcPauseFont, 10, 200,
-            colors[0x81], !paused ? "Return to the game to continue" :
-                flightControls ? "Press Esc or P to continue" : "Press P to continue") != 0 ||
-        SdlDrawSwcProportionalText(renderer, &swcPauseFont, 10, 220,
-            colors[0x81], "playing Super Wing Commander.") != 0)
-        return -1;
+    for (line = 0; line < (int)SDL_arraysize(lines); line++) {
+        if (SdlDrawSwcProportionalText(renderer, &swcPauseFont,
+                160 - SdlSwcTextWidth(&swcPauseFont, lines[line]) / 2, 180 + line * 20,
+                colors[0x81], lines[line]) != 0)
+            return -1;
+    }
     return 0;
 }
 
@@ -1339,7 +1338,6 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
     signed char savedViewObject = cViewObject;
     signed char savedCockpit = cCurrentCockpitView;
     int focused;
-    int paused = 0;
     int result = 0;
 
     if (swcCinemaRenderer == NULL || view != 12 || obj != 0)
@@ -1362,7 +1360,7 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
     previous = SDL_GetTicks();
     while (frames > 0 || skipKey != SDL_SCANCODE_UNKNOWN) {
         current = SDL_GetTicks();
-        if (focused && !paused)
+        if (focused)
             elapsed += SDL_min(current - previous, 250);
         previous = current;
         while (SDL_PollEvent(&event)) {
@@ -1382,28 +1380,24 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
                          event.window.event == SDL_WINDOWEVENT_RESTORED)
                     focused = (SDL_GetWindowFlags(swcCinemaWindow) & SDL_WINDOW_INPUT_FOCUS) != 0;
             }
-            if (event.type == SDL_KEYDOWN && !event.key.repeat && focused) {
-                if (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_BACKSPACE)
-                    skipKey = event.key.keysym.scancode;
-                else if (event.key.keysym.sym == SDLK_p)
-                    paused = !paused;
-            }
+            /* visit_the_cinema never tests the Pause flag; only Escape skips. */
+            if (event.type == SDL_KEYDOWN && !event.key.repeat && focused &&
+                (event.key.keysym.sym == SDLK_ESCAPE || event.key.keysym.sym == SDLK_BACKSPACE))
+                skipKey = event.key.keysym.scancode;
             /* Consume the release before returning to flight. A skipped
              * camera finishes normally so autopilot still completes travel. */
             if (event.type == SDL_KEYUP && skipKey != SDL_SCANCODE_UNKNOWN &&
                 event.key.keysym.scancode == skipKey)
                 goto done;
         }
-        SDL_SetWindowMouseGrab(swcCinemaWindow,
-            focused && !paused ? SDL_TRUE : SDL_FALSE);
-        SDL_ShowCursor(focused && !paused ? SDL_DISABLE : SDL_ENABLE);
-        if (!focused || paused)
+        SDL_SetWindowMouseGrab(swcCinemaWindow, focused ? SDL_TRUE : SDL_FALSE);
+        SDL_ShowCursor(focused ? SDL_DISABLE : SDL_ENABLE);
+        if (!focused)
             elapsed = 0;
-        SdlPauseSwcSound(!focused || paused);
-        if (!focused || paused) {
+        SdlPauseSwcSound(!focused);
+        if (!focused) {
             if (SwcDrawFlight(swcCinemaRenderer, NULL, swcCinemaCockpitCmf,
-                    swcCinemaSpaceCmf, swcCinemaColors, swcCinemaImages, 1) != 0 ||
-                SwcDrawPauseMessage(swcCinemaRenderer, swcCinemaColors, 0, paused) != 0) {
+                    swcCinemaSpaceCmf, swcCinemaColors, swcCinemaImages, 1) != 0) {
                 result = -1;
                 goto done;
             }
@@ -1433,7 +1427,7 @@ int SdlSwcVisitCinema(int view, int obj, short frames)
             frames--;
             elapsed -= interval;
         }
-        SDL_Delay(!focused || paused ? 8 : 1);
+        SDL_Delay(!focused ? 8 : 1);
     }
 done:
     SdlStopSwcSound(17);
@@ -1528,12 +1522,10 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
     SwcFrame frame;
     SDL_Texture *menuTextures[3] = {NULL, NULL, NULL};
     SDL_Cursor *savedCursor = SDL_GetCursor();
-    SDL_Rect bounds[4];
-    SDL_RWops *reader;
+    SDL_Rect bounds[3];
     SDL_Event event;
     SDL_Point mouse = {-1, -1};
     char failure[256];
-    char creditsPath[PATH_MAX];
     SDL_Scancode armedKey = SDL_SCANCODE_UNKNOWN;
     Uint32 previous;
     Uint32 now;
@@ -1541,14 +1533,11 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
     unsigned int ticks = 0;
     int sides[2];
     int focused;
-    int paused = 0;
     int mouseDown = 0;
     int activate;
     int configured = 0;
     int titleMenu = scene == SWC_FLIGHT_TITLE;
     int selected = canContinue ? 2 : 1;
-    int hasCredits = 0;
-    int step;
     int savedVulnerable = bPlayerVulnerable;
     short pilot = -1;
     int cursorVisible = SDL_ShowCursor(SDL_QUERY);
@@ -1572,15 +1561,6 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
             if (menuTextures[index] == NULL)
                 goto done;
         }
-        if (SdlResolvePath("CMFs/credits.swc", creditsPath, sizeof(creditsPath))) {
-            reader = SDL_RWFromFile(creditsPath, "rb");
-            if (reader != NULL) {
-                hasCredits = 1;
-                SDL_RWclose(reader);
-            }
-        }
-        SDL_ClearError();
-        bounds[3] = (SDL_Rect){250, 216, 62, 18};
         /* Expanded DATA/0 mission records 32..35 (+0xa0a + index*76),
          * nav 16 (+0x14ba + 16*88). No campaign mission is borrowed. */
         memcpy(savedShips, &aMissionShips[32], sizeof(savedShips));
@@ -1700,32 +1680,25 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
             }
             if (!focused)
                 continue;
+            /* Title_Sequence and the camera scenes run with the Actions
+             * menu, and so Pause, disabled; Escape skips only scenes. */
             if (event.type == SDL_KEYDOWN && !event.key.repeat) {
-                if (event.key.keysym.sym == SDLK_p ||
-                    (titleMenu && event.key.keysym.sym == SDLK_ESCAPE)) {
-                    paused = !paused;
-                    armedKey = SDL_SCANCODE_UNKNOWN;
-                    mouseDown = 0;
-                } else if (!titleMenu && (event.key.keysym.sym == SDLK_ESCAPE ||
+                if (!titleMenu && (event.key.keysym.sym == SDLK_ESCAPE ||
                            event.key.keysym.sym == SDLK_BACKSPACE)) {
                     armedKey = event.key.keysym.scancode;
-                } else if (!paused && (event.key.keysym.sym == SDLK_SPACE ||
+                } else if (event.key.keysym.sym == SDLK_SPACE ||
                     event.key.keysym.sym == SDLK_RETURN ||
-                    event.key.keysym.sym == SDLK_KP_ENTER)) {
+                    event.key.keysym.sym == SDLK_KP_ENTER) {
                     armedKey = event.key.keysym.scancode;
-                } else if (titleMenu && !paused &&
+                } else if (titleMenu &&
                     (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_DOWN ||
                      event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_RIGHT ||
                      event.key.keysym.sym == SDLK_TAB)) {
-                    step = event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_LEFT ||
-                        (event.key.keysym.sym == SDLK_TAB && (event.key.keysym.mod & KMOD_SHIFT)) ? -1 : 1;
-                    do {
-                        selected = (selected + step + 2) % 3 + 1;
-                    } while ((selected == 2 && !canContinue) || (selected == 3 && !hasCredits));
+                    /* Retail CODE_07 Title_Sequence +0x2018..+0x20d4: either
+                     * step wraps between two choices; Continue needs a game. */
+                    if (canContinue)
+                        selected = 3 - selected;
                     SdlPlaySwcSound(30, 255);
-                } else if (titleMenu && !paused && event.key.keysym.sym == SDLK_i) {
-                    result = SWC_MOVIE_SKIPPED;
-                    goto done;
                 }
             }
             if (event.type == SDL_KEYUP && armedKey != SDL_SCANCODE_UNKNOWN &&
@@ -1735,15 +1708,13 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
                     result = SWC_MOVIE_SKIPPED;
                     goto done;
                 }
-                activate = !paused;
+                activate = 1;
                 armedKey = SDL_SCANCODE_UNKNOWN;
             }
-            if (paused)
-                continue;
             if (titleMenu && event.type == SDL_MOUSEMOTION) {
                 mouse = (SDL_Point){event.motion.x, event.motion.y};
-                for (index = 1; index <= 3; index++) {
-                    if ((index != 2 || canContinue) && (index != 3 || hasCredits) &&
+                for (index = 1; index <= 2; index++) {
+                    if ((index != 2 || canContinue) &&
                         SDL_PointInRect(&mouse, &bounds[index]))
                         selected = index;
                 }
@@ -1756,8 +1727,8 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
                     if (!titleMenu) {
                         activate = 1;
                     } else {
-                        for (index = 1; index <= 3; index++) {
-                            if ((index != 2 || canContinue) && (index != 3 || hasCredits) &&
+                        for (index = 1; index <= 2; index++) {
+                            if ((index != 2 || canContinue) &&
                                 SDL_PointInRect(&mouse, &bounds[index])) {
                                 selected = index;
                                 activate = 1;
@@ -1768,20 +1739,19 @@ static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
                 mouseDown = 0;
             }
         }
-        SdlPauseSwcSound(!focused || paused);
-        if (activate && focused && !paused && (titleMenu || ticks > 40)) {
-            result = titleMenu && selected == 3 ? SWC_TITLE_CREDITS :
-                titleMenu && selected == 2 ? SWC_TITLE_CONTINUE : SWC_MOVIE_FINISHED;
+        SdlPauseSwcSound(!focused);
+        if (activate && focused && (titleMenu || ticks > 40)) {
+            result = titleMenu && selected == 2 ? SWC_TITLE_CONTINUE : SWC_MOVIE_FINISHED;
             break;
         }
-        if (focused && !paused)
+        if (focused)
             elapsed += SDL_min(now - previous, 250);
         else
             elapsed = 0;
         previous = now;
-        /* Paused scenes still redraw the frozen picture and pause prompt,
-         * including after window exposure, resize or fullscreen changes. */
-        if (!focused || paused)
+        /* Unfocused scenes still redraw the frozen picture, including
+         * after window exposure, resize or fullscreen changes. */
+        if (!focused)
             goto draw_scene;
         if (elapsed < 50) {
             SDL_Delay(8);
@@ -1822,13 +1792,8 @@ draw_scene:
             goto done;
         if (titleMenu) {
             if (SDL_RenderCopy(swcCinemaRenderer, menuTextures[0], NULL, &bounds[0]) != 0 ||
-                (selected < 3 && nRenderedSpaceFrame % 6 < 4 &&
+                (nRenderedSpaceFrame % 6 < 4 &&
                  SDL_RenderCopy(swcCinemaRenderer, menuTextures[selected], NULL, &bounds[selected]) != 0))
-                goto done;
-            if (hasCredits && SdlDrawSwcProportionalText(swcCinemaRenderer, &swcPauseFont,
-                    bounds[3].x + (bounds[3].w - SdlSwcTextWidth(&swcPauseFont, "Credits")) / 2,
-                    228, swcCinemaColors[selected == 3 && nRenderedSpaceFrame % 6 < 4 ? 0xd4 : 129],
-                    "Credits") != 0)
                 goto done;
         } else if (ticks > 40 &&
             SdlDrawSwcProportionalText(swcCinemaRenderer, &font,
@@ -1837,9 +1802,6 @@ draw_scene:
                 200, swcCinemaColors[129], "Press <sp> to continue") != 0) {
             goto done;
         }
-        if ((!focused || paused) &&
-            SwcDrawPauseMessage(swcCinemaRenderer, swcCinemaColors, titleMenu, paused) != 0)
-            goto done;
         SdlDrawSwcOptionNotice(swcCinemaRenderer);
         SDL_RenderPresent(swcCinemaRenderer);
         if (titleMenu && ticks > 10000) {
@@ -1863,8 +1825,7 @@ done:
     if (titleMenu)
         SdlStopSwcMusic();
     SdlStopSwcSounds();
-    if (titleMenu && (result == SWC_MOVIE_FINISHED || result == SWC_TITLE_CONTINUE ||
-                     result == SWC_TITLE_CREDITS))
+    if (titleMenu && (result == SWC_MOVIE_FINISHED || result == SWC_TITLE_CONTINUE))
         SdlPlaySwcSound(31, 255);
     if (titleMenu && savedCursor != NULL)
         SDL_SetCursor(savedCursor);
@@ -1879,7 +1840,8 @@ done:
     return result;
 }
 
-int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
+int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen,
+                     int credits)
 {
     SwcCmf cockpitCmf = {0};
     SwcCmf spaceCmf = {0};
@@ -2024,6 +1986,13 @@ int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen)
     SDL_ShowWindow(window);
     SDL_RaiseWindow(window);
     SDL_PumpEvents();
+    /* The launcher's Credits action replaces the Apple menu's About item
+       (retail CODE_01 DoAppleMenu +0x2a86): show only the roll, then leave. */
+    if (credits) {
+        if (SdlShowSwcCredits(window, renderer, path) != SWC_MOVIE_ERROR)
+            result = 0;
+        goto done;
+    }
     movieResult = SdlPlaySwcStartup(window, renderer, path, 0);
     if (movieResult == SWC_MOVIE_ERROR)
         goto done;
@@ -2050,13 +2019,6 @@ title_menu:
     movieResult = SwcRunFlightScene(SWC_FLIGHT_TITLE, canContinue || nSwcContinueSlot >= 0);
     if (movieResult == SWC_MOVIE_ERROR)
         goto done;
-    if (movieResult == SWC_TITLE_CREDITS) {
-        movieResult = SdlShowSwcCredits(window, renderer, path);
-        if (movieResult == SWC_MOVIE_ERROR)
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Credits unavailable", SDL_GetError(), window);
-        if (movieResult != SWC_MOVIE_QUIT)
-            goto title_menu;
-    }
     if (movieResult == SWC_MOVIE_SKIPPED) {
         movieResult = SdlPlaySwcStartup(window, renderer, path, 1);
         if (movieResult == SWC_MOVIE_ERROR)
@@ -2737,7 +2699,7 @@ begin_flight:
             if (SwcDrawFlight(renderer, swcCockpitTexture, &cockpitCmf, &spaceCmf, colors,
                               images, cockpitless) != 0)
                 goto done;
-            if ((!focused || paused) && SwcDrawPauseMessage(renderer, colors, 1, paused) != 0)
+            if (paused && SwcDrawPauseMessage(renderer, colors) != 0)
                 goto done;
             SdlDrawSwcOptionNotice(renderer);
             SDL_RenderPresent(renderer);

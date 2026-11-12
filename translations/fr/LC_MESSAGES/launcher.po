@@ -240,6 +240,10 @@ msgid "Start SWC"
 msgstr "Lancer SWC"
 
 msgctxt "LauncherWindow"
+msgid "Credits"
+msgstr "Crédits"
+
+msgctxt "LauncherWindow"
 msgid "Transfer pilot to SM1…"
 msgstr "Transférer le pilote vers SM1…"
 

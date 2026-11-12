@@ -48,6 +48,7 @@ void refresh_window(LauncherWindow &window,
     window.set_swc_demo(status.swcDemo);
     window.set_sm1_data(status.sm1);
     window.set_sm2_data(status.sm2);
+    window.set_swc_credits(status.swcCredits);
     window.set_towns_data(status.valid && status.message == LauncherMessage::FmTowns);
     if (!window.get_towns_data() && window.get_language_index() == 2)
         window.set_language_index(0);
@@ -160,11 +161,13 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
             window->set_game_directory(slint::SharedString(installations[index - 1].directory));
         refresh_window(*window, installations);
     });
-    window->on_launch_requested([&window, &accepted, &installations, options](int campaign, bool transfer) {
+    const auto launch = [&window, &accepted, &installations, options](int campaign, bool transfer,
+                                                                      bool credits) {
         refresh_window(*window, installations);
         if (!window->get_path_valid() || campaign < 0 || campaign > 2 || (transfer && !campaign) ||
             (campaign == 1 && !window->get_sm1_data()) ||
-            (campaign == 2 && !window->get_sm2_data()))
+            (campaign == 2 && !window->get_sm2_data()) ||
+            (credits && !window->get_swc_credits()))
             return;
         std::error_code error;
         const std::string directory(window->get_game_directory());
@@ -188,12 +191,19 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         window->set_game_directory(slint::SharedString(absoluteText));
         options->campaign = campaign;
         options->transferPilot = transfer;
+        options->swcCredits = credits;
         accepted = true;
         /* Hide while the event loop still runs: on Linux the request takes
            effect only when the loop processes it, so hiding after the loop
            left the launcher on screen during the game. */
         window->hide();
         slint::quit_event_loop();
+    };
+    window->on_launch_requested([launch](int campaign, bool transfer) {
+        launch(campaign, transfer, false);
+    });
+    window->on_credits_requested([launch]() {
+        launch(0, false, true);
     });
     window->on_cancel_requested([]() {
         slint::quit_event_loop();

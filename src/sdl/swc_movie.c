@@ -24,7 +24,6 @@ int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
     uint32_t frame = 1;
     char failure[256];
     int focused;
-    int paused = 0;
     int playing = 0;
     int skipMouse = 0;
     int changed = 1;
@@ -97,9 +96,6 @@ int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
                 case SDLK_KP_ENTER:
                     skipKey = event.key.keysym.scancode;
                     break;
-                case SDLK_p:
-                    paused = !paused;
-                    break;
                 default:
                     break;
                 }
@@ -117,8 +113,10 @@ int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
                 goto done;
             }
         }
-        if (playing != (focused && !paused) || redraw) {
-            playing = focused && !paused;
+        /* The original Pause command is flight-only; movies stop only while
+           the window is unfocused. */
+        if (playing != focused || redraw) {
+            playing = focused;
             SdlPauseSwcSound(!playing);
         }
         targetFrame = elapsed * movie.framesPerSecond / frequency + 1;

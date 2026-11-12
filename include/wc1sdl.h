@@ -339,7 +339,8 @@ void SdlStopTownsRadio(void);
 int SdlFindSwcMissionData(char *path, unsigned long capacity);
 int SdlFindSwcResources(const char *directory, char *path, unsigned long capacity);
 int SdlLoadSwcMissionData(const char *path, short series, short mission);
-int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen);
+int SdlRunSwcMission(const char *missionPath, int cockpitless, int fullscreen,
+                     int credits);
 int SdlSwcFlightActive(void);
 int SdlSwcCos(int angle);
 int SdlSwcSoundEffect(int sound, int object);

@@ -212,9 +212,7 @@ int main(int argc, char **argv)
     platform->view->dimensions = slint::PhysicalSize {{760, 660}};
     window->window().dispatch_resize_event(slint::LogicalSize {{760, 660}});
     int launcherHeight = 660;
-    auto checkLaunchButtons = [&](const fs::path &directory, int expected) {
-        window->set_game_directory(slint::SharedString(path_to_utf8(directory)));
-        refresh_window(*window, installations);
+    auto clickLaunchRows = [&]() {
         window->show(); // Refresh native size constraints without an event loop.
         platform->view->pixels.render(english, 760);
         launcherHeight = std::max(660, static_cast<int>(std::ceil(platform->view->minimum.height)));
@@ -230,6 +228,11 @@ int main(int argc, char **argv)
                 window->window().dispatch_pointer_release_event(slint::LogicalPosition {{x, y}}, slint::PointerEventButton::Left);
             }
         }
+    };
+    auto checkLaunchButtons = [&](const fs::path &directory, int expected) {
+        window->set_game_directory(slint::SharedString(path_to_utf8(directory)));
+        refresh_window(*window, installations);
+        clickLaunchRows();
         if (launched != expected || transferred != (expected & 6))
             std::fprintf(stderr, "Launch %d / transfer %d, expected %d / %d; minimum height %.0f\n",
                          launched, transferred, expected, expected & 6, platform->view->minimum.height);
@@ -271,14 +274,31 @@ int main(int argc, char **argv)
         std::ofstream(fixture / "dos/GAMEDAT" / name).put('x');
     checkLaunchButtons(fixture / "dos", 1);
     checkLaunchButtons(fixture / "missing", 0);
+    // SWC detection needs the game's stubbed resource search, so set the
+    // detected state directly and click through the real layout.
+    int credits = 0;
+    window->on_credits_requested([&]() { credits++; });
+    for (const bool available : {false, true}) {
+        window->set_path_valid(true);
+        window->set_swc_demo(true);
+        window->set_sm1_data(false);
+        window->set_sm2_data(false);
+        window->set_swc_credits(available);
+        credits = 0;
+        clickLaunchRows();
+        require(launched == 1 && !transferred, "SWC offers only its own start button");
+        require((credits != 0) == available, "SWC credits button follows detected credits data");
+    }
     saved.campaign = 2;
     saved.transferPilot = 1;
+    saved.swcCredits = 1;
     loaded.campaign = 0;
     require(save_launcher_config(fixture / "launcher.ini", saved), "save settings after SM2 selection");
     load_launcher_config(fixture / "launcher.ini", loaded);
-    require(loaded.campaign == 0 && !loaded.transferPilot, "campaign and transfer choices are per launch");
+    require(loaded.campaign == 0 && !loaded.transferPilot && !loaded.swcCredits,
+            "campaign, transfer and credits choices are per launch");
     window->hide();
     fs::remove_all(fixture);
-    std::puts("PASS: WC1/SM1/SM2 buttons, independent detection, missing data, edition switching and click routing.");
+    std::puts("PASS: WC1/SM1/SM2 and SWC credits buttons, independent detection, missing data, edition switching and click routing.");
     std::puts("PASS: live English/Spanish/French switching, redraw, errors, installation labels and language settings.");
 }

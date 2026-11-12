@@ -17,6 +17,7 @@ struct DirectoryStatus {
     std::string detail = {};
     bool sm1 = false;
     bool sm2 = false;
+    bool swcCredits = false;
 };
 
 struct GameInstallation {

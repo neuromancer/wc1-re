@@ -90,7 +90,6 @@ typedef struct SwcCarrier {
     int mouseX;
     int mouseY;
     int focused;
-    int paused;
     int drawResult;
     enum SwcCarrierVisit visit;
     SwcParallax parallax;
@@ -428,9 +427,6 @@ static SwcRoomInput SwcPollCarrier(SwcCarrier *carrier)
                 input.step = -1;
                 input.direction = event.key.keysym.sym;
                 break;
-            case SDLK_p:
-                carrier->paused = !carrier->paused;
-                break;
             default:
                 break;
             }
@@ -446,7 +442,7 @@ static SwcRoomInput SwcPollCarrier(SwcCarrier *carrier)
             carrier->armedKey = SDL_SCANCODE_UNKNOWN;
         }
     }
-    SdlPauseSwcSound(!carrier->focused || carrier->paused);
+    SdlPauseSwcSound(!carrier->focused);
     return input;
 }
 
@@ -527,7 +523,7 @@ static int SwcFadeRoom(SwcCarrier *carrier, int entering)
     Uint32 previous;
     Uint32 current;
     Uint32 elapsed = 0;
-    int playing = carrier->focused && !carrier->paused;
+    int playing = carrier->focused;
     int brightness;
 
     if (!entering && !carrier->pictureVisible)
@@ -543,7 +539,7 @@ static int SwcFadeRoom(SwcCarrier *carrier, int entering)
         input = SwcPollCarrier(carrier);
         if (input.quit)
             return SWC_MOVIE_QUIT;
-        playing = carrier->focused && !carrier->paused;
+        playing = carrier->focused;
         if (input.back || (playing && (input.activate || input.clicked || input.step))) {
             carrier->pendingInput = input;
             elapsed = 167;
@@ -596,7 +592,7 @@ int SdlShowSwcSplash(SDL_Window *window, SDL_Renderer *renderer, const char *res
             elapsed += current - previous;
         previous = current;
         input = SwcPollCarrier(&carrier);
-        playing = carrier.focused && !carrier.paused;
+        playing = carrier.focused;
         if (input.quit || input.back || input.activate || input.clicked) {
             result = input.quit ? SWC_MOVIE_QUIT : SWC_MOVIE_SKIPPED;
             break;
@@ -720,7 +716,7 @@ int SdlPlaySwcIntroSpeech(SDL_Window *window, SDL_Renderer *renderer,
             }
             previous = current;
             input = SwcPollCarrier(&carrier);
-            playing = carrier.focused && !carrier.paused;
+            playing = carrier.focused;
             if (input.quit || input.back || input.activate || input.clicked) {
                 result = input.quit ? SWC_MOVIE_QUIT : SWC_MOVIE_SKIPPED;
                 goto done;
@@ -1391,7 +1387,7 @@ static int SwcPlayDismissal(SwcCarrier *carrier, Uint32 speechTicks)
         input = SwcPollCarrier(carrier);
         if (input.quit)
             return SWC_MOVIE_QUIT;
-        playing = carrier->focused && !carrier->paused;
+        playing = carrier->focused;
         if (input.back || (playing && (input.activate || input.clicked)))
             return SWC_MOVIE_SKIPPED;
         nextTick = ((uint64_t)elapsed * 30 / 1000);
@@ -1423,8 +1419,6 @@ static int SwcPlayDismissal(SwcCarrier *carrier, Uint32 speechTicks)
             SwcDrawRoomArt(carrier, SWC_BRIEFING, "BRFG", 30, frames[0], 85, 5);
         }
         if (carrier->drawResult != 0 ||
-            (carrier->paused && SdlDrawSwcRoomSubtitle(carrier->renderer,
-                &carrier->roomFont, "Paused - P to resume") != 0) ||
             SwcPresentRoom(carrier, 255) != 0)
             return -1;
         if (frames[0] == 10 && frames[1] == 9)
@@ -1476,7 +1470,6 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
     SDL_SetCursor(SDL_GetDefaultCursor());
     carrier->armedKey = SDL_SCANCODE_UNKNOWN;
     carrier->mouseDown = 0;
-    carrier->paused = 0;
     carrier->focused = (SDL_GetWindowFlags(carrier->window) & SDL_WINDOW_INPUT_FOCUS) != 0;
     SdlPauseSwcSound(!carrier->focused);
     if (carrier->visit == SWC_CARRIER_PREFLIGHT && section == 0)
@@ -1558,7 +1551,7 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
                 result = carrier->visit >= SWC_CARRIER_PLAYER_FUNERAL ? SWC_MOVIE_SKIPPED : 0;
                 goto done;
             }
-            wasPlaying = carrier->focused && !carrier->paused;
+            wasPlaying = carrier->focused;
             if (wasPlaying && !speechStarted && elapsed >= leadIn) {
                 if (SwcStartSpeech(carrier, section, index,
                         (char *)scene.text + record->textOffset, &duration) != 0)
@@ -1601,7 +1594,6 @@ static int SwcPlayRoomScene(SwcCarrier *carrier, int section)
             SwcDrawScene(carrier, shot, colour, talker, mouthFrame,
                 SwcSceneAnimationFrame(face, ((uint64_t)elapsed * 30 / 1000), 1), elapsed);
             if (carrier->drawResult != 0 || SdlDrawSwcRoomSubtitle(carrier->renderer, &carrier->roomFont,
-                carrier->paused ? "Paused - P to resume" :
                 elapsed < leadIn || !swcOptions.text ? "" : text) != 0 ||
                 SwcPresentRoom(carrier, 255) != 0)
                 goto done;
@@ -1629,7 +1621,6 @@ done:
     carrier->marks = NULL;
     carrier->markCount = 0;
     SDL_SetRenderTarget(carrier->renderer, NULL);
-    carrier->paused = 0;
     if (result == 0 || result == SWC_MOVIE_SKIPPED) {
         int fadeResult = SwcFadeRoom(carrier, 0);
         if (fadeResult != 0)
@@ -1826,7 +1817,7 @@ int SdlPlaySwcCampaignTransition(SDL_Window *window, SDL_Renderer *renderer,
         previous = SDL_GetTicks();
         for (;;) {
             now = SDL_GetTicks();
-            if (carrier.focused && !carrier.paused)
+            if (carrier.focused)
                 elapsed += SDL_min(now - previous, 250);
             previous = now;
             input = SwcPollCarrier(&carrier);
@@ -2035,12 +2026,12 @@ int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
             result = SWC_MOVIE_QUIT;
             break;
         }
-        if (input.back || (carrier.focused && !carrier.paused &&
+        if (input.back || (carrier.focused &&
             (input.activate || input.clicked))) {
             result = SWC_MOVIE_FINISHED;
             break;
         }
-        if (carrier.focused && !carrier.paused)
+        if (carrier.focused)
             elapsed += SDL_min(now - previous, 250);
         else
             elapsed = 0;
@@ -2174,12 +2165,12 @@ int SdlShowSwcCredits(SDL_Window *window, SDL_Renderer *renderer,
     for (;;) {
         now = SDL_GetTicks();
         input = SwcPollCarrier(&carrier);
-        if (input.quit || input.back || (carrier.focused && !carrier.paused &&
+        if (input.quit || input.back || (carrier.focused &&
             (input.activate || input.clicked))) {
             result = input.quit ? SWC_MOVIE_QUIT : SWC_MOVIE_FINISHED;
             break;
         }
-        if (carrier.focused && !carrier.paused)
+        if (carrier.focused)
             elapsed += SDL_min(now - previous, 250);
         else
             elapsed = 0;
@@ -2346,7 +2337,7 @@ static int SwcDisplayGameScores(SwcCarrier *carrier, int recordScore)
         input = SwcPollCarrier(carrier);
         if (input.quit)
             return SWC_MOVIE_QUIT;
-        if (carrier->focused && !carrier->paused && (input.activate || input.back || input.clicked))
+        if (carrier->focused && (input.activate || input.back || input.clicked))
             return SWC_MOVIE_FINISHED;
         if (SwcPresentRoom(carrier, 255) != 0)
             return SWC_MOVIE_ERROR;
@@ -2374,7 +2365,7 @@ static int SwcChooseArcadeMission(SwcCarrier *carrier)
         if (input.quit)
             return SWC_MOVIE_QUIT;
         current = SDL_GetTicks();
-        if (carrier->focused && !carrier->paused) {
+        if (carrier->focused) {
             if (input.back || input.space)
                 return SWC_MOVIE_SKIPPED;
             if (!details) {
@@ -2460,7 +2451,7 @@ static int SwcManageBunk(SwcCarrier *carrier, int slot)
         if (input.quit)
             return SWC_MOVIE_QUIT;
         count = error[0] ? 1 : confirm >= 0 ? 2 : 4;
-        if (carrier->focused && !carrier->paused) {
+        if (carrier->focused) {
             if (input.back) {
                 if (confirm < 0 || error[0])
                     return SWC_MOVIE_FINISHED;
@@ -2774,7 +2765,7 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
     while (1) {
         SdlPlaySwcMusic(room == 0 || room == 2 ? "RECROOM.MooV" : "BARRACKS.MooV", 50);
         current = SDL_GetTicks();
-        if (carrier.focused && !carrier.paused)
+        if (carrier.focused)
             elapsed += current - previous;
         previous = current;
         input = SwcPollCarrier(&carrier);
@@ -2784,13 +2775,11 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
         }
         /* SDL has no Mac application menu. Esc/B at the bar returns to
          * Title_Sequence; its Continue choice preserves this session. */
-        if (room == 0 && notice == NULL && input.back && !carrier.paused) {
+        if (room == 0 && notice == NULL && input.back) {
             result = SWC_CARRIER_TITLE;
             break;
         }
-        if (input.back)
-            carrier.paused = 0;
-        if (!carrier.focused || carrier.paused) {
+        if (!carrier.focused) {
             /* Repaint the retained picture over option notices and dialogs. */
             if (!fadeIn && SwcPresentRoom(&carrier, 255) != 0)
                 break;
@@ -2912,7 +2901,7 @@ int SdlRunSwcCarrier(SDL_Window *window, SDL_Renderer *renderer,
         steps = SDL_min(8U, tick / 2 - animationTick / 2);
         roomSteps = SDL_min(16U, tick - animationTick);
         if (room == 0) {
-            if (input.incidental && carrier.focused && !carrier.paused)
+            if (input.incidental && carrier.focused)
                 incidentalX = -75;
             else if (incidentalX <= 320)
                 incidentalX += (int)roomSteps;

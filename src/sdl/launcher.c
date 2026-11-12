@@ -49,6 +49,8 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             *useLauncherGui = 1;
         } else if (strcmp(argument, "--transfer-pilot") == 0) {
             options->transferPilot = 1;
+        } else if (strcmp(argument, "--credits") == 0) {
+            options->swcCredits = 1;
         } else if (strncmp(argument, "--campaign=", 11) == 0) {
             if (strcmp(argument + 11, "wc1") == 0)
                 options->campaign = 0;
@@ -189,6 +191,10 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
         fprintf(stderr, "Invalid campaign for the selected game.\n");
         return 0;
     }
+    if (options->swcCredits && !options->swcDemo) {
+        fprintf(stderr, "Credits are available only for Super Wing Commander.\n");
+        return 0;
+    }
     nLaunchCampaign = options->campaign;
     nPilotTransferState = options->transferPilot != 0;
     if (options->joystickMode < SDL_LAUNCHER_JOYSTICK_ORIGINAL ||
@@ -306,7 +312,7 @@ int main(int argumentCount, char **arguments)
             return 1;
         }
         gameResult = SdlRunSwcMission(swcPath, launcherOptions.cockpitlessView,
-                                     launcherOptions.fullscreen);
+                                     launcherOptions.fullscreen, launcherOptions.swcCredits);
         if (gameResult != 0) {
             fprintf(stderr, "Cannot start SWC: %s\n", SDL_GetError());
             if (useLauncherGui)
