@@ -1414,10 +1414,14 @@ FUZZ_CXX ?= clang++
 FUZZ_OUT_DIR ?= out-modern/fuzz
 
 # Compile every game object with coverage, separately from normal SDL builds.
-.PHONY: fuzz-flight check-fuzz check-fuzz-sm1 check-fuzz-sm2
+.PHONY: fuzz-flight fuzz-swc-flight check-fuzz check-fuzz-sm1 check-fuzz-sm2 check-fuzz-swc
 fuzz-flight:
 	$(MAKE) MODERN_OUT_DIR="$(FUZZ_OUT_DIR)" MODERN_CC="$(FUZZ_CC)" \
 		MODERN_CXX="$(FUZZ_CXX)" MODERN_FUZZING=1 "$(FUZZ_OUT_DIR)/flight-fuzzer"
+
+fuzz-swc-flight:
+	$(MAKE) MODERN_OUT_DIR="$(FUZZ_OUT_DIR)" MODERN_CC="$(FUZZ_CC)" \
+		MODERN_CXX="$(FUZZ_CXX)" MODERN_FUZZING=1 "$(FUZZ_OUT_DIR)/swc-flight-fuzzer"
 
 check-fuzz: fuzz-flight
 	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(GAME_DATA),$(GAME_DATA),$(MODERN_RUN_DIR))" --fuzz $(FUZZ_ARGS)
@@ -1427,6 +1431,17 @@ check-fuzz-sm1: fuzz-flight
 
 check-fuzz-sm2: fuzz-flight
 	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(SM2_DATA),$(SM2_DATA),$(MODERN_RUN_DIR))" --fuzz --campaign sm2 $(FUZZ_ARGS)
+
+# The SWC directory is only read; corpus and artifacts stay beside the fuzzer.
+check-fuzz-swc: fuzz-swc-flight
+	@mkdir -p "$(FUZZ_OUT_DIR)/swc-flight-corpus" "$(FUZZ_OUT_DIR)/swc-flight-artifacts"
+	SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy ASAN_OPTIONS=detect_leaks=0 \
+		UBSAN_OPTIONS=halt_on_error=0:print_stacktrace=1 \
+		WC1_SWC_DATA="$(if $(SWC_DATA),$(SWC_DATA),$(SWC_DATA_DIR))" \
+		WC1_SWC_FLIGHT_SEEDS="$(abspath $(FUZZ_OUT_DIR))/swc-flight-corpus" \
+		"$(FUZZ_OUT_DIR)/swc-flight-fuzzer" "$(abspath $(FUZZ_OUT_DIR))/swc-flight-corpus" \
+		-max_len=1208 -timeout=120 -detect_leaks=0 \
+		-artifact_prefix="$(abspath $(FUZZ_OUT_DIR))/swc-flight-artifacts/" $(FUZZ_ARGS)
 
 ifeq ($(MODERN_FUZZING),1)
 $(MODERN_OUT_DIR)/obj/flight_fuzzer.o: bin/checkFlight.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
@@ -1439,8 +1454,21 @@ $(MODERN_OUT_DIR)/flight-fuzzer: $(MODERN_OUT_DIR)/obj/flight_fuzzer.o \
 		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -fsanitize=fuzzer -o $@
 
+# The SWC harness includes swc_flight.c to reach its per-tick flight step.
+$(MODERN_OUT_DIR)/obj/swc_flight_fuzzer.o: bin/checkSwcFlight.c src/sdl/swc_flight.c $(REFERENCE_HEADERS) include/wc1sdl.h include/swc.h | modern-check-sdl
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/swc-flight-fuzzer: $(MODERN_OUT_DIR)/obj/swc_flight_fuzzer.o \
+		$(MODERN_BASE_HOST_OBJS) $(filter-out $(MODERN_OUT_DIR)/obj/sdl/swc_flight.o,$(MODERN_GAME_HOST_OBJS)) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -fsanitize=fuzzer -o $@
+
 # Sanitizer flag changes must not leave fatal handlers in cached objects.
-$(MODERN_OUT_DIR)/obj/flight_fuzzer.o $(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+$(MODERN_OUT_DIR)/obj/flight_fuzzer.o $(MODERN_OUT_DIR)/obj/swc_flight_fuzzer.o \
+		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
 		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS): Makefile
 endif
 

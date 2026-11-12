@@ -2252,7 +2252,9 @@ begin_flight:
                         celerate(0, asShipMaximumSpeedArray[0] * 256 - anShipSpeed[0]);
                     break;
                 case SDLK_n:
-                    if (focused && !paused)
+                    /* Retail SWC has no N key; its cycle_next_objective callers
+                     * never run without a flight path, as in the simulator. */
+                    if (focused && !paused && abFlightPathList[0] != -1)
                         cycle_next_objective();
                     break;
                 case SDLK_y:
