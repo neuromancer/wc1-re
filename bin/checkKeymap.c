@@ -7,6 +7,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef __APPLE__
+#define SDL_KEYMAP_TEST_MENU KMOD_GUI
+#else
+#define SDL_KEYMAP_TEST_MENU KMOD_CTRL
+#endif
+
 static int g_bFlight;
 static int g_nFailures;
 static Uint32 g_dwMouseButtons;
@@ -210,9 +216,128 @@ int main(void)
     g_bFlight = 0;
     Expect(!SdlKeymapMouseActive(), "menus keep the mouse as it is");
 
+    /* SWC: rebound inputs become the keys the Mac demo reads. */
+    {
+        SDL_Event event;
+        Uint8 keys[SDL_NUM_SCANCODES];
+        const Uint8 *swcHeld;
+
+        SdlSetKeyBindings("swc-next-target=y\n"
+                          "swc-pitch-down=w\n"
+                          "swc-pause=f12\n"
+                          "swc-music=f11\n");
+        SDL_zero(event);
+        event.type = SDL_KEYDOWN;
+        event.key.keysym.scancode = SDL_SCANCODE_Y;
+        event.key.keysym.sym = SDLK_y;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_t &&
+               event.key.keysym.scancode == SDL_SCANCODE_T && event.key.keysym.mod == 0,
+               "SWC: Y cycles targets");
+        SDL_zero(event);
+        event.type = SDL_KEYUP;
+        event.key.keysym.scancode = SDL_SCANCODE_Y;
+        event.key.keysym.sym = SDLK_y;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_t, "SWC: Y's release releases T");
+        SDL_zero(event);
+        event.type = SDL_KEYDOWN;
+        event.key.keysym.scancode = SDL_SCANCODE_T;
+        event.key.keysym.sym = SDLK_t;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == 0, "SWC: plain T no longer cycles targets");
+        SDL_zero(event);
+        event.type = SDL_KEYDOWN;
+        event.key.keysym.scancode = SDL_SCANCODE_T;
+        event.key.keysym.sym = SDLK_t;
+        event.key.keysym.mod = KMOD_LGUI | KMOD_LCTRL;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_t,
+               "SWC: the menu shortcut still cycles targets");
+        SDL_zero(event);
+        event.type = SDL_KEYDOWN;
+        event.key.keysym.scancode = SDL_SCANCODE_F12;
+        event.key.keysym.sym = SDLK_F12;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_p &&
+               event.key.keysym.mod == SDL_KEYMAP_TEST_MENU, "SWC: F12 pauses through the menu");
+        SDL_zero(event);
+        event.type = SDL_KEYDOWN;
+        event.key.keysym.scancode = SDL_SCANCODE_P;
+        event.key.keysym.sym = SDLK_p;
+        event.key.keysym.mod = SDL_KEYMAP_TEST_MENU;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == 0, "SWC: the pause shortcut moved to F12");
+        SDL_zero(event);
+        event.type = SDL_KEYDOWN;
+        event.key.keysym.scancode = SDL_SCANCODE_F11;
+        event.key.keysym.sym = SDLK_F11;
+        Expect(SdlSwcKeymapTranslateOptionKey(&event.key) == 1 && event.key.keysym.sym == SDLK_u &&
+               event.key.keysym.mod == SDL_KEYMAP_TEST_MENU, "SWC: F11 toggles music on any screen");
+        event.key.keysym.scancode = SDL_SCANCODE_U;
+        event.key.keysym.sym = SDLK_u;
+        event.key.keysym.mod = SDL_KEYMAP_TEST_MENU;
+        Expect(SdlSwcKeymapTranslateOptionKey(&event.key) == -1, "SWC: the music shortcut moved to F11");
+        memset(keys, 0, sizeof(keys));
+        keys[SDL_SCANCODE_W] = 1;
+        swcHeld = SdlSwcKeymapKeyboardState(keys);
+        Expect(swcHeld[SDL_SCANCODE_UP] && !swcHeld[SDL_SCANCODE_W], "SWC: holding W holds Up");
+        memset(keys, 0, sizeof(keys));
+        keys[SDL_SCANCODE_UP] = 1;
+        keys[SDL_SCANCODE_I] = 1;
+        keys[SDL_SCANCODE_8] = 1;
+        swcHeld = SdlSwcKeymapKeyboardState(keys);
+        Expect(!swcHeld[SDL_SCANCODE_UP] && !swcHeld[SDL_SCANCODE_I] && swcHeld[SDL_SCANCODE_8],
+               "SWC: Up and I no longer pitch down, and 8 still does");
+
+        SdlSetKeyBindings("swc-mouse-guns=mouse-right\n"
+                          "swc-mouse-afterburner=mouse-left\n"
+                          "swc-next-gun=g,mouse-middle\n"
+                          "swc-speed-up=%2b\n"
+                          "swc-slow-down=-,wheel-up\n");
+        SDL_zero(event);
+        event.type = SDL_MOUSEBUTTONDOWN;
+        event.button.button = SDL_BUTTON_RIGHT;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT,
+               "SWC: the right button fires the guns");
+        SDL_zero(event);
+        event.type = SDL_MOUSEBUTTONDOWN;
+        event.button.button = SDL_BUTTON_MIDDLE;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_g, "SWC: the middle button cycles guns");
+        SDL_zero(event);
+        event.type = SDL_MOUSEBUTTONUP;
+        event.button.button = SDL_BUTTON_MIDDLE;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_g, "SWC: and releases G");
+        SDL_zero(event);
+        event.type = SDL_MOUSEWHEEL;
+        event.wheel.y = 1;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == SDL_MOUSEWHEEL && event.wheel.y == -1, "SWC: wheel up slows down");
+        SDL_zero(event);
+        event.type = SDL_MOUSEWHEEL;
+        event.wheel.y = -1;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == 0, "SWC: wheel down is unbound");
+        Expect(SdlSwcKeymapMouseButtons(SDL_BUTTON_RMASK) == SDL_BUTTON_LMASK &&
+               SdlSwcKeymapMouseButtons(SDL_BUTTON_LMASK) == SDL_BUTTON_RMASK,
+               "SWC: the held buttons swap too");
+
+        SdlSetKeyBindings("");
+        SDL_zero(event);
+        event.type = SDL_KEYDOWN;
+        event.key.keysym.scancode = SDL_SCANCODE_T;
+        event.key.keysym.sym = SDLK_t;
+        SdlSwcKeymapTranslateEvent(&event);
+        Expect(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_t, "SWC: unchanged keys pass");
+        Expect(SdlSwcKeymapMouseButtons(SDL_BUTTON_LMASK) == SDL_BUTTON_LMASK, "SWC: unchanged buttons pass");
+    }
+
     SDL_Quit();
     if (g_nFailures != 0)
         return 1;
-    puts("PASS: rebound WC1 flight keys and mouse inputs stand in for the original ones, only in flight.");
+    puts("PASS: rebound WC1 and SWC keys and mouse inputs stand in for the original ones, only in flight.");
     return 0;
 }

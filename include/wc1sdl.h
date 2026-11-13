@@ -311,6 +311,14 @@ int SdlKeymapIsGameButton(Uint8 button);
 void SdlKeymapGameButtons(Uint32 buttons, int *primary, int *secondary);
 SDL_Scancode SdlKeymapMouseKey(Uint8 button);
 SDL_Scancode SdlKeymapWheelKey(int direction);
+/* SWC's rebound inputs in flight: rewrite an event into the key SWC reads
+ * for its action (type 0 drops it), and give the held keys and mouse buttons
+ * SwcFlightTick should see. Option keys (music, sound, text, volume) apply
+ * on every SWC screen: 1 when rewritten, -1 to drop, 0 to keep. */
+void SdlSwcKeymapTranslateEvent(SDL_Event *event);
+int SdlSwcKeymapTranslateOptionKey(SDL_KeyboardEvent *key);
+const Uint8 *SdlSwcKeymapKeyboardState(const Uint8 *keys);
+Uint32 SdlSwcKeymapMouseButtons(Uint32 buttons);
 void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
                                       int button, int pressed,
                                       int controllerEvent);

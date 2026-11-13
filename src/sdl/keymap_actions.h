@@ -5,7 +5,8 @@
  * key by position, its other side for modifier keys, a modifier, a mouse
  * button, and a wheel direction. The arrows steer like a stick, so up
  * pitches the nose down. Full screen, a port shortcut, and the mouse buttons
- * that fire the guns and light the afterburner are handled separately. */
+ * that fire the guns and light the afterburner are handled separately, for
+ * both games. */
 #ifndef WC1_SDL_KEYMAP_ACTIONS_H
 #define WC1_SDL_KEYMAP_ACTIONS_H
 
@@ -55,5 +56,55 @@
     ACTION("comm-videos", SDL_SCANCODE_V, 0, {SDL_SCANCODE_V}) \
     ACTION("music", SDL_SCANCODE_M, KMOD_CTRL, {SDL_SCANCODE_M, SDL_SCANCODE_UNKNOWN, KMOD_CTRL}) \
     ACTION("sound", SDL_SCANCODE_S, KMOD_CTRL, {SDL_SCANCODE_S, SDL_SCANCODE_UNKNOWN, KMOD_CTRL})
+
+/* SWC's rebindable inputs, as the Mac demo reads them (src/sdl/swc_flight.c
+ * and swc_options.c). Each names the input, the key SWC reads (its keycode,
+ * its position or SDL_SCANCODE_UNKNOWN to look the keycode up on the layout,
+ * and its modifier), whether it is a menu option that every SWC screen reads,
+ * and the original bindings by name. The menu shortcut is Command on macOS
+ * and Control elsewhere. The digits 8, 2, 4 and 6, the keypad and the Actions
+ * and Views menus' shortcuts are not listed: they always work. */
+#ifdef __APPLE__
+#define SDL_KEYMAP_MENU_MODIFIER KMOD_GUI
+#define SDL_KEYMAP_MENU_NAME "meta"
+#else
+#define SDL_KEYMAP_MENU_MODIFIER KMOD_CTRL
+#define SDL_KEYMAP_MENU_NAME "ctrl"
+#endif
+
+#define SDL_KEYMAP_SWC_ACTION_LIST(ACTION) \
+    ACTION("swc-pitch-down", SDLK_UP, SDL_SCANCODE_UP, 0, 0, "up", "i") \
+    ACTION("swc-pitch-up", SDLK_DOWN, SDL_SCANCODE_DOWN, 0, 0, "down", "k") \
+    ACTION("swc-yaw-left", SDLK_LEFT, SDL_SCANCODE_LEFT, 0, 0, "left", "j") \
+    ACTION("swc-yaw-right", SDLK_RIGHT, SDL_SCANCODE_RIGHT, 0, 0, "right", "l") \
+    ACTION("swc-pitch-down-yaw-left", SDLK_KP_7, SDL_SCANCODE_KP_7, 0, 0, "7") \
+    ACTION("swc-pitch-down-yaw-right", SDLK_KP_9, SDL_SCANCODE_KP_9, 0, 0, "9") \
+    ACTION("swc-pitch-up-yaw-left", SDLK_KP_1, SDL_SCANCODE_KP_1, 0, 0, "1") \
+    ACTION("swc-pitch-up-yaw-right", SDLK_KP_3, SDL_SCANCODE_KP_3, 0, 0, "3") \
+    ACTION("swc-roll-left", SDLK_COMMA, SDL_SCANCODE_UNKNOWN, 0, 0, ",", "<") \
+    ACTION("swc-roll-right", SDLK_KP_PERIOD, SDL_SCANCODE_KP_PERIOD, 0, 0, ".", ">") \
+    ACTION("swc-speed-up", SDLK_KP_PLUS, SDL_SCANCODE_KP_PLUS, 0, 0, "+", "wheel-up") \
+    ACTION("swc-slow-down", SDLK_KP_MINUS, SDL_SCANCODE_KP_MINUS, 0, 0, "-", "wheel-down") \
+    ACTION("swc-afterburner", SDLK_TAB, SDL_SCANCODE_TAB, 0, 0, "tab") \
+    ACTION("swc-fire-guns", SDLK_SPACE, SDL_SCANCODE_SPACE, 0, 0, "space") \
+    ACTION("swc-fire-missile", SDLK_RETURN, SDL_SCANCODE_RETURN, 0, 0, "enter") \
+    ACTION("swc-next-gun", SDLK_g, SDL_SCANCODE_UNKNOWN, 0, 0, "g") \
+    ACTION("swc-next-missile", SDLK_w, SDL_SCANCODE_UNKNOWN, 0, 0, "w") \
+    ACTION("swc-next-target", SDLK_t, SDL_SCANCODE_UNKNOWN, 0, 0, "t") \
+    ACTION("swc-autopilot", SDLK_a, SDL_SCANCODE_UNKNOWN, 0, 0, "a") \
+    ACTION("swc-computer", SDLK_c, SDL_SCANCODE_UNKNOWN, 0, 0, "c") \
+    ACTION("swc-break-and-attack", SDLK_b, SDL_SCANCODE_UNKNOWN, 0, 0, "b") \
+    ACTION("swc-request-landing", SDLK_r, SDL_SCANCODE_UNKNOWN, 0, 0, "r") \
+    ACTION("swc-help", SDLK_h, SDL_SCANCODE_UNKNOWN, 0, 0, "h") \
+    ACTION("swc-taunt", SDLK_e, SDL_SCANCODE_UNKNOWN, 0, 0, "e") \
+    ACTION("swc-cockpit-view", SDLK_F1, SDL_SCANCODE_F1, 0, 0, "f1") \
+    ACTION("swc-battle-view", SDLK_F2, SDL_SCANCODE_F2, 0, 0, "f2") \
+    ACTION("swc-chase-view", SDLK_F3, SDL_SCANCODE_F3, 0, 0, "f3") \
+    ACTION("swc-cockpitless", SDLK_F1, SDL_SCANCODE_F1, KMOD_CTRL, 0, "ctrl+f1") \
+    ACTION("swc-pause", SDLK_p, SDL_SCANCODE_UNKNOWN, SDL_KEYMAP_MENU_MODIFIER, 0, SDL_KEYMAP_MENU_NAME "+p") \
+    ACTION("swc-music", SDLK_u, SDL_SCANCODE_UNKNOWN, SDL_KEYMAP_MENU_MODIFIER, 1, SDL_KEYMAP_MENU_NAME "+u") \
+    ACTION("swc-sound", SDLK_n, SDL_SCANCODE_UNKNOWN, SDL_KEYMAP_MENU_MODIFIER, 1, SDL_KEYMAP_MENU_NAME "+n") \
+    ACTION("swc-text", SDLK_b, SDL_SCANCODE_UNKNOWN, SDL_KEYMAP_MENU_MODIFIER, 1, SDL_KEYMAP_MENU_NAME "+b") \
+    ACTION("swc-volume", SDLK_v, SDL_SCANCODE_UNKNOWN, SDL_KEYMAP_MENU_MODIFIER, 1, SDL_KEYMAP_MENU_NAME "+v")
 
 #endif

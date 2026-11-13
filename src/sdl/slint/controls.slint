@@ -243,7 +243,6 @@ export component ControlsWindow inherits Window {
         // it on a double-click and rolls and changes speed while dragged. The
         // launcher fills in the missile and roll rows from the two buttons.
         { section: @tr("Mouse") },
-        { id: "mouse-steer", action: @tr("Pitch and yaw"), fixed: true, bindings: [{ inputs: ["mouse-move"], fixed: true }] },
         { id: "mouse-guns", action: @tr("Fire guns"), mouse-only: true, limit: 1, bindings: [{ inputs: ["mouse-left"] }] },
         { id: "mouse-afterburner", action: @tr("Afterburner"), hint: @tr("double-click and hold"), mouse-only: true, limit: 1,
           bindings: [{ inputs: ["mouse-right"] }] },
@@ -284,78 +283,84 @@ export component ControlsWindow inherits Window {
         ] }
     ];
     // SWC's keys: the Mac demo's (src/sdl/swc_flight.c, swc_nav.c and
-    // swc_options.c). They cannot be rebound yet.
+    // swc_options.c), rebindable like WC1's (src/sdl/keymap_actions.h). The
+    // in-flight computer's keys and the menus' shortcuts stay as they are.
     out property <[InputRow]> swc-rows: [
         { section: @tr("Flight") },
-        { action: @tr("Pitch down"), fixed: true, bindings: [{ inputs: ["up"] }, { inputs: ["i"] }, { inputs: ["8"] }] },
-        { action: @tr("Pitch up"), fixed: true, bindings: [{ inputs: ["down"] }, { inputs: ["k"] }, { inputs: ["2"] }] },
-        { action: @tr("Yaw left"), fixed: true, bindings: [{ inputs: ["left"] }, { inputs: ["j"] }, { inputs: ["4"] }] },
-        { action: @tr("Yaw right"), fixed: true, bindings: [{ inputs: ["right"] }, { inputs: ["l"] }, { inputs: ["6"] }] },
-        { action: @tr("Pitch down and yaw left"), fixed: true, bindings: [{ inputs: ["7"] }] },
-        { action: @tr("Pitch down and yaw right"), fixed: true, bindings: [{ inputs: ["9"] }] },
-        { action: @tr("Pitch up and yaw left"), fixed: true, bindings: [{ inputs: ["1"] }] },
-        { action: @tr("Pitch up and yaw right"), fixed: true, bindings: [{ inputs: ["3"] }] },
-        { action: @tr("Roll left"), fixed: true, bindings: [{ inputs: [","] }, { inputs: ["<"] }] },
-        { action: @tr("Roll right"), fixed: true, bindings: [{ inputs: ["."] }, { inputs: [">"] }] },
-        { action: @tr("Speed up"), fixed: true, bindings: [
-            { inputs: ["+"] }, { inputs: [root.menu-key, "="], joiner: "+" }, { inputs: ["wheel-up"] }
-        ] },
-        { action: @tr("Slow down"), fixed: true, bindings: [
-            { inputs: ["-"] }, { inputs: [root.menu-key, "-"], joiner: "+" }, { inputs: ["wheel-down"] }
-        ] },
-        { action: @tr("Afterburner"), hint: @tr("hold"), fixed: true, bindings: [{ inputs: ["tab"] }] },
+        { id: "swc-pitch-down", action: @tr("Pitch down"), bindings: [{ inputs: ["up"] }, { inputs: ["i"] }] },
+        { id: "swc-pitch-up", action: @tr("Pitch up"), bindings: [{ inputs: ["down"] }, { inputs: ["k"] }] },
+        { id: "swc-yaw-left", action: @tr("Yaw left"), bindings: [{ inputs: ["left"] }, { inputs: ["j"] }] },
+        { id: "swc-yaw-right", action: @tr("Yaw right"), bindings: [{ inputs: ["right"] }, { inputs: ["l"] }] },
+        { id: "swc-pitch-down-yaw-left", action: @tr("Pitch down and yaw left"), bindings: [{ inputs: ["7"] }] },
+        { id: "swc-pitch-down-yaw-right", action: @tr("Pitch down and yaw right"), bindings: [{ inputs: ["9"] }] },
+        { id: "swc-pitch-up-yaw-left", action: @tr("Pitch up and yaw left"), bindings: [{ inputs: ["1"] }] },
+        { id: "swc-pitch-up-yaw-right", action: @tr("Pitch up and yaw right"), bindings: [{ inputs: ["3"] }] },
+        { id: "swc-roll-left", action: @tr("Roll left"), bindings: [{ inputs: [","] }, { inputs: ["<"] }] },
+        { id: "swc-roll-right", action: @tr("Roll right"), bindings: [{ inputs: ["."] }, { inputs: [">"] }] },
+        { id: "swc-speed-up", action: @tr("Speed up"), bindings: [{ inputs: ["+"] }, { inputs: ["wheel-up"] }] },
+        { id: "swc-slow-down", action: @tr("Slow down"), bindings: [{ inputs: ["-"] }, { inputs: ["wheel-down"] }] },
+        { id: "swc-afterburner", action: @tr("Afterburner"), hint: @tr("hold"), bindings: [{ inputs: ["tab"] }] },
         { section: @tr("Weapons") },
-        { action: @tr("Fire guns"), fixed: true, bindings: [{ inputs: ["space"] }] },
-        { action: @tr("Fire missile or drop mine"), fixed: true, bindings: [{ inputs: ["enter"] }] },
-        { action: @tr("Next gun"), fixed: true, bindings: [{ inputs: ["g"] }, { inputs: [root.menu-key, "g"], joiner: "+" }] },
-        { action: @tr("Next missile"), fixed: true, bindings: [{ inputs: ["w"] }, { inputs: [root.menu-key, "w"], joiner: "+" }] },
-        { action: @tr("Next target"), fixed: true, bindings: [{ inputs: ["t"] }, { inputs: [root.menu-key, "t"], joiner: "+" }] },
-        { section: @tr("Cockpit") },
-        { action: @tr("Autopilot"), hint: @tr("not in the simulator"), fixed: true, bindings: [
-            { inputs: ["a"] }, { inputs: [root.menu-key, "a"], joiner: "+" }
-        ] },
-        { action: @tr("In-flight computer"), fixed: true, bindings: [{ inputs: ["c"] }] },
-        { section: @tr("Messages") },
-        { action: @tr("Break and attack"), fixed: true, bindings: [{ inputs: ["b"] }] },
-        { action: @tr("Request landing, or form on my wing"), fixed: true, bindings: [{ inputs: ["r"] }] },
-        { action: @tr("Help me out here"), fixed: true, bindings: [{ inputs: ["h"] }] },
-        { action: @tr("Taunt the targeted enemy"), fixed: true, bindings: [{ inputs: ["e"] }] },
-        { section: @tr("Views") },
-        { action: @tr("Cockpit view"), fixed: true, bindings: [{ inputs: ["f1"] }, { inputs: [root.menu-key, "y"], joiner: "+" }] },
-        { action: @tr("Battle view; again: cockpit"), fixed: true, bindings: [{ inputs: ["f2"] }, { inputs: [root.menu-key, "d"], joiner: "+" }] },
-        { action: @tr("Chase view; again: cockpit"), fixed: true, bindings: [{ inputs: ["f3"] }, { inputs: [root.menu-key, "f"], joiner: "+" }] },
-        { action: @tr("Cockpit on/off"), hint: @tr("this port"), fixed: true, bindings: [{ inputs: ["ctrl", "f1"], joiner: "+" }] },
-        { section: @tr("In-flight computer") },
-        { action: @tr("Previous or next page"), fixed: true, bindings: [{ inputs: ["up"] }, { inputs: ["down"] }] },
-        { action: @tr("Previous or next choice"), fixed: true, bindings: [{ inputs: ["left"] }, { inputs: ["right"] }] },
-        { action: @tr("Next gun or missile"), fixed: true, bindings: [{ inputs: ["right"] }, { inputs: ["tab"] }] },
-        { action: @tr("Select"), fixed: true, bindings: [{ inputs: ["enter"] }, { inputs: ["mouse-left"] }] },
-        { action: @tr("Close, or back to the recipients"), fixed: true, bindings: [
-            { inputs: ["escape"] }, { inputs: ["space"] }, { inputs: [root.menu-key, "."], joiner: "+" }
-        ] },
-        { action: @tr("Close"), fixed: true, bindings: [{ inputs: ["c"] }] },
-        { section: @tr("Game") },
-        { action: @tr("Pause"), fixed: true, bindings: [{ inputs: [root.menu-key, "p"], joiner: "+" }] },
-        { action: @tr("Music on/off"), fixed: true, bindings: [{ inputs: [root.menu-key, "u"], joiner: "+" }] },
-        { action: @tr("Sound on/off"), fixed: true, bindings: [{ inputs: [root.menu-key, "n"], joiner: "+" }] },
-        { action: @tr("Text on/off"), fixed: true, bindings: [{ inputs: [root.menu-key, "b"], joiner: "+" }] },
-        { action: @tr("Volume"), fixed: true, bindings: [{ inputs: [root.menu-key, "v"], joiner: "+" }] },
-        { action: @tr("Full screen"), fixed: true, bindings: [{ inputs: [root.apple-keys ? "meta" : "alt", "enter"], joiner: "+" }] },
+        { id: "swc-fire-guns", action: @tr("Fire guns"), bindings: [{ inputs: ["space"] }] },
+        { id: "swc-fire-missile", action: @tr("Fire missile or drop mine"), bindings: [{ inputs: ["enter"] }] },
+        { id: "swc-next-gun", action: @tr("Next gun"), bindings: [{ inputs: ["g"] }] },
+        { id: "swc-next-missile", action: @tr("Next missile"), bindings: [{ inputs: ["w"] }] },
+        { id: "swc-next-target", action: @tr("Next target"), bindings: [{ inputs: ["t"] }] },
         { section: @tr("Mouse") },
-        { action: @tr("Pitch and yaw"), fixed: true, bindings: [{ inputs: ["mouse-move"] }] },
-        { action: @tr("Fire guns"), fixed: true, bindings: [{ inputs: ["mouse-left"] }] },
-        { action: @tr("Afterburner"), hint: @tr("double-click and hold"), fixed: true, bindings: [{ inputs: ["mouse-right"] }] },
-        { action: @tr("Fire missile or drop mine"), hint: @tr("both buttons"), fixed: true, bindings: [
-            { inputs: ["mouse-left", "mouse-right"], joiner: "+" }
+        { id: "swc-mouse-guns", action: @tr("Fire guns"), mouse-only: true, limit: 1, bindings: [{ inputs: ["mouse-left"] }] },
+        { id: "swc-mouse-afterburner", action: @tr("Afterburner"), hint: @tr("double-click and hold"), mouse-only: true, limit: 1,
+          bindings: [{ inputs: ["mouse-right"] }] },
+        { id: "swc-mouse-missile", action: @tr("Fire missile or drop mine"), hint: @tr("both buttons"), fixed: true,
+          bindings: [{ inputs: ["mouse-left", "mouse-right"], joiner: "+", fixed: true }] },
+        { id: "swc-mouse-roll", action: @tr("Roll and change speed"), hint: @tr("hold and move"), fixed: true,
+          bindings: [{ inputs: ["mouse-right", "mouse-move"], joiner: "+", fixed: true }] },
+        { section: @tr("Cockpit") },
+        { id: "swc-autopilot", action: @tr("Autopilot"), hint: @tr("not in the simulator"), bindings: [{ inputs: ["a"] }] },
+        { id: "swc-computer", action: @tr("In-flight computer"), bindings: [{ inputs: ["c"] }] },
+        { section: @tr("Messages") },
+        { id: "swc-break-and-attack", action: @tr("Break and attack"), bindings: [{ inputs: ["b"] }] },
+        { id: "swc-request-landing", action: @tr("Request landing, or form on my wing"), bindings: [{ inputs: ["r"] }] },
+        { id: "swc-help", action: @tr("Help me out here"), bindings: [{ inputs: ["h"] }] },
+        { id: "swc-taunt", action: @tr("Taunt the targeted enemy"), bindings: [{ inputs: ["e"] }] },
+        { section: @tr("Views") },
+        { id: "swc-cockpit-view", action: @tr("Cockpit view"), bindings: [{ inputs: ["f1"] }] },
+        { id: "swc-battle-view", action: @tr("Battle view; again: cockpit"), bindings: [{ inputs: ["f2"] }] },
+        { id: "swc-chase-view", action: @tr("Chase view; again: cockpit"), bindings: [{ inputs: ["f3"] }] },
+        { id: "swc-cockpitless", action: @tr("Cockpit on/off"), hint: @tr("this port"), bindings: [{ inputs: ["ctrl", "f1"], joiner: "+" }] },
+        { section: @tr("Game") },
+        { id: "swc-pause", action: @tr("Pause"), bindings: [{ inputs: [root.menu-key, "p"], joiner: "+" }] },
+        { id: "swc-music", action: @tr("Music on/off"), bindings: [{ inputs: [root.menu-key, "u"], joiner: "+" }] },
+        { id: "swc-sound", action: @tr("Sound on/off"), bindings: [{ inputs: [root.menu-key, "n"], joiner: "+" }] },
+        { id: "swc-text", action: @tr("Text on/off"), bindings: [{ inputs: [root.menu-key, "b"], joiner: "+" }] },
+        { id: "swc-volume", action: @tr("Volume"), bindings: [{ inputs: [root.menu-key, "v"], joiner: "+" }] },
+        { id: "full-screen", action: @tr("Full screen"), bindings: [{ inputs: [root.apple-keys ? "meta" : "alt", "enter"], joiner: "+" }] },
+        { section: @tr("Menu shortcuts") },
+        { action: @tr("Next gun"), fixed: true, bindings: [{ inputs: [root.menu-key, "g"], joiner: "+", fixed: true }] },
+        { action: @tr("Next missile"), fixed: true, bindings: [{ inputs: [root.menu-key, "w"], joiner: "+", fixed: true }] },
+        { action: @tr("Next target"), fixed: true, bindings: [{ inputs: [root.menu-key, "t"], joiner: "+", fixed: true }] },
+        { action: @tr("Autopilot"), fixed: true, bindings: [{ inputs: [root.menu-key, "a"], joiner: "+", fixed: true }] },
+        { action: @tr("Speed up"), fixed: true, bindings: [{ inputs: [root.menu-key, "="], joiner: "+", fixed: true }] },
+        { action: @tr("Slow down"), fixed: true, bindings: [{ inputs: [root.menu-key, "-"], joiner: "+", fixed: true }] },
+        { action: @tr("Cockpit view"), fixed: true, bindings: [{ inputs: [root.menu-key, "y"], joiner: "+", fixed: true }] },
+        { action: @tr("Battle view; again: cockpit"), fixed: true, bindings: [{ inputs: [root.menu-key, "d"], joiner: "+", fixed: true }] },
+        { action: @tr("Chase view; again: cockpit"), fixed: true, bindings: [{ inputs: [root.menu-key, "f"], joiner: "+", fixed: true }] },
+        { section: @tr("In-flight computer") },
+        { action: @tr("Previous or next page"), fixed: true, bindings: [{ inputs: ["up"], fixed: true }, { inputs: ["down"], fixed: true }] },
+        { action: @tr("Previous or next choice"), fixed: true, bindings: [{ inputs: ["left"], fixed: true }, { inputs: ["right"], fixed: true }] },
+        { action: @tr("Next gun or missile"), fixed: true, bindings: [{ inputs: ["right"], fixed: true }, { inputs: ["tab"], fixed: true }] },
+        { action: @tr("Select"), fixed: true, bindings: [{ inputs: ["enter"], fixed: true }, { inputs: ["mouse-left"], fixed: true }] },
+        { action: @tr("Close, or back to the recipients"), fixed: true, bindings: [
+            { inputs: ["escape"], fixed: true }, { inputs: ["space"], fixed: true },
+            { inputs: [root.menu-key, "."], joiner: "+", fixed: true }
         ] },
-        { action: @tr("Roll and change speed"), hint: @tr("hold and move"), fixed: true, bindings: [
-            { inputs: ["mouse-right", "mouse-move"], joiner: "+" }
-        ] }
+        { action: @tr("Close"), fixed: true, bindings: [{ inputs: ["c"], fixed: true }] }
     ];
-    // The current bindings, row by row. The launcher fills this with a copy of
-    // keyboard-rows' bindings and the saved changes, applies the changes asked
-    // for below, and hands the changed rows to the game when it starts.
+    // The current bindings, row by row: WC1's and SWC's. The launcher fills
+    // these with copies of the rows' bindings and the saved changes, applies
+    // the changes asked for below (to the shown game's), and hands the changed
+    // rows to the game when it starts.
     in-out property <[[InputBinding]]> keyboard-bindings;
+    in-out property <[[InputBinding]]> swc-bindings;
     // Replace a row's binding, or add one when slot is the row's binding count.
     callback binding-changed(row: int, slot: int, binding: InputBinding);
     callback binding-removed(row: int, slot: int);
@@ -478,7 +483,7 @@ export component ControlsWindow inherits Window {
         root.capture-slot = slot;
         root.capture-replaces = replaces;
         root.capture-modifier = "";
-        root.capture-mouse-only = root.keyboard-rows[row].mouse-only;
+        root.capture-mouse-only = (root.game == 1 ? root.swc-rows : root.keyboard-rows)[row].mouse-only;
         root.capture-row = row;
     }
 
@@ -497,6 +502,12 @@ export component ControlsWindow inherits Window {
 
     // Where the table's binding column starts.
     property <length> input-column: 380px;
+    // How far the table is scrolled (negative, as the list's viewport-y). It
+    // outlasts switching pages, and starts over for another game.
+    in-out property <length> table-scroll;
+    changed game => {
+        root.table-scroll = 0px;
+    }
 
     // SC Controller's x360.svg is 446x345; its hidden AREA_* rectangles give
     // the anchors below, in drawing units, scaled into the canvas.
@@ -829,9 +840,7 @@ export component ControlsWindow inherits Window {
         Text {
             x: 24px;
             y: 42px;
-            text: root.game == 1
-                ? @tr("In flight, with the Mac demo's keys. They cannot be changed yet.")
-                : @tr("In flight. Click a key or button to change it, or + to add one; changes apply when the game starts.");
+            text: @tr("In flight. Click a key or button to change it, or + to add one; changes apply when the game starts.");
             font-size: 13px;
             color: Palette.foreground;
             opacity: 0.7;
@@ -885,12 +894,14 @@ export component ControlsWindow inherits Window {
                 y: 33px;
                 width: 100%;
                 height: parent.height - 34px;
+                viewport-y <=> root.table-scroll;
 
                 for row[index] in (root.game == 1 ? root.swc-rows : root.keyboard-rows): line := Rectangle {
                     // The row's current bindings, or its original ones before
-                    // the launcher supplies a copy (and for SWC).
-                    property <[InputBinding]> current: root.game == 0 && root.keyboard-bindings.length > index
-                        ? root.keyboard-bindings[index] : row.bindings;
+                    // the launcher supplies a copy.
+                    property <[InputBinding]> current: root.game == 1
+                        ? (root.swc-bindings.length > index ? root.swc-bindings[index] : row.bindings)
+                        : (root.keyboard-bindings.length > index ? root.keyboard-bindings[index] : row.bindings);
 
                     height: 40px;
                     background: row.section != "" ? Palette.background : transparent;
@@ -987,7 +998,7 @@ export component ControlsWindow inherits Window {
                                 }
 
                                 choose := TouchArea {
-                                    enabled: root.game == 0 && !row.fixed && !binding.fixed;
+                                    enabled: !row.fixed && !binding.fixed;
                                     mouse-cursor: self.enabled ? MouseCursor.pointer : MouseCursor.default;
                                     clicked => {
                                         root.start-capture(index, slot, true);
@@ -1004,7 +1015,7 @@ export component ControlsWindow inherits Window {
                         }
 
                         // Adds another binding, up to the row's limit.
-                        if root.game == 0 && !row.fixed
+                        if !row.fixed
                                 && line.current.length < (row.limit > 0 ? row.limit : root.max-bindings): Rectangle {
                             width: 26px;
                             height: 26px;
@@ -1046,15 +1057,15 @@ export component ControlsWindow inherits Window {
             y: root.height - 56px;
             width: root.width - 48px - 170px;
             text: root.game == 1
-                ? @tr("The keypad steers with its digits, rolls right with . and changes speed with + and −; keypad Enter fires a missile. Menu shortcuts use ⌘ on macOS and Ctrl elsewhere.")
-                : @tr("The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, 5 stops turning, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Two inputs at most per action; Escape and mouse movement cannot be changed.");
+                ? @tr("The digit keys 8, 2, 4 and 6 and the keypad steer too; keypad . rolls right, + and − change speed and Enter fires a missile. Two inputs at most per action; the menus' shortcuts and the in-flight computer's keys cannot be changed.")
+                : @tr("The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, 5 stops turning, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Two inputs at most per action; Escape cannot be changed.");
             wrap: word-wrap;
             font-size: 13px;
             color: Palette.foreground;
             opacity: 0.75;
         }
 
-        if root.game == 0: Button {
+        Button {
             x: root.width - 16px - self.width;
             y: root.height - 56px;
             text: @tr("Restore defaults");
@@ -1134,7 +1145,7 @@ export component ControlsWindow inherits Window {
                         x: 20px;
                         y: 42px;
                         width: parent.width - 40px;
-                        text: root.keyboard-rows[root.capture-row].action;
+                        text: (root.game == 1 ? root.swc-rows : root.keyboard-rows)[root.capture-row].action;
                         font-size: 13px;
                         color: Palette.foreground;
                         opacity: 0.75;

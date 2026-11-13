@@ -432,6 +432,9 @@ int SdlHandleSwcEvent(SDL_Window *window, SDL_Event *event, int flight)
                 SdlToggleFullscreen(SDL_GetWindowID(window));
             return 1;
         }
+        /* Rebound option keys apply on every SWC screen. */
+        if (SdlSwcKeymapTranslateOptionKey(&event->key) < 0)
+            return 1;
         if (SdlHandleSwcOptionKey(window, &event->key))
             return 1;
         if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_q &&

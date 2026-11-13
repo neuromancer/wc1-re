@@ -239,6 +239,11 @@ static void SdlKeymapParseValue(const char *value, size_t length,
     }
 }
 
+static int SdlSwcSetBinding(const char *id, size_t idLength, const char *value,
+                            size_t valueLength);
+static void SdlSwcClear(void);
+static void SdlKeymapResolveAction(const char *id, SdlChangedAction *action);
+
 static int SdlKeymapHasMouse(const SdlChangedAction *action)
 {
     int index;
@@ -262,6 +267,7 @@ void SdlSetKeyBindings(const char *text)
     g_bSdlKeymapChanged = 0;
     g_bSdlMouseChanged = 0;
     g_bSdlKeymapResolved = 0;
+    SdlSwcClear();
     while (line != NULL && *line != '\0') {
         const char *end = strchr(line, '\n');
         const char *separator;
@@ -285,6 +291,8 @@ void SdlSetKeyBindings(const char *text)
                        memcmp(line, "mouse-afterburner", idLength) == 0) {
                 SdlKeymapParseValue(value, valueLength, &g_stSdlAfterburnerButton);
                 g_bSdlMouseChanged = 1;
+            } else if (SdlSwcSetBinding(line, idLength, value, valueLength)) {
+                /* An SWC input. */
             } else if ((action = SdlKeymapFindAction(line, idLength)) >= 0) {
                 SdlKeymapParseValue(value, valueLength, &g_aSdlChangedActions[action]);
                 g_bSdlKeymapChanged = 1;
@@ -450,9 +458,12 @@ static void SdlKeymapResolve(void)
         SdlKeymapResolveAction("mouse-afterburner", &g_stSdlAfterburnerButton);
 }
 
+static int g_bSdlSwcResolvedForLayout;
+
 void SdlKeymapInvalidate(void)
 {
     g_bSdlKeymapResolved = 0;
+    g_bSdlSwcResolvedForLayout = 0;
 }
 
 static int SdlKeymapActive(void)
@@ -784,4 +795,450 @@ int SdlKeymapFullscreenShortcut(SDL_Scancode key, Uint16 modifiers)
             return 1;
     }
     return 0;
+}
+
+/* SWC: the Mac demo reads characters and its own events (swc_flight.c), so
+ * in flight a rebound input becomes the key SWC reads for its action, by
+ * rewriting the SDL event and the held keys SwcFlightTick polls. Plain keys
+ * exclude Command, Control and Option chords, which SWC reads as menu
+ * commands; those shortcuts keep working. */
+typedef struct SdlSwcAction {
+    const char *id;
+    SDL_Keycode keycode;
+    SDL_Scancode scancode;
+    Uint16 modifier;
+    int option;
+    const char *defaults[SDL_KEYMAP_BINDINGS];
+} SdlSwcAction;
+
+#define SDL_KEYMAP_SWC_ACTION(id, keycode, scancode, modifier, option, ...) \
+    {id, keycode, scancode, modifier, option, {__VA_ARGS__}},
+static const SdlSwcAction g_aSdlSwcActions[] = {
+    SDL_KEYMAP_SWC_ACTION_LIST(SDL_KEYMAP_SWC_ACTION)
+};
+#undef SDL_KEYMAP_SWC_ACTION
+
+#define SDL_KEYMAP_SWC_ACTIONS \
+    ((int)(sizeof(g_aSdlSwcActions) / sizeof(g_aSdlSwcActions[0])))
+#define SDL_KEYMAP_CHORDS (KMOD_CTRL | KMOD_GUI | KMOD_ALT)
+
+static SdlChangedAction g_aSdlSwcChangedActions[SDL_KEYMAP_SWC_ACTIONS];
+static SdlChangedAction g_aSdlSwcDefaults[SDL_KEYMAP_SWC_ACTIONS];
+static SdlChangedAction g_stSdlSwcGunsButton;
+static SdlChangedAction g_stSdlSwcAfterburnerButton;
+static SDL_Scancode g_aSdlSwcStandIns[SDL_KEYMAP_SWC_ACTIONS];
+static int g_bSdlSwcChanged;
+static int g_bSdlSwcMouseChanged;
+static int g_bSdlSwcResolved;
+/* What each SWC key press and mouse button became: the action it pressed,
+ * -2 when dropped, -1 untouched. */
+static int g_aSdlSwcKeyActions[SDL_NUM_SCANCODES];
+static int g_aSdlSwcButtonActions[8];
+static int g_bSdlSwcRecordsReady;
+static Uint8 g_abSdlSwcVirtualKeys[SDL_NUM_SCANCODES];
+
+/* SWC changes speed from the wheel itself: 1 for faster, -1 for slower,
+ * 0 for other actions. */
+static int SdlSwcSpeedDirection(int action)
+{
+    if (action < 0)
+        return 0;
+    if (g_aSdlSwcActions[action].keycode == SDLK_KP_PLUS)
+        return 1;
+    if (g_aSdlSwcActions[action].keycode == SDLK_KP_MINUS)
+        return -1;
+    return 0;
+}
+
+static void SdlSwcResetRecords(void)
+{
+    size_t index;
+
+    for (index = 0; index < SDL_NUM_SCANCODES; index++)
+        g_aSdlSwcKeyActions[index] = -1;
+    for (index = 0; index < sizeof(g_aSdlSwcButtonActions) / sizeof(g_aSdlSwcButtonActions[0]); index++)
+        g_aSdlSwcButtonActions[index] = -1;
+    g_bSdlSwcRecordsReady = 1;
+}
+
+/* Reads one SWC line; 0 when id is not an SWC input. */
+static int SdlSwcSetBinding(const char *id, size_t idLength, const char *value, size_t valueLength)
+{
+    int action;
+
+    if (idLength == strlen("swc-mouse-guns") && memcmp(id, "swc-mouse-guns", idLength) == 0) {
+        SdlKeymapParseValue(value, valueLength, &g_stSdlSwcGunsButton);
+        g_bSdlSwcMouseChanged = 1;
+        return 1;
+    }
+    if (idLength == strlen("swc-mouse-afterburner") &&
+        memcmp(id, "swc-mouse-afterburner", idLength) == 0) {
+        SdlKeymapParseValue(value, valueLength, &g_stSdlSwcAfterburnerButton);
+        g_bSdlSwcMouseChanged = 1;
+        return 1;
+    }
+    for (action = 0; action < SDL_KEYMAP_SWC_ACTIONS; action++) {
+        if (strlen(g_aSdlSwcActions[action].id) == idLength &&
+            memcmp(g_aSdlSwcActions[action].id, id, idLength) == 0) {
+            SdlKeymapParseValue(value, valueLength, &g_aSdlSwcChangedActions[action]);
+            g_bSdlSwcChanged = 1;
+            if (SdlKeymapHasMouse(&g_aSdlSwcChangedActions[action]) ||
+                SdlSwcSpeedDirection(action) != 0)
+                g_bSdlSwcMouseChanged = 1;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The key SWC reads for an action, on the current layout. */
+static SDL_Scancode SdlSwcStandIn(const SdlSwcAction *action)
+{
+    SDL_Scancode scancode = action->scancode;
+
+    if (scancode == SDL_SCANCODE_UNKNOWN)
+        scancode = SDL_GetScancodeFromKey(action->keycode);
+    if (scancode == SDL_SCANCODE_UNKNOWN && action->keycode >= SDLK_a && action->keycode <= SDLK_z)
+        scancode = (SDL_Scancode)(SDL_SCANCODE_A + (action->keycode - SDLK_a));
+    if (scancode == SDL_SCANCODE_UNKNOWN && action->keycode == SDLK_COMMA)
+        scancode = SDL_SCANCODE_COMMA;
+    return scancode;
+}
+
+static void SdlSwcClear(void)
+{
+    memset(g_aSdlSwcChangedActions, 0, sizeof(g_aSdlSwcChangedActions));
+    memset(&g_stSdlSwcGunsButton, 0, sizeof(g_stSdlSwcGunsButton));
+    memset(&g_stSdlSwcAfterburnerButton, 0, sizeof(g_stSdlSwcAfterburnerButton));
+    g_bSdlSwcChanged = 0;
+    g_bSdlSwcMouseChanged = 0;
+    g_bSdlSwcResolved = 0;
+}
+
+static void SdlSwcResolve(void)
+{
+    int action;
+    int index;
+
+    if (g_bSdlSwcResolved && g_bSdlSwcResolvedForLayout)
+        return;
+    g_bSdlSwcResolved = 1;
+    g_bSdlSwcResolvedForLayout = 1;
+    for (action = 0; action < SDL_KEYMAP_SWC_ACTIONS; action++) {
+        SdlChangedAction *defaults = &g_aSdlSwcDefaults[action];
+
+        memset(defaults, 0, sizeof(*defaults));
+        for (index = 0; index < SDL_KEYMAP_BINDINGS && g_aSdlSwcActions[action].defaults[index] != NULL;
+             index++) {
+            const char *name = g_aSdlSwcActions[action].defaults[index];
+            const char *plus = strchr(name, '+');
+
+            if (plus != NULL && plus != name && plus[1] != '\0') {
+                memcpy(defaults->names[defaults->count].modifier, name, (size_t)(plus - name));
+                defaults->names[defaults->count].modifier[plus - name] = '\0';
+                strcpy(defaults->names[defaults->count].key, plus + 1);
+            } else {
+                strcpy(defaults->names[defaults->count].key, name);
+            }
+            defaults->count++;
+        }
+        defaults->changed = 1;
+        SdlKeymapResolveAction(g_aSdlSwcActions[action].id, defaults);
+        g_aSdlSwcStandIns[action] = SdlSwcStandIn(&g_aSdlSwcActions[action]);
+        if (g_aSdlSwcChangedActions[action].changed)
+            SdlKeymapResolveAction(g_aSdlSwcActions[action].id, &g_aSdlSwcChangedActions[action]);
+    }
+    if (g_stSdlSwcGunsButton.changed)
+        SdlKeymapResolveAction("swc-mouse-guns", &g_stSdlSwcGunsButton);
+    if (g_stSdlSwcAfterburnerButton.changed)
+        SdlKeymapResolveAction("swc-mouse-afterburner", &g_stSdlSwcAfterburnerButton);
+}
+
+/* A plain binding matches only without a menu chord; one with a modifier
+ * needs it held. */
+static int SdlSwcMatches(const SdlKeyBinding *binding, SDL_Scancode key, Uint16 modifiers)
+{
+    if (binding->key == SDL_SCANCODE_UNKNOWN ||
+        (binding->key != key && binding->otherKey != key))
+        return 0;
+    if (binding->modifier == 0)
+        return (modifiers & SDL_KEYMAP_CHORDS) == 0;
+    return (modifiers & binding->modifier) != 0;
+}
+
+/* The changed action a key press gives, or the changed action whose
+ * original key it is (as -2 - action); -1 when neither. Options are read on
+ * every screen, flight inputs only in flight. */
+static int SdlSwcKeyAction(SDL_Scancode key, Uint16 modifiers, int options)
+{
+    int pass;
+    int action;
+    int index;
+
+    for (pass = 0; pass < 2; pass++) {
+        for (action = 0; action < SDL_KEYMAP_SWC_ACTIONS; action++) {
+            const SdlChangedAction *changed = &g_aSdlSwcChangedActions[action];
+
+            if (!changed->changed || g_aSdlSwcActions[action].option != options)
+                continue;
+            for (index = 0; index < changed->count; index++) {
+                const SdlKeyBinding *binding = &changed->bindings[index];
+
+                if ((pass == 0) == (binding->modifier != 0) && SdlSwcMatches(binding, key, modifiers))
+                    return action;
+            }
+        }
+    }
+    for (action = 0; action < SDL_KEYMAP_SWC_ACTIONS; action++) {
+        const SdlChangedAction *defaults = &g_aSdlSwcDefaults[action];
+
+        if (!g_aSdlSwcChangedActions[action].changed || g_aSdlSwcActions[action].option != options)
+            continue;
+        for (index = 0; index < defaults->count; index++) {
+            if (SdlSwcMatches(&defaults->bindings[index], key, modifiers))
+                return -2 - action;
+        }
+    }
+    return -1;
+}
+
+static Uint8 SdlSwcRoleButton(const SdlChangedAction *role, Uint8 original)
+{
+    int index;
+
+    if (!role->changed)
+        return original;
+    for (index = 0; index < role->count; index++) {
+        if (role->bindings[index].button != 0)
+            return role->bindings[index].button;
+    }
+    return 0;
+}
+
+/* The action a mouse button or wheel step is bound to, a changed binding
+ * winning over an original one; -1 for none. */
+static int SdlSwcMouseAction(Uint8 button, Sint8 wheel)
+{
+    int pass;
+    int action;
+    int index;
+
+    for (pass = 0; pass < 2; pass++) {
+        for (action = 0; action < SDL_KEYMAP_SWC_ACTIONS; action++) {
+            const SdlChangedAction *bindings = g_aSdlSwcChangedActions[action].changed
+                ? &g_aSdlSwcChangedActions[action] : &g_aSdlSwcDefaults[action];
+
+            if ((pass == 0) != (g_aSdlSwcChangedActions[action].changed != 0) ||
+                g_aSdlSwcActions[action].option)
+                continue;
+            for (index = 0; index < bindings->count; index++) {
+                if (button != 0 ? bindings->bindings[index].button == button
+                                : bindings->bindings[index].wheel == wheel)
+                    return action;
+            }
+        }
+    }
+    return -1;
+}
+
+/* Turns event into a key event for an action's key. */
+static void SdlSwcPressAction(SDL_Event *event, int action, int pressed, Uint32 timestamp, Uint32 window)
+{
+    SDL_zero(*event);
+    event->type = pressed ? SDL_KEYDOWN : SDL_KEYUP;
+    event->key.timestamp = timestamp;
+    event->key.windowID = window;
+    event->key.state = pressed ? SDL_PRESSED : SDL_RELEASED;
+    event->key.keysym.scancode = g_aSdlSwcStandIns[action];
+    event->key.keysym.sym = g_aSdlSwcActions[action].keycode;
+    event->key.keysym.mod = g_aSdlSwcActions[action].modifier;
+}
+
+void SdlSwcKeymapTranslateEvent(SDL_Event *event)
+{
+    int action;
+    int pressed;
+
+    if (!g_bSdlSwcRecordsReady)
+        SdlSwcResetRecords();
+    if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP) {
+        SDL_Scancode key = event->key.keysym.scancode;
+
+        if (key <= SDL_SCANCODE_UNKNOWN || key >= SDL_NUM_SCANCODES)
+            return;
+        pressed = event->type == SDL_KEYDOWN;
+        if (!pressed) {
+            action = g_aSdlSwcKeyActions[key];
+            g_aSdlSwcKeyActions[key] = -1;
+        } else if (!g_bSdlSwcChanged || key == SDL_SCANCODE_ESCAPE) {
+            return;
+        } else {
+            SdlSwcResolve();
+            action = SdlSwcKeyAction(key, event->key.keysym.mod, 0);
+            if (action <= -2)
+                action = -2;
+            g_aSdlSwcKeyActions[key] = action;
+        }
+        if (action == -2)
+            event->type = 0;
+        else if (action >= 0) {
+            Uint8 repeat = event->key.repeat;
+
+            SdlSwcPressAction(event, action, pressed, event->key.timestamp, event->key.windowID);
+            event->key.repeat = repeat;
+        }
+        return;
+    }
+    if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP) {
+        Uint8 button = event->button.button;
+
+        if (button >= sizeof(g_aSdlSwcButtonActions) / sizeof(g_aSdlSwcButtonActions[0]))
+            return;
+        pressed = event->type == SDL_MOUSEBUTTONDOWN;
+        if (!pressed && g_aSdlSwcButtonActions[button] >= 0) {
+            action = g_aSdlSwcButtonActions[button];
+            g_aSdlSwcButtonActions[button] = -1;
+            SdlSwcPressAction(event, action, 0, event->button.timestamp, event->button.windowID);
+            return;
+        }
+        if (!g_bSdlSwcMouseChanged)
+            return;
+        SdlSwcResolve();
+        /* The guns and afterburner buttons stand in for SWC's left and
+           right buttons; other bound buttons press their action's key. */
+        if (button == SdlSwcRoleButton(&g_stSdlSwcGunsButton, SDL_BUTTON_LEFT)) {
+            event->button.button = SDL_BUTTON_LEFT;
+        } else if (button == SdlSwcRoleButton(&g_stSdlSwcAfterburnerButton, SDL_BUTTON_RIGHT)) {
+            event->button.button = SDL_BUTTON_RIGHT;
+        } else if (pressed && (action = SdlSwcMouseAction(button, 0)) >= 0) {
+            g_aSdlSwcButtonActions[button] = action;
+            SdlSwcPressAction(event, action, 1, event->button.timestamp, event->button.windowID);
+        } else {
+            event->type = 0;
+        }
+        return;
+    }
+    if (event->type == SDL_MOUSEWHEEL && g_bSdlSwcMouseChanged) {
+        int wheel = event->wheel.y;
+
+        if (event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
+            wheel = -wheel;
+        if (wheel == 0)
+            return;
+        SdlSwcResolve();
+        action = SdlSwcMouseAction(0, wheel > 0 ? 1 : -1);
+        /* Speed is SWC's own wheel handling; other actions get a key press. */
+        if (SdlSwcSpeedDirection(action) != 0) {
+            event->wheel.y = SdlSwcSpeedDirection(action);
+            event->wheel.direction = SDL_MOUSEWHEEL_NORMAL;
+        } else if (action >= 0) {
+            SdlSwcPressAction(event, action, 1, event->wheel.timestamp, event->wheel.windowID);
+        } else {
+            event->type = 0;
+        }
+    }
+}
+
+int SdlSwcKeymapTranslateOptionKey(SDL_KeyboardEvent *key)
+{
+    int action;
+
+    if (!g_bSdlSwcChanged || key->keysym.scancode <= SDL_SCANCODE_UNKNOWN ||
+        key->keysym.scancode >= SDL_NUM_SCANCODES)
+        return 0;
+    SdlSwcResolve();
+    action = SdlSwcKeyAction(key->keysym.scancode, key->keysym.mod, 1);
+    if (action <= -2)
+        return -1;
+    if (action < 0)
+        return 0;
+    key->keysym.scancode = g_aSdlSwcStandIns[action];
+    key->keysym.sym = g_aSdlSwcActions[action].keycode;
+    key->keysym.mod = g_aSdlSwcActions[action].modifier;
+    return 1;
+}
+
+const Uint8 *SdlSwcKeymapKeyboardState(const Uint8 *keys)
+{
+    Uint16 modifiers;
+    Uint32 mouse;
+    int action;
+    int index;
+
+    if (!g_bSdlSwcChanged)
+        return keys;
+    SdlSwcResolve();
+    memcpy(g_abSdlSwcVirtualKeys, keys, sizeof(g_abSdlSwcVirtualKeys));
+    modifiers = SdlKeymapHeldModifiers(keys);
+    mouse = g_bSdlSwcMouseChanged ? SDL_GetMouseState(NULL, NULL) : 0;
+    /* A changed action's original keys read as released... */
+    for (action = 0; action < SDL_KEYMAP_SWC_ACTIONS; action++) {
+        const SdlChangedAction *defaults = &g_aSdlSwcDefaults[action];
+
+        if (!g_aSdlSwcChangedActions[action].changed || g_aSdlSwcActions[action].option)
+            continue;
+        for (index = 0; index < defaults->count; index++) {
+            const SdlKeyBinding *binding = &defaults->bindings[index];
+
+            if (binding->key != SDL_SCANCODE_UNKNOWN && binding->modifier == 0) {
+                g_abSdlSwcVirtualKeys[binding->key] = 0;
+                if (binding->otherKey != SDL_SCANCODE_UNKNOWN)
+                    g_abSdlSwcVirtualKeys[binding->otherKey] = 0;
+            }
+        }
+    }
+    /* ...so do its new keys, which instead hold the key SWC reads. */
+    for (action = 0; action < SDL_KEYMAP_SWC_ACTIONS; action++) {
+        const SdlChangedAction *changed = &g_aSdlSwcChangedActions[action];
+
+        if (g_aSdlSwcActions[action].option)
+            continue;
+        for (index = 0; changed->changed && index < changed->count; index++) {
+            const SdlKeyBinding *binding = &changed->bindings[index];
+
+            if (binding->key != SDL_SCANCODE_UNKNOWN)
+                g_abSdlSwcVirtualKeys[binding->key] = 0;
+            if (binding->otherKey != SDL_SCANCODE_UNKNOWN)
+                g_abSdlSwcVirtualKeys[binding->otherKey] = 0;
+        }
+    }
+    for (action = 0; action < SDL_KEYMAP_SWC_ACTIONS; action++) {
+        const SdlChangedAction *changed = &g_aSdlSwcChangedActions[action];
+
+        if (g_aSdlSwcActions[action].option)
+            continue;
+        for (index = 0; changed->changed && index < changed->count; index++) {
+            const SdlKeyBinding *binding = &changed->bindings[index];
+            int held = binding->key != SDL_SCANCODE_UNKNOWN &&
+                (keys[binding->key] ||
+                 (binding->otherKey != SDL_SCANCODE_UNKNOWN && keys[binding->otherKey])) &&
+                SdlSwcMatches(binding, binding->key, modifiers);
+
+            if (!held && binding->button != 0 && (mouse & SDL_BUTTON(binding->button)) &&
+                binding->button != SdlSwcRoleButton(&g_stSdlSwcGunsButton, SDL_BUTTON_LEFT) &&
+                binding->button != SdlSwcRoleButton(&g_stSdlSwcAfterburnerButton, SDL_BUTTON_RIGHT))
+                held = 1;
+            if (held)
+                g_abSdlSwcVirtualKeys[g_aSdlSwcStandIns[action]] = 1;
+        }
+    }
+    return g_abSdlSwcVirtualKeys;
+}
+
+Uint32 SdlSwcKeymapMouseButtons(Uint32 buttons)
+{
+    Uint8 guns;
+    Uint8 afterburner;
+    Uint32 virtualButtons = 0;
+
+    if (!g_bSdlSwcMouseChanged)
+        return buttons;
+    SdlSwcResolve();
+    guns = SdlSwcRoleButton(&g_stSdlSwcGunsButton, SDL_BUTTON_LEFT);
+    afterburner = SdlSwcRoleButton(&g_stSdlSwcAfterburnerButton, SDL_BUTTON_RIGHT);
+    if (guns != 0 && (buttons & SDL_BUTTON(guns)))
+        virtualButtons |= SDL_BUTTON_LMASK;
+    if (afterburner != 0 && (buttons & SDL_BUTTON(afterburner)))
+        virtualButtons |= SDL_BUTTON_RMASK;
+    return virtualButtons;
 }

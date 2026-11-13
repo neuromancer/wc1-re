@@ -5,7 +5,8 @@
  * pairs of action and hold bytes. Action bits 0-5 select a control; bit 6
  * keeps the controls already held. Hold bits 0-5 give 1..64 ticks and bits
  * 6-7 multiply them by 1, 2, 4 or 8. The SWC directory is only read.
- * WC1_SWC_FLIGHT_TRACE prints where each input started and ended. */
+ * WC1_SWC_FLIGHT_TRACE prints where each input started and ended, and
+ * WC1_SWC_FLIGHT_KEYS rebinds keys as the launcher does. */
 #include <dlfcn.h>
 #include "wc1.h"
 #include "swc.h"
@@ -151,7 +152,8 @@ static void FlightStep(int draw)
 {
     flightClock += SDL_max(1, nFrameIntervalMs);
     nTickCount60Hz = (unsigned int)((uint64_t)flightClock * 60 / 1000);
-    SwcFlightTick(keys, buttons);
+    /* As the host: rebound keys and buttons stand in for the ones SWC reads. */
+    SwcFlightTick(SdlSwcKeymapKeyboardState(keys), SdlSwcKeymapMouseButtons(buttons));
     if (draw)
         Require(SwcDrawFlight(fuzzRenderer, swcCockpitTexture, &fuzzCockpitCmf, &fuzzSpaceCmf,
                               fuzzColors, fuzzImages, fuzzCockpitless) == 0, "draw SWC flight");
@@ -247,11 +249,20 @@ static void PressFlightKey(SDL_Keycode key, Uint16 modifiers)
 static void ApplyFlightAction(const FlightAction *action)
 {
     Uint32 pressed;
+    SDL_Event event;
 
     switch (action->kind) {
     case ACTION_KEY:
         keys[SDL_GetScancodeFromKey(action->key)] = 1;
-        PressFlightKey(action->key, (Uint16)action->x);
+        /* The host's event loop rewrites rebound keys first. */
+        SDL_zero(event);
+        event.type = SDL_KEYDOWN;
+        event.key.keysym.scancode = SDL_GetScancodeFromKey(action->key);
+        event.key.keysym.sym = action->key;
+        event.key.keysym.mod = (Uint16)action->x;
+        SdlSwcKeymapTranslateEvent(&event);
+        if (event.type == SDL_KEYDOWN)
+            PressFlightKey(event.key.keysym.sym, event.key.keysym.mod);
         break;
     case ACTION_POINTER:
         swcJoystickSteering = 0;
@@ -263,20 +274,38 @@ static void ApplyFlightAction(const FlightAction *action)
         break;
     case ACTION_BUTTONS:
         pressed = (Uint32)action->x & ~buttons;
-        if (pressed & SDL_BUTTON_LMASK)
-            swcGunFirePending = 1;
-        if (pressed & SDL_BUTTON_RMASK) {
-            swcMouseAfterburner = swcRightClickPending &&
-                flightClock - swcLastRightClick <= 20 * 1000 / 60;
-            swcLastRightClick = flightClock;
-            swcRightClickPending = 1;
-            bMouseCursorVisible = 1;
-        }
         buttons |= (Uint32)action->x;
+        for (Uint8 button = SDL_BUTTON_LEFT; button <= SDL_BUTTON_RIGHT; button++) {
+            if (!(pressed & SDL_BUTTON(button)))
+                continue;
+            /* The host's event loop maps the guns and afterburner buttons
+               onto SWC's left and right ones first. */
+            SDL_zero(event);
+            event.type = SDL_MOUSEBUTTONDOWN;
+            event.button.button = button;
+            SdlSwcKeymapTranslateEvent(&event);
+            if (event.type == SDL_KEYDOWN) {
+                PressFlightKey(event.key.keysym.sym, event.key.keysym.mod);
+            } else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+                swcGunFirePending = 1;
+            } else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
+                swcMouseAfterburner = swcRightClickPending &&
+                    flightClock - swcLastRightClick <= 20 * 1000 / 60;
+                swcLastRightClick = flightClock;
+                swcRightClickPending = 1;
+                bMouseCursorVisible = 1;
+            }
+        }
         break;
     case ACTION_WHEEL:
-        if (FlightContinues())
-            accelerate(action->x > 0 ? 1 : -1);
+        SDL_zero(event);
+        event.type = SDL_MOUSEWHEEL;
+        event.wheel.y = action->x;
+        SdlSwcKeymapTranslateEvent(&event);
+        if (event.type == SDL_KEYDOWN)
+            PressFlightKey(event.key.keysym.sym, event.key.keysym.mod);
+        else if (event.type == SDL_MOUSEWHEEL && FlightContinues())
+            accelerate(event.wheel.y > 0 ? 1 : -1);
         break;
     case ACTION_EJECT:
         /* SdlShowSwcComputer's Eject page activation. */
@@ -295,7 +324,8 @@ static void ApplyFlightAction(const FlightAction *action)
 
 static void ReleaseFlightControls(void)
 {
-    if (buttons & SDL_BUTTON_RMASK)
+    /* Releasing the afterburner button, whichever one it is. */
+    if (SdlSwcKeymapMouseButtons(buttons) & SDL_BUTTON_RMASK)
         swcMouseAfterburner = 0;
     buttons = 0;
     memset(keys, 0, sizeof(keys));
@@ -441,6 +471,9 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     Require(atexit(CheckFuzzExit) == 0, "register early-exit check");
     inputActive = 1;
     traceInputs = getenv("WC1_SWC_FLIGHT_TRACE") != NULL;
+    /* Changed keys, as the launcher passes them (src/sdl/keymap.c). */
+    if (getenv("WC1_SWC_FLIGHT_KEYS") != NULL)
+        SdlSetKeyBindings(getenv("WC1_SWC_FLIGHT_KEYS"));
     if (ticks)
         tickLimit = atoi(ticks);
     Require(tickLimit > 0 && tickLimit <= 3600, "tick budget in 1..3600");
@@ -603,9 +636,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     }
     if (traceInputs)
         fprintf(stderr, "TRACE set %d series %d mission %d: nav %d -> %d (%d legs asked) "
-                "-> %d, %d ticks, arcade state %d, destroyed %d\n", campaign, series, mission,
-                startLeg, reachedLeg, data[3] & 15, cCurrentNavPtIdx, tick, nArcadeState,
-                bCurrentPlayerDestroyed);
+                "-> %d, %d ticks, arcade state %d, destroyed %d, speed %d at %d %d %d\n", campaign,
+                series, mission, startLeg, reachedLeg, data[3] & 15, cCurrentNavPtIdx, tick,
+                nArcadeState, bCurrentPlayerDestroyed, anShipSpeed[0], aShipPositionsArray[0].x,
+                aShipPositionsArray[0].y, aShipPositionsArray[0].z);
     SdlStopSwcSounds();
     ReleaseFlightControls();
     SwcResetFlightInput();

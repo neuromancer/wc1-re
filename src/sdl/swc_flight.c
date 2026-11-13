@@ -2219,6 +2219,9 @@ begin_flight:
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_JOYDEVICEREMOVED)
                 SwcResetFlightInput();
+            /* Rebound keys and mouse buttons become the inputs SWC reads.
+               Gamepad buttons turn into keys only below, and stay as they are. */
+            SdlSwcKeymapTranslateEvent(&event);
             if (SdlHandleSwcEvent(window, &event, 1)) {
                 redraw = 1;
                 continue;
@@ -2454,7 +2457,8 @@ begin_flight:
         previous = current;
         while (elapsed >= tickInterval && nArcadeState == 0 && !bCurrentPlayerDestroyed) {
             nTickCount60Hz = (unsigned int)((uint64_t)SDL_GetTicks() * 60 / 1000);
-            SwcFlightTick(SDL_GetKeyboardState(NULL), SDL_GetMouseState(NULL, NULL));
+            SwcFlightTick(SdlSwcKeymapKeyboardState(SDL_GetKeyboardState(NULL)),
+                          SdlSwcKeymapMouseButtons(SDL_GetMouseState(NULL, NULL)));
             elapsed -= tickInterval;
             redraw = 1;
         }

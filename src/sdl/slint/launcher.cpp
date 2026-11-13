@@ -115,15 +115,31 @@ void browse_for_game_directory(LauncherWindow &window,
 
 using KeyboardBindings = slint::VectorModel<std::shared_ptr<slint::Model<InputBinding>>>;
 
-/* A copy of the keyboard and mouse table's original bindings, row by row,
-   that the controls window can change. */
-std::shared_ptr<KeyboardBindings> default_keyboard_bindings(const ControlsWindow &controls)
+/* One game's rows in the controls window and the bindings shown for them;
+   its mouse rows are named with prefix ("" for WC1, "swc-" for SWC). */
+struct BindingTable {
+    std::shared_ptr<slint::Model<InputRow>> rows;
+    std::shared_ptr<KeyboardBindings> bindings;
+    std::string prefix;
+};
+
+BindingTable binding_table(const ControlsWindow &controls, int game)
 {
-    const auto rows = controls.get_keyboard_rows();
+    if (game == 1)
+        return {controls.get_swc_rows(),
+                std::dynamic_pointer_cast<KeyboardBindings>(controls.get_swc_bindings()), "swc-"};
+    return {controls.get_keyboard_rows(),
+            std::dynamic_pointer_cast<KeyboardBindings>(controls.get_keyboard_bindings()), ""};
+}
+
+/* A copy of a table's original bindings, row by row, that the controls
+   window can change. */
+std::shared_ptr<KeyboardBindings> default_bindings(const slint::Model<InputRow> &rows)
+{
     auto table = std::make_shared<KeyboardBindings>();
-    for (size_t row = 0; row < rows->row_count(); ++row) {
+    for (size_t row = 0; row < rows.row_count(); ++row) {
         std::vector<InputBinding> bindings;
-        const auto data = rows->row_data(row);
+        const auto data = rows.row_data(row);
         if (data && data->bindings) {
             for (size_t slot = 0; slot < data->bindings->row_count(); ++slot)
                 bindings.push_back(data->bindings->row_data(slot).value_or(InputBinding {}));
@@ -198,20 +214,24 @@ std::string encode_bindings(const slint::Model<InputBinding> &bindings)
 }
 
 /* The rows whose bindings differ from the original keys, as the launcher
-   settings' [keys] lines. */
+   settings' [keys] lines: WC1's, then SWC's. Both show the shared full-screen
+   shortcut; WC1's line stands for it. */
 std::string changed_key_bindings(const ControlsWindow &controls)
 {
-    const auto rows = controls.get_keyboard_rows();
-    const auto table = controls.get_keyboard_bindings();
     std::string text;
-    for (size_t row = 0; table && row < rows->row_count() && row < table->row_count(); ++row) {
-        const auto data = rows->row_data(row);
-        const auto current = table->row_data(row).value_or(nullptr);
-        if (!data || data->id.empty() || data->fixed || !data->bindings || !current)
-            continue;
-        const auto value = encode_bindings(*current);
-        if (value != encode_bindings(*data->bindings))
-            text += std::string(std::string_view(data->id)) + '=' + value + '\n';
+    for (const int game : {0, 1}) {
+        const auto table = binding_table(controls, game);
+        for (size_t row = 0; table.bindings && row < table.rows->row_count() &&
+                             row < table.bindings->row_count(); ++row) {
+            const auto data = table.rows->row_data(row);
+            const auto current = table.bindings->row_data(row).value_or(nullptr);
+            if (!data || data->id.empty() || data->fixed || !data->bindings || !current ||
+                (game == 1 && data->id == "full-screen"))
+                continue;
+            const auto value = encode_bindings(*current);
+            if (value != encode_bindings(*data->bindings))
+                text += std::string(std::string_view(data->id)) + '=' + value + '\n';
+        }
     }
     return text;
 }
@@ -222,26 +242,32 @@ size_t binding_limit(const ControlsWindow &controls, const InputRow &row)
     return static_cast<size_t>(row.limit > 0 ? row.limit : controls.get_max_bindings());
 }
 
-/* The index of the row with this id, or -1. */
-int keyboard_row(const ControlsWindow &controls, std::string_view id)
+/* The index of the row with this id in a table, or -1. */
+int table_row(const BindingTable &table, std::string_view id)
 {
-    const auto rows = controls.get_keyboard_rows();
-    for (size_t row = 0; row < rows->row_count(); ++row) {
-        const auto data = rows->row_data(row);
+    for (size_t row = 0; row < table.rows->row_count(); ++row) {
+        const auto data = table.rows->row_data(row);
         if (data && std::string_view(data->id) == id)
             return static_cast<int>(row);
     }
     return -1;
 }
 
+/* One row of a table's current bindings, if it exists. */
+std::shared_ptr<slint::VectorModel<InputBinding>> table_bindings(const BindingTable &table, int row)
+{
+    if (!table.bindings || row < 0 || static_cast<size_t>(row) >= table.bindings->row_count())
+        return nullptr;
+    return std::dynamic_pointer_cast<slint::VectorModel<InputBinding>>(
+        table.bindings->row_data(row).value_or(nullptr));
+}
+
 /* The missile and roll rows show the game's two mouse buttons: whatever the
    guns and afterburner rows hold now. */
-void refresh_mouse_rows(const ControlsWindow &controls)
+void refresh_mouse_rows(const BindingTable &table)
 {
-    const auto table = std::dynamic_pointer_cast<KeyboardBindings>(controls.get_keyboard_bindings());
-    const auto button = [&controls, &table](std::string_view id) -> std::optional<slint::SharedString> {
-        const auto row = keyboard_row(controls, id);
-        const auto bindings = table && row >= 0 ? table->row_data(row).value_or(nullptr) : nullptr;
+    const auto button = [&table](std::string_view id) -> std::optional<slint::SharedString> {
+        const auto bindings = table_bindings(table, table_row(table, table.prefix + std::string(id)));
         if (!bindings || bindings->row_count() == 0)
             return std::nullopt;
         const auto binding = bindings->row_data(0).value_or(InputBinding {});
@@ -258,23 +284,23 @@ void refresh_mouse_rows(const ControlsWindow &controls)
     };
     const auto guns = button("mouse-guns");
     const auto afterburner = button("mouse-afterburner");
-    const auto missile = keyboard_row(controls, "mouse-missile");
-    const auto roll = keyboard_row(controls, "mouse-roll");
-    if (!table || missile < 0 || roll < 0)
+    const auto missile = table_row(table, table.prefix + "mouse-missile");
+    const auto roll = table_row(table, table.prefix + "mouse-roll");
+    if (!table.bindings || missile < 0 || roll < 0)
         return;
-    table->set_row_data(missile, std::make_shared<slint::VectorModel<InputBinding>>(
+    table.bindings->set_row_data(missile, std::make_shared<slint::VectorModel<InputBinding>>(
         guns && afterburner ? gesture({*guns, *afterburner}) : std::vector<InputBinding> {}));
-    table->set_row_data(roll, std::make_shared<slint::VectorModel<InputBinding>>(
+    table.bindings->set_row_data(roll, std::make_shared<slint::VectorModel<InputBinding>>(
         afterburner ? gesture({*afterburner, "mouse-move"}) : std::vector<InputBinding> {}));
 }
 
 /* Puts saved [keys] lines into the window's current bindings. A saved
    binding that matches a fixed original one keeps it, with its hint. */
-void apply_key_bindings(const ControlsWindow &controls, std::string_view saved)
+void apply_table_bindings(const ControlsWindow &controls, const BindingTable &table,
+                          std::string_view saved)
 {
-    const auto rows = controls.get_keyboard_rows();
-    const auto table = std::dynamic_pointer_cast<KeyboardBindings>(controls.get_keyboard_bindings());
-    while (table && !saved.empty()) {
+    const auto &rows = table.rows;
+    while (table.bindings && !saved.empty()) {
         const auto end = saved.find('\n');
         const auto line = saved.substr(0, end);
         saved = end == std::string_view::npos ? std::string_view() : saved.substr(end + 1);
@@ -283,7 +309,7 @@ void apply_key_bindings(const ControlsWindow &controls, std::string_view saved)
             continue;
         const auto id = line.substr(0, separator);
         auto value = line.substr(separator + 1);
-        for (size_t row = 0; row < rows->row_count() && row < table->row_count(); ++row) {
+        for (size_t row = 0; row < rows->row_count() && row < table.bindings->row_count(); ++row) {
             const auto data = rows->row_data(row);
             if (!data || data->fixed || std::string_view(data->id) != id)
                 continue;
@@ -322,22 +348,17 @@ void apply_key_bindings(const ControlsWindow &controls, std::string_view saved)
             /* An empty value leaves the input unbound; nothing valid in a
                value leaves the row as it was. */
             if (unbound || !bindings.empty())
-                table->set_row_data(row, std::make_shared<slint::VectorModel<InputBinding>>(std::move(bindings)));
+                table.bindings->set_row_data(row, std::make_shared<slint::VectorModel<InputBinding>>(std::move(bindings)));
             break;
         }
     }
-    refresh_mouse_rows(controls);
+    refresh_mouse_rows(table);
 }
 
-/* One row of the controls window's current bindings, if it exists. */
-std::shared_ptr<slint::VectorModel<InputBinding>> keyboard_binding_row(
-    const ControlsWindow &controls, int row)
+void apply_key_bindings(const ControlsWindow &controls, std::string_view saved)
 {
-    const auto table = controls.get_keyboard_bindings();
-    if (!table || row < 0 || static_cast<size_t>(row) >= table->row_count())
-        return nullptr;
-    return std::dynamic_pointer_cast<slint::VectorModel<InputBinding>>(
-        table->row_data(row).value_or(nullptr));
+    for (const int game : {0, 1})
+        apply_table_bindings(controls, binding_table(controls, game), saved);
 }
 
 /* The controls window starts from the launcher's joystick selectors and has
@@ -353,25 +374,41 @@ slint::ComponentHandle<ControlsWindow> create_controls_window(
 #endif
     controls->set_joystick_mode(window->get_joystick_mode_index());
     controls->set_joystick_axes(window->get_joystick_axes_index());
-    controls->set_keyboard_bindings(default_keyboard_bindings(*controls));
+    controls->set_keyboard_bindings(default_bindings(*controls->get_keyboard_rows()));
+    controls->set_swc_bindings(default_bindings(*controls->get_swc_rows()));
     apply_key_bindings(*controls, savedBindings);
+    /* Both games' tables show the shared full-screen shortcut. */
+    const auto sync_full_screen = [](const ControlsWindow &window, int game) {
+        const auto from = binding_table(window, game);
+        const auto to = binding_table(window, 1 - game);
+        const auto bindings = table_bindings(from, table_row(from, "full-screen"));
+        const auto row = table_row(to, "full-screen");
+        if (!bindings || row < 0)
+            return;
+        std::vector<InputBinding> copy;
+        for (size_t slot = 0; slot < bindings->row_count(); ++slot)
+            copy.push_back(bindings->row_data(slot).value_or(InputBinding {}));
+        to.bindings->set_row_data(row, std::make_shared<slint::VectorModel<InputBinding>>(std::move(copy)));
+    };
     controls->on_binding_changed(
-        [self = slint::ComponentWeakHandle<ControlsWindow>(controls)](
+        [self = slint::ComponentWeakHandle<ControlsWindow>(controls), sync_full_screen](
             int row, int slot, InputBinding binding) {
             const auto controlsWindow = self.lock();
             if (!controlsWindow)
                 return;
-            const auto bindings = keyboard_binding_row(**controlsWindow, row);
-            const auto data = (*controlsWindow)->get_keyboard_rows()->row_data(row);
+            const int game = (*controlsWindow)->get_game();
+            const auto table = binding_table(**controlsWindow, game);
+            const auto bindings = table_bindings(table, row);
+            const auto data = table.rows->row_data(row);
             if (!bindings || !data || slot < 0)
                 return;
             /* The guns and afterburner buttons cannot share a button: giving
                one the other's swaps them. */
-            const std::string_view id(data->id);
-            if (id == "mouse-guns" || id == "mouse-afterburner") {
-                const auto other = keyboard_binding_row(
-                    **controlsWindow,
-                    keyboard_row(**controlsWindow, id == "mouse-guns" ? "mouse-afterburner" : "mouse-guns"));
+            const std::string id(std::string_view(data->id));
+            const auto guns = table.prefix + "mouse-guns";
+            const auto afterburner = table.prefix + "mouse-afterburner";
+            if (id == guns || id == afterburner) {
+                const auto other = table_bindings(table, table_row(table, id == guns ? afterburner : guns));
                 if (other && other->row_count() > 0 &&
                     encode_binding(other->row_data(0).value_or(InputBinding {})) == encode_binding(binding)) {
                     if (bindings->row_count() > 0)
@@ -384,22 +421,38 @@ slint::ComponentHandle<ControlsWindow> create_controls_window(
                 bindings->set_row_data(slot, binding);
             else if (bindings->row_count() < binding_limit(**controlsWindow, *data))
                 bindings->push_back(binding);
-            refresh_mouse_rows(**controlsWindow);
+            refresh_mouse_rows(table);
+            if (id == "full-screen")
+                sync_full_screen(**controlsWindow, game);
         });
     controls->on_binding_removed(
-        [self = slint::ComponentWeakHandle<ControlsWindow>(controls)](int row, int slot) {
+        [self = slint::ComponentWeakHandle<ControlsWindow>(controls), sync_full_screen](int row, int slot) {
             const auto controlsWindow = self.lock();
             if (!controlsWindow)
                 return;
-            const auto bindings = keyboard_binding_row(**controlsWindow, row);
+            const int game = (*controlsWindow)->get_game();
+            const auto table = binding_table(**controlsWindow, game);
+            const auto bindings = table_bindings(table, row);
+            const auto data = table.rows->row_data(row);
             if (bindings && slot >= 0 && static_cast<size_t>(slot) < bindings->row_count())
                 bindings->erase(slot);
-            refresh_mouse_rows(**controlsWindow);
+            refresh_mouse_rows(table);
+            if (data && data->id == "full-screen")
+                sync_full_screen(**controlsWindow, game);
         });
-    controls->on_bindings_reset([self = slint::ComponentWeakHandle<ControlsWindow>(controls)]() {
-        if (const auto controlsWindow = self.lock())
-            (*controlsWindow)->set_keyboard_bindings(default_keyboard_bindings(**controlsWindow));
-    });
+    /* Restore defaults resets the shown game's table. */
+    controls->on_bindings_reset(
+        [self = slint::ComponentWeakHandle<ControlsWindow>(controls), sync_full_screen]() {
+            const auto controlsWindow = self.lock();
+            if (!controlsWindow)
+                return;
+            const int game = (*controlsWindow)->get_game();
+            if (game == 1)
+                (*controlsWindow)->set_swc_bindings(default_bindings(*(*controlsWindow)->get_swc_rows()));
+            else
+                (*controlsWindow)->set_keyboard_bindings(default_bindings(*(*controlsWindow)->get_keyboard_rows()));
+            sync_full_screen(**controlsWindow, game);
+        });
     controls->on_layout_changed(
         [launcher = slint::ComponentWeakHandle<LauncherWindow>(window),
          self = slint::ComponentWeakHandle<ControlsWindow>(controls)]() {
