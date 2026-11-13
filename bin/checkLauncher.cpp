@@ -702,7 +702,7 @@ int main(int argc, char **argv)
     };
     require(pad(PadControl::DpadLeft) == "in-flight computer" && pad(PadControl::DpadUp).empty() &&
             pad(PadControl::DpadRight).empty() && pad(PadControl::LeftStickClick).empty() &&
-            pad(PadControl::Back) == "Escape in menus" && pad(PadControl::B) == "fire missile" &&
+            pad(PadControl::Back) == "Escape (pause)" && pad(PadControl::B) == "fire missile" &&
             pad(PadControl::X) == "afterburner" && pad(PadControl::Y) == "cycle targets" &&
             pad(PadControl::RightStickClick) == "autopilot", "SWC's WCAT gamepad bindings");
     controlsWindow->set_joystick_mode(0);
@@ -733,6 +733,12 @@ int main(int argc, char **argv)
         }
         return -1;
     };
+    const auto swcRows = controlsWindow->get_swc_rows();
+    const auto swcPause = swcRows->row_data(swc_row("swc-pause")).value_or(InputRow {});
+    require(swcPause.bindings && swcPause.bindings->row_count() == 2 &&
+                inputs(binding_at(swcPause, 1)) == "escape" && binding_at(swcPause, 1).fixed &&
+                !binding_at(swcPause, 0).fixed,
+            "SWC pauses on its menu key, and on Escape as WC1 does");
     click(410, show_row(1), left);
     require(controlsWindow->get_capture_row() == 1, "SWC's keys can be changed");
     press("w");

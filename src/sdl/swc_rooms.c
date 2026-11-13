@@ -65,6 +65,9 @@ typedef struct SwcRoomInput {
     int incidental;
     SDL_Keycode direction;
     int space;
+    /* While the carrier takes text: what was typed, and Backspaces. */
+    char text[32];
+    int erase;
 } SwcRoomInput;
 
 typedef struct SwcCarrier {
@@ -90,6 +93,8 @@ typedef struct SwcCarrier {
     int mouseX;
     int mouseY;
     int focused;
+    /* Typing a name: Space and Backspace edit instead of acting. */
+    int textEntry;
     int drawResult;
     enum SwcCarrierVisit visit;
     SwcParallax parallax;
@@ -388,6 +393,19 @@ static SwcRoomInput SwcPollCarrier(SwcCarrier *carrier)
         }
         if (!carrier->focused)
             continue;
+        if (carrier->textEntry) {
+            if (event.type == SDL_TEXTINPUT) {
+                SDL_strlcat(input.text, event.text.text, sizeof(input.text));
+                continue;
+            }
+            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_BACKSPACE) {
+                input.erase++;
+                continue;
+            }
+            if ((event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) &&
+                event.key.keysym.sym == SDLK_SPACE)
+                continue;
+        }
         if (event.type == SDL_MOUSEMOTION) {
             carrier->mouseX = event.motion.x;
             carrier->mouseY = event.motion.y;
@@ -2260,21 +2278,58 @@ done:
     return result;
 }
 
+/* 12 capitals fit before the score column, even all W. */
+#define SWC_SCORE_NAME_LENGTH 12
+
+static void SwcSaveGameScores(const char *path, unsigned char scores[6][28])
+{
+    SDL_RWops *file;
+
+    if (path[0] && (file = SDL_RWFromFile(path, "wb")) != NULL) {
+        if (SDL_RWwrite(file, scores, 6 * 28, 1) != 1)
+            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Cannot save SWC simulator scores: %s", SDL_GetError());
+        SDL_RWclose(file);
+    }
+}
+
 /* Retail CODE_14 DisplayGameScores +0x248a / PrintGameScores +0x23d2.
  * Keep six name[24]/big-endian score records in the SDL preferences folder;
- * never overwrite the original Mac preferences or WC1's pilot-index table. */
+ * never overwrite the original Mac preferences or WC1's pilot-index table.
+ * Retail LoadPreferences +0x38d8..+0x3930 fills a new table with six
+ * invented pilots (A5-0x1ede..-0x1eb2), 10000 + random_number(2000) points
+ * for the first and 100 + random_number(1500) fewer for each next one. The
+ * Mac never adds a run: ArcadeGame only shows this table before and after.
+ * SDL records the run, and like WC1's UpdateTrainSimHighScores (0x426820)
+ * congratulates a top score; the name, which SWC fixes as the pilot's
+ * callsign, is typed in place with ReadTextInput's rules (0x426200):
+ * letters, digits and inner spaces, in capitals, Backspace to erase. */
 static int SwcDisplayGameScores(SwcCarrier *carrier, int recordScore)
 {
+    static const char *const pilots[6] = {
+        "FAUSTUS", "SLAMMER", "LIGHTSPEED", "BAT", "BRAIN 90210", "BUSTER"
+    };
     unsigned char scores[6][28] = {{0}};
-    unsigned char entry[28] = {0};
     char *directory = SDL_GetPrefPath("Origin Systems", "WC Kilrathi Saga");
     char path[PATH_MAX] = {0};
+    char name[SWC_SCORE_NAME_LENGTH + 1] = {0};
     char text[80];
+    const char *typed;
     SDL_RWops *file;
     SwcRoomInput input;
     SDL_Color ink = {245, 225, 135, 255};
+    SDL_Color highlight = {255, 255, 255, 255};
+    SDL_bool textInput = SDL_IsTextInputActive();
+    Uint32 seed = (Uint32)SDL_GetPerformanceCounter() | 1;
     Uint32 score;
+    Uint32 next = 0;
+    size_t length = 0;
+    int seeded = 0;
+    int recorded = -1;
+    int editing = 0;
+    int result;
     int index;
+    int other;
+    int slot;
 
     if (directory != NULL) {
         SDL_snprintf(path, sizeof(path), "%sswc-scores.dat", directory);
@@ -2291,58 +2346,162 @@ static int SwcDisplayGameScores(SwcCarrier *carrier, int recordScore)
         if (memchr(scores[index], 0, 24) == NULL || (scores[index][24] & 0x80))
             memset(scores[index], 0, sizeof(scores[index]));
     }
-    if (recordScore && nCurrentArcadeScore > 0) {
-        SDL_strlcpy((char *)entry, stCampaignState.currentPilot->callsign, 24);
-        score = SDL_SwapBE32((Uint32)nCurrentArcadeScore);
-        memcpy(entry + 24, &score, 4);
-        for (index = 0; index < 6; index++) {
-            memcpy(&score, scores[index] + 24, 4);
-            if ((Uint32)nCurrentArcadeScore > SDL_SwapBE32(score)) {
-                if (index < 5)
-                    memmove(scores[index + 1], scores[index], (5 - index) * sizeof(entry));
-                memcpy(scores[index], entry, sizeof(entry));
+    /* Empty slots take the invented pilots not already listed. A private
+       generator leaves the game's random numbers alone. */
+    for (index = 0, other = 0; index < 6; index++) {
+        seed = seed * 1103515245u + 12345u;
+        next = index == 0 ? 10000 + (seed >> 16) % 2000 : next - (100 + (seed >> 16) % 1500);
+        if (scores[index][0] != 0)
+            continue;
+        for (; other < 6; other++) {
+            int listed = 0;
+
+            for (slot = 0; slot < 6; slot++)
+                listed |= strcmp((char *)scores[slot], pilots[other]) == 0;
+            if (!listed)
                 break;
+        }
+        if (other == 6)
+            break;
+        SDL_strlcpy((char *)scores[index], pilots[other++], 24);
+        score = SDL_SwapBE32(next);
+        memcpy(scores[index] + 24, &score, 4);
+        seeded = 1;
+    }
+    /* sort_arcade_scores +0x2540: highest first, by unsigned score. */
+    for (index = 0; index < 6; index++) {
+        for (other = index + 1; other < 6; other++) {
+            unsigned char swap[28];
+            Uint32 first;
+
+            memcpy(&first, scores[index] + 24, 4);
+            memcpy(&score, scores[other] + 24, 4);
+            if (SDL_SwapBE32(score) > SDL_SwapBE32(first)) {
+                memcpy(swap, scores[other], sizeof(swap));
+                memcpy(scores[other], scores[index], sizeof(swap));
+                memcpy(scores[index], swap, sizeof(swap));
             }
         }
-        if (path[0] && (file = SDL_RWFromFile(path, "wb")) != NULL) {
-            if (SDL_RWwrite(file, scores, sizeof(scores), 1) != 1)
-                SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "Cannot save SWC simulator scores: %s", SDL_GetError());
-            SDL_RWclose(file);
+    }
+    if (recordScore && nCurrentArcadeScore > 0) {
+        for (index = 0; index < 6; index++) {
+            memcpy(&score, scores[index] + 24, 4);
+            if ((Uint32)nCurrentArcadeScore > SDL_SwapBE32(score))
+                break;
         }
+        if (index < 6) {
+            if (index < 5)
+                memmove(scores[index + 1], scores[index], (5 - index) * sizeof(scores[0]));
+            memset(scores[index], 0, sizeof(scores[index]));
+            SDL_strlcpy(name, stCampaignState.currentPilot->callsign, sizeof(name));
+            SDL_strlcpy((char *)scores[index], name, 24);
+            score = SDL_SwapBE32((Uint32)nCurrentArcadeScore);
+            memcpy(scores[index] + 24, &score, 4);
+            length = strlen(name);
+            recorded = index;
+            editing = 1;
+            seeded = 1;
+        }
+    }
+    if (seeded)
+        SwcSaveGameScores(path, scores);
+    if (editing) {
+        /* Keys pressed before, such as during a fade, must not end it. */
+        SDL_FlushEvents(SDL_TEXTEDITING, SDL_TEXTINPUT);
+        SDL_StartTextInput();
+        SDL_zero(carrier->pendingInput);
+        carrier->textEntry = 1;
+        carrier->armedKey = SDL_SCANCODE_UNKNOWN;
     }
     SDL_ClearError();
     SdlPlaySwcMusic("MEDALCE1.MooV", 50);
-    if (SDL_SetRenderTarget(carrier->renderer, carrier->picture) != 0 ||
-        SDL_SetRenderDrawColor(carrier->renderer, 0, 0, 0, 255) != 0 ||
-        SDL_RenderClear(carrier->renderer) != 0)
-        return SWC_MOVIE_ERROR;
-    SwcDrawRoomArt(carrier, SWC_RECROOM, "RCRM", 9, 0, 0, 0);
-    if (carrier->drawResult != 0 ||
-        SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
-            (320 - SdlSwcTextWidth(&carrier->roomFont, "HIGH SCORES")) / 2, 40, ink, "HIGH SCORES") != 0)
-        return SWC_MOVIE_ERROR;
-    for (index = 0; index < 6; index++) {
-        memcpy(&score, scores[index] + 24, 4);
-        SDL_snprintf(text, sizeof(text), "%d. %s", index + 1,
-            scores[index][0] ? (char *)scores[index] : "-");
-        if (SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
-                20, 66 + index * 20, ink, text) != 0)
-            return SWC_MOVIE_ERROR;
-        SDL_snprintf(text, sizeof(text), "%u", SDL_SwapBE32(score));
-        if (SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
-                210, 66 + index * 20, ink, text) != 0)
-            return SWC_MOVIE_ERROR;
-    }
     for (;;) {
         input = SwcPollCarrier(carrier);
-        if (input.quit)
-            return SWC_MOVIE_QUIT;
-        if (carrier->focused && (input.activate || input.back || input.clicked))
-            return SWC_MOVIE_FINISHED;
+        if (input.quit) {
+            result = SWC_MOVIE_QUIT;
+            break;
+        }
+        if (carrier->focused && editing) {
+            /* The callsign stands until the first key, which replaces it. */
+            for (typed = input.text; *typed != 0; typed++) {
+                char character = *typed >= 'a' && *typed <= 'z' ? *typed - 'a' + 'A' : *typed;
+
+                if (!((character >= 'A' && character <= 'Z') ||
+                      (character >= '0' && character <= '9') || character == ' '))
+                    continue;
+                if (editing == 1)
+                    length = 0;
+                editing = 2;
+                if (length < SWC_SCORE_NAME_LENGTH && (character != ' ' || length != 0))
+                    name[length++] = character;
+                name[length] = 0;
+            }
+            if (input.erase > 0) {
+                length = editing == 1 || (size_t)input.erase >= length ? 0 : length - input.erase;
+                name[length] = 0;
+                editing = 2;
+            }
+            if (input.back || input.activate || input.clicked) {
+                while (length > 0 && name[length - 1] == ' ')
+                    name[--length] = 0;
+                if (input.back || length == 0)
+                    SDL_strlcpy(name, stCampaignState.currentPilot->callsign, sizeof(name));
+                memset(scores[recorded], 0, 24);
+                SDL_strlcpy((char *)scores[recorded], name, 24);
+                SwcSaveGameScores(path, scores);
+                editing = 0;
+                carrier->textEntry = 0;
+                if (!textInput)
+                    SDL_StopTextInput();
+            }
+        } else if (carrier->focused && (input.activate || input.back || input.clicked)) {
+            result = SWC_MOVIE_FINISHED;
+            break;
+        }
+        result = SWC_MOVIE_ERROR;
+        if (SDL_SetRenderTarget(carrier->renderer, carrier->picture) != 0 ||
+            SDL_SetRenderDrawColor(carrier->renderer, 0, 0, 0, 255) != 0 ||
+            SDL_RenderClear(carrier->renderer) != 0)
+            break;
+        SwcDrawRoomArt(carrier, SWC_RECROOM, "RCRM", 9, 0, 0, 0);
+        if (carrier->drawResult != 0 ||
+            SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
+                (320 - SdlSwcTextWidth(&carrier->roomFont, "HIGH SCORES")) / 2, 40, ink, "HIGH SCORES") != 0)
+            break;
+        for (index = 0; index < 6; index++) {
+            memcpy(&score, scores[index] + 24, 4);
+            SDL_snprintf(text, sizeof(text), "%d. %s%s", index + 1,
+                index == recorded && editing ? name : scores[index][0] ? (char *)scores[index] : "-",
+                index == recorded && editing && SDL_GetTicks() / 400 % 2 == 0 ? "_" : "");
+            if (SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
+                    20, 66 + index * 20, index == recorded ? highlight : ink, text) != 0)
+                break;
+            SDL_snprintf(text, sizeof(text), "%u", SDL_SwapBE32(score));
+            if (SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
+                    210, 66 + index * 20, index == recorded ? highlight : ink, text) != 0)
+                break;
+        }
+        if (index < 6)
+            break;
+        if (editing)
+            SDL_strlcpy(text, "Type your name and press <Enter>.", sizeof(text));
+        else if (recordScore)
+            SDL_snprintf(text, sizeof(text), "Your score: %d", nCurrentArcadeScore);
+        else
+            text[0] = 0;
+        if (text[0] && SdlDrawSwcProportionalText(carrier->renderer, &carrier->roomFont,
+                (320 - SdlSwcTextWidth(&carrier->roomFont, text)) / 2, 205, ink, text) != 0)
+            break;
         if (SwcPresentRoom(carrier, 255) != 0)
-            return SWC_MOVIE_ERROR;
+            break;
         SDL_Delay(16);
     }
+    if (carrier->textEntry) {
+        carrier->textEntry = 0;
+        if (!textInput)
+            SDL_StopTextInput();
+    }
+    return result;
 }
 
 /* Retail CODE_14 ChooseArcadeMission +0x2660, DATA/0 +0x25a..+0x2aa.

@@ -328,7 +328,7 @@ export component ControlsWindow inherits Window {
         { id: "swc-chase-view", action: @tr("Chase view; again: cockpit"), bindings: [{ inputs: ["f3"] }] },
         { id: "swc-cockpitless", action: @tr("Cockpit on/off"), hint: @tr("this port"), bindings: [{ inputs: ["ctrl", "f1"], joiner: "+" }] },
         { section: @tr("Game") },
-        { id: "swc-pause", action: @tr("Pause"), bindings: [{ inputs: [root.menu-key, "p"], joiner: "+" }] },
+        { id: "swc-pause", action: @tr("Pause"), bindings: [{ inputs: [root.menu-key, "p"], joiner: "+" }, { inputs: ["escape"], fixed: true }] },
         { id: "swc-music", action: @tr("Music on/off"), bindings: [{ inputs: [root.menu-key, "u"], joiner: "+" }] },
         { id: "swc-sound", action: @tr("Sound on/off"), bindings: [{ inputs: [root.menu-key, "n"], joiner: "+" }] },
         { id: "swc-text", action: @tr("Text on/off"), bindings: [{ inputs: [root.menu-key, "b"], joiner: "+" }] },
@@ -569,7 +569,6 @@ export component ControlsWindow inherits Window {
     // SdlTranslateSwcJoystickEvent) but keeps the Mac demo's keys, so the
     // buttons that send keys only WC1 binds do nothing in flight.
     public pure function swc-binding(control: PadControl) -> string {
-        if control == PadControl.back { return @tr("Escape in menus"); }
         if control == PadControl.dpad-up || control == PadControl.dpad-down
                 || control == PadControl.dpad-right || control == PadControl.left-stick-click {
             return "";

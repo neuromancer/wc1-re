@@ -1330,14 +1330,14 @@ border:
  * 0x81, baselines 180/200/220, over the frozen picture. The original lines
  * (A5-0x28cb/-0x28a8/-0x2886) read "Press Cmd-P again or choose Resume /
  * from the Actions menu to continue / playing Super Wing Commander."; SDL
- * has no Actions menu, so the first two name the menu key alone. */
+ * has no Actions menu, so the first two name its pause keys instead. */
 static int SwcDrawPauseMessage(SDL_Renderer *renderer, const SDL_Color colors[256])
 {
     static const char *const lines[] = {
 #ifdef __APPLE__
-        "Press Cmd-P again",
+        "Press Cmd-P or Esc again",
 #else
-        "Press Ctrl-P again",
+        "Press Ctrl-P or Esc again",
 #endif
         "to continue", "playing Super Wing Commander."
     };
@@ -2419,9 +2419,13 @@ begin_flight:
                         view = event.key.keysym.sym == SDLK_y ? 0 :
                             event.key.keysym.sym == SDLK_d ? 14 : 4;
                     break;
+                case SDLK_ESCAPE:
                 case SDLK_p:
-                    /* Actions menu Pause/Resume (Cmd-P) is the only pause key. */
-                    if (!menuKey)
+                    /* Actions menu Pause/Resume (Cmd-P). The Mac leaves
+                       Escape inert in flight (SetGInputForChar only sets
+                       its skip flag, 0xa84e); as in this port's WC1, it
+                       pauses too, and so does the controller's Back. */
+                    if (event.key.keysym.sym == SDLK_p && !menuKey)
                         break;
                     paused = !paused;
                     elapsed = 0;
@@ -2473,6 +2477,19 @@ begin_flight:
                 if (nArcadeState == 1 && !bCurrentPlayerDestroyed && ++simulatorCompleted < 4) {
                     nTrainSimMission = (nTrainSimMission + 1) % 4;
                     goto simulator_mission;
+                }
+                /* Retail ArcadeGame +0x2d14 ends the run as soon as
+                 * FlyingLoop stops, so a simulator death cut straight to
+                 * the scores. Show the player's ship exploding with
+                 * GameFlow's death_sequence (CODE_14 +0x3fee) first. */
+                if (bCurrentPlayerDestroyed) {
+                    movieResult = SwcRunFlightScene(SWC_FLIGHT_DEATH, 0);
+                    if (movieResult == SWC_MOVIE_ERROR)
+                        goto done;
+                    if (movieResult == SWC_MOVIE_QUIT) {
+                        result = 0;
+                        goto done;
+                    }
                 }
                 stCampaignState = simulatorCampaign;
                 memcpy(aPilotEntriesList, simulatorPilots, sizeof(simulatorPilots));
