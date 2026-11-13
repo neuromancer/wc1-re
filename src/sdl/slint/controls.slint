@@ -533,14 +533,17 @@ export component ControlsWindow inherits Window {
             }
             return @tr("pitch and yaw");
         }
-        if control == PadControl.a { return @tr("fire guns"); }
-        if control == PadControl.back { return @tr("Escape (pause)"); }
+        // RT stands in for A and LT for B in flight (src/sdl/joystick.c).
+        if control == PadControl.a || control == PadControl.right-trigger { return @tr("fire guns"); }
+        if control == PadControl.back { return @tr("cycle views"); }
         if control == PadControl.start { return @tr("pause"); }
         if root.joystick-mode == 0 {
-            if control == PadControl.b { return @tr("hold to roll and change speed"); }
+            if control == PadControl.b || control == PadControl.left-trigger {
+                return @tr("hold to roll and change speed");
+            }
             return "";
         }
-        if control == PadControl.b { return @tr("fire missile"); }
+        if control == PadControl.b || control == PadControl.left-trigger { return @tr("fire missile"); }
         if control == PadControl.x { return @tr("afterburner"); }
         if control == PadControl.y {
             return root.joystick-mode == 1 ? @tr("hold to roll and change speed") : @tr("cycle targets");
@@ -593,7 +596,7 @@ export component ControlsWindow inherits Window {
         return (root.joystick-mode == 0
                 ? @tr("Original joystick: A and B together fire a missile; double-click B and hold it for the afterburner.")
                 : @tr("In the communications display, the D-pad's up and down choose, right sends and left closes."))
-            + " " + @tr("Y answers Yes in prompts. Game controllers leave LT and RT unused.");
+            + " " + @tr("Y answers Yes in prompts; Back is Escape outside flight.");
     }
 
     Text {

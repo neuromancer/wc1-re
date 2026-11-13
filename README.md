@@ -66,6 +66,9 @@ Game data is not included. Open the app, choose a detected installation or use
 - Resizable window, fullscreen, and aspect-correct 4:3 presentation.
 - Gamepad support, rumble, and alternative joystick layouts, including
   WCAT-style four-button controls.
+- A controls window, opened from the launcher, that shows the gamepad,
+  keyboard and mouse bindings for WC1 and Super Wing Commander and lets you
+  rebind keys, mouse buttons and the wheel.
 - Fixes to the 1996 release, such as correctly scaled planets, static on
   knocked-out cockpit displays, landing on the *Tiger's Claw* from any
   direction, and `Esc` pausing spaceflight.
@@ -88,9 +91,15 @@ Game data is not included. Open the app, choose a detected installation or use
 | `Ctrl+S` / `Ctrl+M` (spaceflight) | Toggle sound effects / music |
 | `Esc` (spaceflight) | Pause; press any key to resume |
 | Mouse wheel (spaceflight) | Increase or decrease speed |
+| Gamepad RT / LT (spaceflight) | Same as A / B: fire guns / roll and speed (missiles in the WCAT layouts) |
 | Gamepad Start (spaceflight) | Pause or resume |
-| Gamepad Back | Escape/back |
+| Gamepad Back | Cycle views in spaceflight; Escape/back elsewhere |
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
+
+The launcher's **Show controls…** window shows every binding. Click a key or
+mouse input to change it, or **+** to add a second one; changes apply when the
+game starts. `Esc`, and Super Wing Commander's menu shortcuts and in-flight
+computer keys, cannot be changed.
 
 As in the original, a mission ends only by landing on the *Tiger's Claw*,
 ejecting, or dying; quit from the barracks menu.

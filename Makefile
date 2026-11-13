@@ -1381,6 +1381,21 @@ $(MODERN_OUT_DIR)/retry-probe: $(MODERN_OUT_DIR)/obj/retry_probe.o \
 check-mission-retry: $(MODERN_OUT_DIR)/retry-probe
 	$(MODERN_OUT_DIR)/retry-probe
 
+$(MODERN_OUT_DIR)/obj/gamepad_probe.o: bin/checkGamepad.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/gamepad-probe: $(MODERN_OUT_DIR)/obj/gamepad_probe.o \
+		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-gamepad
+check-gamepad: $(MODERN_OUT_DIR)/gamepad-probe
+	$(MODERN_OUT_DIR)/gamepad-probe
+
 $(MODERN_OUT_DIR)/obj/sm1_probe.o: bin/checkSm1.c src/gameflow.c src/title.c src/barracks.c src/killbrd.c src/timer.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@

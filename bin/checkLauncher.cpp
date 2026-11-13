@@ -332,8 +332,11 @@ int main(int argc, char **argv)
     };
     controlsWindow->set_joystick_mode(0);
     require(binding(PadControl::A) == "fire guns" && binding(PadControl::B) == "hold to roll and change speed" &&
-            binding(PadControl::DpadUp).empty() && binding(PadControl::Start) == "pause",
-            "original two-button controller bindings");
+            binding(PadControl::RightTrigger) == "fire guns" &&
+            binding(PadControl::LeftTrigger) == "hold to roll and change speed" &&
+            binding(PadControl::DpadUp).empty() && binding(PadControl::Start) == "pause" &&
+            binding(PadControl::Back) == "cycle views",
+            "original two-button controller bindings, the triggers standing in for A and B");
     controlsWindow->set_joystick_mode(1);
     require(binding(PadControl::B) == "fire missile" && binding(PadControl::Y) == "hold to roll and change speed" &&
             binding(PadControl::DpadUp) == "full speed" && binding(PadControl::RightStick).empty(),
@@ -342,7 +345,8 @@ int main(int argc, char **argv)
     controlsWindow->set_joystick_axes(2);
     require(binding(PadControl::Y) == "cycle targets" && binding(PadControl::LeftStick) == "roll and pitch" &&
             binding(PadControl::RightStick) == "yaw, throttle position" &&
-            binding(PadControl::LeftTrigger).empty(), "WCAT four-axis HOTAS-yaw controller bindings");
+            binding(PadControl::LeftTrigger) == "fire missile" &&
+            binding(PadControl::RightTrigger) == "fire guns", "WCAT four-axis HOTAS-yaw controller bindings");
     require(controlsWindow->get_mode_names()->row_count() == 3 && controlsWindow->get_axis_names()->row_count() == 7 &&
             entry(controlsWindow->get_mode_names(), 2) == "WCAT — four buttons / four axes" &&
             entry(controlsWindow->get_axis_names(), 2) == "HOTAS yaw", "controls window layout names");
@@ -702,7 +706,7 @@ int main(int argc, char **argv)
     };
     require(pad(PadControl::DpadLeft) == "in-flight computer" && pad(PadControl::DpadUp).empty() &&
             pad(PadControl::DpadRight).empty() && pad(PadControl::LeftStickClick).empty() &&
-            pad(PadControl::Back) == "Escape (pause)" && pad(PadControl::B) == "fire missile" &&
+            pad(PadControl::Back) == "cycle views" && pad(PadControl::B) == "fire missile" &&
             pad(PadControl::X) == "afterburner" && pad(PadControl::Y) == "cycle targets" &&
             pad(PadControl::RightStickClick) == "autopilot", "SWC's WCAT gamepad bindings");
     controlsWindow->set_joystick_mode(0);

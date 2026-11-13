@@ -425,6 +425,12 @@ int SdlHandleSwcEvent(SDL_Window *window, SDL_Event *event, int flight)
             return 1;
         SdlTranslateSwcJoystickEvent(event, flight);
         return event->type == 0;
+    case SDL_CONTROLLERAXISMOTION:
+        /* Triggers press buttons in flight, and keep their latch without
+           focus; the sticks are polled. */
+        SdlTranslateSwcJoystickEvent(event, flight &&
+            (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0);
+        return event->type == 0;
     case SDL_KEYDOWN:
     case SDL_KEYUP:
         if (SdlIsFullscreenShortcut(&event->key)) {
@@ -718,6 +724,11 @@ void SdlPumpEvents(void)
             SdlHandleJoystickHatEvent(event.jhat.which,
                                          event.jhat.hat,
                                          event.jhat.value);
+            break;
+        case SDL_CONTROLLERAXISMOTION:
+            SdlHandleJoystickTriggerEvent(event.caxis.which,
+                                          event.caxis.axis,
+                                          event.caxis.value);
             break;
         default:
             break;

@@ -322,6 +322,8 @@ Uint32 SdlSwcKeymapMouseButtons(Uint32 buttons);
 void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
                                       int button, int pressed,
                                       int controllerEvent);
+void SdlHandleJoystickTriggerEvent(SDL_JoystickID instanceId, Uint8 axis,
+                                   Sint16 value);
 void SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,
                                   Uint8 hat, Uint8 value);
 void SdlHandleJoystickDeviceEvent(Uint32 type, Sint32 which);
