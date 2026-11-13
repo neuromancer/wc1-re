@@ -216,7 +216,10 @@ void SdlSwcVocalizeMessage(int command)
  * with no recipient menu: 0 break/attack, 1 request landing from a targeted
  * Tiger's Claw or else form on my wing, 2 help me out, 3 taunt the target.
  * The Mac reads the wingman's objective and the target's side before
- * checking either index; test the indices first. */
+ * checking either index; test the indices first. Out of formation, B is
+ * attack my target, whose bad_target reads the target's side: without a
+ * target the Mac reads the bytes below its side table, so send nothing, as
+ * for R and E (WC1 and the computer offer that order only for a target). */
 void SdlSwcCommunicate(int choice)
 {
     short wingman = nYourWingman;
@@ -228,6 +231,8 @@ void SdlSwcCommunicate(int choice)
     switch (choice) {
     case 0:
         if (wingman_dead() || acShipRating[wingman] == -1 || !any_enemy(0, 14000))
+            break;
+        if (aeShipObjectiveList[wingman] != OBJECTIVE_HOLD_FORMATION && recipient == -1)
             break;
         command = aeShipObjectiveList[wingman] == OBJECTIVE_HOLD_FORMATION ? 7 : 1;
         recipient = wingman;
