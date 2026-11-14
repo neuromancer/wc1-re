@@ -23,6 +23,15 @@ extern "C" int SdlFindVoiceDirectory(const char *, char *, unsigned long)
     return 0;
 }
 
+// check-patched-text reads real executables; fixtures mark a German
+// WC.EXE by its first line.
+extern "C" int SdlCountGermanText(const char *path)
+{
+    std::ifstream file(path);
+    std::string line;
+    return std::getline(file, line) && line == "translated" ? 151 : 0;
+}
+
 struct TestWindow : slint::platform::WindowAdapter {
     slint::platform::SoftwareRenderer pixels {slint::platform::SoftwareRenderer::RepaintBufferType::NewBuffer};
     slint::PhysicalSize dimensions {{760, 660}};
@@ -182,6 +191,37 @@ int main(int argc, char **argv)
         require(window->get_language_index() == 3, "French ID survives language-list change");
         set_language(*window, installations, 2);
         require(window->get_language_index() == 2, "Japanese available again after returning to Towns");
+    }
+    {
+        // Fan translations such as the German one store MODULE.000 raw; the
+        // untouched DOS CAMP.000 still identifies the release.
+        const auto patched = fixture / "patched-dos";
+        fs::create_directories(patched / "GAMEDAT");
+        const char rawHeader[8] = {28, 0, 0, 0, 28, 0, 0, static_cast<char>(0xe0)};
+        const char lzwHeader[8] = {28, 0, 0, 0, 28, 0, 0, 1};
+        std::ofstream(patched / "GAMEDAT/MODULE.000", std::ios::binary).write(rawHeader, 8);
+        std::ofstream(patched / "GAMEDAT/CAMP.000", std::ios::binary).write(lzwHeader, 8);
+        std::ofstream(patched / "GAMEDAT/INSTALL.DAT").put('x');
+        window->set_game_directory(slint::SharedString(path_to_utf8(patched)));
+        refresh_window(*window, installations);
+        require(window->get_path_valid() && window->get_status() == LauncherMessage::Dos,
+                "a translated DOS install is still DOS data");
+        require(!window->get_german_text() && window->get_language_choices()->row_count() == 3,
+                "translated data without its WC.EXE keeps every language");
+        set_language(*window, installations, 3);
+        require(window->get_language_index() == 3, "French selected for an unpatched install");
+        std::ofstream(patched / "WC.EXE") << "translated\n";
+        refresh_window(*window, installations);
+        require(window->get_german_text() && window->get_language_choices()->row_count() == 1 &&
+                window->get_language_choices()->row_data(0) == slint::SharedString("German") &&
+                window->get_language_index() == 0,
+                "a German WC.EXE offers only German, switching French back");
+        set_language(*window, installations, 1);
+        require(window->get_language_index() == 0, "Spanish refused for a German install");
+        window->set_game_directory(slint::SharedString(path_to_utf8(fixture / "dos")));
+        refresh_window(*window, installations);
+        require(!window->get_german_text() && window->get_language_choices()->row_count() == 3,
+                "an unpatched install offers every language again");
     }
     set_language(*window, installations, 3);
     require(window->get_language_index() == 3, "French selection retained");

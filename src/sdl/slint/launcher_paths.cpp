@@ -148,9 +148,23 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
             return {false, LauncherMessage::MissingGameFile, false, name};
     }
 
-    // Match SdlUsingDosData: compressed DOS MODULE.000 has flag 1 in byte 7.
-    DirectoryStatus status {true, header[7] == 1 ? LauncherMessage::Dos : LauncherMessage::KilrathiSaga};
-    if (status.message == LauncherMessage::KilrathiSaga) {
+    // Match SdlUsingDosData: DOS archives are LZW-compressed (flag 1 in byte 7).
+    // Fan translations such as the German one rewrite MODULE.000 raw.
+    const auto lzwArchive = [&](const char *name) {
+        const auto path = find_child_case_insensitive(*gameData, name);
+        std::array<unsigned char, 8> bytes = {};
+        if (!path)
+            return false;
+        std::ifstream file(*path, std::ios::binary);
+        file.read(reinterpret_cast<char *>(bytes.data()), bytes.size());
+        return file.gcount() == static_cast<std::streamsize>(bytes.size()) && bytes[7] == 1;
+    };
+    DirectoryStatus status {true, header[7] == 1 || lzwArchive("CAMP.000") ?
+                                      LauncherMessage::Dos : LauncherMessage::KilrathiSaga};
+    if (status.message == LauncherMessage::Dos) {
+        const auto executable = find_child_case_insensitive(directory, "WC.EXE");
+        status.germanText = executable && SdlCountGermanText(path_to_utf8(*executable).c_str()) > 0;
+    } else {
         const auto streams = find_child_case_insensitive(directory, "STREAMS");
         if (!streams || !fs::is_directory(*streams, error))
             return {false, LauncherMessage::NeedsStreams};

@@ -19,6 +19,8 @@ struct DirectoryStatus {
     bool sm1 = false;
     bool sm2 = false;
     bool swcCredits = false;
+    // A DOS WC.EXE the player patched with the German fan translation.
+    bool germanText = false;
 };
 
 struct GameInstallation {

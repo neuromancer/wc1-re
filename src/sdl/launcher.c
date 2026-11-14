@@ -236,9 +236,16 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
             return 0;
         }
     }
+    /* A player's German fan translation of the DOS WC.EXE brings its own UI
+     * text; the selectable catalogs translate the English data. */
+    if (!options->swcDemo && !SdlUsingTownsData() &&
+        SdlResolvePath("WC.EXE", directory, sizeof(directory)) &&
+        SdlLoadGermanText(directory) > 0)
+        fprintf(stderr, "Using the German text in WC.EXE%s.\n",
+                options->language == 1 || options->language == 3 ? " instead of the selected language" : "");
     if (!SdlSetTownsLanguage(options->language == 2) ||
-        !SdlSetLanguage(options->language != 2 && (options->swcDemo || SdlUsingTownsData()) ?
-                       0 : options->language)) {
+        !SdlSetLanguage(options->language != 2 && (options->swcDemo || SdlUsingTownsData() ||
+                                                   SdlUsingGermanText()) ? 0 : options->language)) {
         fprintf(stderr, "Cannot load game language: %s\n", SDL_GetError());
         return 0;
     }

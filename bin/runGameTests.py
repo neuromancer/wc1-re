@@ -47,9 +47,12 @@ def main():
     directories = {path.name.upper(): path for path in installation.iterdir() if path.is_dir()}
     if "GAMEDAT" not in directories:
         parser.error("supply a Kilrathi Saga or DOS installation containing GAMEDAT")
-    # Like SdlUsingDosData: compressed DOS MODULE.000 has flag 1 in byte 7.
-    modules = [path for path in directories["GAMEDAT"].iterdir() if path.name.upper() == "MODULE.000"]
-    dos = bool(modules) and modules[0].read_bytes()[7:8] == b"\x01"
+    # Like SdlUsingDosData: DOS archives are LZW-compressed (flag 1 in byte 7);
+    # fan translations such as the German one rewrite MODULE.000 raw.
+    def lzw_archive(name):
+        files = [path for path in directories["GAMEDAT"].iterdir() if path.name.upper() == name]
+        return bool(files) and files[0].read_bytes()[7:8] == b"\x01"
+    dos = lzw_archive("MODULE.000") or lzw_archive("CAMP.000")
     if not dos and "STREAMS" not in directories:
         parser.error("supply a Kilrathi Saga installation containing GAMEDAT and STREAMS")
     env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy",

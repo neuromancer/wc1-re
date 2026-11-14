@@ -297,24 +297,38 @@ int SdlExtractOriginPacketSection(const unsigned char *archive,
     return 1;
 }
 
-int SdlUsingDosData(void)
+/* 1 when the archive's first section is LZW-compressed, as in the DOS
+ * release, 0 when it is stored otherwise, -1 when it is missing. */
+static int SdlLzwArchive(const char *name)
 {
+    char path[32];
     unsigned char header[8];
     int file;
     int bytesRead;
 
-    if (g_nSdlDosData >= 0)
-        return g_nSdlDosData;
-    file = _open("GAMEDAT/MODULE.000", 0x8000);
+    SDL_snprintf(path, sizeof(path), "GAMEDAT/%s", name);
+    file = _open(path, 0x8000);
     if (file == -1)
-        file = _open("MODULE.000", 0x8000);
+        file = _open(name, 0x8000);
     if (file == -1)
-        return 0;
-    g_nSdlDosData = 0;
+        return -1;
     bytesRead = _read(file, header, sizeof(header));
     _close(file);
-    if (bytesRead == (int)sizeof(header) && header[7] == 1)
-        g_nSdlDosData = 1;
+    return bytesRead == (int)sizeof(header) && header[7] == 1;
+}
+
+/* The Kilrathi Saga stores its archives raw (0xe0). Fan translations such
+ * as the German one rewrite MODULE.000 raw too, but keep the DOS CAMP.000. */
+int SdlUsingDosData(void)
+{
+    int module;
+
+    if (g_nSdlDosData >= 0)
+        return g_nSdlDosData;
+    module = SdlLzwArchive("MODULE.000");
+    if (module < 0)
+        return 0;
+    g_nSdlDosData = module == 1 || SdlLzwArchive("CAMP.000") == 1;
     return g_nSdlDosData;
 }
 

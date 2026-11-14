@@ -80,6 +80,8 @@ int SdlRunLauncherGui(SdlLauncherOptions *options);
  * resources in any supported form, including a MacBinary application. */
 int SdlHasSwcResources(const char *directory);
 int SdlFindVoiceDirectory(const char *directory, char *root, unsigned long capacity);
+/* German UI strings in a player's patched DOS WC.EXE (0 for any other). */
+int SdlCountGermanText(const char *path);
 
 #ifdef __cplusplus
 }

@@ -1366,6 +1366,27 @@ check-french: $(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations
 	$(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations/fr.dat \
 		"$(MODERN_RUN_DIR)/GAMEDAT" $(MODERN_OUT_DIR)/french-preview.bmp fr
 
+# A player's patched DOS text: needs the English DOS WC.EXE B2.4 and GAMEDAT.
+# GERMAN_WC_EXE optionally names a WC.EXE patched with the German fan translation.
+DOS_DATA ?= data/dos
+$(MODERN_OUT_DIR)/obj/patched_text_probe.o: bin/checkPatchedText.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/patched-text-probe: $(MODERN_OUT_DIR)/obj/patched_text_probe.o \
+		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS) | $(MODERN_TRANSLATIONS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-patched-text
+check-patched-text: $(MODERN_OUT_DIR)/patched-text-probe
+	rm -rf $(MODERN_OUT_DIR)/patched-text
+	mkdir -p $(MODERN_OUT_DIR)/patched-text/GAMEDAT
+	$(MODERN_OUT_DIR)/patched-text-probe "$(DOS_DATA)/WC.EXE" "$(DOS_DATA)/GAMEDAT" \
+		$(MODERN_OUT_DIR)/patched-text $(if $(GERMAN_WC_EXE),"$(GERMAN_WC_EXE)")
+
 $(MODERN_OUT_DIR)/obj/retry_probe.o: bin/checkMissionRetry.c src/sdl/autosave.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@

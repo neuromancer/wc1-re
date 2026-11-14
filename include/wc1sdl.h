@@ -424,6 +424,11 @@ int SdlSetLanguage(int language);
 char *SdlTranslateText(const char *context, const char *source);
 int SdlLoadTranslationCatalog(const char *path);
 void SdlShutdownTranslations(void);
+/* A player's German fan translation of the DOS WC.EXE B2.4. */
+int SdlLoadGermanText(const char *path);
+int SdlCountGermanText(const char *path);
+int SdlUsingGermanText(void);
+void SdlShutdownGermanText(void);
 int SdlTranslatePacketData(const char *filename, short section,
                           const unsigned char *source, size_t size,
                           unsigned char **output, size_t *outputSize);

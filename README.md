@@ -50,6 +50,10 @@ Game data is not included. Open the app, choose a detected installation or use
   releases play the expansions the same way, following the Kilrathi Saga.
 - **Languages:** choose **Español**, **Français**, or **Japanese (FM Towns)**
   in the launcher's **Language** menu.
+- **German fan translation:** a DOS installation you have patched yourself
+  with the German fan translation shows its German text, including the menus
+  and cockpit messages it translates in `WC.EXE`. The launcher's **Language**
+  menu then shows **German** only, and some artwork may stay in English.
 - **FM Towns:** copy `WC.EXP` and the complete `GAMEDAT` folder from your CD
   into a writable folder and select it. For CD music, keep the disc image and
   place its CUE sheet beside `WC.EXP` as `TOWNS.CUE`.
