@@ -278,7 +278,8 @@ int main(int argc, char **argv)
         std::ofstream(fixture / "dos/GAMEDAT" / name).put('x');
     for (const auto name : sm2Files)
         std::ofstream(fixture / "dos/GAMEDAT" / name).put('x');
-    checkLaunchButtons(fixture / "dos", 1);
+    // DOS installs play the same expansions from their identical files.
+    checkLaunchButtons(fixture / "dos", 7);
     checkLaunchButtons(fixture / "missing", 0);
     // SWC detection needs the game's stubbed resource search, so set the
     // detected state directly and click through the real layout.

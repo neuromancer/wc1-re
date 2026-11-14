@@ -76,7 +76,7 @@ void LoadCommPortraitShape(short face, signed char alternate)
 #ifdef SDL_PORT
     /* SM2 0x4161ba selects WINGMEN1 for Doomsday. Its repeated face==5
      * branch leaves Jazz unreachable; the second portrait belongs to him. */
-    if (SdlUsingSm2Data() && (face == 5 || face == 2)) {
+    if (SdlPlayingSm2() && (face == 5 || face == 2)) {
         apCommunicationPortraitShapesTable[face] =
             FetchDiskPacketRetrying(83, face == 5 ? 0 : 1, alternate);
         return;

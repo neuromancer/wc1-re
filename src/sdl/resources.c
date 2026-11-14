@@ -40,8 +40,7 @@ int SdlHasSecretMissions(short campaign)
     short savedError = nPacketError;
     int index, valid = 1;
 
-    if (campaign < 1 || campaign > 2 || !pDiskFileRecords ||
-        SdlUsingDosData() || SdlUsingTownsData())
+    if (campaign < 1 || campaign > 2 || !pDiskFileRecords || SdlUsingTownsData())
         return 0;
     for (index = 0; files[campaign - 1][index] != -1; index++) {
         if (GetPacketSize(pDiskFileRecords[files[campaign - 1][index]].name,
@@ -319,15 +318,35 @@ int SdlUsingDosData(void)
     return g_nSdlDosData;
 }
 
+/* The DOS INSTALL.DAT predates SM2, whose executable opened its files by
+ * name, and names SHIPTYPE.V14 as SHIP.V14, a file no release ships. The
+ * files are identical in both releases, so a DOS install takes these
+ * records from the Kilrathi Saga table and plays SM1 and SM2 the same way. */
 void SdlCompleteDosInstallTable(DiskFileRecord *records)
 {
-    const DiskFileRecord expansionRecords[4] = {
+    static const DiskFileRecord sagaRecords[] = {
+        { "SHIPTYPE.V14", 1, 2, 37 },
+        { "SHIP.V19", 1, 2, 42 },
+        { "MIDGAME.V06", 1, 6, 70 },
+        { "MIDGAME.V07", 1, 6, 71 },
         { "MODULE.002", 1, 7, 73 },
         { "BRIEFING.002", 1, 2, 74 },
         { "CAMP.002", 1, 2, 75 },
-        { "TITLE1.VGA", 1, 2, 76 }
+        { "TITLE1.VGA", 1, 2, 76 },
+        { "TALKING1.VGA", 1, 2, 81 },
+        { "PCSHIP.V05", 1, 4, 82 },
+        { "COMMSM2.DAT", 1, 7, 83 },
+        { "WINGMEN1.VGA", 1, 2, 84 },
+        { "MIDGAME.V08", 1, 6, 85 }
     };
+    size_t index;
 
-    memset(&records[72], 0, sizeof(DiskFileRecord) * 5);
-    memcpy(&records[72], expansionRecords, sizeof(expansionRecords));
+    /* Unused ids keep LoadInstallDat's blank names, so the table stays
+     * contiguous through slot 84 for RewriteDiskFileGraphicsExtensions. */
+    for (index = 72; index < 84; index++) {
+        if (records[index].name[0] == '\0')
+            records[index].name[0] = ' ';
+    }
+    for (index = 0; index < SDL_arraysize(sagaRecords); index++)
+        records[sagaRecords[index].logicalFile - 1] = sagaRecords[index];
 }

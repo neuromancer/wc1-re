@@ -89,7 +89,7 @@ int main(int argc, char **argv)
     Require(chdir("GAMEDAT") == 0, "enter assets");
     LoadInstallDat();
     Require(chdir("..") == 0, "return to installation root");
-    Require(!SdlUsingDosData() && !SdlUsingTownsData(), "Kilrathi Saga data");
+    Require(!SdlUsingTownsData(), "Kilrathi Saga or DOS data");
     ResetCampaignData();
     InitGameClockEpoch();
     nVideoMode = 0x13;

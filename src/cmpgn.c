@@ -209,7 +209,7 @@ char *AddPCName(const char *text)
 unsigned int LoadFace(short face)
 {
 #ifdef SDL_PORT
-    short logicalFile = SdlUsingSm2Data() && face >= 11 ? 80 : 6;
+    short logicalFile = SdlPlayingSm2() && face >= 11 ? 80 : 6;
     short section = logicalFile == 80 ? face - 11 : face;
 #endif
     switch (nConversationCharacter) {

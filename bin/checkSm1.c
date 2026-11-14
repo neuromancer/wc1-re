@@ -516,24 +516,29 @@ int main(int argc, char **argv)
     puts(fullScenes ? "PASS: expansion interlude and endings without skip input (shortened reading pauses)" :
                       "PASS: expansion interlude and both ending scene paths (with skip input)");
     StartNewCampaign(campaign);
-    bIxAudioEnabled = 1;
-    nMusicPlaybackMode = 1;
-    InitializeAudioSystem(window);
-    InitializeAudioStreamer(window);
-    SetSoundEffectsVolume(32000);
-    for (variant = 0; variant < 3; variant++) {
-        const int tracks[] = {23, 0, 34};
-        spacetrack(tracks[variant], 0, 1);
-        Require((dwIxStreamerStatus & 0x87) == 0x87,
-                "preflight, flight and postflight streams open and play");
+    if (SdlUsingDosData()) {
+        /* DOS installs have no ix streams; they play OriginFX audio. */
+        puts("SKIP: Kilrathi Saga audio streams (DOS data)");
+    } else {
+        bIxAudioEnabled = 1;
+        nMusicPlaybackMode = 1;
+        InitializeAudioSystem(window);
+        InitializeAudioStreamer(window);
+        SetSoundEffectsVolume(32000);
+        for (variant = 0; variant < 3; variant++) {
+            const int tracks[] = {23, 0, 34};
+            spacetrack(tracks[variant], 0, 1);
+            Require((dwIxStreamerStatus & 0x87) == 0x87,
+                    "preflight, flight and postflight streams open and play");
+            SDL_Delay(150);
+        }
+        PlaySfxWaveFileByNumber(4, -1, 0);
+        Require(FindWaveTableEntryByName("sfx03.wav") != NULL, "combat sound sample loaded");
         SDL_Delay(150);
+        ShutdownAudioStreamer();
+        ServiceAudioStream();
+        puts("PASS: shared Kilrathi Saga music and sound playback on dummy audio device");
     }
-    PlaySfxWaveFileByNumber(4, -1, 0);
-    Require(FindWaveTableEntryByName("sfx03.wav") != NULL, "combat sound sample loaded");
-    SDL_Delay(150);
-    ShutdownAudioStreamer();
-    ServiceAudioStream();
-    puts("PASS: shared Kilrathi Saga music and sound playback on dummy audio device");
     completion = fopen("probe-complete", "w");
     Require(completion != NULL && fclose(completion) == 0, "record completed probe");
     return 0;

@@ -440,7 +440,7 @@ short RecRoom(void)
         if (personality < 0)
             continue;
         section = personality + 3;
-        if (SdlUsingSm2Data() && personality >= 11) {
+        if (SdlPlayingSm2() && personality >= 11) {
             /* SM2.EXE 0x439663: new bar figures in TALKING1.VGA.
              * Its animation table mistakenly selects Shotglass's >5 frames;
              * reuse the replaced pilot's six-frame animation instead. */

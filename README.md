@@ -44,9 +44,10 @@ Game data is not included. Open the app, choose a detected installation or use
 **Add path…** to select the folder containing `GAMEDAT`, then select
 **Start WC1**. The launcher remembers your folder and options.
 
-- **Secret Missions:** with Kilrathi Saga data that includes the expansions,
-  the launcher also offers **Start SM1** and **Start SM2**, and can transfer a
-  pilot from an existing save with their statistics and awards.
+- **Secret Missions:** with Kilrathi Saga or DOS data that includes the
+  expansions, the launcher also offers **Start SM1** and **Start SM2**, and can
+  transfer a pilot from an existing save with their statistics and awards. Both
+  releases play the expansions the same way, following the Kilrathi Saga.
 - **Languages:** choose **Español**, **Français**, or **Japanese (FM Towns)**
   in the launcher's **Language** menu.
 - **FM Towns:** copy `WC.EXP` and the complete `GAMEDAT` folder from your CD

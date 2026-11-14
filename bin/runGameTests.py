@@ -45,7 +45,12 @@ def main():
         parser.error(f"build the probe first: {probe}")
     installation = args.data.resolve()
     directories = {path.name.upper(): path for path in installation.iterdir() if path.is_dir()}
-    if not {"GAMEDAT", "STREAMS"} <= directories.keys():
+    if "GAMEDAT" not in directories:
+        parser.error("supply a Kilrathi Saga or DOS installation containing GAMEDAT")
+    # Like SdlUsingDosData: compressed DOS MODULE.000 has flag 1 in byte 7.
+    modules = [path for path in directories["GAMEDAT"].iterdir() if path.name.upper() == "MODULE.000"]
+    dos = bool(modules) and modules[0].read_bytes()[7:8] == b"\x01"
+    if not dos and "STREAMS" not in directories:
         parser.error("supply a Kilrathi Saga installation containing GAMEDAT and STREAMS")
     env = dict(os.environ, SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy",
                ASAN_OPTIONS="detect_leaks=0", UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
@@ -82,7 +87,8 @@ def main():
             excluded.update({"TITLE1.VGA", "MODULE.002", "CAMP.002", "BRIEFING.002"})
         shutil.copytree(directories["GAMEDAT"], root / "GAMEDAT",
                         ignore=lambda _, names: [name for name in names if name.upper() in excluded])
-        shutil.copytree(directories["STREAMS"], root / "STREAMS")
+        if "STREAMS" in directories:
+            shutil.copytree(directories["STREAMS"], root / "STREAMS")
         complete = root / "GAMEDAT" / "probe-complete"
 
         if not args.fuzz:

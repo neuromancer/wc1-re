@@ -662,7 +662,7 @@ void get_pilot_talk(short personality)
     short line;
     short loaded;
 #ifdef SDL_PORT
-    short logicalFile = SdlUsingSm2Data() ? 82 : 13;
+    short logicalFile = SdlPlayingSm2() ? 82 : 13;
 #else
     enum { logicalFile = 13 };
 #endif

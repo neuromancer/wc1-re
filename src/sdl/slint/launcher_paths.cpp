@@ -149,16 +149,18 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
     }
 
     // Match SdlUsingDosData: compressed DOS MODULE.000 has flag 1 in byte 7.
-    if (header[7] == 1)
-        return {true, LauncherMessage::Dos};
-    const auto streams = find_child_case_insensitive(directory, "STREAMS");
-    if (!streams || !fs::is_directory(*streams, error))
-        return {false, LauncherMessage::NeedsStreams};
-    for (const auto name : {"PREFLITE.STR", "POSFLITE.STR", "MISSION.STR"}) {
-        if (!has_readable_file(*streams, name))
-            return {false, LauncherMessage::MissingStreamFile, false, name};
+    DirectoryStatus status {true, header[7] == 1 ? LauncherMessage::Dos : LauncherMessage::KilrathiSaga};
+    if (status.message == LauncherMessage::KilrathiSaga) {
+        const auto streams = find_child_case_insensitive(directory, "STREAMS");
+        if (!streams || !fs::is_directory(*streams, error))
+            return {false, LauncherMessage::NeedsStreams};
+        for (const auto name : {"PREFLITE.STR", "POSFLITE.STR", "MISSION.STR"}) {
+            if (!has_readable_file(*streams, name))
+                return {false, LauncherMessage::MissingStreamFile, false, name};
+        }
     }
-    DirectoryStatus status {true, LauncherMessage::KilrathiSaga};
+    // Both releases ship the same expansion files. DOS installs take the
+    // Kilrathi Saga install records from SdlCompleteDosInstallTable.
     status.sm1 = true;
     for (const auto name : {"CAMP.001", "MODULE.001", "BRIEFING.001", "MIDGAME.V04", "MIDGAME.V05"})
         status.sm1 &= has_readable_file(*gameData, name);

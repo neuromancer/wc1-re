@@ -2103,7 +2103,7 @@ unsigned short LoadSceneAnimationResources(short scene, short variant)
 
 #ifdef SDL_PORT
     /* SM2's terminal sequence is MIDGAME.V08, logical file 84. */
-    if (SdlUsingSm2Data() && scene == 8)
+    if (SdlPlayingSm2() && scene == 8)
         logicalFile = 84;
     else
 #endif

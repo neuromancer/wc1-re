@@ -5,16 +5,11 @@ int nPilotTransferState;
 int nPilotTransferCampaign = 1;
 int nLaunchCampaign;
 
-/* SM2's rules are the same game whichever release supplied its files. */
+/* SM2 plays the same whichever release supplied its files; DOS installs
+ * take its Kilrathi Saga logical files 80-84 from SdlCompleteDosInstallTable. */
 int SdlPlayingSm2(void)
 {
     return nCampaignDataSet == 2 && !SdlSwcFlightActive();
-}
-
-/* Kilrathi Saga logical files 80-84 exist only in its install table. */
-int SdlUsingSm2Data(void)
-{
-    return SdlPlayingSm2() && !SdlUsingDosData() && !SdlUsingTownsData();
 }
 
 void SdlSetSm2Pilots(PilotRecord *pilots, int fresh)

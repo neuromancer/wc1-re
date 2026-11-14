@@ -347,7 +347,6 @@ void SdlWaitForVerticalBlank(void);
 int SdlUsingDosData(void);
 int SdlHasSecretMissions(short campaign);
 int SdlPlayingSm2(void);
-int SdlUsingSm2Data(void);
 struct PilotRecord;
 void SdlSetSm2Pilots(struct PilotRecord *pilots, int fresh);
 void SdlSetCampaignShips(void);

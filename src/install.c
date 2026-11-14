@@ -190,9 +190,10 @@ unsigned short LoadInstallDat(void)
 
 #ifdef SDL_PORT
     size = (maximumId + 1) * sizeof(DiskFileRecord);
-    /* The DOS expansion completion writes through runtime slot 76. */
-    if (size < sizeof(DiskFileRecord) * 78)
-        size = sizeof(DiskFileRecord) * 78;
+    /* The DOS completion writes the Kilrathi Saga records through runtime
+     * slot 84 and keeps the zero record that ends the table after them. */
+    if (size < sizeof(DiskFileRecord) * 87)
+        size = sizeof(DiskFileRecord) * 87;
     pDiskFileRecords =
         AllocateTaggedMemory(size, 0);
     if (pDiskFileRecords != 0)
