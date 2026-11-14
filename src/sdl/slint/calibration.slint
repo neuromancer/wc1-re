@@ -1,0 +1,302 @@
+import { Button, ComboBox, Palette, Slider, VerticalBox } from "std-widgets.slint";
+
+// CalibrateJoystickInteractive's (0x4102b0) three positions.
+export enum CalibrationStep { idle, upper-left, lower-right, centre }
+
+export enum CalibrationMessage { none, saved, removed, failed, cannot-save, cannot-remove, unavailable }
+
+// The stick and its calibration in the game's positions, 0 to 65535 on each
+// axis (src/sdl/joystick_calibration.h).
+export struct StickView {
+    x: int,
+    y: int,
+    // The bounds ReadCalibratedJoystick clamps positions to.
+    left: int,
+    right: int,
+    top: int,
+    bottom: int,
+    centre-x: int,
+    centre-y: int,
+    // Where the dead zone ends.
+    zone-left: int,
+    zone-right: int,
+    zone-top: int,
+    zone-bottom: int,
+    // What the game reads: -9 to 9 on each axis.
+    step-x: int,
+    step-y: int,
+}
+
+// The dead zone percentage as the launcher shows it; 22 is the original's.
+export global DeadZoneText {
+    public pure function describe(percent: int) -> string {
+        if percent == 22 { return @tr("{}% (original)", percent); }
+        return @tr("{}%", percent);
+    }
+}
+
+export component CalibrationWindow inherits Window {
+    title: @tr("Joystick calibration");
+    preferred-width: 560px;
+    min-width: 480px;
+    background: Palette.background;
+
+    // Joysticks 1 and 2 as the game numbers them; "" for a free slot.
+    in property <[string]> device-names: ["", ""];
+    in-out property <int> device-index;
+    in property <bool> connected;
+    in property <StickView> view: {
+        x: 32768, y: 32768, left: 16, right: 65518, top: 16, bottom: 65518,
+        centre-x: 32767, centre-y: 32767, zone-left: 25489, zone-right: 40045,
+        zone-top: 25489, zone-bottom: 40045, step-x: 0, step-y: 0
+    };
+    in property <CalibrationStep> step;
+    // j.cal holds a calibration for the chosen joystick.
+    in property <bool> calibrated;
+    in property <CalibrationMessage> message;
+    in property <string> message-detail;
+    in-out property <float> dead-zone: 22;
+
+    out property <[string]> device-choices: [
+        @tr("Joystick 1: {}", root.device-names[0] == "" ? @tr("not connected") : root.device-names[0]),
+        @tr("Joystick 2: {}", root.device-names[1] == "" ? @tr("not connected") : root.device-names[1])
+    ];
+
+    callback device-selected(int);
+    callback calibrate();
+    callback record();
+    callback cancel();
+    callback reset();
+    callback dead-zone-edited();
+
+    changed dead-zone => {
+        root.dead-zone-edited();
+    }
+
+    pure function instruction() -> string {
+        if root.step == CalibrationStep.upper-left {
+            return @tr("Move the stick to the upper left, then press a joystick button.");
+        }
+        if root.step == CalibrationStep.lower-right {
+            return @tr("Move the stick to the lower right, then press a joystick button.");
+        }
+        if root.step == CalibrationStep.centre {
+            return @tr("Center the stick, then press a joystick button.");
+        }
+        return root.connected ? @tr("Press Calibrate and follow the steps.") : @tr("Connect a joystick.");
+    }
+
+    pure function message-text() -> string {
+        if root.message == CalibrationMessage.saved {
+            return @tr("Calibration saved in GAMEDAT/j.cal.");
+        }
+        if root.message == CalibrationMessage.removed {
+            return @tr("Calibration removed: the game uses the joystick's full range.");
+        }
+        if root.message == CalibrationMessage.failed {
+            return @tr("Calibration failed: move the stick fully into each corner, center it, and try again.");
+        }
+        if root.message == CalibrationMessage.cannot-save {
+            return @tr("Cannot save the calibration: {}", root.message-detail);
+        }
+        if root.message == CalibrationMessage.cannot-remove {
+            return @tr("Cannot remove the calibration: {}", root.message-detail);
+        }
+        if root.message == CalibrationMessage.unavailable {
+            return @tr("Joysticks are unavailable: {}", root.message-detail);
+        }
+        return "";
+    }
+
+    VerticalBox {
+        padding: 16px;
+        spacing: 10px;
+
+        HorizontalLayout {
+            spacing: 8px;
+            height: 34px;
+
+            Text {
+                text: @tr("Joystick");
+                vertical-alignment: center;
+                color: Palette.foreground;
+            }
+
+            ComboBox {
+                horizontal-stretch: 1;
+                enabled: root.step == CalibrationStep.idle;
+                model: root.device-choices;
+                current-index <=> root.device-index;
+                selected(_) => {
+                    root.device-selected(self.current-index);
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 16px;
+            vertical-stretch: 0;
+
+            // The square stands for the axes' full range.
+            area := Rectangle {
+                width: 220px;
+                height: 220px;
+                background: Palette.alternate-background;
+                border-width: 1px;
+                border-color: Palette.border;
+                clip: true;
+
+                Rectangle {
+                    x: parent.width * root.view.zone-left / 65535;
+                    y: parent.height * root.view.zone-top / 65535;
+                    width: parent.width * (root.view.zone-right - root.view.zone-left) / 65535;
+                    height: parent.height * (root.view.zone-bottom - root.view.zone-top) / 65535;
+                    background: Palette.accent-background.with-alpha(0.25);
+                }
+
+                Rectangle {
+                    x: parent.width * root.view.left / 65535;
+                    y: parent.height * root.view.top / 65535;
+                    width: parent.width * (root.view.right - root.view.left) / 65535;
+                    height: parent.height * (root.view.bottom - root.view.top) / 65535;
+                    border-width: 1px;
+                    border-color: Palette.accent-background;
+                }
+
+                Rectangle {
+                    x: parent.width * root.view.centre-x / 65535;
+                    y: 0;
+                    width: 1px;
+                    height: parent.height;
+                    background: Palette.border;
+                }
+
+                Rectangle {
+                    x: 0;
+                    y: parent.height * root.view.centre-y / 65535;
+                    width: parent.width;
+                    height: 1px;
+                    background: Palette.border;
+                }
+
+                if root.connected: Rectangle {
+                    x: parent.width * root.view.x / 65535 - 6px;
+                    y: parent.height * root.view.y / 65535 - 6px;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 6px;
+                    background: root.view.step-x != 0 || root.view.step-y != 0
+                        ? Palette.accent-background : Palette.foreground;
+                }
+            }
+
+            VerticalLayout {
+                spacing: 10px;
+                alignment: start;
+
+                Text {
+                    text: root.instruction();
+                    wrap: word-wrap;
+                    font-weight: 600;
+                    color: Palette.foreground;
+                }
+
+                if root.connected: Text {
+                    text: @tr("The game reads X {} and Y {}, from −9 to 9.", root.view.step-x, root.view.step-y);
+                    wrap: word-wrap;
+                    color: Palette.foreground;
+                }
+
+                if root.connected: Text {
+                    text: root.calibrated ? @tr("Using this joystick's saved calibration.")
+                        : @tr("Using the joystick's full range.");
+                    wrap: word-wrap;
+                    color: Palette.foreground;
+                    opacity: 0.65;
+                }
+
+                if root.message != CalibrationMessage.none: Text {
+                    text: root.message-text();
+                    wrap: word-wrap;
+                    color: root.message == CalibrationMessage.saved || root.message == CalibrationMessage.removed
+                        ? Palette.foreground : #b3261e;
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: 8px;
+            height: 34px;
+
+            Text {
+                text: @tr("Dead zone");
+                vertical-alignment: center;
+                color: Palette.foreground;
+            }
+
+            Slider {
+                horizontal-stretch: 1;
+                minimum: 0;
+                maximum: 33;
+                value <=> root.dead-zone;
+                changed(value) => {
+                    self.value = Math.round(value);
+                }
+            }
+
+            Text {
+                min-width: 110px;
+                text: DeadZoneText.describe(Math.round(root.dead-zone));
+                vertical-alignment: center;
+                color: Palette.foreground;
+            }
+        }
+
+        Text {
+            text: @tr("The stick does nothing inside the shaded area. Turn auto fire off if your stick has it. Calibration applies to WC1; the dead zone to both games.");
+            wrap: word-wrap;
+            font-size: 12px;
+            color: Palette.foreground;
+            opacity: 0.65;
+        }
+
+        HorizontalLayout {
+            spacing: 8px;
+            height: 34px;
+
+            if root.step == CalibrationStep.idle: Button {
+                text: @tr("Reset");
+                enabled: root.calibrated;
+                clicked => {
+                    root.reset();
+                }
+            }
+
+            Rectangle { horizontal-stretch: 1; }
+
+            if root.step != CalibrationStep.idle: Button {
+                text: @tr("Cancel");
+                clicked => {
+                    root.cancel();
+                }
+            }
+
+            if root.step != CalibrationStep.idle: Button {
+                text: @tr("Record position");
+                primary: true;
+                clicked => {
+                    root.record();
+                }
+            }
+
+            if root.step == CalibrationStep.idle: Button {
+                text: @tr("Calibrate");
+                primary: true;
+                enabled: root.connected;
+                clicked => {
+                    root.calibrate();
+                }
+            }
+        }
+    }
+}

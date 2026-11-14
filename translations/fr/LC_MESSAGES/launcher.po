@@ -1125,3 +1125,148 @@ msgstr "Retirer"
 msgctxt "ControlsWindow"
 msgid "Cancel"
 msgstr "Annuler"
+
+#: src/sdl/slint/launcher.slint:347
+msgctxt "LauncherWindow"
+msgid "Dead zone"
+msgstr "Zone morte"
+
+#: src/sdl/slint/launcher.slint:390
+msgctxt "LauncherWindow"
+msgid "Calibrate…"
+msgstr "Calibrer…"
+
+#: src/sdl/slint/calibration.slint:33
+msgctxt "DeadZoneText"
+msgid "{}% (original)"
+msgstr "{} % (d’origine)"
+
+#: src/sdl/slint/calibration.slint:34
+msgctxt "DeadZoneText"
+msgid "{}%"
+msgstr "{} %"
+
+#: src/sdl/slint/calibration.slint:39
+msgctxt "CalibrationWindow"
+msgid "Joystick calibration"
+msgstr "Calibrage du joystick"
+
+#: src/sdl/slint/calibration.slint:61
+msgctxt "CalibrationWindow"
+msgid "Joystick 1: {}"
+msgstr "Joystick 1 : {}"
+
+#: src/sdl/slint/calibration.slint:61
+msgctxt "CalibrationWindow"
+msgid "not connected"
+msgstr "non connecté"
+
+#: src/sdl/slint/calibration.slint:62
+msgctxt "CalibrationWindow"
+msgid "Joystick 2: {}"
+msgstr "Joystick 2 : {}"
+
+#: src/sdl/slint/calibration.slint:78
+msgctxt "CalibrationWindow"
+msgid "Move the stick to the upper left, then press a joystick button."
+msgstr "Placez le manche en haut à gauche, puis appuyez sur un bouton du joystick."
+
+#: src/sdl/slint/calibration.slint:81
+msgctxt "CalibrationWindow"
+msgid "Move the stick to the lower right, then press a joystick button."
+msgstr "Placez le manche en bas à droite, puis appuyez sur un bouton du joystick."
+
+#: src/sdl/slint/calibration.slint:84
+msgctxt "CalibrationWindow"
+msgid "Center the stick, then press a joystick button."
+msgstr "Centrez le manche, puis appuyez sur un bouton du joystick."
+
+#: src/sdl/slint/calibration.slint:86
+msgctxt "CalibrationWindow"
+msgid "Press Calibrate and follow the steps."
+msgstr "Cliquez sur Calibrer et suivez les étapes."
+
+#: src/sdl/slint/calibration.slint:86
+msgctxt "CalibrationWindow"
+msgid "Connect a joystick."
+msgstr "Branchez un joystick."
+
+#: src/sdl/slint/calibration.slint:91
+msgctxt "CalibrationWindow"
+msgid "Calibration saved in GAMEDAT/j.cal."
+msgstr "Calibrage enregistré dans GAMEDAT/j.cal."
+
+#: src/sdl/slint/calibration.slint:94
+msgctxt "CalibrationWindow"
+msgid "Calibration removed: the game uses the joystick's full range."
+msgstr "Calibrage supprimé : le jeu utilise toute la course du joystick."
+
+#: src/sdl/slint/calibration.slint:97
+msgctxt "CalibrationWindow"
+msgid "Calibration failed: move the stick fully into each corner, center it, and try again."
+msgstr "Échec du calibrage : poussez le manche à fond dans chaque coin, centrez-le et réessayez."
+
+#: src/sdl/slint/calibration.slint:100
+msgctxt "CalibrationWindow"
+msgid "Cannot save the calibration: {}"
+msgstr "Impossible d’enregistrer le calibrage : {}"
+
+#: src/sdl/slint/calibration.slint:103
+msgctxt "CalibrationWindow"
+msgid "Cannot remove the calibration: {}"
+msgstr "Impossible de supprimer le calibrage : {}"
+
+#: src/sdl/slint/calibration.slint:106
+msgctxt "CalibrationWindow"
+msgid "Joysticks are unavailable: {}"
+msgstr "Joysticks indisponibles : {}"
+
+#: src/sdl/slint/calibration.slint:120
+msgctxt "CalibrationWindow"
+msgid "Joystick"
+msgstr "Joystick"
+
+#: src/sdl/slint/calibration.slint:205
+msgctxt "CalibrationWindow"
+msgid "The game reads X {} and Y {}, from −9 to 9."
+msgstr "Le jeu lit X {} et Y {}, de −9 à 9."
+
+#: src/sdl/slint/calibration.slint:211
+msgctxt "CalibrationWindow"
+msgid "Using this joystick's saved calibration."
+msgstr "Le calibrage enregistré de ce joystick est utilisé."
+
+#: src/sdl/slint/calibration.slint:212
+msgctxt "CalibrationWindow"
+msgid "Using the joystick's full range."
+msgstr "Toute la course du joystick est utilisée."
+
+#: src/sdl/slint/calibration.slint:232
+msgctxt "CalibrationWindow"
+msgid "Dead zone"
+msgstr "Zone morte"
+
+#: src/sdl/slint/calibration.slint:256
+msgctxt "CalibrationWindow"
+msgid "The stick does nothing inside the shaded area. Turn auto fire off if your stick has it. Calibration applies to WC1; the dead zone to both games."
+msgstr "Dans la zone ombrée, le manche est sans effet. Désactivez le tir automatique si votre joystick en possède un. Le calibrage s’applique à WC1 ; la zone morte, aux deux jeux."
+
+#: src/sdl/slint/calibration.slint:268
+msgctxt "CalibrationWindow"
+msgid "Reset"
+msgstr "Réinitialiser"
+
+#: src/sdl/slint/calibration.slint:278
+msgctxt "CalibrationWindow"
+msgid "Cancel"
+msgstr "Annuler"
+
+#: src/sdl/slint/calibration.slint:285
+msgctxt "CalibrationWindow"
+msgid "Record position"
+msgstr "Enregistrer la position"
+
+#: src/sdl/slint/calibration.slint:293
+msgctxt "CalibrationWindow"
+msgid "Calibrate"
+msgstr "Calibrer"

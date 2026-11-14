@@ -43,7 +43,9 @@ constexpr IntegerSetting integerSettings[] = {
      SDL_LAUNCHER_EXPLICIT_JOYSTICK_MODE,
      SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS},
     {"joystick_axes", &SdlLauncherOptions::joystickAxes,
-     SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES, SDL_LAUNCHER_AXES_RUDDER_ROLL}
+     SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES, SDL_LAUNCHER_AXES_RUDDER_ROLL},
+    {"joystick_dead_zone", &SdlLauncherOptions::joystickDeadZone,
+     SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE, SDL_JOYSTICK_DEAD_ZONE_MAXIMUM}
 };
 
 std::string_view trim_setting(std::string_view text)

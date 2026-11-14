@@ -37,6 +37,7 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
 
     outputArgumentIndex = 1;
     memset(options, 0, sizeof(*options));
+    options->joystickDeadZone = SDL_JOYSTICK_DEAD_ZONE_ORIGINAL;
 #ifdef WC1_STATIC_GUI
     *useLauncherGui = *argumentCount == 1;
 #else
@@ -124,6 +125,19 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                 return 0;
             }
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES;
+        } else if (strncmp(argument, "--joystick-dead-zone=", 21) == 0) {
+            char *end;
+            long percent = strtol(argument + 21, &end, 10);
+
+            if (end == argument + 21 || *end != '\0' || percent < 0 ||
+                percent > SDL_JOYSTICK_DEAD_ZONE_MAXIMUM) {
+                fprintf(stderr, "Invalid joystick dead zone: %s (use 0 to %d percent; "
+                        "the original is %d).\n", argument + 21,
+                        SDL_JOYSTICK_DEAD_ZONE_MAXIMUM, SDL_JOYSTICK_DEAD_ZONE_ORIGINAL);
+                return 0;
+            }
+            options->joystickDeadZone = (int)percent;
+            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE;
         } else if (strcmp(argument, "--ega") == 0) {
             options->egaDither = 1;
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_EGA;
@@ -206,6 +220,10 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     }
     SdlSetJoystickMode(g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
+    if (!SdlSetJoystickDeadZone(options->joystickDeadZone)) {
+        fprintf(stderr, "Invalid joystick dead zone.\n");
+        return 0;
+    }
     SdlSetKeyBindings(options->keyBindings);
     SdlConfigureAutosave(options->autosave);
     if (*options->voiceCatalog && !options->swcDemo && !SdlLoadVoiceCatalog(options->voiceCatalog)) {

@@ -66,6 +66,10 @@ Game data is not included. Open the app, choose a detected installation or use
 - Resizable window, fullscreen, and aspect-correct 4:3 presentation.
 - Gamepad support, rumble, and alternative joystick layouts, including
   WCAT-style four-button controls.
+- An adjustable joystick dead zone (22% by default, as in the original) and a
+  launcher window that calibrates WC1's joystick. It writes `GAMEDAT/j.cal` as
+  the game's own calibration does, and the game now reads all of that file,
+  not only the centre.
 - A controls window, opened from the launcher, that shows the gamepad,
   keyboard and mouse bindings for WC1 and Super Wing Commander and lets you
   rebind keys, mouse buttons and the wheel.
@@ -95,6 +99,7 @@ Game data is not included. Open the app, choose a detected installation or use
 | Gamepad Start (spaceflight) | Pause or resume |
 | Gamepad Back | Cycle views in spaceflight; Escape/back elsewhere |
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
+| `J` (main menu, barracks), `Ctrl+J` (spaceflight) | Calibrate the joystick, as in the original |
 
 The launcher's **Show controls…** window shows every binding. Click a key or
 mouse input to change it, or **+** to add a second one; changes apply when the

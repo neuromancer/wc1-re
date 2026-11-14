@@ -1,6 +1,8 @@
 #ifndef WC1_SDL_SLINT_LAUNCHER_API_H
 #define WC1_SDL_SLINT_LAUNCHER_API_H
 
+#include "../joystick_calibration.h"
+
 #define SDL_LAUNCHER_DIRECTORY_CAPACITY 4096
 #define SDL_LAUNCHER_KEY_BINDINGS_CAPACITY 4096
 
@@ -37,7 +39,8 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_CHEATS = 1 << 7,
     SDL_LAUNCHER_EXPLICIT_FULLSCREEN = 1 << 8,
     SDL_LAUNCHER_EXPLICIT_AUTOSAVE = 1 << 9,
-    SDL_LAUNCHER_EXPLICIT_LANGUAGE = 1 << 10
+    SDL_LAUNCHER_EXPLICIT_LANGUAGE = 1 << 10,
+    SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE = 1 << 11
 };
 
 typedef struct SdlLauncherOptions {
@@ -53,6 +56,9 @@ typedef struct SdlLauncherOptions {
     int joystickRumble;
     int joystickMode;
     int joystickAxes;
+    /* Percent of travel, 0 to SDL_JOYSTICK_DEAD_ZONE_MAXIMUM; the original's
+     * is SDL_JOYSTICK_DEAD_ZONE_ORIGINAL. */
+    int joystickDeadZone;
     int swcDemo;
     int campaign; /* This launch: 0 WC1, 1 SM1, 2 SM2. Not a saved preference. */
     int transferPilot; /* Open the transfer barracks for this launch only. */

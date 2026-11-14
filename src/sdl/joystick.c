@@ -1,4 +1,5 @@
 #include "wc1.h"
+#include "joystick_calibration.h"
 
 typedef struct SdlJoystickDevice {
     SDL_GameController *controller;
@@ -61,6 +62,75 @@ static Uint16 g_wSdlRumbleHigh;
 static Uint32 g_dwSdlRumbleDeadline;
 static SdlJoystickMode g_eSdlJoystickMode;
 static SdlJoystickAxesMode g_eSdlJoystickAxesMode;
+static int g_nSdlJoystickDeadZone = SDL_JOYSTICK_DEAD_ZONE_ORIGINAL;
+
+int SdlSetJoystickDeadZone(int percent)
+{
+    if (percent < 0 || percent > SDL_JOYSTICK_DEAD_ZONE_MAXIMUM)
+        return 0;
+    g_nSdlJoystickDeadZone = percent;
+    return 1;
+}
+
+/* LoadJoystickCalibrationFile's dead zone arguments. */
+short SdlGetJoystickDeadZoneSteps(void)
+{
+    return (short)SdlJoystickDeadZoneSteps(g_nSdlJoystickDeadZone);
+}
+
+static void SdlRefreshJoysticks(void);
+
+/* A missing joystick samples as 0xffff, a position, not as -1. */
+int SdlAcceptJoystickCalibration(short device,
+                                 unsigned short minimumX, unsigned short minimumY,
+                                 unsigned short maximumX, unsigned short maximumY,
+                                 unsigned short centreX, unsigned short centreY)
+{
+    if (device < 0 || device >= 2)
+        return 0;
+    SdlRefreshJoysticks();
+    return g_aSdlJoystickDevices[device].joystick != 0 &&
+        SdlJoystickAxisCalibrationValid(minimumX, centreX, maximumX) &&
+        SdlJoystickAxisCalibrationValid(minimumY, centreY, maximumY);
+}
+
+void SdlRestoreJoystickCalibration(unsigned short minimumX, unsigned short minimumY,
+                                   unsigned short maximumX, unsigned short maximumY,
+                                   short horizontalRange, short verticalRange)
+{
+    SdlJoystickAxis axis;
+
+    SdlCalibrateJoystickAxis(&axis, minimumX, nJoystickCentreX, maximumX,
+                             horizontalRange);
+    nCurrentJoystickLeftScale = axis.lowScale;
+    nJoystickRightScale = axis.highScale;
+    nStickMinimumPositionX = axis.minimum;
+    nStickMaxX = axis.maximum;
+    SdlCalibrateJoystickAxis(&axis, minimumY, nJoystickCentreY, maximumY,
+                             verticalRange);
+    nJoystickUpScale = axis.lowScale;
+    nJoystickDownScaleValue = axis.highScale;
+    nStickMinimumPositionY = axis.minimum;
+    nStickMaxY = axis.maximum;
+}
+
+void SdlShapeJoystickDeadZone(InputDeviceSample *sample)
+{
+    SdlJoystickAxis axis;
+
+    axis.centre = nJoystickCentreX;
+    axis.lowScale = nCurrentJoystickLeftScale;
+    axis.highScale = nJoystickRightScale;
+    axis.minimum = nStickMinimumPositionX;
+    axis.maximum = nStickMaxX;
+    sample->x = SdlShapeJoystickPosition(&axis, sample->x, g_nSdlJoystickDeadZone);
+    axis.centre = nJoystickCentreY;
+    axis.lowScale = nJoystickUpScale;
+    axis.highScale = nJoystickDownScaleValue;
+    axis.minimum = nStickMinimumPositionY;
+    axis.maximum = nStickMaxY;
+    sample->y = SdlShapeJoystickPosition(&axis, sample->y, g_nSdlJoystickDeadZone);
+}
 
 int SdlSetJoystickMode(const char *name)
 {
@@ -705,20 +775,16 @@ static int SdlReadExtraJoystickAxes(Sint16 *first, Sint16 *second)
     return 2;
 }
 
+/* The extra axes, and SWC's stick, read like WC1's stick without j.cal. */
 static short SdlNormalizeFlightAxis(Sint16 raw)
 {
-    int magnitude;
-    int normalized;
-    int value;
+    SdlJoystickAxis axis;
+    int position;
 
-    value = raw;
-    magnitude = value < 0 ? -value : value;
-    if (magnitude <= 8192)
-        return 0;
-    normalized = (magnitude - 8192) * 9 / (32767 - 8192);
-    if (normalized > 9)
-        normalized = 9;
-    return (value < 0 ? -normalized : normalized);
+    SdlDefaultJoystickAxis(&axis);
+    position = SdlShapeJoystickPosition(&axis, raw + 32768, g_nSdlJoystickDeadZone);
+    return (short)SdlJoystickAxisStep(&axis, position,
+                                      SdlJoystickDeadZoneSteps(g_nSdlJoystickDeadZone));
 }
 
 int SdlReadSwcJoystickFlightSample(InputDeviceSample *sample)
@@ -740,7 +806,7 @@ int SdlReadSwcJoystickFlightSample(InputDeviceSample *sample)
             sample->buttons |= 1U << button;
     }
     /* The shared enhanced axis layouts consume this normalized sample.
-     * SDL axes already have known ranges; no legacy j.cal file is needed. */
+     * SWC never had j.cal; SDL's full range stands in for a calibration. */
     aInputDevSamples[nCurrentActiveInputDevice] = *sample;
     return 1;
 }
@@ -1380,7 +1446,8 @@ void SdlHandleJoystickDeviceEvent(Uint32 type, Sint32 which)
     if (type == SDL_JOYDEVICEADDED &&
         g_bSdlJoystickInputStarted &&
         nCurrentActiveInputDevice == -1)
-        LoadJoystickCalibrationFile(9, 9, 1, 1);
+        LoadJoystickCalibrationFile(9, 9, SdlGetJoystickDeadZoneSteps(),
+                                    SdlGetJoystickDeadZoneSteps());
 }
 
 void SdlShutdownJoysticks(void)

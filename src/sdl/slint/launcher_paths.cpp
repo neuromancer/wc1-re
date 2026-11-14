@@ -51,7 +51,7 @@ static bool equal_ascii_case(std::string_view left, std::string_view right)
         });
 }
 
-static std::optional<fs::path> find_child_case_insensitive(
+std::optional<fs::path> find_child_case_insensitive(
     const fs::path &directory, std::string_view expected)
 {
     std::error_code error;

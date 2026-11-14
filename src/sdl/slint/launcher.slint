@@ -4,10 +4,14 @@ import {
     ComboBox,
     GroupBox,
     Palette,
+    Slider,
     VerticalBox
 } from "std-widgets.slint";
+import { DeadZoneText } from "calibration.slint";
+export { DeadZoneText }
 
 export { ControlsWindow, PadControl } from "controls.slint";
+export { CalibrationWindow, CalibrationStep, CalibrationMessage, StickView } from "calibration.slint";
 
 export enum LauncherMessage {
     choose-directory, path-too-long, not-directory, missing-swc-file,
@@ -43,6 +47,8 @@ export component LauncherWindow inherits Window {
     in-out property <bool> joystick-rumble;
     in-out property <int> joystick-mode-index;
     in-out property <int> joystick-axes-index;
+    // Percent of travel (src/sdl/joystick_calibration.h).
+    in-out property <float> joystick-dead-zone: 22;
 
     in property <bool> path-valid: false;
     in property <bool> picker-error: false;
@@ -62,6 +68,8 @@ export component LauncherWindow inherits Window {
             || root.swc-demo);
     // The game it shows: 0 WC1, 1 SWC.
     out property <int> controls-game: root.swc-demo ? 1 : 0;
+    // j.cal lives in WC1's GAMEDAT; SWC has none.
+    out property <bool> calibration-available: root.path-valid && !root.swc-demo;
 
     public pure function edition-text(edition: LauncherMessage) -> string {
         if edition == LauncherMessage.fm-towns { return "FM Towns"; }
@@ -101,6 +109,13 @@ export component LauncherWindow inherits Window {
     callback controls-requested();
     // The selectors the controls window follows while it is open.
     callback controls-layout-changed();
+    callback calibration-requested();
+    // The calibration window shows the same dead zone.
+    callback dead-zone-changed();
+
+    changed joystick-dead-zone => {
+        root.dead-zone-changed();
+    }
 
     changed joystick-mode-index => {
         root.controls-layout-changed();
@@ -326,8 +341,40 @@ export component LauncherWindow inherits Window {
                     }
                 }
 
+                Row {
+
+                    Text {
+                        text: @tr("Dead zone");
+                        vertical-alignment: center;
+                        min-width: 105px;
+                        color: Palette.foreground;
+                    }
+
+                    HorizontalLayout {
+                        spacing: 8px;
+                        height: 34px;
+
+                        Slider {
+                            horizontal-stretch: 1;
+                            minimum: 0;
+                            maximum: 33;
+                            value <=> root.joystick-dead-zone;
+                            changed(value) => {
+                                self.value = Math.round(value);
+                            }
+                        }
+
+                        Text {
+                            min-width: 110px;
+                            text: DeadZoneText.describe(Math.round(root.joystick-dead-zone));
+                            vertical-alignment: center;
+                            color: Palette.foreground;
+                        }
+                    }
+                }
+
                 HorizontalLayout {
-                    row: 2;
+                    row: 3;
                     col: 1;
                     spacing: 8px;
 
@@ -338,6 +385,14 @@ export component LauncherWindow inherits Window {
                     }
 
                     Rectangle { horizontal-stretch: 1; }
+
+                    Button {
+                        text: @tr("Calibrate…");
+                        enabled: root.calibration-available;
+                        clicked => {
+                            root.calibration-requested();
+                        }
+                    }
 
                     Button {
                         text: @tr("Show controls…");

@@ -274,6 +274,17 @@ BOOL SdlReadJoystickAxisRange(unsigned int device,
 int SdlSetJoystickMode(const char *name);
 int SdlSetJoystickAxesMode(const char *name);
 struct InputDeviceSample;
+/* The joystick dead zone, a percentage of travel (src/sdl/joystick_calibration.h). */
+int SdlSetJoystickDeadZone(int percent);
+short SdlGetJoystickDeadZoneSteps(void);
+int SdlAcceptJoystickCalibration(short device,
+                                 unsigned short minimumX, unsigned short minimumY,
+                                 unsigned short maximumX, unsigned short maximumY,
+                                 unsigned short centreX, unsigned short centreY);
+void SdlRestoreJoystickCalibration(unsigned short minimumX, unsigned short minimumY,
+                                   unsigned short maximumX, unsigned short maximumY,
+                                   short horizontalRange, short verticalRange);
+void SdlShapeJoystickDeadZone(struct InputDeviceSample *sample);
 int SdlJoystickHasEnhancedControls(void);
 void SdlSetJoystickRetryMode(int enabled);
 int SdlReadSwcJoystickFlightSample(struct InputDeviceSample *sample);

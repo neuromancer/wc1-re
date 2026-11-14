@@ -84,6 +84,7 @@ int main(int argc, char **argv)
     set_language(*window, installations, 2);
     require(window->get_language_index() == 0, "saved Japanese selection falls back outside Towns");
     window->show();
+    auto *const launcherView = platform->view;
     window->window().dispatch_resize_event(slint::LogicalSize {{760, 660}});
     std::vector<slint::Rgb8Pixel> english(760 * 660), spanish(760 * 660), restored(760 * 660);
     set_language(*window, installations, 0);
@@ -768,11 +769,143 @@ int main(int argc, char **argv)
     click(1024 - 40, 620, left);
     require(swc_current(1) == "up/i" && changed_key_bindings(*controlsWindow).empty(),
             "Restore defaults resets SWC, with the shared full screen");
+
+    // The dead zone is a percentage saved with the other settings.
+    {
+        SdlLauncherOptions zone = {};
+        zone.joystickDeadZone = 5;
+        require(save_launcher_config(fixture / "launcher.ini", zone), "save a dead zone");
+        SdlLauncherOptions restored = {};
+        restored.joystickDeadZone = SDL_JOYSTICK_DEAD_ZONE_ORIGINAL;
+        load_launcher_config(fixture / "launcher.ini", restored);
+        require(restored.joystickDeadZone == 5, "the dead zone survives a restart");
+        std::ofstream(fixture / "launcher.ini", std::ios::app) << "joystick_dead_zone=34\n";
+        load_launcher_config(fixture / "launcher.ini", restored);
+        require(restored.joystickDeadZone == 5, "a dead zone past 33% is ignored");
+        require(window->get_joystick_dead_zone() == SDL_JOYSTICK_DEAD_ZONE_ORIGINAL &&
+                !window->get_calibration_available(), "the original dead zone; SWC has no j.cal to calibrate");
+        window->set_game_directory(slint::SharedString(path_to_utf8(saga)));
+        refresh_window(*window, installations);
+        require(window->get_calibration_available(), "WC1 data can be calibrated");
+        if (argc > 1) {
+            std::vector<slint::Rgb8Pixel> pixels(760 * launcherHeight);
+            launcherView->pixels.render(pixels, 760);
+            SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormatFrom(pixels.data(), 760, launcherHeight, 24, 760 * 3, SDL_PIXELFORMAT_RGB24);
+            const std::string preview = std::string(argv[1]) + ".joystick.bmp";
+            require(surface && SDL_SaveBMP(surface, preview.c_str()) == 0, "save the launcher's joystick settings preview");
+            SDL_FreeSurface(surface);
+        }
+        const auto describe = [&window](int percent) {
+            return std::string(window->global<DeadZoneText>().invoke_describe(percent));
+        };
+        require(describe(22) == "22% (original)" && describe(5) == "5%", "the launcher names the original dead zone");
+        require(slint::select_bundled_translation("fr") && describe(22) == "22 % (d’origine)" &&
+                slint::select_bundled_translation("es") && describe(5) == "5%" &&
+                slint::select_bundled_translation("en"), "and translates it");
+    }
+
+    // The calibration window takes CalibrateJoystickInteractive's three
+    // positions from an SDL virtual flight stick and writes j.cal for the game.
+    {
+        auto *const controlsView = platform->view;
+        CalibrationSession session;
+        session.show(saga);
+        const int index = SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_FLIGHT_STICK, 2, 2, 0);
+        SDL_Joystick *stick = index >= 0 ? SDL_JoystickOpen(index) : nullptr;
+        require(stick != nullptr, "attach a virtual flight stick");
+        const auto move = [&session, stick](Sint16 x, Sint16 y, bool button) {
+            SDL_JoystickSetVirtualAxis(stick, 0, x);
+            SDL_JoystickSetVirtualAxis(stick, 1, y);
+            SDL_JoystickSetVirtualButton(stick, 0, button);
+            session.tick();
+            return session.window->get_view();
+        };
+        const auto choice = [&session](size_t row) {
+            return std::string(session.window->get_device_choices()->row_data(row).value_or(slint::SharedString()));
+        };
+        move(0, 0, false);
+        require(session.window->get_connected() && !session.window->get_calibrated() &&
+                choice(1) == "Joystick 2: not connected" && choice(0).starts_with("Joystick 1: "),
+                "the window finds joystick 1 and uses its full range without j.cal");
+        require(move(7277, -7279, false).step_x == 2 && session.window->get_view().step_y == -2 &&
+                move(7276, 0, false).step_x == 0 && session.window->get_view().zone_right == 32767 + 7278,
+                "it reads the stick as the game does, through the original dead zone");
+        session.calibrate();
+        require(session.window->get_step() == CalibrationStep::UpperLeft, "calibration starts at the upper left");
+        move(-30000, -29000, false);
+        move(-28000, -31000, false);
+        move(-28000, -31000, true);
+        require(session.window->get_step() == CalibrationStep::LowerRight &&
+                session.window->get_view().left == 2768 && session.window->get_view().top == 1768,
+                "a button press takes the furthest upper-left position reached");
+        move(30000, 29000, true);
+        require(session.window->get_step() == CalibrationStep::LowerRight, "a held button records nothing more");
+        move(29500, 30500, false);
+        session.record();
+        require(session.window->get_step() == CalibrationStep::Centre, "Record position takes the lower right");
+        move(100, -200, false);
+        move(100, -200, true);
+        const auto path = joystick_calibration_path(saga);
+        const auto saved = read_joystick_calibration(path);
+        require(session.window->get_step() == CalibrationStep::Idle &&
+                session.window->get_message() == CalibrationMessage::Saved && session.window->get_calibrated() &&
+                path == saga / "GAMEDAT" / "j.cal" && saved &&
+                *saved == JoystickCalibration {0, 2768, 1768, 62768, 63268, 32868, 32568},
+                "j.cal holds the joystick, both corners' extremes and the centre");
+        // Each side now has its own steps: 30100 / 9 below the centre.
+        require(move(100, 0, false).step_x == 0 && move(-29996, 0, false).step_x == -9 &&
+                move(-6588, 0, false).step_x == -2 && move(-6587, 0, false).step_x == 0,
+                "the saved calibration sets each side");
+        session.window->set_dead_zone(5);
+        require(move(1594, 0, false).step_x == 0 && move(1595, 0, false).step_x == 1 &&
+                session.window->get_view().zone_right == 32868 + 1494,
+                "a 5% dead zone starts step one just past its edge");
+        session.window->set_dead_zone(22);
+        if (argc > 1) {
+            for (const std::string language : {"en", "es", "fr"}) {
+                require(slint::select_bundled_translation(language), "translated calibration window");
+                move(12000, -5000, false);
+                platform->view->dimensions = slint::PhysicalSize {{560, 440}};
+                session.window->window().dispatch_resize_event(slint::LogicalSize {{560, 440}});
+                const auto height = std::max(440u, static_cast<unsigned>(std::ceil(platform->view->minimum.height)));
+                platform->view->dimensions.height = height;
+                session.window->window().dispatch_resize_event(slint::LogicalSize {{560, static_cast<float>(height)}});
+                std::vector<slint::Rgb8Pixel> pixels(560 * height);
+                platform->view->pixels.render(pixels, 560);
+                SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormatFrom(pixels.data(), 560, height, 24, 560 * 3, SDL_PIXELFORMAT_RGB24);
+                const std::string preview = std::string(argv[1]) + ".calibration-" + language + ".bmp";
+                require(surface && SDL_SaveBMP(surface, preview.c_str()) == 0, "save calibration window preview");
+                SDL_FreeSurface(surface);
+            }
+            require(slint::select_bundled_translation("en"), "calibration window returns to English");
+        }
+        // As in the original, a calibration whose corners do not straddle the
+        // centre fails and keeps the previous one.
+        move(0, 0, false);
+        session.calibrate();
+        for (int press = 0; press < 3; ++press) {
+            move(0, 0, true);
+            move(0, 0, false);
+        }
+        require(session.window->get_message() == CalibrationMessage::Failed &&
+                read_joystick_calibration(path) == saved, "a stick that never moved fails to calibrate");
+        session.window->invoke_reset();
+        require(session.window->get_message() == CalibrationMessage::Removed && !session.window->get_calibrated() &&
+                !fs::exists(path), "Reset removes j.cal");
+        SDL_JoystickClose(stick);
+        SDL_JoystickDetachVirtual(index);
+        session.tick();
+        require(!session.window->get_connected() && choice(0) == "Joystick 1: not connected",
+                "an unplugged stick leaves the window waiting");
+        session.hide();
+        platform->view = controlsView;
+    }
     controlsWindow->set_game(0);
     controlsWindow->hide();
     window->hide();
     fs::remove_all(fixture);
     std::puts("PASS: controls window: WC1 and SWC bindings, joystick selectors, rebindable keys and mouse for both.");
+    std::puts("PASS: joystick dead zone setting and calibration window: original reading, j.cal steps, failure, reset, unplugging.");
     std::puts("PASS: WC1/SM1/SM2 and SWC credits buttons, independent detection, missing data, edition switching and click routing.");
     std::puts("PASS: live English/Spanish/French switching, redraw, errors, installation labels and language settings.");
 }

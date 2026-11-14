@@ -139,7 +139,12 @@ unsigned int LoadOriginFxDrivers(void)
     if (GetMusicDriverPresent(bSlowSceneAnimation) == 0)
         exit_squadron("Failed to load Origin-FX drivers");
     RewriteDiskFileGraphicsExtensions(bSlowSceneAnimation);
+#ifdef SDL_PORT
+    LoadJoystickCalibrationFile(9, 9, SdlGetJoystickDeadZoneSteps(),
+                                SdlGetJoystickDeadZoneSteps());
+#else
     LoadJoystickCalibrationFile(9, 9, 1, 1);
+#endif
     nInputDoubleClickInterval = 2;
     EMStartUp();
     GetFxDriverInitResult();

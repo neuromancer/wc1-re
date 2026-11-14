@@ -137,7 +137,12 @@ void CalibrateJoystickInteractive()
             DIBslamReal();
             WaitForJoystickButtonPress();
             WaitForJoystickButtonRelease();
+#ifdef SDL_PORT
+            LoadJoystickCalibrationFile(8, 8, SdlGetJoystickDeadZoneSteps(),
+                                        SdlGetJoystickDeadZoneSteps());
+#else
             LoadJoystickCalibrationFile(8, 8, 1, 1);
+#endif
             ReleaseModalTextPanel();
         }
         _unlink("j.cal");

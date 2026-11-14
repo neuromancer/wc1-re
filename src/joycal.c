@@ -93,6 +93,17 @@ void LoadJoystickCalibrationFile(short horizontalRange,
             if (failed != 0)
                 _unlink("j.cal");
         }
+#ifdef SDL_PORT
+        /* Ignore a j.cal for a missing joystick or from another device, such
+         * as the DOS game's gameport counts, and take SDL's full range. */
+        if (failed == 0 &&
+            !SdlAcceptJoystickCalibration(activeDevice,
+                minimumX, minimumY, maximumX, maximumY,
+                storedCentreX, storedCentreY)) {
+            failed = 1;
+            activeDevice = samples[0].x != -1 && samples[0].y != -1 ? 0 : 1;
+        }
+#endif
 
         if (failed != 0) {
             GetJoystickDevCaps(activeDevice,
@@ -151,6 +162,15 @@ void LoadJoystickCalibrationFile(short horizontalRange,
         nStickMaxY = rangeY + centreY;
         nJoystickHorizontalDeadZone = horizontalDeadZone;
         nJoystickVertDeadZoneValue = verticalDeadZone;
+#ifdef SDL_PORT
+        /* The original keeps only j.cal's centre and makes both sides as
+         * long as the centre is high. Restore the recorded extremes as
+         * CalibrateJoystickInteractive set them. */
+        if (failed == 0)
+            SdlRestoreJoystickCalibration(minimumX, minimumY,
+                                          maximumX, maximumY,
+                                          horizontalRange, verticalRange);
+#endif
     }
     nCurrentActiveInputDevice = activeDevice;
 }
@@ -180,6 +200,10 @@ short ReadCalibratedJoystick(void)
 
     nCurrentJoystickRawCoordX = aInputDevSamples[device].x;
     nCurrentJoystickRawCoordY = aInputDevSamples[device].y;
+#ifdef SDL_PORT
+    /* A dead zone between the original's whole steps. */
+    SdlShapeJoystickDeadZone(&aInputDevSamples[device]);
+#endif
     if (aInputDevSamples[device].x < nStickMinimumPositionX)
         aInputDevSamples[device].x = nStickMinimumPositionX;
     if (aInputDevSamples[device].x > nStickMaxX)
