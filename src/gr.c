@@ -614,6 +614,14 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                   characterData[0x104]);
         if (fontColour == colour && fontBackground == background) {
             for (; height-- != 0; row++) {
+#ifdef SDL_PORT
+                /* Translated text can wrap below its box: keep every glyph
+                 * row inside the viewport, as SPRITE_ROW_OFFSET does. */
+                if (row < viewport->top || row > viewport->bottom) {
+                    source += width;
+                    continue;
+                }
+#endif
                 if (viewport->top == row) {
                     if ((viewport->rowOffsets[row] & 0x8000) != 0)
                         destination = context->cursorX + viewport->pixels;
@@ -637,6 +645,13 @@ void DrawFontGlyph(char character, TextContext *context, int height,
 
             for (; height-- != 0; row++) {
                 int isTopRow = viewport->top == row;
+
+#ifdef SDL_PORT
+                if (row < viewport->top || row > viewport->bottom) {
+                    source += width;
+                    continue;
+                }
+#endif
 
                 if (isTopRow) {
                     if ((viewport->rowOffsets[row] & 0x8000) != 0)

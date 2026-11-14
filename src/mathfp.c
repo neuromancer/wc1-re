@@ -294,6 +294,7 @@ void __stdcall DrawTextString(const char *text)
 #endif
                         cursor--;
                     }
+#ifndef SDL_PORT
                     if (cursor <= text) {
                         SystemDebugPrintf(
                             "FATAL : INVALID STRING '%s'n", text);
@@ -301,11 +302,30 @@ void __stdcall DrawTextString(const char *text)
                         PumpMessagesDuringWait();
                         exit(0);
                     }
+#endif
                 }
                 break;
             }
         }
 
+#ifdef SDL_PORT
+        /* Translated text can start past the right edge or hold a word wider
+         * than its box, where the original loops forever or exits. Continue
+         * on a new line, and skip a word that cannot fit even there. */
+        if (finished == 0 && cursor <= lineStart) {
+            if (pCurTextContext->cursorX > pCurTextContext->viewport->left) {
+                cursor = lineStart;
+                wrapped = 1;
+            } else {
+                while (*lineStart != 0 && *lineStart != ' ' &&
+                       *lineStart != '\n' && *lineStart != '\r')
+                    lineStart++;
+                cursor = lineStart;
+                finished = *cursor == 0;
+                wrapped = 0;
+            }
+        }
+#endif
         if (pCurTextContext->alignment == 2) {
             savedX = pCurTextContext->cursorX;
             pCurTextContext->cursorX = (
