@@ -22,6 +22,7 @@ static uint64_t swcPcmPosition; /* 32.32 mono sample position. */
 static uint64_t swcPcmStep;
 static int swcPcmSampleBytes;
 static int swcPcmHeld;
+static float swcPcmGain = 1.0f;
 static float swcSoundGain = 1.0f;
 
 /* Sound Manager completion and sample scheduling are owned by SDL here.
@@ -67,10 +68,10 @@ static void SwcMixSound(void *context, Uint8 *stream, int bytes)
         position = (size_t)(swcPcmPosition >> 32) * swcPcmSampleBytes;
         if (!swcPcmHeld && position < swcPcm.size) {
             if (swcPcmSampleBytes == 1)
-                mixed += (swcPcm.data[position] - 128) / 128.0f;
+                mixed += (swcPcm.data[position] - 128) / 128.0f * swcPcmGain;
             else
                 mixed += (int16_t)((swcPcm.data[position] << 8) |
-                                    swcPcm.data[position + 1]) / 32768.0f;
+                                    swcPcm.data[position + 1]) / 32768.0f * swcPcmGain;
             swcPcmPosition += swcPcmStep;
         }
         mixed *= swcSoundGain;
@@ -216,7 +217,7 @@ void SdlStopSwcSounds(void)
 
 /* Shared replacement for LMovie's Sound Manager buffers and SpoolSoundFile.
  * Copy on the main thread; the callback only reads and advances the cursor. */
-int SdlQueueSwcPcm(const SwcBuffer *pcm, int rate, SDL_AudioFormat format)
+int SdlQueueSwcPcm(const SwcBuffer *pcm, int rate, SDL_AudioFormat format, float gain)
 {
     uint8_t *copy;
     uint8_t *previous;
@@ -241,6 +242,7 @@ int SdlQueueSwcPcm(const SwcBuffer *pcm, int rate, SDL_AudioFormat format)
     swcPcmPosition = 0;
     swcPcmStep = ((uint64_t)rate << 32) / 48000;
     swcPcmSampleBytes = sampleBytes;
+    swcPcmGain = gain;
     SDL_UnlockAudioDevice(swcAudioDevice);
     SDL_free(previous);
     return 0;

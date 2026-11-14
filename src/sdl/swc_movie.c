@@ -50,7 +50,7 @@ int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
     duration = (Uint64)movie.frameCount * frequency / movie.framesPerSecond;
     if (movie.audio.size != 0) {
         audioDuration = (Uint64)movie.audio.size * frequency / movie.sampleRate;
-        if (SdlQueueSwcPcm(&movie.audio, movie.sampleRate, AUDIO_U8) != 0)
+        if (SdlQueueSwcPcm(&movie.audio, movie.sampleRate, AUDIO_U8, 1.0f) != 0)
             goto done;
         /* The mixer cursor excludes its current hardware buffer. */
         if (swcAudioDevice != 0)
