@@ -25,6 +25,8 @@ set(WC1_GAME_OBJECTS "" CACHE STRING
     "Semicolon-separated game object files for the integrated launcher")
 option(WC1_GAME_SANITIZERS
     "Link the integrated executable with the development sanitizers" OFF)
+option(WC1_MT32
+    "Link the integrated executable with Munt's libmt32emu for MT-32 music" OFF)
 if(UNIX AND NOT APPLE)
     # The portal backend avoids pulling GTK into the optional launcher.
     set(NFD_PORTAL ON CACHE BOOL "" FORCE)
@@ -184,6 +186,10 @@ if(WC1_GAME_OBJECTS)
         PkgConfig::WC1_SDL2
         PkgConfig::WC1_LZO2
     )
+    if(WC1_MT32)
+        pkg_check_modules(WC1_MT32EMU REQUIRED IMPORTED_TARGET mt32emu)
+        target_link_libraries(wc1-modern-gui PRIVATE PkgConfig::WC1_MT32EMU)
+    endif()
     if(WC1_GAME_SANITIZERS AND NOT MSVC)
         target_link_options(wc1-modern-gui PRIVATE
             -fsanitize=address,undefined

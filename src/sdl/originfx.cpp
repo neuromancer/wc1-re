@@ -190,6 +190,8 @@ struct SdlOriginFxPlayer {
     unsigned char rhythmRegister;
     int stereoPanningEnabled;
     int finished;
+    /* Not owned: the MT-32 outlives the players that drive it. */
+    SdlMt32Synth *mt32;
     OriginFxChannel channels[ORIGINFX_CHANNEL_COUNT];
     OriginFxVoice voices[ORIGINFX_VOICE_STATE_COUNT];
     OriginFxSoundEffect soundEffects[ORIGINFX_SOUND_SLOT_COUNT];
@@ -216,7 +218,8 @@ struct SdlOriginFxPlayer {
         melodicVoiceCount(ORIGINFX_MELODIC_VOICE_COUNT),
         rhythmRegister(0),
         stereoPanningEnabled(0),
-        finished(0)
+        finished(0),
+        mt32(0)
     {
         memset(channels, 0, sizeof(channels));
         memset(voices, 0, sizeof(voices));
@@ -1018,6 +1021,11 @@ static void OriginFxNoteOn(SdlOriginFxPlayer *player,
 {
     const unsigned char *timbre;
 
+    /* STRAX.DRV section 0, 0000:038c. */
+    if (player->mt32 != 0) {
+        SdlMt32ShortMessage(player->mt32, 0x90 | channelIndex, note, velocity);
+        return;
+    }
     timbre = OriginFxFindTimbre(
         player, player->channels[channelIndex].program);
     while (timbre != 0) {
@@ -1069,6 +1077,11 @@ static void OriginFxNoteOff(SdlOriginFxPlayer *player,
 {
     const unsigned char *timbre;
 
+    /* The MT-32 driver has no note-off entry; velocity 0 releases. */
+    if (player->mt32 != 0) {
+        SdlMt32ShortMessage(player->mt32, 0x90 | channelIndex, note, 0);
+        return;
+    }
     timbre = OriginFxFindTimbre(
         player, player->channels[channelIndex].program);
     while (timbre != 0) {
@@ -1085,6 +1098,13 @@ static void OriginFxAllNotesOff(SdlOriginFxPlayer *player,
     unsigned int rhythmBit;
     unsigned int oplVoice;
 
+    if (player->mt32 != 0) {
+        if (channelIndex < 0)
+            SdlMt32AllNotesOff(player->mt32);
+        else
+            SdlMt32ShortMessage(player->mt32, 0xb0 | channelIndex, 0x7b, 0);
+        return;
+    }
     voiceIndex = 0;
     while (voiceIndex < ORIGINFX_VOICE_STATE_COUNT) {
         if (player->voices[voiceIndex].active != 0 &&
@@ -1163,6 +1183,12 @@ static void OriginFxSetProgram(SdlOriginFxPlayer *player,
     const unsigned char *timbre;
     unsigned int voiceIndex;
 
+    /* STRAX.DRV section 0, 0000:0471. */
+    if (player->mt32 != 0) {
+        player->channels[channelIndex].program = program;
+        SdlMt32ShortMessage(player->mt32, 0xc0 | channelIndex, program, 0);
+        return;
+    }
     OriginFxAllNotesOff(player, (int)channelIndex);
     voiceIndex = 0;
     while (voiceIndex < ORIGINFX_VOICE_STATE_COUNT) {
@@ -1324,6 +1350,11 @@ static void OriginFxControlChange(SdlOriginFxPlayer *player,
 {
     unsigned int percussionChannel;
 
+    /* STRAX.DRV section 0, 0000:03c6. */
+    if (player->mt32 != 0) {
+        SdlMt32ShortMessage(player->mt32, 0xb0 | channelIndex, controller, value);
+        return;
+    }
     if (channelIndex == 9) {
         percussionChannel = 10;
         while (percussionChannel < ORIGINFX_CHANNEL_COUNT) {
@@ -1516,14 +1547,15 @@ static void OriginFxDispatchEvent(SdlOriginFxPlayer *player,
     switch (command) {
     case 0x80:
         note = event->data1;
-        if (channelIndex != 9 || OriginFxMapPercussionNote(
-                note, &channelIndex, &note))
+        /* The MT-32 plays channel 10 with its own rhythm part. */
+        if (player->mt32 != 0 || channelIndex != 9 ||
+            OriginFxMapPercussionNote(note, &channelIndex, &note))
             OriginFxNoteOff(player, channelIndex, note);
         break;
     case 0x90:
         note = event->data1;
-        if (channelIndex != 9 || OriginFxMapPercussionNote(
-                note, &channelIndex, &note)) {
+        if (player->mt32 != 0 || channelIndex != 9 ||
+            OriginFxMapPercussionNote(note, &channelIndex, &note)) {
             if (event->data2 == 0)
                 OriginFxNoteOff(player, channelIndex, note);
             else
@@ -1539,6 +1571,11 @@ static void OriginFxDispatchEvent(SdlOriginFxPlayer *player,
         OriginFxSetProgram(player, channelIndex, event->data1);
         break;
     case 0xe0:
+        /* STRAX.DRV section 0, 0000:0437. */
+        if (player->mt32 != 0) {
+            SdlMt32ShortMessage(player->mt32, event->status, event->data1, event->data2);
+            break;
+        }
         channel->pitchBend = (
             event->data1 | ((unsigned int)event->data2 << 7));
         OriginFxUpdateChannelVoices(player, channelIndex, 1, 0);
@@ -1621,6 +1658,68 @@ static short OriginFxMixOutputSample(short destination, short source)
     return mixed;
 }
 
+/* Adds an MT-32 player's rendered frames into the output. */
+static void OriginFxMixMt32Frames(SdlOriginFxPlayer *player, short *samples,
+                                  unsigned int frameCount, unsigned int gain)
+{
+    short block[2 * 512];
+    unsigned int chunk;
+    unsigned int index;
+
+    while (frameCount != 0) {
+        chunk = frameCount > 512 ? 512 : frameCount;
+        SdlMt32Render(player->mt32, block, chunk);
+        for (index = 0; index < chunk * 2; index++)
+            samples[index] = OriginFxMixOutputSample(
+                samples[index], OriginFxScaleOutputSample(block[index], gain));
+        samples += chunk * 2;
+        frameCount -= chunk;
+    }
+}
+
+/* An MT-32 player keeps the AdLib player's per-frame timing, but renders
+ * whole runs of frames between the events and 60 Hz services that send
+ * the synth MIDI. */
+static void OriginFxMixMt32Player(SdlOriginFxPlayer *player, short *samples,
+                                  unsigned int frameCount, unsigned int gain,
+                                  int playsMusic)
+{
+    unsigned int pending;
+    unsigned int frame;
+
+    pending = 0;
+    frame = 0;
+    while (frame < frameCount) {
+        if (playsMusic != 0 && player->nextEvent < player->eventCount &&
+            player->events[player->nextEvent].frame <= player->currentFrame) {
+            OriginFxMixMt32Frames(player, samples + (frame - pending) * 2, pending, gain);
+            pending = 0;
+            OriginFxProcessDueEvents(player);
+        }
+        if (playsMusic != 0 && player->nextEvent == player->eventCount &&
+            player->currentFrame >= player->endFrame) {
+            OriginFxMixMt32Frames(player, samples + (frame - pending) * 2, pending, gain);
+            OriginFxAllNotesOff(player, -1);
+            player->finished = 1;
+            return;
+        }
+        if (player->serviceAccumulator + ORIGINFX_SERVICE_RATE >= ORIGINFX_OUTPUT_RATE) {
+            OriginFxMixMt32Frames(player, samples + (frame - pending) * 2, pending, gain);
+            pending = 0;
+        }
+        OriginFxAdvanceService(player);
+        player->currentFrame++;
+        pending++;
+        frame++;
+    }
+    OriginFxMixMt32Frames(player, samples + (frame - pending) * 2, pending, gain);
+    if (playsMusic != 0 && player->nextEvent == player->eventCount &&
+        player->currentFrame >= player->endFrame) {
+        OriginFxAllNotesOff(player, -1);
+        player->finished = 1;
+    }
+}
+
 static int OriginFxInitializePlayer(
     SdlOriginFxPlayer *player,
     const unsigned char *timbres, size_t timbreSize)
@@ -1685,6 +1784,39 @@ SdlOriginFxPlayer *SdlCreateOriginFxSoundPlayer(
     }
     player->stereoPanningEnabled = 1;
     return player;
+}
+
+/* An MT-32 player sends the game's MIDI to the synth; the MT-32 keeps its
+ * own instruments, uploaded once by SdlCreateMt32Synth. */
+static SdlOriginFxPlayer *OriginFxCreateMt32Player(SdlMt32Synth *synth)
+{
+    SdlOriginFxPlayer *player;
+
+    if (synth == 0)
+        return 0;
+    player = new (std::nothrow) SdlOriginFxPlayer;
+    if (player == 0)
+        return 0;
+    player->mt32 = synth;
+    return player;
+}
+
+SdlOriginFxPlayer *SdlCreateOriginFxMt32Player(
+    const unsigned char *midi, size_t midiSize, SdlMt32Synth *synth)
+{
+    SdlOriginFxPlayer *player;
+
+    player = OriginFxCreateMt32Player(synth);
+    if (player != 0 && !OriginFxLoadMidi(player, midi, midiSize)) {
+        delete player;
+        return 0;
+    }
+    return player;
+}
+
+SdlOriginFxPlayer *SdlCreateOriginFxMt32SoundPlayer(SdlMt32Synth *synth)
+{
+    return OriginFxCreateMt32Player(synth);
 }
 
 int SdlPlayOriginFxSoundEffect(
@@ -1780,6 +1912,10 @@ void SdlMixOriginFxSoundEffects(
 
     if (player == 0 || samples == 0)
         return;
+    if (player->mt32 != 0) {
+        OriginFxMixMt32Player(player, samples, frameCount, gain, 0);
+        return;
+    }
     frame = 0;
     while (frame < frameCount) {
         OriginFxAdvanceService(player);
@@ -1838,6 +1974,10 @@ void SdlMixOriginFxPlayer(SdlOriginFxPlayer *player,
 
     if (samples == 0 || player == 0 || player->finished != 0)
         return;
+    if (player->mt32 != 0) {
+        OriginFxMixMt32Player(player, samples, frameCount, gain, 1);
+        return;
+    }
 
     frame = 0;
     while (frame < frameCount) {

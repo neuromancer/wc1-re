@@ -441,6 +441,32 @@ SdlOriginFxPlayer *SdlCreateOriginFxPlayer(
     const unsigned char *timbres, size_t timbreSize);
 SdlOriginFxPlayer *SdlCreateOriginFxSoundPlayer(
     const unsigned char *timbres, size_t timbreSize);
+/* Roland MT-32 output through Munt's libmt32emu (src/sdl/mt32.c). */
+typedef struct SdlMt32Synth SdlMt32Synth;
+int SdlMt32Supported(void);
+/* The folder holding the player's ROMs and, optionally, a libmt32emu
+ * machine id such as "mt32_1_07"; an empty folder keeps AdLib music. */
+void SdlSetMt32Roms(const char *directory, const char *machine);
+int SdlUsingMt32(void);
+const char *SdlGetMt32RomDirectory(void);
+const char *SdlGetMt32Machine(void);
+/* 1 when the folder has a playable control and PCM ROM pair, describing
+ * it; otherwise 0 and the reason. */
+int SdlDescribeMt32Roms(const char *directory, const char *machine,
+                        char *text, size_t textSize);
+SdlMt32Synth *SdlCreateMt32Synth(unsigned int sampleRate,
+                                 const unsigned char *timbres,
+                                 size_t timbreSize);
+void SdlDestroyMt32Synth(SdlMt32Synth *synth);
+void SdlMt32ShortMessage(SdlMt32Synth *synth, unsigned int status,
+                         unsigned int data1, unsigned int data2);
+void SdlMt32AllNotesOff(SdlMt32Synth *synth);
+void SdlMt32Render(SdlMt32Synth *synth, short *samples,
+                   unsigned int frameCount);
+/* OriginFX players that drive an MT-32 instead of an AdLib. */
+SdlOriginFxPlayer *SdlCreateOriginFxMt32Player(
+    const unsigned char *midi, size_t midiSize, SdlMt32Synth *synth);
+SdlOriginFxPlayer *SdlCreateOriginFxMt32SoundPlayer(SdlMt32Synth *synth);
 void SdlDestroyOriginFxPlayer(SdlOriginFxPlayer *player);
 int SdlOriginFxPlayerFinished(const SdlOriginFxPlayer *player);
 unsigned int SdlOriginFxPlayerSequencePosition(

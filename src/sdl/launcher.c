@@ -27,6 +27,26 @@ static int SdlFindLauncherChoice(const char *name,
     return -1;
 }
 
+/* The game later changes into GAMEDAT, so keep the ROM folder absolute. */
+static int SdlSetMt32RomArgument(const char *directory)
+{
+    char current[PATH_MAX];
+    char absolute[PATH_MAX];
+
+    if (directory[0] == '\0')
+        return 0;
+    if (directory[0] == '/' || directory[0] == '\\' ||
+        (directory[0] != '\0' && directory[1] == ':')) {
+        SDL_strlcpy(absolute, directory, sizeof(absolute));
+    } else if (!GetCurrentDirectoryA(sizeof(current), current) ||
+               SDL_snprintf(absolute, sizeof(absolute), "%s/%s", current,
+                            directory) >= (int)sizeof(absolute)) {
+        return 0;
+    }
+    SdlSetMt32Roms(absolute, SdlGetMt32Machine());
+    return 1;
+}
+
 static int SdlParsePortArguments(int *argumentCount, char **arguments,
                                   int *useLauncherGui,
                                   SdlLauncherOptions *options)
@@ -138,6 +158,23 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             }
             options->joystickDeadZone = (int)percent;
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE;
+        } else if (strncmp(argument, "--mt32-roms=", 12) == 0) {
+            if (!SdlMt32Supported())
+                fprintf(stderr, "This build has no MT-32 support; build it with MODERN_MT32=1.\n");
+            if (!SdlSetMt32RomArgument(argument + 12)) {
+                fprintf(stderr, "Invalid MT-32 ROM folder: %s\n", argument + 12);
+                return 0;
+            }
+        } else if (strncmp(argument, "--mt32-model=", 13) == 0) {
+            SdlSetMt32Roms(SdlGetMt32RomDirectory(), argument + 13);
+        } else if (strcmp(argument, "--mt32-check") == 0) {
+            char description[PATH_MAX + 256];
+            int usable = SdlDescribeMt32Roms(SdlGetMt32RomDirectory(),
+                                             SdlGetMt32Machine(), description,
+                                             sizeof(description));
+
+            printf("%s\n", description);
+            exit(usable ? 0 : 1);
         } else if (strcmp(argument, "--ega") == 0) {
             options->egaDither = 1;
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_EGA;

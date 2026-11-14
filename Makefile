@@ -167,6 +167,15 @@ MODERN_SDL_CFLAGS = $(shell \
 MODERN_SDL_LIBS = $(shell \
 	$(MODERN_SDL2_CONFIG) --libs 2>/dev/null || \
 	pkg-config --libs sdl2 2>/dev/null)
+# Roland MT-32 music through Munt's libmt32emu (src/sdl/mt32.c), opt-in
+# while the library is not vendored. Players supply their own ROMs; none may
+# ever enter this repository.
+MODERN_MT32 ?= 0
+ifeq ($(MODERN_MT32),1)
+MODERN_MT32_CFLAGS = -DSDL_PORT_MT32=1 $(shell pkg-config --cflags mt32emu 2>/dev/null)
+MODERN_MT32_LIBS = $(shell pkg-config --libs mt32emu 2>/dev/null)
+MODERN_SDL_LIBS += $(MODERN_MT32_LIBS)
+endif
 MODERN_LZO_CFLAGS = $(shell pkg-config --cflags lzo2 2>/dev/null)
 MODERN_LZO_INCLUDEDIR = $(shell pkg-config --variable=includedir lzo2 2>/dev/null)
 MODERN_LZO_LIBS = $(shell pkg-config --libs lzo2 2>/dev/null)
@@ -569,6 +578,7 @@ MODERN_GAME_HOST_SRCS = \
 	src/sdl/gl_renderer.c \
 	src/sdl/joystick.c \
 	src/sdl/keymap.c \
+	src/sdl/mt32.c \
 	src/sdl/music.c \
 	src/sdl/video.c
 MODERN_GAME_HOST_CXX_SRCS = \
@@ -707,6 +717,7 @@ $(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile | $(SW
 		-DCMAKE_BUILD_TYPE=$(MODERN_GUI_BUILD_TYPE) \
 		-DWC1_GAME_OBJECTS="$(subst $(MODERN_SPACE),;,$(MODERN_GUI_CMAKE_OBJECTS))" \
 		-DWC1_GAME_SANITIZERS=$(if $(MODERN_SANITIZER_FLAGS),ON,OFF) \
+		-DWC1_MT32=$(if $(filter 1,$(MODERN_MT32)),ON,OFF) \
 		-DWC1_GUI_OUTPUT_DIRECTORY="$(abspath $(MODERN_OUT_DIR))" \
 		$(MODERN_GUI_CMAKE_ARGS)
 	CARGO_PROFILE_RELEASE_LTO=false \
@@ -761,6 +772,18 @@ $(MODERN_OUT_DIR)/obj/sdl/originfx.o: src/sdl/originfx.cpp | modern-check-deps
 		$(MODERN_CXXFLAGS) -std=c++14 \
 		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
+
+# A changed MODERN_MT32 rebuilds the wrapper, a stub without it, and relinks
+# the game. Make's one-second timestamps cannot tell two builds in the same
+# second apart, so the switch removes what it invalidates.
+MODERN_MT32_STAMP = $(MODERN_OUT_DIR)/mt32-$(MODERN_MT32).stamp
+$(MODERN_MT32_STAMP):
+	@mkdir -p $(dir $@)
+	@rm -f $(MODERN_OUT_DIR)/mt32-*.stamp $(MODERN_OUT_DIR)/obj/sdl/mt32.o \
+		$(MODERN_TARGET) $(MODERN_GUI_TARGET)
+	@touch $@
+$(MODERN_OUT_DIR)/obj/sdl/mt32.o: MODERN_CPPFLAGS += $(MODERN_MT32_CFLAGS)
+$(MODERN_OUT_DIR)/obj/sdl/mt32.o: $(MODERN_MT32_STAMP)
 
 $(MODERN_OUT_DIR)/obj/third_party/ymfm/%.o: third_party/ymfm/%.cpp | modern-check-deps
 	@mkdir -p $(dir $@)
@@ -1410,6 +1433,38 @@ $(MODERN_OUT_DIR)/joystick-calibration-probe: $(MODERN_OUT_DIR)/obj/joystick_cal
 .PHONY: check-joystick-calibration
 check-joystick-calibration: $(MODERN_OUT_DIR)/joystick-calibration-probe
 	$(MODERN_OUT_DIR)/joystick-calibration-probe
+
+# Renders a DOS song or sound effect through the MT-32 path to a WAV file:
+# make mt32-render MODERN_MT32=1, then see bin/renderMt32.c for its usage.
+$(MODERN_OUT_DIR)/obj/mt32_render.o: bin/renderMt32.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/mt32-render: $(MODERN_OUT_DIR)/obj/mt32_render.o \
+		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: mt32-render
+mt32-render: $(MODERN_OUT_DIR)/mt32-render
+
+# The game's DOS audio start-up with MT-32 ROMs through SDL's disk driver:
+# make mt32-probe MODERN_MT32=1, then see bin/checkMt32.c for its usage.
+$(MODERN_OUT_DIR)/obj/mt32_probe.o: bin/checkMt32.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/mt32-probe: $(MODERN_OUT_DIR)/obj/mt32_probe.o \
+		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: mt32-probe
+mt32-probe: $(MODERN_OUT_DIR)/mt32-probe
 
 $(MODERN_OUT_DIR)/obj/sm1_probe.o: bin/checkSm1.c src/gameflow.c src/title.c src/barracks.c src/killbrd.c src/timer.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
