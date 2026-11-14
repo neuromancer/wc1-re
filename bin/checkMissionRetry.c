@@ -186,7 +186,16 @@ int main(void)
         keys[0] = SDL_SCANCODE_SPACE;
         keys[1] = SDL_SCANCODE_RETURN;
         keyIndex = 0;
+        /* The death music plays from the flight stream, with a trigger
+           possibly still queued; retrying must stop and clear both. */
+        nMusicPlaybackMode = 1;
+        nCurrentMusicTrack = 32;
+        bIxAudioEnabled = 1;
+        ix_streamer_set_trigger(32);
         Require(SdlRetryMission(), "accept retry repeatedly with autosave disabled");
+        Require(nCurrentMusicTrack == -1 && ix_streamer_get_trigger() == -1,
+                "retry stops the death music and drops its pending stream trigger");
+        bIxAudioEnabled = 0;
         Require(keyIndex == 2, "ignore unrelated keys");
         Require(!memcmp(&stCampaignState, &before, sizeof(before)) &&
                 !memcmp(aPilotEntriesList, pilots, sizeof(pilots)),
@@ -206,7 +215,9 @@ int main(void)
     failed = stCampaignState;
     keys[0] = SDL_SCANCODE_ESCAPE;
     keyIndex = 0;
+    nCurrentMusicTrack = 32;
     Require(!SdlRetryMission(), "Escape declines retry");
+    Require(nCurrentMusicTrack == 32, "declining keeps the death music for the funeral");
     panelAvailable = 0;
     Require(!SdlRetryMission(), "panel allocation failure declines retry");
     Require(!memcmp(&stCampaignState, &failed, sizeof(failed)) &&

@@ -69,6 +69,14 @@ int SdlRetryMission(void)
     if (key != VK_RETURN)
         return 0;
     SdlRestoreMissionCheckpoint();
+    /* Death (track 32) and ejection (31) play from mission.str, the flight
+     * music's own stream, so the relaunch's intensity changes cannot leave
+     * them: the game-over music ran on into the retried mission until its
+     * end marker stopped the stream for good. Rewind it as LaunchPlayerShip
+     * does when Escape skips the launch, and drop a trigger still pending,
+     * so the relaunch starts the flight music afresh. */
+    StopMusicUnlessSuppressed();
+    ClearStreamerTrigger();
     return 1;
 }
 
