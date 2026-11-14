@@ -1539,6 +1539,9 @@ int HandleSpaceFlightControls(void)
 #ifdef SDL_PORT
                 (control != 0 ||
                  (wCurrentInputModifiers & INPUT_MOD_CONTROL) != 0) &&
+                /* SM2.EXE 0x445e58: the captured Dralthi cannot eject. */
+                !(SdlPlayingSm2() &&
+                  cCurrentCockpitView == OBJECT_TYPE_DRALTHI) &&
 #else
                 control != 0 &&
 #endif

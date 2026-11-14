@@ -450,7 +450,7 @@ short RecRoom(void)
             callsign = apWingmanPilotsList[animationIds[index]]->callsign;
         } else {
             /* Paladin/Bossman still appear in SM2's early conversations. */
-            callsign = SdlUsingSm2Data() ? aInitialPilotRecords[personality].callsign :
+            callsign = SdlPlayingSm2() ? aInitialPilotRecords[personality].callsign :
                 apWingmanPilotsList[personality]->callsign;
         }
         if (stCampaignState.personalityDeathMission[personality] != 0) {

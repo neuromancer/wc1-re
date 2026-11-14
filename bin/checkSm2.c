@@ -21,13 +21,51 @@ static Uint32 SkipScene(Uint32 interval, void *unused)
     return interval;
 }
 
+static void PushFlightKey(SDL_Scancode code, int pressed, Uint16 modifiers)
+{
+    SDL_Event event = {0};
+
+    event.type = pressed ? SDL_KEYDOWN : SDL_KEYUP;
+    event.key.state = pressed ? SDL_PRESSED : SDL_RELEASED;
+    event.key.keysym.scancode = code;
+    event.key.keysym.sym = SDL_GetKeyFromScancode(code);
+    event.key.keysym.mod = modifiers;
+    Require(SDL_PushEvent(&event) == 1, "queue flight key");
+}
+
+/* Ctrl-E through the port's key translation; an intact ejector always fires.
+ * player_input takes one queued event per frame, and Ctrl is read from the
+ * keyboard snapshot. */
+static int PressEject(void)
+{
+    static Uint8 keys[SDL_NUM_SCANCODES];
+    int frame;
+
+    nArcadeState = 0;
+    acPlayerComponentDamageList[7] = 0;
+    keys[SDL_SCANCODE_LCTRL] = keys[SDL_SCANCODE_E] = 1;
+    SdlSetKeyboardSnapshot(keys);
+    PushFlightKey(SDL_SCANCODE_LCTRL, 1, KMOD_LCTRL);
+    PushFlightKey(SDL_SCANCODE_E, 1, KMOD_LCTRL);
+    for (frame = 0; frame < 4 && nArcadeState != 2; frame++)
+        HandleSpaceFlightControls();
+    keys[SDL_SCANCODE_LCTRL] = keys[SDL_SCANCODE_E] = 0;
+    PushFlightKey(SDL_SCANCODE_E, 0, KMOD_LCTRL);
+    PushFlightKey(SDL_SCANCODE_LCTRL, 0, KMOD_NONE);
+    SdlPumpEvents();
+    FlushInputEvents();
+    SdlSetKeyboardSnapshot(NULL);
+    return nArcadeState == 2;
+}
+
 int main(int argc, char **argv)
 {
     SDL_Window *window;
     ObjectTypeData originalDralthi = aObjectTypeData[OBJECT_TYPE_DRALTHI];
     ObjectTypeData originalSpikeri = aObjectTypeData[OBJECT_TYPE_SPIKERI];
     int series, mission, nav, tick, view, mode, damage, count = 0, dralthi = 0;
-    int hriss = 0, ship, personality, line;
+    int hriss = 0, ship, personality, line, confedEject = 0;
+    unsigned char aceFlags;
     short file;
     char speech[80];
     SDL_TimerID skip;
@@ -67,6 +105,10 @@ int main(int argc, char **argv)
                     sizeof(aShipWeaponsTable[9])),
             "firing from a full Raptor loadout preserves the neighboring ship's weapons");
     stCampaignState.campaignIndex = nCampaignDataSet = 2;
+    aceFlags = stCampaignState.aceFlags[0];
+    unflag_ace(0, 1);
+    Require(is_alive(14), "SM2 Kilrathi aces return after being shot down");
+    stCampaignState.aceFlags[0] = aceFlags;
     SdlSetSm2Pilots(aPilotEntriesList, 1);
     LoadPacketIntoBuffer(asCampaignPilotFiles[2], 0, pConstellationDefinitionsPtr);
     LoadPacketIntoBuffer(asCampaignPilotFiles[2], 1, pMissionCampaignInfo);
@@ -84,6 +126,8 @@ int main(int argc, char **argv)
                     aObjectTypeData[OBJECT_TYPE_SPIKERI].shieldFore == 150 &&
                     aObjectTypeData[OBJECT_TYPE_SPIKERI].maximumVelocity == 33,
                     "Hriss fighter definition");
+            Require(!strcmp(apszKilrathiAceNames[0], "Drakhai") &&
+                    !strcmp(apszKilrathiAceNames[3], "Drakhai"), "SM2 Kilrathi ace names");
             for (ship = 0; ship < ACTIVE_MISSION_SHIP_COUNT; ship++)
                 hriss += aMissionShips[ship].type == OBJECT_TYPE_SPIKERI;
             nFrameSkipCounter = 1;
@@ -141,7 +185,11 @@ int main(int argc, char **argv)
                 bCockpitlessView = 0;
                 cScreenViewMode = -1;
                 initialize_cockpit(0);
+                Require(!PressEject(), "the captured Dralthi cannot eject");
                 dralthi++;
+            } else if (!confedEject) {
+                Require(PressEject(), "Confed fighters still eject in SM2");
+                confedEject = 1;
             }
             for (nav = 0; nav < ACTIVE_MISSION_NAV_POINT_COUNT; nav++) {
                 if (nArcadeState) {
@@ -211,6 +259,12 @@ int main(int argc, char **argv)
                 aObjectTypeData[OBJECT_TYPE_SPIKERI].objectClass == originalSpikeri.objectClass &&
                 aObjectTypeData[OBJECT_TYPE_SPIKERI].shieldFore == originalSpikeri.shieldFore,
                 "WC1/SM1 definitions restored");
+        Require(!strcmp(apszKilrathiAceNames[0], "Bhurak") &&
+                !strcmp(apszKilrathiAceNames[3], "Bakhtosh"), "WC1/SM1 ace names restored");
+        aceFlags = stCampaignState.aceFlags[0];
+        unflag_ace(0, 1);
+        Require(!is_alive(14), "WC1/SM1 aces stay shot down");
+        stCampaignState.aceFlags[0] = aceFlags;
         Require(RenderSpaceViewFrame() != 0, "render WC1/SM1 after SM2");
         free_cockpit();
         free_all_slots();

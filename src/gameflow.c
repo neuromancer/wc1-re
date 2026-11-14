@@ -268,7 +268,7 @@ unsigned int StartNewCampaign(short campaign)
     nCampaignDataSet = campaign;
     bCampaignStartupMode = 0;
 #ifdef SDL_PORT
-    if (SdlUsingSm2Data())
+    if (SdlPlayingSm2())
         SdlSetSm2Pilots(aPilotEntriesList, 1);
     LoadPacketIntoBuffer(asCampaignPilotFiles[campaign], 0,
                          pConstellationDefinitionsPtr);

@@ -88,6 +88,12 @@ unsigned int is_alive(int pilot)
     if (pilot >= 5 && pilot <= 12)
         return stCampaignState.personalityDeathMission[
             pilot - 5] == 0;
+#ifdef SDL_PORT
+    /* SM2.EXE is_alive 0x4569e4 counts every pilot above 12 as alive:
+     * the Kilrathi aces return in later missions after being shot down. */
+    if (SdlPlayingSm2())
+        return 1;
+#endif
     if (pilot >= 14 && pilot <= 17)
         return ace_status((pilot - 14), 1);
     return 0;

@@ -5,10 +5,16 @@ int nPilotTransferState;
 int nPilotTransferCampaign = 1;
 int nLaunchCampaign;
 
+/* SM2's rules are the same game whichever release supplied its files. */
+int SdlPlayingSm2(void)
+{
+    return nCampaignDataSet == 2 && !SdlSwcFlightActive();
+}
+
+/* Kilrathi Saga logical files 80-84 exist only in its install table. */
 int SdlUsingSm2Data(void)
 {
-    return nCampaignDataSet == 2 && !SdlSwcFlightActive() &&
-        !SdlUsingDosData() && !SdlUsingTownsData();
+    return SdlPlayingSm2() && !SdlUsingDosData() && !SdlUsingTownsData();
 }
 
 void SdlSetSm2Pilots(PilotRecord *pilots, int fresh)
@@ -25,8 +31,9 @@ void SdlSetSm2Pilots(PilotRecord *pilots, int fresh)
 
 void SdlSetCampaignShips(void)
 {
-    /* SM2.EXE object records 10 and 14: the only changed flight definitions.
-     * Preserve loaded resources and restore WC1's definitions on exit. */
+    /* SM2.EXE object records 10 and 14 and its ace names (0x4a63c4, all
+     * "Drakhai"): the only changed flight definitions. Preserve loaded
+     * resources and restore WC1's definitions on exit. */
     static const unsigned char dralthiWeapons[0x47] = {
         6, 26, 0, 0, 0, 61, 0, 0, 26, 0, 0, 0, 62, 0, 0,
         28, 0, 0, 0, 59, 0, 0, 28, 0, 0, 0, 60, 0, 1,
@@ -42,10 +49,12 @@ void SdlSetCampaignShips(void)
     };
     static unsigned char originalWeapons[0x47];
     static ObjectTypeData originalSpikeri;
+    static const char *originalAces[4];
     static int active;
     ObjectTypeData *ship = &aObjectTypeData[OBJECT_TYPE_SPIKERI];
     unsigned char *animation = ship->animation;
-    int sm2 = SdlUsingSm2Data();
+    int sm2 = SdlPlayingSm2();
+    int ace;
 
     if (SdlSwcFlightActive() || sm2 == active)
         return;
@@ -53,11 +62,14 @@ void SdlSetCampaignShips(void)
         originalSpikeri = *ship;
         memcpy(originalWeapons, aObjectTypeData[OBJECT_TYPE_DRALTHI].weaponLoadout,
                sizeof(originalWeapons));
+        memcpy(originalAces, apszKilrathiAceNames, sizeof(originalAces));
     }
     memcpy(ship, sm2 ? &hriss : &originalSpikeri, offsetof(ObjectTypeData, shapeSet));
     ship->animation = animation;
     memcpy(aObjectTypeData[OBJECT_TYPE_DRALTHI].weaponLoadout,
            sm2 ? dralthiWeapons : originalWeapons, sizeof(originalWeapons));
+    for (ace = 0; ace < 4; ace++)
+        apszKilrathiAceNames[ace] = sm2 ? "Drakhai" : originalAces[ace];
     active = sm2;
 }
 
