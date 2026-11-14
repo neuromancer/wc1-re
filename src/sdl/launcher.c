@@ -258,6 +258,23 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     return 1;
 }
 
+/* SdlCalculateOutputViewport presents a 4:3 picture, so the window opens at
+ * that shape: three times the 320x240 frame, or twice where the desktop is
+ * too short for that and a title bar. */
+static void SdlGetInitialWindowSize(int *width, int *height)
+{
+    SDL_Rect usable;
+    int scale;
+
+    scale = 3;
+    if (SDL_GetDisplayUsableBounds(0, &usable) == 0 &&
+        usable.h < 240 * scale + 64)
+        scale = 2;
+    *width = 320 * scale;
+    *height = *width * SDL_PORT_DISPLAY_ASPECT_HEIGHT /
+        SDL_PORT_DISPLAY_ASPECT_WIDTH;
+}
+
 static void SdlApplyLegacyArguments(int argumentCount, char **arguments)
 {
     const char *argument;
@@ -297,6 +314,8 @@ int main(int argumentCount, char **arguments)
 {
     SDL_Window *window;
     Uint32 windowFlags;
+    int windowWidth;
+    int windowHeight;
     int gameResult;
     int launcherResult;
     int useLauncherGui;
@@ -358,9 +377,11 @@ int main(int argumentCount, char **arguments)
         SDL_Quit();
         return 1;
     }
+    SdlGetInitialWindowSize(&windowWidth, &windowHeight);
     window =
         SDL_CreateWindow("Wing Commander SDL2 port", SDL_WINDOWPOS_CENTERED,
-                         SDL_WINDOWPOS_CENTERED, 960, 600, windowFlags);
+                         SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight,
+                         windowFlags);
     if (window == 0) {
         fprintf(stderr, "SDL window creation failed: %s\n", SDL_GetError());
         SDL_Quit();
