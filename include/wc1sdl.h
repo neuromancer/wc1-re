@@ -466,6 +466,8 @@ void SdlMixOriginFxMusic(short *samples, unsigned int frameCount);
 int SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
                              int tag, int priority);
 int SdlHandlesGameSoundEffects(void);
+struct FixedVector;
+int SdlSoundEffectPan(const struct FixedVector *direction);
 int SdlPlayGameSoundEffect(int soundNumber, int sourceObject,
                            int looping);
 void SdlPlayWaveWithPan(const char *filename, int looping,

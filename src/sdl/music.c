@@ -220,12 +220,33 @@ int SdlHandlesGameSoundEffects(void)
     return 1;
 }
 
+/* The pan, 0 left to 127 right as every effect player takes it, for a unit
+ * direction from the camera. Its component along the camera's right vector
+ * is positive for objects that transform_objects_to_your_view draws right of
+ * the view's centre. */
+int SdlSoundEffectPan(const FixedVector *direction)
+{
+    int scaledPan;
+    int pan;
+
+    scaledPan = dot_product(direction, &aShipRightVector[EYE_OBJECT]) *
+        SDL_SOUND_CENTRE_PAN;
+    if (scaledPan < 0)
+        scaledPan = -((-scaledPan + 0xff) / 0x100);
+    else
+        scaledPan /= 0x100;
+    pan = SDL_SOUND_CENTRE_PAN + scaledPan;
+    if (pan < 0)
+        pan = 0;
+    else if (pan > 127)
+        pan = 127;
+    return pan;
+}
+
 int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
 {
     FixedVector delta;
     long magnitude;
-    int scaledPan;
-    int stereoOffset;
     int distance;
     int volume;
     int pan;
@@ -243,18 +264,7 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
             &aShipPositionsArray[sourceObject], &delta);
         magnitude = Vector_magnitude(&delta);
         NormalizeFixedVector(&delta);
-        stereoOffset = dot_product(
-            &delta, &aShipRightVector[EYE_OBJECT]);
-        scaledPan = stereoOffset * SDL_SOUND_CENTRE_PAN;
-        if (scaledPan < 0)
-            scaledPan = -((-scaledPan + 0xff) / 0x100);
-        else
-            scaledPan /= 0x100;
-        pan -= scaledPan;
-        if (pan < 0)
-            pan = 0;
-        else if (pan > 127)
-            pan = 127;
+        pan = SdlSoundEffectPan(&delta);
     }
 
     if (SdlUsingDosData() || SdlUsingTownsData()) {
