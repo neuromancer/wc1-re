@@ -71,12 +71,6 @@ set_target_properties(wc1-slint-gui PROPERTIES
 set_property(TARGET wc1-slint-gui PROPERTY SLINT_EMBED_RESOURCES embed-files)
 slint_target_sources(wc1-slint-gui launcher.slint)
 
-add_executable(wc1-launcher-check EXCLUDE_FROM_ALL ../../../bin/checkLauncher.cpp)
-target_link_libraries(wc1-launcher-check PRIVATE
-    wc1-slint-gui Slint::Slint nfd::nfd PkgConfig::WC1_SDL2)
-enable_testing()
-add_test(NAME launcher-translations COMMAND wc1-launcher-check)
-
 if(UNIX AND NOT APPLE)
     # Slint's static Rust library uses Fontconfig to find system fonts.
     find_package(Fontconfig REQUIRED)

@@ -103,7 +103,7 @@ def main():
         entries = [entry for entry in entries if entry["translation"] != entry["source"]]
         with tempfile.TemporaryDirectory() as directory:
             template = Path(directory) / "ui.pot"
-            template.write_text(extract(Path(__file__).resolve().parent.parent, plain=True), encoding="utf-8")
+            template.write_text(extract(Path(__file__).resolve().parents[2], plain=True), encoding="utf-8")
             ui = executable_ui(args.english_exe.read_bytes(), (args.french / "WC.EXE").read_bytes(), template)
         fonts = font_changes((root / "FONTS.FNT").read_bytes(), french["GAMEDAT/FONTS.FNT"])
         used = set("".join(e["translation"] for e in entries + captions + ui).encode("cp437"))

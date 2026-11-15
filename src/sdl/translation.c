@@ -1,5 +1,5 @@
 /* SDL-only localization. Editable UTF-8 PO files are compiled to WC1 bytes by
- * bin/compileTranslations.py. Resources are translated in memory: original
+ * translations/bin/compileTranslations.py. Resources are translated in memory: original
  * scene commands, conditions, timing and animation remain byte-for-byte intact. */
 #include "wc1.h"
 

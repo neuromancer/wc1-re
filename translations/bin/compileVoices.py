@@ -70,7 +70,7 @@ def compile_voices(source, root, translations):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    repo = Path(__file__).resolve().parent.parent
+    repo = Path(__file__).resolve().parents[2]
     parser.add_argument("--source", type=Path, default=repo / "voices/segacd.po")
     parser.add_argument("--voice-root", type=Path, help="validate local WAVs and pin their directory; otherwise build a portable mapping")
     parser.add_argument("--translations", type=Path, default=repo / "translations/es")

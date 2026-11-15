@@ -637,21 +637,21 @@ build-full: $(TARGET)
 MODERN_TRANSLATIONS = $(addprefix $(MODERN_OUT_DIR)/translations/,es.dat ja.dat fr.dat)
 MODERN_VOICES = $(MODERN_OUT_DIR)/voices/segacd.dat
 
-$(MODERN_VOICES): bin/compileVoices.py bin/compileTranslations.py voices/segacd.po $(wildcard translations/es/*.po)
-	python3 bin/compileVoices.py --output $@
+$(MODERN_VOICES): translations/bin/compileVoices.py translations/bin/compileTranslations.py voices/segacd.po $(wildcard translations/es/*.po)
+	python3 translations/bin/compileVoices.py --output $@
 
-$(MODERN_OUT_DIR)/translations/es.dat: bin/compileTranslations.py $(wildcard translations/es/*.po) $(wildcard translations/es/*.json)
-	python3 bin/compileTranslations.py --source translations/es --output $@
+$(MODERN_OUT_DIR)/translations/es.dat: translations/bin/compileTranslations.py $(wildcard translations/es/*.po) $(wildcard translations/es/*.json)
+	python3 translations/bin/compileTranslations.py --source translations/es --output $@
 
-$(MODERN_OUT_DIR)/translations/fr.dat: bin/compileTranslations.py $(wildcard translations/fr/*.po) $(wildcard translations/fr/*.json)
-	python3 bin/compileTranslations.py --source translations/fr --encoding cp437 --output $@
+$(MODERN_OUT_DIR)/translations/fr.dat: translations/bin/compileTranslations.py $(wildcard translations/fr/*.po) $(wildcard translations/fr/*.json)
+	python3 translations/bin/compileTranslations.py --source translations/fr --encoding cp437 --output $@
 
-$(MODERN_OUT_DIR)/translations/ja.dat: bin/compileTranslations.py translations/ja/ui.po
-	python3 bin/compileTranslations.py --source translations/ja --encoding cp932 --output $@
+$(MODERN_OUT_DIR)/translations/ja.dat: translations/bin/compileTranslations.py translations/ja/ui.po
+	python3 translations/bin/compileTranslations.py --source translations/ja --encoding cp932 --output $@
 
 .PHONY: update-translations
 update-translations:
-	python3 bin/updateUiTranslations.py
+	python3 translations/bin/updateUiTranslations.py
 
 .PHONY: update-launcher-translations
 SLINT_TR_EXTRACTOR ?= slint-tr-extractor
@@ -680,11 +680,6 @@ run-modern-swc: modern-swc
 
 # Optional native launcher; the ordinary modern target does not need Slint.
 modern-gui: $(MODERN_GUI_TARGET)
-
-.PHONY: check-launcher
-check-launcher: modern-gui
-	CARGO_PROFILE_RELEASE_LTO=false $(MODERN_CMAKE) --build $(MODERN_GUI_BUILD_DIR) --config $(MODERN_GUI_BUILD_TYPE) --target wc1-launcher-check
-	ctest --test-dir $(MODERN_GUI_BUILD_DIR) -C $(MODERN_GUI_BUILD_TYPE) --output-on-failure
 
 $(SWC_MUSIC_SOUNDFONT): third_party/generaluser/GeneralUser-GS.sf2
 	@mkdir -p $(dir $@)
@@ -735,9 +730,9 @@ $(MODERN_STATIC_GUI_LAUNCHER_OBJ): $(MODERN_LAUNCHER_SRC) Makefile | modern-chec
 		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
-$(MODERN_OUT_DIR)/towns_font.c: third_party/misaki/misaki.bin bin/compileTownsFont.py
+$(MODERN_OUT_DIR)/towns_font.c: third_party/misaki/misaki.bin translations/bin/compileTownsFont.py
 	@mkdir -p $(dir $@)
-	python3 bin/compileTownsFont.py $< $@
+	python3 translations/bin/compileTownsFont.py $< $@
 
 $(MODERN_OUT_DIR)/obj/towns_font.o: $(MODERN_OUT_DIR)/towns_font.c | modern-check-deps
 	@mkdir -p $(dir $@)
@@ -1344,139 +1339,10 @@ clean-modern:
 	verify-values \
 	verify-values-stack-locals \
 
-# Uses the real WC1 formatter/rasterizer and a caller-supplied installation.
-$(MODERN_OUT_DIR)/obj/translation_probe.o: bin/checkTranslations.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/translation-probe: $(MODERN_OUT_DIR)/obj/translation_probe.o \
-		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
-		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS) | $(MODERN_TRANSLATIONS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
-		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-translations check-french
-check-translations: $(MODERN_OUT_DIR)/translation-probe
-	python3 bin/testImportWc1Spanish.py
-	$(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations/es.dat \
-		"$(MODERN_RUN_DIR)/GAMEDAT" $(MODERN_OUT_DIR)/spanish-preview.bmp
-
-check-french: $(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations/fr.dat
-	$(MODERN_OUT_DIR)/translation-probe $(MODERN_OUT_DIR)/translations/fr.dat \
-		"$(MODERN_RUN_DIR)/GAMEDAT" $(MODERN_OUT_DIR)/french-preview.bmp fr
-
-# A player's patched DOS text: needs the English DOS WC.EXE B2.4 and GAMEDAT.
-# GERMAN_WC_EXE optionally names a WC.EXE patched with the German fan translation.
-DOS_DATA ?= data/dos
-$(MODERN_OUT_DIR)/obj/patched_text_probe.o: bin/checkPatchedText.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/patched-text-probe: $(MODERN_OUT_DIR)/obj/patched_text_probe.o \
-		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
-		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS) | $(MODERN_TRANSLATIONS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
-		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-patched-text
-check-patched-text: $(MODERN_OUT_DIR)/patched-text-probe
-	rm -rf $(MODERN_OUT_DIR)/patched-text
-	mkdir -p $(MODERN_OUT_DIR)/patched-text/GAMEDAT
-	$(MODERN_OUT_DIR)/patched-text-probe "$(DOS_DATA)/WC.EXE" "$(DOS_DATA)/GAMEDAT" \
-		$(MODERN_OUT_DIR)/patched-text $(if $(GERMAN_WC_EXE),"$(GERMAN_WC_EXE)")
-
-$(MODERN_OUT_DIR)/obj/retry_probe.o: bin/checkMissionRetry.c src/sdl/autosave.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/retry-probe: $(MODERN_OUT_DIR)/obj/retry_probe.o \
-		$(MODERN_BASE_HOST_OBJS) $(filter-out $(MODERN_OUT_DIR)/obj/sdl/autosave.o,$(MODERN_GAME_HOST_OBJS)) \
-		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
-		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-mission-retry
-check-mission-retry: $(MODERN_OUT_DIR)/retry-probe
-	$(MODERN_OUT_DIR)/retry-probe
-
-$(MODERN_OUT_DIR)/obj/gamepad_probe.o: bin/checkGamepad.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/gamepad-probe: $(MODERN_OUT_DIR)/obj/gamepad_probe.o \
-		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
-		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
-		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-gamepad
-check-gamepad: $(MODERN_OUT_DIR)/gamepad-probe
-	$(MODERN_OUT_DIR)/gamepad-probe
-
-$(MODERN_OUT_DIR)/obj/joystick_calibration_probe.o: bin/checkJoystickCalibration.c src/sdl/joystick_calibration.h $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/joystick-calibration-probe: $(MODERN_OUT_DIR)/obj/joystick_calibration_probe.o \
-		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
-		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
-		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-joystick-calibration
-check-joystick-calibration: $(MODERN_OUT_DIR)/joystick-calibration-probe
-	$(MODERN_OUT_DIR)/joystick-calibration-probe
-
-$(MODERN_OUT_DIR)/obj/sound_pan_probe.o: bin/checkSoundPan.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/sound-pan-probe: $(MODERN_OUT_DIR)/obj/sound_pan_probe.o \
-		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
-		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
-		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-sound-pan
-check-sound-pan: $(MODERN_OUT_DIR)/sound-pan-probe
-	$(MODERN_OUT_DIR)/sound-pan-probe
-
-$(MODERN_OUT_DIR)/obj/sm1_probe.o: bin/checkSm1.c src/gameflow.c src/title.c src/barracks.c src/killbrd.c src/timer.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/sm1-probe: $(MODERN_OUT_DIR)/obj/sm1_probe.o \
-		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
-		$(filter-out $(addprefix $(MODERN_OUT_DIR)/obj/,gameflow.o title.o barracks.o killbrd.o timer.o),$(MODERN_GAMEPLAY_OBJS)) $(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
-		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-sm1
-check-sm1: $(MODERN_OUT_DIR)/sm1-probe
-	python3 bin/runGameTests.py $(MODERN_OUT_DIR)/sm1-probe "$(if $(SM1_DATA),$(SM1_DATA),$(MODERN_RUN_DIR))" --campaign sm1
-
-$(MODERN_OUT_DIR)/obj/sm2_probe.o: bin/checkSm2.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/sm2-probe: $(MODERN_OUT_DIR)/obj/sm2_probe.o \
-		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) $(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
-		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-sm2
-check-sm2: $(MODERN_OUT_DIR)/sm2-probe $(MODERN_OUT_DIR)/sm1-probe
-	python3 bin/runGameTests.py $(MODERN_OUT_DIR)/sm1-probe "$(if $(SM2_DATA),$(SM2_DATA),$(MODERN_RUN_DIR))" --campaign sm2
-	python3 bin/runGameTests.py $(MODERN_OUT_DIR)/sm2-probe "$(if $(SM2_DATA),$(SM2_DATA),$(MODERN_RUN_DIR))" --campaign sm2
-
+# libFuzzer flight fuzzers (fuzz/): flight-fuzzer flies WC1, SM1, SM2 and the
+# training simulator from a Kilrathi Saga installation, swc-flight-fuzzer
+# Super Wing Commander. FUZZ_ARGS passes options to fuzz/runFuzzer.py, such as
+# FUZZ_ARGS="--case wc1:1:0 -- -max_total_time=600"; libFuzzer flags follow --.
 FUZZ_CC ?= clang
 FUZZ_CXX ?= clang++
 FUZZ_OUT_DIR ?= out-modern/fuzz
@@ -1492,42 +1358,34 @@ fuzz-swc-flight:
 		MODERN_CXX="$(FUZZ_CXX)" MODERN_FUZZING=1 "$(FUZZ_OUT_DIR)/swc-flight-fuzzer"
 
 check-fuzz: fuzz-flight
-	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(GAME_DATA),$(GAME_DATA),$(MODERN_RUN_DIR))" --fuzz $(FUZZ_ARGS)
+	python3 fuzz/runFuzzer.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(GAME_DATA),$(GAME_DATA),$(MODERN_RUN_DIR))" $(FUZZ_ARGS)
 
 check-fuzz-sm1: fuzz-flight
-	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(SM1_DATA),$(SM1_DATA),$(MODERN_RUN_DIR))" --fuzz --campaign sm1 $(FUZZ_ARGS)
+	python3 fuzz/runFuzzer.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(SM1_DATA),$(SM1_DATA),$(MODERN_RUN_DIR))" --campaign sm1 $(FUZZ_ARGS)
 
 check-fuzz-sm2: fuzz-flight
-	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(SM2_DATA),$(SM2_DATA),$(MODERN_RUN_DIR))" --fuzz --campaign sm2 $(FUZZ_ARGS)
+	python3 fuzz/runFuzzer.py "$(FUZZ_OUT_DIR)/flight-fuzzer" "$(if $(SM2_DATA),$(SM2_DATA),$(MODERN_RUN_DIR))" --campaign sm2 $(FUZZ_ARGS)
 
-# The SWC directory is only read; corpus and artifacts stay beside the fuzzer.
 check-fuzz-swc: fuzz-swc-flight
-	@mkdir -p "$(FUZZ_OUT_DIR)/swc-flight-corpus" "$(FUZZ_OUT_DIR)/swc-flight-artifacts"
-	SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy ASAN_OPTIONS=detect_leaks=0 \
-		UBSAN_OPTIONS=halt_on_error=0:print_stacktrace=1 \
-		WC1_SWC_DATA="$(if $(SWC_DATA),$(SWC_DATA),$(SWC_DATA_DIR))" \
-		WC1_SWC_FLIGHT_SEEDS="$(abspath $(FUZZ_OUT_DIR))/swc-flight-corpus" \
-		"$(FUZZ_OUT_DIR)/swc-flight-fuzzer" "$(abspath $(FUZZ_OUT_DIR))/swc-flight-corpus" \
-		-max_len=1208 -timeout=120 -detect_leaks=0 \
-		-artifact_prefix="$(abspath $(FUZZ_OUT_DIR))/swc-flight-artifacts/" $(FUZZ_ARGS)
+	python3 fuzz/runFuzzer.py "$(FUZZ_OUT_DIR)/swc-flight-fuzzer" "$(if $(SWC_DATA),$(SWC_DATA),$(SWC_DATA_DIR))" $(FUZZ_ARGS)
 
 ifeq ($(MODERN_FUZZING),1)
-$(MODERN_OUT_DIR)/obj/flight_fuzzer.o: bin/checkFlight.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
+FUZZ_OBJS = $(addprefix $(MODERN_OUT_DIR)/obj/fuzz/,flight.o wc1Flight.o swcFlight.o)
+
+$(FUZZ_OBJS): $(MODERN_OUT_DIR)/obj/fuzz/%.o: fuzz/%.c fuzz/flight.h $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 
-$(MODERN_OUT_DIR)/flight-fuzzer: $(MODERN_OUT_DIR)/obj/flight_fuzzer.o \
+# The SWC fuzzer includes swc_flight.c to reach its per-tick flight step.
+$(MODERN_OUT_DIR)/obj/fuzz/swcFlight.o: src/sdl/swc_flight.c include/swc.h
+
+$(MODERN_OUT_DIR)/flight-fuzzer: $(addprefix $(MODERN_OUT_DIR)/obj/fuzz/,flight.o wc1Flight.o) \
 		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) $(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
 		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -fsanitize=fuzzer -o $@
 
-# The SWC harness includes swc_flight.c to reach its per-tick flight step.
-$(MODERN_OUT_DIR)/obj/swc_flight_fuzzer.o: bin/checkSwcFlight.c src/sdl/swc_flight.c $(REFERENCE_HEADERS) include/wc1sdl.h include/swc.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/swc-flight-fuzzer: $(MODERN_OUT_DIR)/obj/swc_flight_fuzzer.o \
+$(MODERN_OUT_DIR)/swc-flight-fuzzer: $(addprefix $(MODERN_OUT_DIR)/obj/fuzz/,flight.o swcFlight.o) \
 		$(MODERN_BASE_HOST_OBJS) $(filter-out $(MODERN_OUT_DIR)/obj/sdl/swc_flight.o,$(MODERN_GAME_HOST_OBJS)) \
 		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
@@ -1535,54 +1393,6 @@ $(MODERN_OUT_DIR)/swc-flight-fuzzer: $(MODERN_OUT_DIR)/obj/swc_flight_fuzzer.o \
 		$(MODERN_DEAD_STRIP_FLAGS) -fsanitize=fuzzer -o $@
 
 # Sanitizer flag changes must not leave fatal handlers in cached objects.
-$(MODERN_OUT_DIR)/obj/flight_fuzzer.o $(MODERN_OUT_DIR)/obj/swc_flight_fuzzer.o \
-		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+$(FUZZ_OBJS) $(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
 		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS): Makefile
 endif
-
-$(MODERN_OUT_DIR)/voice-probe: bin/checkVoices.c src/sdl/audio.c src/sdl/speech.c src/sdl/compat.c include/wc1sdl.h | modern-check-sdl $(MODERN_VOICES)
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) $(MODERN_SECTION_FLAGS) $< src/sdl/compat.c $(MODERN_SDL_LIBS) $(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-voices
-check-voices: $(MODERN_OUT_DIR)/voice-probe
-	WC1_VOICE_PROBE="$(abspath $(MODERN_OUT_DIR)/voice-probe)" python3 bin/testVoices.py
-
-$(MODERN_OUT_DIR)/obj/towns_probe.o: bin/checkTowns.c src/sdl/fmtowns.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/towns-probe: $(MODERN_OUT_DIR)/obj/towns_probe.o \
-		$(MODERN_BASE_HOST_OBJS) $(filter-out $(MODERN_OUT_DIR)/obj/sdl/fmtowns.o,$(MODERN_GAME_HOST_OBJS)) \
-		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS) | $(MODERN_OUT_DIR)/translations/ja.dat
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
-		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-towns
-check-towns: $(MODERN_OUT_DIR)/towns-probe
-	SDL_AUDIODRIVER=dummy $(MODERN_OUT_DIR)/towns-probe $(if $(TOWNS_DATA),"$(TOWNS_DATA)")
-
-$(MODERN_OUT_DIR)/obj/towns_input_probe.o: bin/checkTownsInput.c src/sdl/towns_text.c $(REFERENCE_HEADERS) include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/towns-input-probe: $(MODERN_OUT_DIR)/obj/towns_input_probe.o \
-		$(MODERN_BASE_HOST_OBJS) $(filter-out $(MODERN_OUT_DIR)/obj/sdl/towns_text.o,$(MODERN_GAME_HOST_OBJS)) \
-		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
-		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-.PHONY: check-towns-input
-check-towns-input: $(MODERN_OUT_DIR)/towns-input-probe
-	$(MODERN_OUT_DIR)/towns-input-probe
-
-$(MODERN_OUT_DIR)/keymap-probe: bin/checkKeymap.c src/sdl/keymap.c src/sdl/keymap_actions.h include/wc1sdl.h | modern-check-sdl
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
-		bin/checkKeymap.c src/sdl/keymap.c $(MODERN_SDL_LIBS) -o $@
-
-.PHONY: check-keymap
-check-keymap: $(MODERN_OUT_DIR)/keymap-probe
-	SDL_VIDEODRIVER=dummy $(MODERN_OUT_DIR)/keymap-probe

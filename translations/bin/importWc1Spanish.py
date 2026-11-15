@@ -565,7 +565,7 @@ def main():
     args = parser.parse_args()
     try:
         root = args.english / "GAMEDAT" if (args.english / "GAMEDAT").is_dir() else args.english
-        repo = Path(__file__).resolve().parent.parent
+        repo = Path(__file__).resolve().parents[2]
         if args.debug_english:
             entries, _, _ = import_resources(root)
             captions, _ = cinematic_entries(root)

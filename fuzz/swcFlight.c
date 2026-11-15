@@ -1,14 +1,8 @@
-/* libFuzzer-driven SWC flight controls; use make check-fuzz-swc.
- * Input: data set (0-2, or 3 for the simulator), series (1-based; ignored by
- * the simulator), mission (0-based), start (bits 0-3: flight-path legs
- * travelled before control begins), little-endian PRNG seed (4 bytes), then
- * pairs of action and hold bytes. Action bits 0-5 select a control; bit 6
- * keeps the controls already held. Hold bits 0-5 give 1..64 ticks and bits
- * 6-7 multiply them by 1, 2, 4 or 8. The SWC directory is only read.
- * WC1_SWC_FLIGHT_TRACE prints where each input started and ended, and
- * WC1_SWC_FLIGHT_KEYS rebinds keys as the launcher does. */
+/* Super Wing Commander for the flight fuzzer (flight.h): SwcFlightTick driven
+ * through the handlers of SdlRunSwcMission's flight loop. runFuzzer.py runs
+ * it on an SWC directory, which is only read. */
 #include <dlfcn.h>
-#include "wc1.h"
+#include "flight.h"
 #include "swc.h"
 
 /* The autopilot camera paces itself with SDL time and window focus. Run it
@@ -56,9 +50,8 @@ Uint32 SDL_GetWindowFlags(SDL_Window *window)
     return RealWindowFlags(window) | SDL_WINDOW_INPUT_FOCUS;
 }
 
+/* The harness reaches swc_flight.c's per-tick flight step and drawing. */
 #include "../src/sdl/swc_flight.c"
-
-enum { ACTION_NONE, ACTION_KEY, ACTION_POINTER, ACTION_BUTTONS, ACTION_WHEEL, ACTION_EJECT };
 
 /* The Mac menus' key equivalents: Command on macOS, Control elsewhere. */
 #ifdef __APPLE__
@@ -67,19 +60,12 @@ enum { ACTION_NONE, ACTION_KEY, ACTION_POINTER, ACTION_BUTTONS, ACTION_WHEEL, AC
 #define MENU_KEY KMOD_CTRL
 #endif
 
-typedef struct FlightAction {
-    unsigned char kind;
-    SDL_Keycode key;
-    short x; /* key modifiers, pointer x, button mask or wheel step */
-    short y;
-} FlightAction;
-
 /* Keys repeat SdlRunSwcMission's flight handlers (the Mac demo's keys, its
  * menus' Command keys and F1-F3) and SwcFlightTick's held controls; pointer,
  * buttons and wheel repeat its mouse handlers. The computer (C) and pause
  * are modal and need a separate driver; ACTION_EJECT performs the computer's
  * Eject page, which has no key of its own. */
-static const FlightAction actions[] = {
+const FlightAction flightActions[] = {
     {ACTION_NONE, 0, 0, 0},
     {ACTION_KEY, SDLK_UP, 0, 0}, {ACTION_KEY, SDLK_DOWN, 0, 0},
     {ACTION_KEY, SDLK_LEFT, 0, 0}, {ACTION_KEY, SDLK_RIGHT, 0, 0},
@@ -109,13 +95,31 @@ static const FlightAction actions[] = {
     {ACTION_BUTTONS, 0, SDL_BUTTON_LMASK | SDL_BUTTON_RMASK, 0},
     {ACTION_WHEEL, 0, 1, 0}, {ACTION_WHEEL, 0, -1, 0}
 };
+const size_t flightActionCount = SDL_arraysize(flightActions);
 
-typedef char FlightActionsFitSixBits[SDL_arraysize(actions) <= 64 ? 1 : -1];
+typedef char FlightActionsFitSixBits[SDL_arraysize(flightActions) <= 64 ? 1 : -1];
+
+/* Throttle, steer while firing, aim and click, cycle weapons, fire a
+ * missile, order the wingman, light the afterburner, then try autopilot. */
+const FlightSeedStep flightSeed[] = {
+    {{ACTION_KEY, SDLK_EQUALS, 0, 0}, 0, 31},
+    {{ACTION_KEY, SDLK_UP, 0, 0}, 0, 15},
+    {{ACTION_KEY, SDLK_SPACE, 0, 0}, 1, 31},
+    {{ACTION_POINTER, 0, 160, 25}, 0, 7},
+    {{ACTION_BUTTONS, 0, SDL_BUTTON_LMASK, 0}, 0, 15},
+    {{ACTION_KEY, SDLK_g, 0, 0}, 0, 0},
+    {{ACTION_KEY, SDLK_w, 0, 0}, 0, 0},
+    {{ACTION_KEY, SDLK_RETURN, 0, 0}, 0, 7},
+    {{ACTION_KEY, SDLK_b, 0, 0}, 0, 3},
+    {{ACTION_KEY, SDLK_r, 0, 0}, 0, 15},
+    {{ACTION_KEY, SDLK_TAB, 0, 0}, 0, 15},
+    {{ACTION_KEY, SDLK_a, 0, 0}, 0, 31}
+};
+const size_t flightSeedLength = SDL_arraysize(flightSeed);
 
 static Uint8 keys[SDL_NUM_SCANCODES];
 static Uint32 buttons;
 static Uint32 flightClock;
-static unsigned char missionCounts[3][13];
 static SwcCmf fuzzCockpitCmf, fuzzSpaceCmf;
 static SwcFlightImages fuzzImages[OBJECT_TYPE_COUNT];
 static SDL_Color fuzzColors[256];
@@ -124,37 +128,21 @@ static char fuzzMissionPath[PATH_MAX];
 static char fuzzResourcePath[PATH_MAX];
 static SDL_Renderer *fuzzRenderer;
 static int fuzzCockpitless;
-static int tickLimit = 600;
-static int inputActive;
-static int traceInputs;
 
-static void Require(int condition, const char *message)
-{
-    if (!condition) {
-        fprintf(stderr, "FAIL: %s (%s)\n", message, SDL_GetError());
-        abort();
-    }
-}
-
-static void CheckFuzzExit(void)
-{
-    /* Original fatal errors may call exit(0); make libFuzzer retain the input. */
-    Require(!inputActive, "game exited during SWC flight input or initialization");
-}
-
-static int FlightContinues(void)
+int FlightContinues(void)
 {
     return nArcadeState == 0 && !bCurrentPlayerDestroyed;
 }
 
-/* One host simulation tick, as SdlRunSwcMission's flight loop. */
-static void FlightStep(int draw)
+/* One host simulation tick, as SdlRunSwcMission's flight loop. Travelling
+ * the flight path draws nothing. */
+void FlightStep(int frame)
 {
     flightClock += SDL_max(1, nFrameIntervalMs);
     nTickCount60Hz = (unsigned int)((uint64_t)flightClock * 60 / 1000);
     /* As the host: rebound keys and buttons stand in for the ones SWC reads. */
     SwcFlightTick(SdlSwcKeymapKeyboardState(keys), SdlSwcKeymapMouseButtons(buttons));
-    if (draw)
+    if (frame >= 0)
         Require(SwcDrawFlight(fuzzRenderer, swcCockpitTexture, &fuzzCockpitCmf, &fuzzSpaceCmf,
                               fuzzColors, fuzzImages, fuzzCockpitless) == 0, "draw SWC flight");
 }
@@ -246,7 +234,7 @@ static void PressFlightKey(SDL_Keycode key, Uint16 modifiers)
 /* The host's mouse handlers: motion steers, the left button fires guns,
  * a right double-click lights the afterburner and both buttons release a
  * weapon (sampled by SwcFlightTick). */
-static void ApplyFlightAction(const FlightAction *action)
+void ApplyFlightAction(const FlightAction *action)
 {
     Uint32 pressed;
     SDL_Event event;
@@ -322,7 +310,7 @@ static void ApplyFlightAction(const FlightAction *action)
     }
 }
 
-static void ReleaseFlightControls(void)
+void ReleaseFlightControls(void)
 {
     /* Releasing the afterburner button, whichever one it is. */
     if (SdlSwcKeymapMouseButtons(buttons) & SDL_BUTTON_RMASK)
@@ -331,154 +319,17 @@ static void ReleaseFlightControls(void)
     memset(keys, 0, sizeof(keys));
 }
 
-/* Escort waits per input: about three minutes at the SWC frame rate. */
-#define ESCORT_WAIT_TICKS 3600
-
-/* Reach a later part of the mission as autopilot arrival would: the player
- * stops short of the next flight-path objective with the formation that
- * auto_pilot_sequence takes along, ReleaseStaleNavTarget enters an active
- * nav point's sphere, and the game's own objective checks register the
- * arrival, advancing the flight path and applying the nav triggers. */
-static void TravelFlightPath(int legs)
+void ViewFlightArrival(void)
 {
-    FixedVector destination;
-    signed char travelling[10];
-    short formationSlot;
-    short ship;
-    int previousLeg;
-    int tick;
-    int waited = 0;
-
-    while (legs-- > 0 && FlightContinues() && cCurrentNavPtIdx >= 0 &&
-           cCurrentNavPtIdx < (int)SDL_arraysize(abFlightPathList) &&
-           abFlightPathList[cCurrentNavPtIdx] != -1) {
-        previousLeg = cCurrentNavPtIdx;
-        destination = aMissionObjectivesArray[abFlightPathList[cCurrentNavPtIdx]].position;
-        if ((unsigned short)distance_from_point(0, &destination) >= 1500) {
-            for (ship = 0; ship < 10; ship++)
-                travelling[ship] = ship != 0 && aeObjectClass[ship] >= OBJECT_CLASS_SHIP &&
-                    aeSpecialManeuvers[ship] != SPECIAL_MANEUVER_UNKNOWN_9 &&
-                    aeShipSide[ship] == SIDE_IMPERIAL &&
-                    is_team_member(nShipMissionIndices[ship]) && !kilrathi_near(ship, 10000);
-            point_at(0, destination);
-            aShipPositionsArray[0] = destination;
-            position_relative_ijk(&aShipPositionsArray[0], 0, 0, 0, -1000);
-            formationSlot = 0;
-            for (ship = 1; ship < 10; ship++) {
-                if (!travelling[ship])
-                    continue;
-                auto_position(ship, &formationSlot);
-                copy_frame(0, ship);
-                anShipSpeed[ship] = anShipSpeed[0];
-                aShipVelocity[ship] = aShipVelocity[0];
-            }
-            /* Enter the sphere from the arrival view, as house_keep does after
-               manual flight: set_up_action_sphere explodes the ships it removes
-               while they are on screen, so stale departure positions would
-               destroy ships left far behind. */
-            SwcSelectFlightView(nCameraViewMode);
-            SwcTransformObjectsToView();
-            ReleaseStaleNavTarget();
-        }
-        /* update_objective_location checks one objective per tick. */
-        for (tick = 0; tick <= cMissionObjectiveCountValue && FlightContinues(); tick++)
-            FlightStep(0);
-        /* Wait there like the player: SdlSwcFlagReached holds the leg while an
-           escorted ship is on its way, and that ship registers the arrival
-           itself (cruise_to_destination's flag_reached(..., 1)). */
-        for (tick = 0; waited < ESCORT_WAIT_TICKS && cCurrentNavPtIdx == previousLeg &&
-             escorting_a_ship() && find_ship_index(anShipMissionShips[0]) != -1 &&
-             FlightContinues(); tick++, waited++)
-            FlightStep(0);
-        if (cCurrentNavPtIdx == previousLeg) {
-            /* An inactive nav point, objectives still hidden, or a late escort. */
-            if (traceInputs)
-                fprintf(stderr, "TRACE leg %d stops at objective %d (type %d, range %d) "
-                        "after waiting %d ticks\n", previousLeg, abFlightPathList[previousLeg],
-                        aMissionObjectivesArray[abFlightPathList[previousLeg]].type,
-                        distance_from_point(0, &aMissionObjectivesArray[
-                            abFlightPathList[previousLeg]].position), tick);
-            break;
-        }
-    }
+    SwcSelectFlightView(nCameraViewMode);
+    SwcTransformObjectsToView();
 }
 
-static int ActionIndex(unsigned char kind, SDL_Keycode key, short x)
-{
-    int index;
-
-    for (index = 0; index < (int)SDL_arraysize(actions); index++) {
-        if (actions[index].kind == kind && actions[index].key == key &&
-            actions[index].x == x)
-            return index;
-    }
-    Require(0, "seed action");
-    return 0;
-}
-
-static void WriteSeed(const char *directory, int campaign, int series, int mission, int legs)
-{
-    char path[PATH_MAX];
-    SDL_RWops *file;
-    unsigned char seed[32] = {
-        (unsigned char)campaign, (unsigned char)series, (unsigned char)mission,
-        (unsigned char)legs, 0, 0, 0, 0
-    };
-    size_t size = 8;
-
-    /* Throttle, steer while firing, aim and click, cycle weapons, fire a
-     * missile, order the wingman, light the afterburner, then try autopilot. */
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_EQUALS, 0); seed[size++] = 31;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_UP, 0); seed[size++] = 15;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_SPACE, 0) | 0x40; seed[size++] = 31;
-    seed[size++] = ActionIndex(ACTION_POINTER, 0, 160); seed[size++] = 7;
-    seed[size++] = ActionIndex(ACTION_BUTTONS, 0, SDL_BUTTON_LMASK); seed[size++] = 15;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_g, 0); seed[size++] = 0;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_w, 0); seed[size++] = 0;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_RETURN, 0); seed[size++] = 7;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_b, 0); seed[size++] = 3;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_r, 0); seed[size++] = 15;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_TAB, 0); seed[size++] = 15;
-    seed[size++] = ActionIndex(ACTION_KEY, SDLK_a, 0); seed[size++] = 31;
-    SDL_snprintf(path, sizeof(path), "%s/%s%d-%d-%d-leg%d", directory,
-                 campaign == 3 ? "simulator" : "swc", campaign, series, mission, legs);
-    file = SDL_RWFromFile(path, "rb");
-    if (file != NULL) {
-        SDL_RWclose(file);
-        return;
-    }
-    file = SDL_RWFromFile(path, "wb");
-    Require(file != NULL && SDL_RWwrite(file, seed, size, 1) == 1 &&
-            SDL_RWclose(file) == 0, "write SWC flight seed");
-}
-
-int LLVMFuzzerInitialize(int *argc, char ***argv)
+void StartFlightGame(void)
 {
     SDL_Window *window;
-    SwcBuffer campaign = {0};
-    unsigned char *savedCampaign = pMissionCampaignInfo;
-    const char *directory = getenv("WC1_SWC_DATA");
-    const char *seeds = getenv("WC1_SWC_FLIGHT_SEEDS");
-    const char *ticks = getenv("WC1_FLIGHT_TICKS");
     char path[PATH_MAX];
-    int set;
-    int series;
-    int mission;
-    int legs;
-    (void)argc;
-    (void)argv;
 
-    Require(atexit(CheckFuzzExit) == 0, "register early-exit check");
-    inputActive = 1;
-    traceInputs = getenv("WC1_SWC_FLIGHT_TRACE") != NULL;
-    /* Changed keys, as the launcher passes them (src/sdl/keymap.c). */
-    if (getenv("WC1_SWC_FLIGHT_KEYS") != NULL)
-        SdlSetKeyBindings(getenv("WC1_SWC_FLIGHT_KEYS"));
-    if (ticks)
-        tickLimit = atoi(ticks);
-    Require(tickLimit > 0 && tickLimit <= 3600, "tick budget in 1..3600");
-    Require(directory != NULL && chdir(directory) == 0,
-            "set WC1_SWC_DATA to an SWC directory containing CMFs");
     Require(SdlFindSwcMissionData(fuzzMissionPath, sizeof(fuzzMissionPath)), "SWC CMFs/Data.CMF");
     /* As SdlRunSwcMission, before its startup movies. */
     SwcInitCharacters();
@@ -516,63 +367,35 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     SetEventManagerPump(NULL);
     stMouseCursorState.viewport = &stSpaceBufferViewport;
     SetViewportRect(&stSpaceBufferViewport, 0, 0, 319, 199);
-    for (set = 0; set < 3; set++) {
-        nCampaignDataSet = set;
-        if (SdlLoadSwcCampaignData(fuzzMissionPath, &campaign) != 0) {
-            SDL_ClearError();
-            continue;
-        }
-        for (series = 1; series <= 13; series++) {
-            missionCounts[set][series - 1] = pMissionCampaignInfo[(series - 1) * 90 + 2];
-            for (mission = 0; seeds != NULL && mission < missionCounts[set][series - 1]; mission++)
-                for (legs = 0; legs < 4; legs++)
-                    WriteSeed(seeds, set, series, mission, legs);
-        }
-        pMissionCampaignInfo = savedCampaign;
-    }
-    SDL_free(campaign.data);
-    for (mission = 0; seeds != NULL && mission < 4; mission++)
-        WriteSeed(seeds, 3, 0, mission, 0);
-    nCampaignDataSet = 0;
-    inputActive = 0;
-    return 0;
 }
 
-int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
+int LoadFlightCampaign(int campaign, unsigned char counts[14])
 {
-    const FlightAction *action;
-    int campaign;
+    SwcBuffer campaignData = {0};
+    unsigned char *savedCampaign = pMissionCampaignInfo;
+    int loaded;
     int series;
-    int mission;
-    int simulator;
+
+    nCampaignDataSet = campaign;
+    loaded = SdlLoadSwcCampaignData(fuzzMissionPath, &campaignData) == 0;
+    if (loaded) {
+        for (series = 1; series <= 13; series++)
+            counts[series] = pMissionCampaignInfo[(series - 1) * 90 + 2];
+    } else {
+        SDL_ClearError();
+    }
+    pMissionCampaignInfo = savedCampaign;
+    SDL_free(campaignData.data);
+    nCampaignDataSet = 0;
+    return loaded;
+}
+
+void BeginFlight(int campaign, int series, int mission)
+{
+    int simulator = campaign == FLIGHT_SIMULATOR;
     int shipCount;
     int object;
-    int tick = 0;
-    int hold;
-    int frame;
-    int startLeg;
-    int reachedLeg;
-    size_t position;
-    unsigned int seed;
 
-    if (size < 10)
-        return -1;
-    campaign = data[0];
-    series = data[1];
-    mission = data[2];
-    simulator = campaign == 3;
-    if (simulator) {
-        if (mission > 3)
-            return -1;
-        series = 0;
-    } else if (campaign > 2 || series < 1 || series > 13 ||
-               mission >= missionCounts[campaign][series - 1]) {
-        return -1;
-    }
-    inputActive = 1;
-    seed = (unsigned int)data[4] | ((unsigned int)data[5] << 8) |
-           ((unsigned int)data[6] << 16) | ((unsigned int)data[7] << 24);
-    srand(seed);
     ReleaseFlightControls();
     flightClock = 0;
     SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT);
@@ -621,31 +444,12 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     for (object = 1; object < shipCount; object++)
         Require(SwcLoadFlightImages(&fuzzCockpitCmf, &fuzzSpaceCmf, aeObjectTypeList[object],
                                     &fuzzImages[aeObjectTypeList[object]]) == 0, "SWC ship images");
-    startLeg = cCurrentNavPtIdx;
-    TravelFlightPath(data[3] & 15);
-    reachedLeg = cCurrentNavPtIdx;
-    for (position = 8; position + 1 < size && tick < tickLimit && FlightContinues();
-         position += 2) {
-        if (!(data[position] & 0x40))
-            ReleaseFlightControls();
-        action = &actions[(data[position] & 63) % SDL_arraysize(actions)];
-        hold = (1 + (data[position + 1] & 63)) << (data[position + 1] >> 6);
-        ApplyFlightAction(action);
-        for (frame = 0; frame < hold && tick < tickLimit && FlightContinues(); frame++, tick++)
-            FlightStep(1);
-    }
-    if (traceInputs)
-        fprintf(stderr, "TRACE set %d series %d mission %d: nav %d -> %d (%d legs asked) "
-                "-> %d, %d ticks, arcade state %d, destroyed %d, speed %d at %d %d %d\n", campaign,
-                series, mission, startLeg, reachedLeg, data[3] & 15, cCurrentNavPtIdx, tick,
-                nArcadeState, bCurrentPlayerDestroyed, anShipSpeed[0], aShipPositionsArray[0].x,
-                aShipPositionsArray[0].y, aShipPositionsArray[0].z);
+}
+
+void EndFlight(void)
+{
     SdlStopSwcSounds();
-    ReleaseFlightControls();
     SwcResetFlightInput();
     if (IsCommChoiceMenuOpen())
         CloseCommChoiceMenu();
-    nTrainSimActive = 0;
-    inputActive = 0;
-    return 0;
 }
