@@ -13,6 +13,14 @@ static Uint32 voiceBufferTick;
 static Uint32 *voiceMouthTimes;
 static Uint32 voiceMouthCount;
 
+/* WingLoader's Sega CD recordings are normalized to full scale: dialogue
+ * averages about -9.5 dBFS RMS and radio messages -11.5, 12 to 18 dB above
+ * the DOS music and 15 to 25 dB above its effects at their full default
+ * settings, on the AdLib and the MT-32 alike. Mixed 8 dB lower, dialogue
+ * sits a few dB above the briefing music, radio messages level with the
+ * loudest flight music, and full-scale peaks no longer clip over it. */
+#define SDL_VOICE_VOLUME 51 /* of SDL_MIX_MAXVOLUME's 128: -8 dB */
+
 static void SdlAudioCallback(void *userData, Uint8 *stream, int bytes)
 {
     (void)userData;
@@ -26,7 +34,7 @@ static void SdlAudioCallback(void *userData, Uint8 *stream, int bytes)
         voiceBufferStart = voicePosition;
         voiceBufferTick = SDL_GetTicks();
         SDL_MixAudioFormat(stream, voicePcm + voicePosition, AUDIO_S16SYS,
-                           count, SDL_MIX_MAXVOLUME);
+                           count, SDL_VOICE_VOLUME);
         voicePosition += count;
     }
     if (g_pAudioTick != 0)
