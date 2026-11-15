@@ -1442,6 +1442,11 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 /* Function start: 0x442330 */
 void UpdateStreamerStoppedFlag(void)
 {
+#ifdef SDL_PORT
+    /* The OriginFX host reports the end of the DOS scores it plays. */
+    if (SdlUsingOriginFxMusic())
+        return;
+#endif
     if (bIxAudioEnabled != 0)
     nMusicTrackComplete =
         (dwIxStreamerStatus & 4) == 0;

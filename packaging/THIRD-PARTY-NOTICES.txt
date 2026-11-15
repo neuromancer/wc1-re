@@ -11,6 +11,10 @@ The SDL2 release packages may include these components:
   GCC-exception-3.1: https://gcc.gnu.org/
 - YMFM, under the BSD-3-Clause license:
   https://github.com/aaronsgiles/ymfm
+- libmt32emu 2.8.6 from the Munt project, statically linked under
+  LGPL-2.1-or-later: https://github.com/munt/munt/tree/libmt32emu_2_8_6
+  See MUNT-LICENSE.txt for its license. It emulates the Roland MT-32 for the
+  MT-32 music option; no MT-32 ROMs are included, players supply their own.
 - Slint 1.18.1, statically linked under GPL-3.0 for this GPL application:
   https://github.com/slint-ui/slint/tree/v1.18.1
 - Native File Dialog Extended 1.3.0, statically linked under the zlib license:

@@ -54,6 +54,7 @@ cp README.md "$stage_dir/README.txt"
 cp packaging/THIRD-PARTY-NOTICES.txt \
     "$stage_dir/THIRD-PARTY-NOTICES.txt"
 cp third_party/ymfm/LICENSE "$stage_dir/YMFM-LICENSE.txt"
+cp third_party/munt/COPYING.LESSER.txt "$stage_dir/MUNT-LICENSE.txt"
 cp packaging/NFD-LICENSE.txt "$stage_dir/NFD-LICENSE.txt"
 cp third_party/anonymouspro/OFL.txt "$stage_dir/SWC-HUD-FONT-OFL.txt"
 cp third_party/tinysoundfont/LICENSE "$stage_dir/TINYSOUNDFONT-LICENSE.txt"

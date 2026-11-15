@@ -45,7 +45,9 @@ constexpr IntegerSetting integerSettings[] = {
     {"joystick_axes", &SdlLauncherOptions::joystickAxes,
      SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES, SDL_LAUNCHER_AXES_RUDDER_ROLL},
     {"joystick_dead_zone", &SdlLauncherOptions::joystickDeadZone,
-     SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE, SDL_JOYSTICK_DEAD_ZONE_MAXIMUM}
+     SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE, SDL_JOYSTICK_DEAD_ZONE_MAXIMUM},
+    {"music_device", &SdlLauncherOptions::musicDevice,
+     SDL_LAUNCHER_EXPLICIT_MUSIC, SDL_LAUNCHER_MUSIC_MT32}
 };
 
 std::string_view trim_setting(std::string_view text)
@@ -87,6 +89,35 @@ bool valid_setting_utf8(std::string_view text)
     const bool valid = text == std::string_view(converted);
     SDL_free(converted);
     return valid;
+}
+
+/* A quoted absolute path setting, such as the game or ROM folder. */
+bool read_path_setting(std::string_view value, char *target, size_t capacity)
+{
+    /* Only the surrounding quotes have syntax; backslashes and punctuation
+     * inside the path are literal, including on Windows. */
+    if (value.size() >= 2 && value.front() == '"' && value.back() == '"')
+        value = value.substr(1, value.size() - 2);
+    if (value.empty() || value.size() >= capacity ||
+        value.find_first_of("\r\n") != std::string_view::npos ||
+        !valid_setting_utf8(value) || !path_from_utf8(value).is_absolute())
+        return false;
+    std::memcpy(target, value.data(), value.size());
+    target[value.size()] = '\0';
+    return true;
+}
+
+/* A libmt32emu machine id: lowercase letters, digits and underscores. */
+bool valid_machine_id(std::string_view value)
+{
+    if (value.empty() || value.size() >= SDL_LAUNCHER_MT32_MODEL_CAPACITY)
+        return false;
+    for (const char character : value) {
+        if (!((character >= 'a' && character <= 'z') ||
+              (character >= '0' && character <= '9') || character == '_'))
+            return false;
+    }
+    return true;
 }
 
 } // namespace
@@ -146,16 +177,19 @@ void load_launcher_config(const std::filesystem::path &path,
         if (value.empty())
             continue;
         if (key == "game_directory") {
-            /* Only the surrounding quotes have syntax; backslashes and
-             * punctuation inside the path are literal, including on Windows. */
-            if (value.size() >= 2 && value.front() == '"' && value.back() == '"')
-                value = value.substr(1, value.size() - 2);
-            if (!value.empty() && value.size() < sizeof(options.gameDirectory) &&
-                value.find_first_of("\r\n") == std::string_view::npos &&
-                valid_setting_utf8(value) &&
-                path_from_utf8(value).is_absolute()) {
-                std::memcpy(options.gameDirectory, value.data(), value.size());
-                options.gameDirectory[value.size()] = '\0';
+            read_path_setting(value, options.gameDirectory, sizeof(options.gameDirectory));
+            continue;
+        }
+        if (key == "mt32_roms") {
+            if (!(options.explicitOptions & SDL_LAUNCHER_EXPLICIT_MT32_ROMS))
+                read_path_setting(value, options.mt32Roms, sizeof(options.mt32Roms));
+            continue;
+        }
+        if (key == "mt32_model") {
+            if (!(options.explicitOptions & SDL_LAUNCHER_EXPLICIT_MT32_MODEL) &&
+                valid_machine_id(value)) {
+                std::memcpy(options.mt32Model, value.data(), value.size());
+                options.mt32Model[value.size()] = '\0';
             }
             continue;
         }
@@ -177,7 +211,8 @@ void load_launcher_config(const std::filesystem::path &path,
 bool save_launcher_config(const std::filesystem::path &path,
                           const SdlLauncherOptions &options)
 {
-    if (path.empty() || std::strpbrk(options.gameDirectory, "\r\n") != nullptr)
+    if (path.empty() || std::strpbrk(options.gameDirectory, "\r\n") != nullptr ||
+        std::strpbrk(options.mt32Roms, "\r\n") != nullptr)
         return false;
     auto temporaryPath = path;
     temporaryPath += ".tmp";
@@ -186,6 +221,10 @@ bool save_launcher_config(const std::filesystem::path &path,
         return false;
     output << "[launcher]\n"
            << "game_directory=\"" << options.gameDirectory << "\"\n";
+    if (options.mt32Roms[0] != '\0')
+        output << "mt32_roms=\"" << options.mt32Roms << "\"\n";
+    if (valid_machine_id(options.mt32Model))
+        output << "mt32_model=" << options.mt32Model << '\n';
     for (const auto &setting : integerSettings)
         output << setting.name << '=' << options.*setting.member << '\n';
     const std::string_view keyBindings(options.keyBindings,

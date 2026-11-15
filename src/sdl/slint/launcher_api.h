@@ -3,6 +3,8 @@
 
 #include "../joystick_calibration.h"
 
+#include <stddef.h>
+
 #define SDL_LAUNCHER_DIRECTORY_CAPACITY 4096
 #define SDL_LAUNCHER_KEY_BINDINGS_CAPACITY 4096
 
@@ -40,8 +42,20 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_FULLSCREEN = 1 << 8,
     SDL_LAUNCHER_EXPLICIT_AUTOSAVE = 1 << 9,
     SDL_LAUNCHER_EXPLICIT_LANGUAGE = 1 << 10,
-    SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE = 1 << 11
+    SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE = 1 << 11,
+    SDL_LAUNCHER_EXPLICIT_MUSIC = 1 << 12,
+    SDL_LAUNCHER_EXPLICIT_MT32_ROMS = 1 << 13,
+    SDL_LAUNCHER_EXPLICIT_MT32_MODEL = 1 << 14
 };
+
+/* The music the game plays (SDL_PORT_MUSIC_* in wc1sdl.h). */
+enum SdlLauncherMusic {
+    SDL_LAUNCHER_MUSIC_DEFAULT = 0, /* Kilrathi Saga streams, DOS AdLib */
+    SDL_LAUNCHER_MUSIC_ADLIB = 1,
+    SDL_LAUNCHER_MUSIC_MT32 = 2
+};
+
+#define SDL_LAUNCHER_MT32_MODEL_CAPACITY 32
 
 typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
@@ -59,6 +73,11 @@ typedef struct SdlLauncherOptions {
     /* Percent of travel, 0 to SDL_JOYSTICK_DEAD_ZONE_MAXIMUM; the original's
      * is SDL_JOYSTICK_DEAD_ZONE_ORIGINAL. */
     int joystickDeadZone;
+    int musicDevice;
+    /* The player's MT-32 or CM-32L ROMs, and optionally the libmt32emu
+     * machine to use (empty: the best one the folder has). */
+    char mt32Roms[SDL_LAUNCHER_DIRECTORY_CAPACITY];
+    char mt32Model[SDL_LAUNCHER_MT32_MODEL_CAPACITY];
     int swcDemo;
     int campaign; /* This launch: 0 WC1, 1 SM1, 2 SM2. Not a saved preference. */
     int transferPilot; /* Open the transfer barracks for this launch only. */
@@ -82,6 +101,10 @@ int SdlHasSwcResources(const char *directory);
 int SdlFindVoiceDirectory(const char *directory, char *root, unsigned long capacity);
 /* German UI strings in a player's patched DOS WC.EXE (0 for any other). */
 int SdlCountGermanText(const char *path);
+/* 1 when the folder has a playable MT-32 or CM-32L ROM pair, describing it;
+ * otherwise 0 and the reason (src/sdl/mt32.c). */
+int SdlDescribeMt32Roms(const char *directory, const char *machine,
+                        char *text, size_t textSize);
 
 #ifdef __cplusplus
 }

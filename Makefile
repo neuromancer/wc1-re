@@ -569,6 +569,7 @@ MODERN_GAME_HOST_SRCS = \
 	src/sdl/gl_renderer.c \
 	src/sdl/joystick.c \
 	src/sdl/keymap.c \
+	src/sdl/mt32.c \
 	src/sdl/music.c \
 	src/sdl/video.c
 MODERN_GAME_HOST_CXX_SRCS = \
@@ -578,6 +579,36 @@ MODERN_YMFM_SRCS = \
 	third_party/ymfm/ymfm_adpcm.cpp \
 	third_party/ymfm/ymfm_opl.cpp \
 	third_party/ymfm/ymfm_pcm.cpp
+# libmt32emu emulates the MT-32 for DOS music (see third_party/munt/README.wc1).
+MODERN_MUNT_SRCS = \
+	third_party/munt/mt32emu/Analog.cpp \
+	third_party/munt/mt32emu/BReverbModel.cpp \
+	third_party/munt/mt32emu/Display.cpp \
+	third_party/munt/mt32emu/File.cpp \
+	third_party/munt/mt32emu/FileStream.cpp \
+	third_party/munt/mt32emu/LA32FloatWaveGenerator.cpp \
+	third_party/munt/mt32emu/LA32Ramp.cpp \
+	third_party/munt/mt32emu/LA32WaveGenerator.cpp \
+	third_party/munt/mt32emu/MidiStreamParser.cpp \
+	third_party/munt/mt32emu/Part.cpp \
+	third_party/munt/mt32emu/Partial.cpp \
+	third_party/munt/mt32emu/PartialManager.cpp \
+	third_party/munt/mt32emu/Poly.cpp \
+	third_party/munt/mt32emu/ROMInfo.cpp \
+	third_party/munt/mt32emu/SampleRateConverter.cpp \
+	third_party/munt/mt32emu/Synth.cpp \
+	third_party/munt/mt32emu/Tables.cpp \
+	third_party/munt/mt32emu/TVA.cpp \
+	third_party/munt/mt32emu/TVF.cpp \
+	third_party/munt/mt32emu/TVP.cpp \
+	third_party/munt/mt32emu/c_interface/c_interface.cpp \
+	third_party/munt/mt32emu/sha1/sha1.cpp \
+	third_party/munt/mt32emu/srchelper/InternalResampler.cpp \
+	third_party/munt/mt32emu/srchelper/srctools/src/FIRResampler.cpp \
+	third_party/munt/mt32emu/srchelper/srctools/src/IIR2xResampler.cpp \
+	third_party/munt/mt32emu/srchelper/srctools/src/LinearResampler.cpp \
+	third_party/munt/mt32emu/srchelper/srctools/src/ResamplerModel.cpp \
+	third_party/munt/mt32emu/srchelper/srctools/src/SincResampler.cpp
 MODERN_LAUNCHER_SRC = src/sdl/launcher.c
 
 MODERN_GAMEPLAY_OBJS = \
@@ -588,11 +619,12 @@ MODERN_IX_OBJS = \
 	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_IX_SRCS))
 MODERN_BASE_HOST_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_BASE_HOST_SRCS))
 MODERN_YMFM_OBJS = $(patsubst %.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_YMFM_SRCS))
+MODERN_MUNT_OBJS = $(patsubst %.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_MUNT_SRCS))
 MODERN_GAME_HOST_OBJS = \
 	$(MODERN_OUT_DIR)/obj/towns_font.o \
 	$(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_SRCS)) \
 	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_CXX_SRCS)) \
-	$(MODERN_YMFM_OBJS)
+	$(MODERN_YMFM_OBJS) $(MODERN_MUNT_OBJS)
 MODERN_LAUNCHER_OBJ = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_LAUNCHER_SRC))
 MODERN_STATIC_GUI_LAUNCHER_OBJ = $(MODERN_OUT_DIR)/obj/sdl/launcher_gui.o
 MODERN_GUI_GAME_OBJS = $(MODERN_STATIC_GUI_LAUNCHER_OBJ) \
@@ -756,6 +788,17 @@ $(MODERN_OUT_DIR)/obj/sdl/originfx.o: src/sdl/originfx.cpp | modern-check-deps
 		$(MODERN_CXXFLAGS) -std=c++14 \
 		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
+
+# Upstream's CMake build defines these for every platform the port builds on.
+# Its DAC emulation shifts negative samples left on purpose.
+$(MODERN_MUNT_OBJS): $(MODERN_OUT_DIR)/obj/third_party/munt/%.o: third_party/munt/%.cpp | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CXX) -DMT32EMU_WITH_INTERNAL_RESAMPLER -DMT32EMU_WITH_SNPRINTF \
+		-DMT32EMU_WITH_EXP2F $(MODERN_CXXFLAGS) \
+		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) -fno-sanitize=shift-base \
+		$(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/obj/sdl/mt32.o: MODERN_CPPFLAGS += -Ithird_party/munt
 
 $(MODERN_OUT_DIR)/obj/third_party/ymfm/%.o: third_party/ymfm/%.cpp | modern-check-deps
 	@mkdir -p $(dir $@)

@@ -382,8 +382,9 @@ int ProcessMusicScriptCommand(int track, int command, short enabled)
     nCurrentMusicTrack = track;
 #ifdef SDL_PORT
     /* DOS scores loop and exit by their own 0xFE events, which WC.EXE's
-     * sequencer follows for these same commands. */
-    if (SdlUsingDosData()) {
+     * sequencer follows for these same commands. They play for DOS data,
+     * and for Kilrathi Saga data on the player's AdLib or MT-32. */
+    if (SdlUsingOriginFxMusic()) {
         SdlOriginFxMusicCommand(track, command);
         return 1;
     }

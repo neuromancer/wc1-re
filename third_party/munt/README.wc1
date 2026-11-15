@@ -1,0 +1,16 @@
+libmt32emu, the MT-32 emulation library of the Munt project, is vendored from
+https://github.com/munt/munt at tag libmt32emu_2_8_6. The release tarball has
+SHA-256 9d351ccc4671027bdaf62ddc08aafdec8971ecb61835d9324bce949916cb0775.
+
+mt32emu/ holds the library's src/ directory without its tests, the version
+tagging sources and the adapters for the external libsoxr and libsamplerate
+resamplers. The sources are unmodified. mt32emu/config.h replaces
+src/config.h.in with the values that the upstream CMake build gives a static
+library with both interfaces. The build compiles the library with
+MT32EMU_WITH_INTERNAL_RESAMPLER, MT32EMU_WITH_SNPRINTF and
+MT32EMU_WITH_EXP2F, and finds its header as <mt32emu/mt32emu.h>.
+
+libmt32emu remains under the GNU Lesser General Public License, version 2.1
+or later, in COPYING.LESSER.txt; COPYING.txt is the GPL that it refers to.
+AUTHORS.txt lists its authors. No MT-32 ROMs are part of this repository:
+players supply their own.

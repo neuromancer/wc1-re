@@ -24,7 +24,7 @@ export enum LauncherMessage {
 export component LauncherWindow inherits Window {
     title: "Wing Commander";
     preferred-width: 760px;
-    preferred-height: 660px;
+    preferred-height: 700px;
     min-width: 640px;
     background: Palette.background;
 
@@ -44,6 +44,20 @@ export component LauncherWindow inherits Window {
         : root.towns-data
         ? ["English", "Español", "Japanese (FM Towns)", "Français"]
         : ["English", "Español", "Français"];
+    // The music the game plays (SdlLauncherMusic): a DOS install offers the
+    // AdLib and the MT-32, a Kilrathi Saga install also its digital music.
+    in property <bool> dos-data: false;
+    in property <bool> music-available: false;
+    in-out property <int> music-device;
+    // The choice shown for music-device, which depends on the installation.
+    in-out property <int> music-index;
+    out property <[string]> music-choices: root.dos-data
+        ? [@tr("AdLib"), @tr("Roland MT-32")]
+        : [@tr("Digital"), @tr("AdLib"), @tr("Roland MT-32")];
+    in property <bool> mt32-roms-set: false;
+    in property <bool> mt32-ready: false;
+    // libmt32emu's description of the ROMs, or why they cannot play.
+    in property <string> mt32-detail;
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
     in-out property <bool> cockpitless-view;
@@ -107,6 +121,8 @@ export component LauncherWindow inherits Window {
     callback browse-requested();
     callback installation-selected(int);
     callback language-selected(int);
+    callback music-selected(int);
+    callback mt32-browse-requested();
     callback launch-requested(int, bool);
     callback credits-requested();
     callback cancel-requested();
@@ -182,20 +198,68 @@ export component LauncherWindow inherits Window {
                     }
                 }
 
-                HorizontalLayout {
+                GridLayout {
                     spacing: 8px;
-                    height: 34px;
-                    Text {
-                        text: @tr("Language");
-                        vertical-alignment: center;
-                    }
-                    ComboBox {
-                        horizontal-stretch: 1;
-                        model: root.language-choices;
-                        current-index: !root.towns-data && root.language-index == 3 ? 2 : root.language-index;
-                        selected(_) => {
-                            root.language-selected(!root.towns-data && self.current-index == 2 ? 3 : self.current-index);
+
+                    Row {
+                        Text {
+                            text: @tr("Language");
+                            vertical-alignment: center;
                         }
+                        ComboBox {
+                            colspan: 2;
+                            horizontal-stretch: 1;
+                            model: root.language-choices;
+                            current-index: !root.towns-data && root.language-index == 3 ? 2 : root.language-index;
+                            selected(_) => {
+                                root.language-selected(!root.towns-data && self.current-index == 2 ? 3 : self.current-index);
+                            }
+                        }
+                    }
+
+                    Row {
+                        Text {
+                            text: @tr("Music");
+                            vertical-alignment: center;
+                        }
+                        ComboBox {
+                            horizontal-stretch: 1;
+                            enabled: root.music-available;
+                            model: root.music-choices;
+                            current-index <=> root.music-index;
+                            selected(_) => {
+                                root.music-selected(self.current-index);
+                            }
+                        }
+                        Button {
+                            text: @tr("MT-32 ROMs…");
+                            enabled: root.music-available;
+                            clicked => {
+                                root.mt32-browse-requested();
+                            }
+                        }
+                    }
+                }
+
+                if root.music-available && root.music-device == 2 : HorizontalLayout {
+                    spacing: 8px;
+                    vertical-stretch: 0;
+
+                    Text {
+                        text: root.mt32-ready ? "●" : "!";
+                        color: root.mt32-ready ? #2e7d32 : #b45f06;
+                        font-size: 14px;
+                    }
+
+                    Text {
+                        horizontal-stretch: 1;
+                        text: root.mt32-ready
+                            ? @tr("MT-32: {}", root.mt32-detail)
+                            : !root.mt32-roms-set
+                            ? @tr("Choose the folder with your MT-32 or CM-32L ROMs; until then the game plays AdLib music.")
+                            : @tr("The game plays AdLib music: {}", root.mt32-detail);
+                        color: root.mt32-ready ? Palette.foreground : #b45f06;
+                        wrap: word-wrap;
                     }
                 }
 

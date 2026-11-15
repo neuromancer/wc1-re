@@ -10,6 +10,10 @@ static const char *const g_apszSdlLauncherJoystickModes[] = {
     "original", "4button-2axis", "4button-4axis"
 };
 
+static const char *const g_apszSdlLauncherMusic[] = {
+    "default", "adlib", "mt32"
+};
+
 static const char *const g_apszSdlLauncherJoystickAxes[] = {
     "twin-stick-roll", "twin-stick-yaw", "hotas-yaw", "hotas-roll",
     "linear-throttle", "rudder-yaw", "rudder-roll"
@@ -25,6 +29,22 @@ static int SdlFindLauncherChoice(const char *name,
             return choice;
     }
     return -1;
+}
+
+/* The game later changes into GAMEDAT, so keep the ROM folder absolute. */
+static int SdlSetMt32RomArgument(const char *directory, SdlLauncherOptions *options)
+{
+    char current[PATH_MAX];
+
+    if (directory[0] == '\0')
+        return 0;
+    if (directory[0] == '/' || directory[0] == '\\' ||
+        (directory[0] != '\0' && directory[1] == ':'))
+        return SDL_strlcpy(options->mt32Roms, directory, sizeof(options->mt32Roms)) <
+            sizeof(options->mt32Roms);
+    return GetCurrentDirectoryA(sizeof(current), current) &&
+        SDL_snprintf(options->mt32Roms, sizeof(options->mt32Roms), "%s/%s", current,
+                     directory) < (int)sizeof(options->mt32Roms);
 }
 
 static int SdlParsePortArguments(int *argumentCount, char **arguments,
@@ -138,6 +158,41 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             }
             options->joystickDeadZone = (int)percent;
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE;
+        } else if (strncmp(argument, "--music=", 8) == 0) {
+            options->musicDevice = SdlFindLauncherChoice(
+                argument + 8, g_apszSdlLauncherMusic,
+                SDL_arraysize(g_apszSdlLauncherMusic));
+            if (options->musicDevice < 0) {
+                fprintf(stderr, "Unknown music: %s (use default, adlib or mt32)\n",
+                        argument + 8);
+                return 0;
+            }
+            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_MUSIC;
+        } else if (strncmp(argument, "--mt32-roms=", 12) == 0) {
+            if (!SdlSetMt32RomArgument(argument + 12, options)) {
+                fprintf(stderr, "Invalid MT-32 ROM folder: %s\n", argument + 12);
+                return 0;
+            }
+            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_MT32_ROMS;
+            /* A ROM folder alone asks for the MT-32. */
+            if (!(options->explicitOptions & SDL_LAUNCHER_EXPLICIT_MUSIC)) {
+                options->musicDevice = SDL_LAUNCHER_MUSIC_MT32;
+                options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_MUSIC;
+            }
+        } else if (strncmp(argument, "--mt32-model=", 13) == 0) {
+            if (SDL_strlcpy(options->mt32Model, argument + 13, sizeof(options->mt32Model)) >=
+                sizeof(options->mt32Model)) {
+                fprintf(stderr, "Invalid MT-32 model: %s\n", argument + 13);
+                return 0;
+            }
+            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_MT32_MODEL;
+        } else if (strcmp(argument, "--mt32-check") == 0) {
+            char description[PATH_MAX + 256];
+            int usable = SdlDescribeMt32Roms(options->mt32Roms, options->mt32Model,
+                                             description, sizeof(description));
+
+            printf("%s\n", description);
+            exit(usable ? 0 : 1);
         } else if (strcmp(argument, "--ega") == 0) {
             options->egaDither = 1;
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_EGA;
@@ -226,6 +281,13 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     }
     SdlSetKeyBindings(options->keyBindings);
     SdlConfigureAutosave(options->autosave);
+    if (options->musicDevice < SDL_LAUNCHER_MUSIC_DEFAULT ||
+        options->musicDevice > SDL_LAUNCHER_MUSIC_MT32) {
+        fprintf(stderr, "Invalid music selection.\n");
+        return 0;
+    }
+    SdlSetMusicDevice(options->musicDevice);
+    SdlSetMt32Roms(options->mt32Roms, options->mt32Model);
     if (*options->voiceCatalog && !options->swcDemo && !SdlLoadVoiceCatalog(options->voiceCatalog)) {
         fprintf(stderr, "Cannot load voices: %s\n", SDL_GetError());
         return 0;
@@ -422,14 +484,19 @@ int main(int argumentCount, char **arguments)
     }
     if (SdlUsingTownsData() && !SdlInitializeTownsAudio())
         fprintf(stderr, "FM Towns audio unavailable: %s\n", SDL_GetError());
-    if (usingDosData || (useEnhancedRenderer && !SdlUsingTownsData())) {
+    /* Kilrathi Saga data plays the intro with OriginFX in the enhanced
+     * renderer, and all its music with OriginFX on an AdLib or MT-32. */
+    if (usingDosData || (!SdlUsingTownsData() &&
+                         (useEnhancedRenderer ||
+                          launcherOptions.musicDevice != SDL_LAUNCHER_MUSIC_DEFAULT))) {
         if (!SdlInitializeOriginFxAudio(usingDosData)) {
             if (usingDosData) {
                 fprintf(stderr,
                         "DOS audio is unavailable.\n");
             } else {
-                fprintf(stderr,
-                        "OriginFX intro music is unavailable.\n");
+                fprintf(stderr, "%s is unavailable.\n",
+                        launcherOptions.musicDevice != SDL_LAUNCHER_MUSIC_DEFAULT
+                            ? "DOS music" : "OriginFX intro music");
             }
         }
     }

@@ -54,6 +54,17 @@ Game data is not included. Open the app, choose a detected installation or use
   with the German fan translation shows its German text, including the menus
   and cockpit messages it translates in `WC.EXE`. The launcher's **Language**
   menu then shows **German** only, and some artwork may stay in English.
+- **Roland MT-32 music:** the DOS scores can play on an emulated MT-32 or
+  CM-32L. Put your own control and PCM ROM files in a folder, choose
+  **Roland MT-32** under **Music** in the launcher, and select the folder with
+  **MT-32 ROMs…**. The launcher names the machine it found, preferring the
+  CM-32L. A DOS installation plays its sound effects on the MT-32 too, sharing
+  its channels with the music as the original does. A *Kilrathi Saga*
+  installation can play its own digital music, the AdLib or the MT-32 scores,
+  and keeps its digital sound effects. Without usable ROMs the game plays the
+  AdLib music. The command line takes `--music=default|adlib|mt32`,
+  `--mt32-roms=DIR`, `--mt32-model=ID` (such as `mt32_1_07`) and
+  `--mt32-check`, which reports what a ROM folder holds.
 - **FM Towns:** copy `WC.EXP` and the complete `GAMEDAT` folder from your CD
   into a writable folder and select it. For CD music, keep the disc image and
   place its CUE sheet beside `WC.EXP` as `TOWNS.CUE`.
@@ -148,7 +159,9 @@ Special thanks to:
 - Aaron Giles for the [DREAMM emulator](https://dreamm.aarongiles.com/), used
   to run and study the original release, and
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's
-  AdLib emulation; and
+  AdLib emulation;
+- the [Munt project](https://github.com/munt/munt), whose libmt32emu
+  (LGPL-2.1 or later) emulates the Roland MT-32 and CM-32L; and
 - DaisenryakuFan for providing very advanced source reconstructions for the DOS
   releases of several *Wing Commander* titles.
 

@@ -1323,3 +1323,43 @@ msgstr "Registrar posición"
 msgctxt "CalibrationWindow"
 msgid "Calibrate"
 msgstr "Calibrar"
+
+#: src/sdl/slint/launcher.slint:53
+msgctxt "LauncherWindow"
+msgid "AdLib"
+msgstr "AdLib"
+
+#: src/sdl/slint/launcher.slint:53
+msgctxt "LauncherWindow"
+msgid "Roland MT-32"
+msgstr "Roland MT-32"
+
+#: src/sdl/slint/launcher.slint:54
+msgctxt "LauncherWindow"
+msgid "Digital"
+msgstr "Digital"
+
+#: src/sdl/slint/launcher.slint:220
+msgctxt "LauncherWindow"
+msgid "Music"
+msgstr "Música"
+
+#: src/sdl/slint/launcher.slint:233
+msgctxt "LauncherWindow"
+msgid "MT-32 ROMs…"
+msgstr "ROM del MT-32…"
+
+#: src/sdl/slint/launcher.slint:255
+msgctxt "LauncherWindow"
+msgid "MT-32: {}"
+msgstr "MT-32: {}"
+
+#: src/sdl/slint/launcher.slint:257
+msgctxt "LauncherWindow"
+msgid "Choose the folder with your MT-32 or CM-32L ROMs; until then the game plays AdLib music."
+msgstr "Elige la carpeta con tus ROM de MT-32 o CM-32L; mientras tanto, el juego usa la música AdLib."
+
+#: src/sdl/slint/launcher.slint:258
+msgctxt "LauncherWindow"
+msgid "The game plays AdLib music: {}"
+msgstr "El juego usa la música AdLib: {}"
