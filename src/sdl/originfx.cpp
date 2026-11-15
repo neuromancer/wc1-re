@@ -3,6 +3,7 @@
 
 #include "ymfm_opl.h"
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,6 +21,7 @@
 #define ORIGINFX_SOUND_SLOT_COUNT 32
 #define ORIGINFX_PERCUSSION_NOTE_COUNT 77
 #define ORIGINFX_TIMBRE_SIZE 48U
+#define ORIGINFX_EVENTS_PER_TICK 65536U
 
 /* STRAX.DRV 0000:01dc-020e.  Logical voices 6-10 are the five OPL2
  * rhythm voices after the driver reduces the melodic allocator to six
@@ -42,10 +44,13 @@ static const unsigned char g_abOriginFxModulatorOffsets[20] = {
 /* WC.EXE 2231:051e-063d.  FUN_16ac_07f2 indexes the table with the
  * one-based game sound number.  Each OriginFX record is flags, program + 1,
  * note, velocity, a little-endian 60 Hz duration, glide target, and an
- * unused byte.  The preceding eight bytes at 2231:0516 are not a sound. */
+ * unused byte.  The preceding eight bytes at 2231:0516 are not a sound.
+ * Sound 2 is the fly-by, its only use: UpdateFlightSound (003:0587) stores
+ * note 0, duration 1 and target 127 before each one, so it rises through
+ * the whole range.  WC.EXE's initial note 64 and target 0 never play. */
 static const unsigned char g_aabOriginFxSoundRecords[36][8] = {
     { 0, 1, 64, 64, 60, 0, 0, 0 },
-    { 2, 2, 64, 64, 1, 0, 0, 0 },
+    { 2, 2, 0, 64, 1, 0, 127, 0 },
     { 0, 39, 64, 64, 60, 0, 0, 0 },
     { 0, 4, 64, 64, 60, 0, 0, 0 },
     { 0, 7, 64, 64, 6, 0, 0, 0 },
@@ -109,22 +114,17 @@ static const unsigned char g_abOriginFxPercussionPrograms[17] = {
     0x88, 0x8d, 0x8f, 0x90, 0x91, 0x93, 0x8c, 0x8b
 };
 
-enum OriginFxEventType {
-    ORIGINFX_CHANNEL_EVENT,
-    ORIGINFX_TEMPO_EVENT,
-    ORIGINFX_SEQUENCE_EVENT
-};
-
-typedef struct OriginFxEvent {
-    uint64_t tick;
-    uint64_t frame;
-    uint32_t order;
-    uint32_t tempo;
-    unsigned char type;
-    unsigned char status;
-    unsigned char data1;
-    unsigned char data2;
-} OriginFxEvent;
+/* One MTrk chunk as WC.EXE's sequencer (035:0bda) reads it: a cursor that
+ * Origin's 0xFE control events can move, and the MIDI ticks until the
+ * track's next event. */
+typedef struct OriginFxTrack {
+    const unsigned char *start;
+    const unsigned char *end;
+    const unsigned char *cursor;
+    uint32_t wait;
+    unsigned char runningStatus;
+    unsigned char done;
+} OriginFxTrack;
 
 typedef struct OriginFxChannel {
     unsigned short pitchBend;
@@ -170,14 +170,15 @@ struct SdlOriginFxPlayer {
     ymfm::ym3812 oplChip;
     OriginFxYmfmInterface oplRightInterface;
     ymfm::ym3812 oplRightChip;
-    OriginFxEvent *events;
+    unsigned char *midi;
+    OriginFxTrack *tracks;
     unsigned char *timbres;
-    size_t eventCount;
-    size_t eventCapacity;
-    size_t nextEvent;
     size_t timbreSize;
-    uint64_t endFrame;
     uint64_t currentFrame;
+    uint64_t tickTime;
+    uint32_t division;
+    uint32_t tempo;
+    unsigned int trackCount;
     uint64_t nextVoiceAge;
     uint64_t nextSoundEffectAge;
     uint64_t nativeSampleAccumulator;
@@ -189,6 +190,9 @@ struct SdlOriginFxPlayer {
     unsigned char melodicVoiceCount;
     unsigned char rhythmRegister;
     int stereoPanningEnabled;
+    int sequenceStarted;
+    int leaveAtLoop;
+    int branch;
     int finished;
     OriginFxChannel channels[ORIGINFX_CHANNEL_COUNT];
     OriginFxVoice voices[ORIGINFX_VOICE_STATE_COUNT];
@@ -197,14 +201,15 @@ struct SdlOriginFxPlayer {
     SdlOriginFxPlayer() :
         oplChip(oplInterface),
         oplRightChip(oplRightInterface),
-        events(0),
+        midi(0),
+        tracks(0),
         timbres(0),
-        eventCount(0),
-        eventCapacity(0),
-        nextEvent(0),
         timbreSize(0),
-        endFrame(0),
         currentFrame(0),
+        tickTime(0),
+        division(0),
+        tempo(500000),
+        trackCount(0),
         nextVoiceAge(1),
         nextSoundEffectAge(1),
         nativeSampleAccumulator(0),
@@ -216,6 +221,9 @@ struct SdlOriginFxPlayer {
         melodicVoiceCount(ORIGINFX_MELODIC_VOICE_COUNT),
         rhythmRegister(0),
         stereoPanningEnabled(0),
+        sequenceStarted(0),
+        leaveAtLoop(0),
+        branch(0),
         finished(0)
     {
         memset(channels, 0, sizeof(channels));
@@ -225,7 +233,8 @@ struct SdlOriginFxPlayer {
 
     ~SdlOriginFxPlayer()
     {
-        free(events);
+        free(midi);
+        free(tracks);
         free(timbres);
     }
 };
@@ -269,165 +278,98 @@ static int OriginFxReadVariableLength(const unsigned char **cursor,
     return 1;
 }
 
-static int OriginFxAppendEvent(SdlOriginFxPlayer *player,
-                                  const OriginFxEvent *event)
-{
-    OriginFxEvent *resized;
-    size_t capacity;
-
-    if (player->eventCount == player->eventCapacity) {
-        capacity = player->eventCapacity == 0
-            ? 256 : player->eventCapacity * 2;
-        if (capacity < player->eventCapacity ||
-            capacity > SIZE_MAX / sizeof(OriginFxEvent))
-            return 0;
-        resized = (OriginFxEvent *)realloc(
-            player->events, capacity * sizeof(OriginFxEvent));
-        if (resized == 0)
-            return 0;
-        player->events = resized;
-        player->eventCapacity = capacity;
-    }
-    player->events[player->eventCount++] = *event;
-    return 1;
-}
-
-static int OriginFxParseTrack(SdlOriginFxPlayer *player,
-                                 const unsigned char *track,
-                                 size_t trackSize,
-                                 uint32_t *eventOrder,
-                                 uint64_t *maximumTick)
-{
-    OriginFxEvent event;
-    const unsigned char *cursor;
-    const unsigned char *end;
-    uint64_t tick;
-    uint32_t delta;
-    uint32_t eventLength;
-    unsigned char runningStatus;
+/* One event of a track, decoded but not played. */
+typedef struct OriginFxTrackEvent {
+    const unsigned char *data;
+    uint32_t length;
     unsigned char status;
-    unsigned char subtype;
-    unsigned int dataSize;
+    unsigned char type;
+} OriginFxTrackEvent;
+
+/* Decodes the event at *cursor and moves past it. Running status lasts
+ * across meta, system-exclusive and 0xFE events, as in 035:0bda. */
+static int OriginFxReadTrackEvent(const unsigned char **cursor,
+                                     const unsigned char *end,
+                                     unsigned char *runningStatus,
+                                     OriginFxTrackEvent *event)
+{
+    const unsigned char *position;
     unsigned int index;
 
-    cursor = track;
-    end = track + trackSize;
-    tick = 0;
-    runningStatus = 0;
-    while (cursor < end) {
-        if (!OriginFxReadVariableLength(&cursor, end, &delta))
+    position = *cursor;
+    if (position >= end)
+        return 0;
+    event->status = *position;
+    if (event->status >= 0x80U) {
+        position++;
+        if (event->status < 0xf0U)
+            *runningStatus = event->status;
+    } else if (*runningStatus == 0) {
+        return 0;
+    } else {
+        event->status = *runningStatus;
+    }
+    event->type = 0;
+    if (event->status < 0xf0U) {
+        event->length = (event->status & 0xe0U) == 0xc0U ? 1U : 2U;
+        if ((size_t)(end - position) < event->length)
             return 0;
-        tick += delta;
-        if (cursor >= end)
+        index = 0;
+        while (index < event->length) {
+            if (position[index] >= 0x80U)
+                return 0;
+            index++;
+        }
+    } else if (event->status == 0xfeU) {
+        if ((size_t)(end - position) < 2)
             return 0;
-        if (*cursor >= 0x80U) {
-            status = *cursor++;
-        } else {
-            if (runningStatus == 0)
-                return 0;
-            status = runningStatus;
-        }
-
-        if (status >= 0x80U && status <= 0xefU) {
-            dataSize = (status & 0xe0U) == 0xc0U ? 1U : 2U;
-            if ((size_t)(end - cursor) < dataSize)
-                return 0;
-            index = 0;
-            while (index < dataSize) {
-                if (cursor[index] >= 0x80U)
-                    return 0;
-                index++;
-            }
-            memset(&event, 0, sizeof(event));
-            event.tick = tick;
-            event.order = (*eventOrder)++;
-            event.type = ORIGINFX_CHANNEL_EVENT;
-            event.status = status;
-            event.data1 = cursor[0];
-            event.data2 = dataSize == 2 ? cursor[1] : 0;
-            if (!OriginFxAppendEvent(player, &event))
-                return 0;
-            cursor += dataSize;
-            runningStatus = status;
-            continue;
-        }
-
-        if (status == 0xfeU) {
-            if ((size_t)(end - cursor) < 2)
-                return 0;
-            subtype = *cursor++;
-            eventLength = *cursor++;
-            if ((size_t)(end - cursor) < eventLength)
-                return 0;
-            if (subtype == 3U && eventLength != 0) {
-                memset(&event, 0, sizeof(event));
-                event.tick = tick;
-                event.order = (*eventOrder)++;
-                event.type = ORIGINFX_SEQUENCE_EVENT;
-                event.data1 = cursor[0];
-                if (!OriginFxAppendEvent(player, &event))
-                    return 0;
-            }
-            cursor += eventLength;
-            continue;
-        }
-
-        if (status == 0xffU) {
-            if (cursor >= end)
-                return 0;
-            subtype = *cursor++;
-            if (!OriginFxReadVariableLength(
-                    &cursor, end, &eventLength) ||
-                (size_t)(end - cursor) < eventLength)
-                return 0;
-            if (subtype == 0x51U && eventLength == 3) {
-                memset(&event, 0, sizeof(event));
-                event.tick = tick;
-                event.order = (*eventOrder)++;
-                event.type = ORIGINFX_TEMPO_EVENT;
-                event.tempo = ((uint32_t)cursor[0] << 16) |
-                    ((uint32_t)cursor[1] << 8) | cursor[2];
-                if (event.tempo == 0 ||
-                    !OriginFxAppendEvent(player, &event))
-                    return 0;
-            }
-            cursor += eventLength;
-            runningStatus = 0;
-            continue;
-        }
-
-        if (status == 0xf0U || status == 0xf7U) {
-            if (!OriginFxReadVariableLength(
-                    &cursor, end, &eventLength) ||
-                (size_t)(end - cursor) < eventLength)
-                return 0;
-            cursor += eventLength;
-            runningStatus = 0;
-            continue;
-        }
+        event->type = position[0];
+        event->length = position[1];
+        position += 2;
+    } else if (event->status == 0xffU) {
+        if (position >= end)
+            return 0;
+        event->type = *position++;
+        if (!OriginFxReadVariableLength(&position, end, &event->length))
+            return 0;
+    } else if (event->status == 0xf0U || event->status == 0xf7U) {
+        if (!OriginFxReadVariableLength(&position, end, &event->length))
+            return 0;
+    } else {
         return 0;
     }
-    if (tick > *maximumTick)
-        *maximumTick = tick;
+    if ((size_t)(end - position) < event->length)
+        return 0;
+    event->data = position;
+    *cursor = position + event->length;
     return 1;
 }
 
-static int OriginFxCompareEvents(const void *left, const void *right)
+/* Rejects a track whose events run past its chunk. The sequencer still
+ * bounds every jump that an 0xFE event makes. */
+static int OriginFxCheckTrack(const unsigned char *track,
+                                 const unsigned char *end)
 {
-    const OriginFxEvent *leftEvent;
-    const OriginFxEvent *rightEvent;
+    OriginFxTrackEvent event;
+    const unsigned char *cursor;
+    uint32_t delta;
+    unsigned char runningStatus;
 
-    leftEvent = (const OriginFxEvent *)left;
-    rightEvent = (const OriginFxEvent *)right;
-    if (leftEvent->tick < rightEvent->tick)
-        return -1;
-    if (leftEvent->tick > rightEvent->tick)
-        return 1;
-    if (leftEvent->order < rightEvent->order)
-        return -1;
-    if (leftEvent->order > rightEvent->order)
-        return 1;
-    return 0;
+    cursor = track;
+    runningStatus = 0;
+    while (cursor < end) {
+        if (!OriginFxReadVariableLength(&cursor, end, &delta) ||
+            !OriginFxReadTrackEvent(&cursor, end, &runningStatus, &event))
+            return 0;
+        if (event.status != 0xffU)
+            continue;
+        if (event.type == 0x51U && event.length == 3 &&
+            (event.data[0] | event.data[1] | event.data[2]) == 0)
+            return 0;
+        if (event.type == 0x2fU)
+            break;
+    }
+    return 1;
 }
 
 static int OriginFxLoadMidi(SdlOriginFxPlayer *player,
@@ -435,90 +377,66 @@ static int OriginFxLoadMidi(SdlOriginFxPlayer *player,
                                size_t midiSize)
 {
     const unsigned char *cursor;
-    const unsigned char *track;
-    size_t headerSize;
-    size_t playbackEventCount;
-    uint64_t maximumTick;
-    uint64_t previousTick;
-    uint32_t eventOrder;
+    const unsigned char *end;
+    OriginFxTrack *track;
     uint32_t headerLength;
-    uint32_t trackLength;
-    uint32_t tempo;
+    uint32_t chunkLength;
     uint16_t format;
     uint16_t trackCount;
     uint16_t division;
-    uint16_t trackIndex;
-    long double exactFrame;
-    size_t index;
+    unsigned int trackIndex;
 
     if (midi == 0 || midiSize < 14 ||
         memcmp(midi, "MThd", 4) != 0)
         return 0;
     headerLength = OriginFxReadBigEndian32(midi + 4);
-    headerSize = (size_t)headerLength + 8;
-    if (headerLength < 6 || headerSize > midiSize)
+    if (headerLength < 6 || headerLength > midiSize - 8)
         return 0;
     format = OriginFxReadBigEndian16(midi + 8);
     trackCount = OriginFxReadBigEndian16(midi + 10);
     division = OriginFxReadBigEndian16(midi + 12);
-    if (format > 1 || trackCount == 0 || (division & 0x8000U) != 0 ||
-        division == 0)
+    /* StartSong (035:1854) takes formats 0-2 and at most 32 tracks. */
+    if (format > 2 || trackCount == 0 || trackCount > 32 ||
+        (division & 0x8000U) != 0 || division == 0)
         return 0;
 
-    cursor = midi + headerSize;
-    eventOrder = 0;
-    maximumTick = 0;
+    player->midi = (unsigned char *)malloc(midiSize);
+    player->tracks = (OriginFxTrack *)calloc(
+        trackCount, sizeof(OriginFxTrack));
+    if (player->midi == 0 || player->tracks == 0)
+        return 0;
+    memcpy(player->midi, midi, midiSize);
+    cursor = player->midi + 8 + headerLength;
+    end = player->midi + midiSize;
     trackIndex = 0;
     while (trackIndex < trackCount) {
-        if ((size_t)(midi + midiSize - cursor) < 8 ||
-            memcmp(cursor, "MTrk", 4) != 0)
+        if ((size_t)(end - cursor) < 8)
             return 0;
-        trackLength = OriginFxReadBigEndian32(cursor + 4);
-        cursor += 8;
-        if ((size_t)(midi + midiSize - cursor) < trackLength)
+        chunkLength = OriginFxReadBigEndian32(cursor + 4);
+        if ((size_t)(end - cursor) - 8 < chunkLength)
             return 0;
-        track = cursor;
-        if (!OriginFxParseTrack(
-                player, track, trackLength, &eventOrder, &maximumTick))
-            return 0;
-        cursor += trackLength;
-        trackIndex++;
-    }
-    if (cursor != midi + midiSize)
-        return 0;
-
-    qsort(player->events, player->eventCount,
-          sizeof(OriginFxEvent), OriginFxCompareEvents);
-    exactFrame = 0;
-    previousTick = 0;
-    tempo = 500000;
-    playbackEventCount = 0;
-    index = 0;
-    while (index < player->eventCount) {
-        exactFrame +=
-            (long double)(player->events[index].tick - previousTick) *
-            ORIGINFX_OUTPUT_RATE * tempo /
-            ((long double)division * 1000000.0L);
-        previousTick = player->events[index].tick;
-        if (player->events[index].type == ORIGINFX_TEMPO_EVENT) {
-            tempo = player->events[index].tempo;
-        } else {
-            player->events[index].frame =
-                (uint64_t)(exactFrame + 0.5L);
-            player->events[playbackEventCount++] = player->events[index];
+        /* Like StartSong, skip any other chunk between the tracks. */
+        if (memcmp(cursor, "MTrk", 4) == 0) {
+            track = &player->tracks[trackIndex++];
+            track->start = cursor + 8;
+            track->end = track->start + chunkLength;
+            if (!OriginFxCheckTrack(track->start, track->end))
+                return 0;
         }
-        index++;
+        cursor += 8 + (size_t)chunkLength;
     }
-    exactFrame += (long double)(maximumTick - previousTick) *
-        ORIGINFX_OUTPUT_RATE * tempo /
-        ((long double)division * 1000000.0L);
-    player->eventCount = playbackEventCount;
-    player->endFrame = (uint64_t)(exactFrame + 0.5L);
-    if (player->eventCount != 0 &&
-        player->endFrame <= player->events[player->eventCount - 1].frame)
-        player->endFrame = player->events[player->eventCount - 1].frame + 1;
-    if (player->endFrame == 0)
-        player->endFrame = 1;
+    player->trackCount = trackCount;
+    player->division = division;
+
+    /* RewindSong (035:13fa): each track waits for its first delta time. */
+    trackIndex = 0;
+    while (trackIndex < trackCount) {
+        track = &player->tracks[trackIndex++];
+        track->cursor = track->start;
+        if (!OriginFxReadVariableLength(
+                &track->cursor, track->end, &track->wait))
+            track->done = 1;
+    }
     return 1;
 }
 
@@ -1498,62 +1416,198 @@ static void OriginFxServiceSoundEffects(
     }
 }
 
-static void OriginFxDispatchEvent(SdlOriginFxPlayer *player,
-                                     const OriginFxEvent *event)
+static void OriginFxDispatchChannelEvent(SdlOriginFxPlayer *player,
+                                            unsigned int status,
+                                            unsigned int data1,
+                                            unsigned int data2)
 {
     OriginFxChannel *channel;
     unsigned int channelIndex;
     unsigned int command;
     unsigned int note;
 
-    if (event->type == ORIGINFX_SEQUENCE_EVENT) {
-        player->sequencePosition = event->data1;
-        return;
-    }
-    channelIndex = event->status & 0x0fU;
-    command = event->status & 0xf0U;
+    channelIndex = status & 0x0fU;
+    command = status & 0xf0U;
     channel = &player->channels[channelIndex];
     switch (command) {
     case 0x80:
-        note = event->data1;
+        note = data1;
         if (channelIndex != 9 || OriginFxMapPercussionNote(
                 note, &channelIndex, &note))
             OriginFxNoteOff(player, channelIndex, note);
         break;
     case 0x90:
-        note = event->data1;
+        note = data1;
         if (channelIndex != 9 || OriginFxMapPercussionNote(
                 note, &channelIndex, &note)) {
-            if (event->data2 == 0)
+            if (data2 == 0)
                 OriginFxNoteOff(player, channelIndex, note);
             else
-                OriginFxNoteOn(
-                    player, channelIndex, note, event->data2);
+                OriginFxNoteOn(player, channelIndex, note, data2);
         }
         break;
     case 0xb0:
-        OriginFxControlChange(
-            player, channelIndex, event->data1, event->data2);
+        OriginFxControlChange(player, channelIndex, data1, data2);
         break;
     case 0xc0:
-        OriginFxSetProgram(player, channelIndex, event->data1);
+        OriginFxSetProgram(player, channelIndex, data1);
         break;
     case 0xe0:
-        channel->pitchBend = (
-            event->data1 | ((unsigned int)event->data2 << 7));
+        channel->pitchBend = (data1 | (data2 << 7));
         OriginFxUpdateChannelVoices(player, channelIndex, 1, 0);
         break;
     }
 }
 
-static void OriginFxProcessDueEvents(SdlOriginFxPlayer *player)
+static void OriginFxFinishSong(SdlOriginFxPlayer *player)
 {
-    while (player->nextEvent < player->eventCount &&
-           player->events[player->nextEvent].frame <=
-               player->currentFrame) {
-        OriginFxDispatchEvent(
-            player, &player->events[player->nextEvent]);
-        player->nextEvent++;
+    OriginFxAllNotesOff(player, -1);
+    player->finished = 1;
+}
+
+/* Plays one event of a track, then reads the delta time after it, as
+ * MidiSequencer (035:0bda) does. Origin's 0xFE events:
+ * - 0 loops back, unless the song is leaving for a queued one;
+ * - 1 ends a leaving song;
+ * - 2 jumps only while leaving, which the scores use to skip ahead to
+ *   their ending at a bar line;
+ * - 3 is a marker;
+ * - 4 and 5 jump when the branch selector differs from or equals their
+ *   third byte.
+ * A jump moves the cursor back from the event's data by its signed 16-bit
+ * offset, after silencing the track's channel. */
+static void OriginFxPlayTrackEvent(SdlOriginFxPlayer *player,
+                                      OriginFxTrack *track)
+{
+    OriginFxTrackEvent event;
+    uint32_t tempo;
+    ptrdiff_t target;
+    int offset;
+    int jump;
+
+    if (!OriginFxReadTrackEvent(&track->cursor, track->end,
+                                   &track->runningStatus, &event)) {
+        track->done = 1;
+        return;
+    }
+    if (event.status < 0xf0U) {
+        OriginFxDispatchChannelEvent(
+            player, event.status, event.data[0],
+            event.length == 2 ? event.data[1] : 0);
+    } else if (event.status == 0xffU) {
+        if (event.type == 0x2fU) {
+            track->done = 1;
+            return;
+        }
+        if (event.type == 0x51U && event.length == 3) {
+            tempo = ((uint32_t)event.data[0] << 16) |
+                ((uint32_t)event.data[1] << 8) | event.data[2];
+            if (tempo != 0)
+                player->tempo = tempo;
+        }
+    } else if (event.status == 0xfeU) {
+        jump = 0;
+        switch (event.type) {
+        case 0:
+            jump = player->leaveAtLoop == 0;
+            break;
+        case 1:
+            if (player->leaveAtLoop != 0) {
+                OriginFxFinishSong(player);
+                return;
+            }
+            break;
+        case 2:
+            jump = player->leaveAtLoop != 0;
+            break;
+        case 3:
+            if (event.length != 0)
+                player->sequencePosition = event.data[0];
+            break;
+        case 4:
+            jump = event.length >= 3 && event.data[2] != player->branch;
+            break;
+        case 5:
+            jump = event.length >= 3 && event.data[2] == player->branch;
+            break;
+        }
+        if (jump != 0 && event.length >= 2) {
+            offset = event.data[0] | (event.data[1] << 8);
+            if (offset >= 0x8000)
+                offset -= 0x10000;
+            target = (event.data - track->start) - offset;
+            OriginFxControlChange(
+                player, track->runningStatus & 0x0fU, 123, 0);
+            if (target < 0 || target >= track->end - track->start) {
+                track->done = 1;
+                return;
+            }
+            track->cursor = track->start + target;
+        }
+    }
+    if (!OriginFxReadVariableLength(
+            &track->cursor, track->end, &track->wait))
+        track->done = 1;
+}
+
+/* Plays every event that is due, taking the first due track each time as
+ * NextDueTrack (035:0b36) does. The song ends with its last track. */
+static void OriginFxPlayDueEvents(SdlOriginFxPlayer *player)
+{
+    unsigned int trackIndex;
+    unsigned int eventCount;
+
+    eventCount = 0;
+    while (player->finished == 0) {
+        trackIndex = 0;
+        while (trackIndex < player->trackCount &&
+               (player->tracks[trackIndex].done != 0 ||
+                player->tracks[trackIndex].wait != 0))
+            trackIndex++;
+        if (trackIndex == player->trackCount)
+            break;
+        /* A loop that takes no time would hold the sequencer forever. */
+        if (++eventCount > ORIGINFX_EVENTS_PER_TICK) {
+            OriginFxFinishSong(player);
+            return;
+        }
+        OriginFxPlayTrackEvent(player, &player->tracks[trackIndex]);
+    }
+    if (player->finished != 0)
+        return;
+    trackIndex = 0;
+    while (trackIndex < player->trackCount &&
+           player->tracks[trackIndex].done != 0)
+        trackIndex++;
+    if (trackIndex == player->trackCount)
+        OriginFxFinishSong(player);
+}
+
+/* Advances the song by one output frame. A MIDI tick lasts tempo /
+ * division microseconds; tickTime counts in 1 / (rate * division * 1e6)
+ * seconds, so a tempo change needs no rescaling. */
+static void OriginFxAdvanceSequencer(SdlOriginFxPlayer *player)
+{
+    uint64_t tickLength;
+    unsigned int trackIndex;
+
+    if (player->sequenceStarted == 0) {
+        player->sequenceStarted = 1;
+        OriginFxPlayDueEvents(player);
+        return;
+    }
+    player->tickTime += (uint64_t)player->division * 1000000U;
+    tickLength = (uint64_t)player->tempo * ORIGINFX_OUTPUT_RATE;
+    while (player->finished == 0 && player->tickTime >= tickLength) {
+        player->tickTime -= tickLength;
+        trackIndex = 0;
+        while (trackIndex < player->trackCount) {
+            if (player->tracks[trackIndex].done == 0)
+                player->tracks[trackIndex].wait--;
+            trackIndex++;
+        }
+        OriginFxPlayDueEvents(player);
+        tickLength = (uint64_t)player->tempo * ORIGINFX_OUTPUT_RATE;
     }
 }
 
@@ -1814,21 +1868,26 @@ unsigned int SdlOriginFxPlayerSequencePosition(
     return player->sequencePosition;
 }
 
-void SdlRenderOriginFxPlayer(SdlOriginFxPlayer *player,
-                                short *samples,
-                                unsigned int frameCount,
-                                unsigned int gain)
+/* QueueNextSong (035:1af2): the playing song takes its exits from now on
+ * and ends there instead of looping. */
+void SdlLeaveOriginFxPlayerAtLoop(SdlOriginFxPlayer *player)
 {
-    if (samples == 0)
-        return;
-    memset(samples, 0, (size_t)frameCount * sizeof(short) * 2);
-    SdlMixOriginFxPlayer(player, samples, frameCount, gain);
+    if (player != 0)
+        player->leaveAtLoop = 1;
 }
 
-void SdlMixOriginFxPlayer(SdlOriginFxPlayer *player,
-                             short *samples,
-                             unsigned int frameCount,
-                             unsigned int gain)
+void SdlSetOriginFxPlayerBranch(SdlOriginFxPlayer *player, int branch)
+{
+    if (player != 0)
+        player->branch = branch;
+}
+
+/* Mixes the song until it ends and returns the frames it mixed, so that a
+ * queued song can continue in the same buffer. */
+unsigned int SdlMixOriginFxPlayer(SdlOriginFxPlayer *player,
+                                     short *samples,
+                                     unsigned int frameCount,
+                                     unsigned int gain)
 {
     int32_t generatedLeft;
     int32_t generatedRight;
@@ -1837,17 +1896,13 @@ void SdlMixOriginFxPlayer(SdlOriginFxPlayer *player,
     unsigned int frame;
 
     if (samples == 0 || player == 0 || player->finished != 0)
-        return;
+        return 0;
 
     frame = 0;
     while (frame < frameCount) {
-        OriginFxProcessDueEvents(player);
-        if (player->nextEvent == player->eventCount &&
-            player->currentFrame >= player->endFrame) {
-            OriginFxAllNotesOff(player, -1);
-            player->finished = 1;
-            return;
-        }
+        OriginFxAdvanceSequencer(player);
+        if (player->finished != 0)
+            break;
         OriginFxAdvanceService(player);
         OriginFxGenerateOutputSample(
             player, &generatedLeft, &generatedRight);
@@ -1860,9 +1915,5 @@ void SdlMixOriginFxPlayer(SdlOriginFxPlayer *player,
         player->currentFrame++;
         frame++;
     }
-    if (player->nextEvent == player->eventCount &&
-        player->currentFrame >= player->endFrame) {
-        OriginFxAllNotesOff(player, -1);
-        player->finished = 1;
-    }
+    return frame;
 }

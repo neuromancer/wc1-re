@@ -290,6 +290,7 @@ void SdlPlayDosStartupIntro(void)
     introMusic = nMusicPlaybackMode != 0 && nMusicPlaybackMode != 3;
     if (introMusic) {
         nCurrentMusicTrack = 19;
+        SdlOriginFxMusicCommand(19, 0);
         SdlServiceOriginFxMusic();
     }
     synchronizedMusic = introMusic &&
@@ -463,7 +464,7 @@ void SdlPlayDosStartupIntro(void)
 
     if (introMusic) {
         nCurrentMusicTrack = previousMusicTrack;
-        SdlServiceOriginFxMusic();
+        SdlStopOriginFxMusic();
     }
     ClearViewport(&stScreenView, cBlackColour);
     free_viewport(&introViewport);

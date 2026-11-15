@@ -119,6 +119,9 @@ void StopMusic(short unused)
     SoundDebugPrintf("StopMusic ");
     nCurrentMusicTrack = -1;
     Streamer_stop();
+#ifdef SDL_PORT
+    SdlStopOriginFxMusic();
+#endif
     SoundDebugPrintf("\n");
 }
 
@@ -127,6 +130,9 @@ void SetMusBreakpt(int first, int second)
 {
     (void)first;
     (void)second;
+#ifdef SDL_PORT
+    SdlOriginFxMusicBreakpoint();
+#endif
     SoundDebugPrintf("SetMusBreakpt\n");
 }
 
@@ -374,6 +380,14 @@ int ProcessMusicScriptCommand(int track, int command, short enabled)
     }
 
     nCurrentMusicTrack = track;
+#ifdef SDL_PORT
+    /* DOS scores loop and exit by their own 0xFE events, which WC.EXE's
+     * sequencer follows for these same commands. */
+    if (SdlUsingDosData()) {
+        SdlOriginFxMusicCommand(track, command);
+        return 1;
+    }
+#endif
     SelectFlightMusicTrack(track);
     if (nMusicStreamSet == 2) {
         if ((track >= 0 && track <= 5) ||

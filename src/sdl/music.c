@@ -16,6 +16,7 @@ static SDL_mutex *g_pSdlDosMusicMutex;
 static unsigned char *g_pSdlDosMusicArchive;
 static unsigned char *g_pSdlDosAdlibTimbres;
 static SdlOriginFxPlayer *g_pSdlOriginFxPlayer;
+static SdlOriginFxPlayer *g_pSdlQueuedOriginFxPlayer;
 static SdlOriginFxPlayer *g_pSdlOriginFxSoundPlayer;
 static size_t g_nSdlDosMusicArchiveSize;
 static size_t g_nSdlDosAdlibTimbreSize;
@@ -23,6 +24,7 @@ static unsigned int g_nSdlDosMusicGain;
 static unsigned int g_nSdlDosSoundGain;
 static unsigned int g_nSdlDosRapidFireTag;
 static int g_nSdlActiveMusicTrack = -1;
+static int g_nSdlQueuedMusicTrack = -1;
 static int g_nSdlMusicVolumeSetting = -1;
 static int g_nSdlSoundVolumeSetting = -1;
 static int g_bSdlDosMusicAudioCriticalSectionInitialized;
@@ -51,6 +53,29 @@ static unsigned char *SdlLoadDosMusicFile(
     return 0;
 }
 
+/* As MusicTimerIsr (035:12d9) does, start a queued song once the playing
+ * one has ended, here at the sample where it ended. Call with the music
+ * mutex held. */
+static void SdlMixOriginFxSong(short *samples, unsigned int frameCount)
+{
+    unsigned int mixedFrames;
+
+    mixedFrames = 0;
+    while (g_pSdlOriginFxPlayer != 0 && mixedFrames < frameCount) {
+        mixedFrames += SdlMixOriginFxPlayer(
+            g_pSdlOriginFxPlayer, samples + mixedFrames * 2,
+            frameCount - mixedFrames, g_nSdlDosMusicGain);
+        if (!SdlOriginFxPlayerFinished(g_pSdlOriginFxPlayer) ||
+            g_pSdlQueuedOriginFxPlayer == 0)
+            break;
+        SdlDestroyOriginFxPlayer(g_pSdlOriginFxPlayer);
+        g_pSdlOriginFxPlayer = g_pSdlQueuedOriginFxPlayer;
+        g_nSdlActiveMusicTrack = g_nSdlQueuedMusicTrack;
+        g_pSdlQueuedOriginFxPlayer = 0;
+        g_nSdlQueuedMusicTrack = -1;
+    }
+}
+
 static void SdlMixDosAdlibMusic(void *stream, unsigned int byteCount)
 {
     unsigned int frameCount;
@@ -60,11 +85,7 @@ static void SdlMixDosAdlibMusic(void *stream, unsigned int byteCount)
         return;
     SDL_LockMutex(g_pSdlDosMusicMutex);
     frameCount = byteCount / (sizeof(short) * 2U);
-    if (g_pSdlOriginFxPlayer != 0) {
-        SdlRenderOriginFxPlayer(
-            g_pSdlOriginFxPlayer, stream,
-            frameCount, g_nSdlDosMusicGain);
-    }
+    SdlMixOriginFxSong((short *)stream, frameCount);
     if (g_pSdlOriginFxSoundPlayer != 0) {
         SdlMixOriginFxSoundEffects(
             g_pSdlOriginFxSoundPlayer, stream,
@@ -78,6 +99,13 @@ static void SdlDeleteDosAdlibTrack(void)
     SdlDestroyOriginFxPlayer(g_pSdlOriginFxPlayer);
     g_pSdlOriginFxPlayer = 0;
     g_nSdlActiveMusicTrack = -1;
+}
+
+static void SdlDeleteQueuedOriginFxSong(void)
+{
+    SdlDestroyOriginFxPlayer(g_pSdlQueuedOriginFxPlayer);
+    g_pSdlQueuedOriginFxPlayer = 0;
+    g_nSdlQueuedMusicTrack = -1;
 }
 
 static unsigned int SdlCalculateDosAudioGain(int volumeSetting)
@@ -279,8 +307,11 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
             return 0;
         if (SdlUsingTownsData())
             return SdlPlayTownsEffect(soundNumber, volume, pan, sourceObject, looping) != 0;
+        /* The driver takes a priority where the game passes looping;
+         * UpdateFlightSound (003:0587) plays the fly-by at priority 8. */
         if (!SdlPlayDosSoundEffect(
-                soundNumber, volume, pan, sourceObject, looping))
+                soundNumber, volume, pan, sourceObject,
+                soundNumber == 2 ? 8 : looping))
             return 0;
         if (sourceObject != -1)
             aiSoundEffectSourceActiveArray[sourceObject] = 1;
@@ -322,11 +353,7 @@ void SdlMixOriginFxMusic(short *samples, unsigned int frameCount)
         g_pSdlDosMusicMutex == 0 || samples == 0)
         return;
     SDL_LockMutex(g_pSdlDosMusicMutex);
-    if (g_pSdlOriginFxPlayer != 0) {
-        SdlMixOriginFxPlayer(
-            g_pSdlOriginFxPlayer, samples,
-            frameCount, g_nSdlDosMusicGain);
-    }
+    SdlMixOriginFxSong(samples, frameCount);
     SDL_UnlockMutex(g_pSdlDosMusicMutex);
 }
 
@@ -348,81 +375,137 @@ int SdlGetOriginFxMusicSequencePosition(void)
     return position;
 }
 
-void SdlServiceOriginFxMusic(void)
+static SdlOriginFxPlayer *SdlLoadOriginFxSong(int track)
 {
     SdlOriginFxPlayer *player;
     unsigned char *midi;
     size_t midiSize;
-    int desiredTrack;
-    int finishedTrack;
-
-    SdlServiceTownsAudio();
-    if (g_bSdlDosMusicInitialized == 0)
-        return;
-    SDL_LockMutex(g_pSdlDosMusicMutex);
-    SdlUpdateDosAdlibMusicVolume();
-    desiredTrack = nCurrentMusicTrack;
-    if (g_bSdlOriginFxServicesAllTracks == 0 &&
-        desiredTrack != 19) {
-        SdlDeleteDosAdlibTrack();
-        SDL_UnlockMutex(g_pSdlDosMusicMutex);
-        return;
-    }
-    if (g_pSdlOriginFxPlayer != 0 &&
-        SdlOriginFxPlayerFinished(g_pSdlOriginFxPlayer)) {
-        finishedTrack = g_nSdlActiveMusicTrack;
-        SdlDeleteDosAdlibTrack();
-        nMusicTrackComplete = 1;
-        if (nCurrentMusicTrack == finishedTrack)
-            nCurrentMusicTrack = -1;
-    }
-    desiredTrack = nCurrentMusicTrack;
-    if (desiredTrack == g_nSdlActiveMusicTrack) {
-        SDL_UnlockMutex(g_pSdlDosMusicMutex);
-        return;
-    }
-    if (desiredTrack < 0) {
-        SdlDeleteDosAdlibTrack();
-        nMusicTrackComplete = 1;
-        SDL_UnlockMutex(g_pSdlDosMusicMutex);
-        return;
-    }
-    SDL_UnlockMutex(g_pSdlDosMusicMutex);
 
     midi = 0;
     midiSize = 0;
     if (!SdlExtractOriginPacketSection(
             g_pSdlDosMusicArchive,
             g_nSdlDosMusicArchiveSize,
-            desiredTrack, &midi, &midiSize)) {
+            track, &midi, &midiSize)) {
         fprintf(stderr, "Unable to decode OriginFX music track %d.\n",
-                desiredTrack);
-        nCurrentMusicTrack = -1;
-        nMusicTrackComplete = 1;
-        return;
+                track);
+        return 0;
     }
     player = SdlCreateOriginFxPlayer(
         midi, midiSize, g_pSdlDosAdlibTimbres,
         g_nSdlDosAdlibTimbreSize);
     free(midi);
-    if (player == 0) {
+    if (player == 0)
         fprintf(stderr, "Unable to parse OriginFX music track %d.\n",
-                desiredTrack);
-        nCurrentMusicTrack = -1;
-        nMusicTrackComplete = 1;
-        return;
-    }
+                track);
+    return player;
+}
 
+void SdlServiceOriginFxMusic(void)
+{
+    SdlServiceTownsAudio();
+    if (g_bSdlDosMusicInitialized == 0)
+        return;
     SDL_LockMutex(g_pSdlDosMusicMutex);
-    if (nCurrentMusicTrack != desiredTrack) {
+    SdlUpdateDosAdlibMusicVolume();
+    /* Kilrathi Saga data streams its music; OriginFX plays only the
+     * intro's track 19 there. */
+    if (g_bSdlOriginFxServicesAllTracks == 0 &&
+        nCurrentMusicTrack != 19) {
+        SdlDeleteQueuedOriginFxSong();
+        SdlDeleteDosAdlibTrack();
         SDL_UnlockMutex(g_pSdlDosMusicMutex);
-        SdlDestroyOriginFxPlayer(player);
         return;
     }
-    SdlDeleteDosAdlibTrack();
-    g_pSdlOriginFxPlayer = player;
-    g_nSdlActiveMusicTrack = desiredTrack;
-    nMusicTrackComplete = 0;
+    if (g_pSdlOriginFxPlayer != 0 &&
+        SdlOriginFxPlayerFinished(g_pSdlOriginFxPlayer)) {
+        if (g_pSdlQueuedOriginFxPlayer != 0) {
+            SdlDeleteDosAdlibTrack();
+            g_pSdlOriginFxPlayer = g_pSdlQueuedOriginFxPlayer;
+            g_nSdlActiveMusicTrack = g_nSdlQueuedMusicTrack;
+            g_pSdlQueuedOriginFxPlayer = 0;
+            g_nSdlQueuedMusicTrack = -1;
+        } else {
+            SdlDeleteDosAdlibTrack();
+            nMusicTrackComplete = 1;
+        }
+    }
+    /* SpaceFuneral (151:14e5) sets the branch selector, which picks the
+     * funeral arrangement of track 32. */
+    SdlSetOriginFxPlayerBranch(
+        g_pSdlOriginFxPlayer, nFuneralSequenceActive);
+    SDL_UnlockMutex(g_pSdlDosMusicMutex);
+}
+
+/* MusicCommand (003:00d6) for the game's spacetrack. While a change is
+ * queued, or the track is the one playing, the command is ignored.
+ * Commands 1 and 3 queue the track. The playing song then leaves at its
+ * next exit, which keeps launch music and fanfares whole and moves combat
+ * music on at a bar line. Commands 0 and 2 start the track at once. The
+ * game's command-2 fades last one 60 Hz tick at most. */
+int SdlOriginFxMusicCommand(int track, int command)
+{
+    SdlOriginFxPlayer *player;
+    int playing;
+
+    if (g_bSdlDosMusicInitialized == 0 || track < 0)
+        return 0;
+    SDL_LockMutex(g_pSdlDosMusicMutex);
+    playing = g_pSdlOriginFxPlayer != 0 &&
+        !SdlOriginFxPlayerFinished(g_pSdlOriginFxPlayer);
+    if (g_pSdlQueuedOriginFxPlayer != 0 ||
+        (playing && g_nSdlActiveMusicTrack == track)) {
+        SDL_UnlockMutex(g_pSdlDosMusicMutex);
+        return 0;
+    }
+    SDL_UnlockMutex(g_pSdlDosMusicMutex);
+
+    player = SdlLoadOriginFxSong(track);
+    if (player == 0)
+        return 0;
+    SdlSetOriginFxPlayerBranch(player, nFuneralSequenceActive);
+    SDL_LockMutex(g_pSdlDosMusicMutex);
+    playing = g_pSdlOriginFxPlayer != 0 &&
+        !SdlOriginFxPlayerFinished(g_pSdlOriginFxPlayer);
+    if ((command == 1 || command == 3) && playing) {
+        SdlLeaveOriginFxPlayerAtLoop(g_pSdlOriginFxPlayer);
+        g_pSdlQueuedOriginFxPlayer = player;
+        g_nSdlQueuedMusicTrack = track;
+    } else {
+        SdlDeleteDosAdlibTrack();
+        g_pSdlOriginFxPlayer = player;
+        g_nSdlActiveMusicTrack = track;
+        nMusicTrackComplete = 0;
+    }
+    SDL_UnlockMutex(g_pSdlDosMusicMutex);
+    return 1;
+}
+
+/* SetMusBreakpt is where WC.EXE queues no song (QueueNextSong(0, 0), as
+ * in StartQueuedMusic): the playing song ends at its next exit, and the
+ * game waits for that end. */
+void SdlOriginFxMusicBreakpoint(void)
+{
+    if (g_bSdlDosMusicInitialized == 0)
+        return;
+    SDL_LockMutex(g_pSdlDosMusicMutex);
+    SdlDeleteQueuedOriginFxSong();
+    SdlLeaveOriginFxPlayerAtLoop(g_pSdlOriginFxPlayer);
+    SDL_UnlockMutex(g_pSdlDosMusicMutex);
+}
+
+/* StopMusic: stops the song at once and drops a queued one, as
+ * FadeOutMusic(0) (035:149e) does. */
+void SdlStopOriginFxMusic(void)
+{
+    if (g_bSdlDosMusicInitialized == 0)
+        return;
+    SDL_LockMutex(g_pSdlDosMusicMutex);
+    SdlDeleteQueuedOriginFxSong();
+    if (g_pSdlOriginFxPlayer != 0) {
+        SdlDeleteDosAdlibTrack();
+        nMusicTrackComplete = 1;
+    }
     SDL_UnlockMutex(g_pSdlDosMusicMutex);
 }
 
@@ -432,6 +515,7 @@ void SdlShutdownOriginFxAudio(void)
         SdlStopAudio();
     if (g_pSdlDosMusicMutex != 0)
         SDL_LockMutex(g_pSdlDosMusicMutex);
+    SdlDeleteQueuedOriginFxSong();
     SdlDeleteDosAdlibTrack();
     SdlStopOriginFxSoundEffects(g_pSdlOriginFxSoundPlayer);
     SdlDestroyOriginFxPlayer(g_pSdlOriginFxSoundPlayer);

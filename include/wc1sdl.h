@@ -450,6 +450,8 @@ void SdlDestroyOriginFxPlayer(SdlOriginFxPlayer *player);
 int SdlOriginFxPlayerFinished(const SdlOriginFxPlayer *player);
 unsigned int SdlOriginFxPlayerSequencePosition(
     const SdlOriginFxPlayer *player);
+void SdlLeaveOriginFxPlayerAtLoop(SdlOriginFxPlayer *player);
+void SdlSetOriginFxPlayerBranch(SdlOriginFxPlayer *player, int branch);
 int SdlPlayOriginFxSoundEffect(
     SdlOriginFxPlayer *player, unsigned int soundNumber,
     int volume, int pan, int tag, int priority);
@@ -457,14 +459,10 @@ void SdlStopOriginFxSoundEffects(SdlOriginFxPlayer *player);
 void SdlMixOriginFxSoundEffects(
     SdlOriginFxPlayer *player, short *samples,
     unsigned int frameCount, unsigned int gain);
-void SdlRenderOriginFxPlayer(SdlOriginFxPlayer *player,
-                                short *samples,
-                                unsigned int frameCount,
-                                unsigned int gain);
-void SdlMixOriginFxPlayer(SdlOriginFxPlayer *player,
-                             short *samples,
-                             unsigned int frameCount,
-                             unsigned int gain);
+unsigned int SdlMixOriginFxPlayer(SdlOriginFxPlayer *player,
+                                     short *samples,
+                                     unsigned int frameCount,
+                                     unsigned int gain);
 int SdlInitializeOriginFxAudio(int useStandaloneAudio);
 int SdlGetOriginFxMusicSequencePosition(void);
 void SdlMixOriginFxMusic(short *samples, unsigned int frameCount);
@@ -478,6 +476,9 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject,
 void SdlPlayWaveWithPan(const char *filename, int looping,
                         int volume, int pan);
 void SdlServiceOriginFxMusic(void);
+int SdlOriginFxMusicCommand(int track, int command);
+void SdlOriginFxMusicBreakpoint(void);
+void SdlStopOriginFxMusic(void);
 void SdlStopDosSoundEffects(void);
 void SdlShutdownOriginFxAudio(void);
 void SdlCompleteDosInstallTable(struct DiskFileRecord *records);
