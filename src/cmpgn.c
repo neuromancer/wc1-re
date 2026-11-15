@@ -313,6 +313,10 @@ unsigned int LongTalk(struct Shape *talker, char *text,
     short waiting;
 #ifdef SDL_PORT
     int voiced = SdlVoicePlaying();
+    /* Only the speaker's mouth follows the recording. A listening close-up,
+     * such as Spirit's while Halcyon introduces her, keeps its own script as
+     * without voices; the line still lasts as long as the recording. */
+    int lipSync = voiced && !SdlListeningCloseup();
 #endif
 
     waiting = 0;
@@ -347,7 +351,7 @@ unsigned int LongTalk(struct Shape *talker, char *text,
             return 0;
         }
 #ifdef SDL_PORT
-        if (voiced) {
+        if (lipSync) {
             mouthFrame = SdlVoiceMouthFrame(mouthStart, 9);
             nFrameSkipCounter = 1;
         } else
@@ -398,7 +402,7 @@ unsigned int LongTalk(struct Shape *talker, char *text,
         if (CheckEscaped() != 0)
             break;
 #ifdef SDL_PORT
-        if (voiced && mouthFrame == 9 && !SdlVoicePlaying())
+        if (voiced && (mouthFrame == 9 || !lipSync) && !SdlVoicePlaying())
             return 0;
 #endif
         if (waiting != 0 && (short)IsFrameTickElapsed() != 0)

@@ -24,6 +24,7 @@ static size_t voiceCount;
 static VoicePacket *voicePackets;
 static char installedVoiceRoot[4096];
 static int radioVoice;
+static int listeningCloseup;
 
 static unsigned int Voice16(const unsigned char *p)
 {
@@ -294,6 +295,12 @@ int SdlSceneVoicePlaying(void)
     return !radioVoice && SdlVoicePlaying();
 }
 
+/* The close-up on screen shows someone other than the scene line's speaker. */
+int SdlListeningCloseup(void)
+{
+    return listeningCloseup;
+}
+
 int SdlRadioVoicePlaying(void)
 {
     if (SdlUsingTownsData())
@@ -332,13 +339,14 @@ int SdlPlayRadioVoice(const char *filename, short speaker, short record, short r
     return PlayVoiceMapping(context, (const unsigned char *)text);
 }
 
-int SdlPlaySceneVoice(const unsigned char *scene, const unsigned char *record)
+int SdlPlaySceneVoice(const unsigned char *scene, const unsigned char *record, int listening)
 {
     VoicePacket *packet;
     unsigned int pair;
 
     SdlStopVoice();
     radioVoice = 0;
+    listeningCloseup = listening;
     SdlStopTownsRadio();
     for (packet = voicePackets; packet; packet = packet->next) {
         for (pair = 0; pair < packet->pairs; pair++) {

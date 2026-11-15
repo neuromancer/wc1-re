@@ -193,9 +193,10 @@ void SdlShutdownVoices(void);
 void SdlRegisterVoicePacket(const char *filename, short section,
                             const unsigned char *data, size_t size);
 void SdlForgetVoicePacket(const void *data);
-int SdlPlaySceneVoice(const unsigned char *scene, const unsigned char *record);
+int SdlPlaySceneVoice(const unsigned char *scene, const unsigned char *record, int listening);
 int SdlPlayRadioVoice(const char *filename, short speaker, short record, short rank, const char *text);
 int SdlSceneVoicePlaying(void);
+int SdlListeningCloseup(void);
 int SdlRadioVoicePlaying(void);
 void SdlStopRadioVoice(void);
 /* Windows developer-channel output stays off in the SDL2 port unless a
