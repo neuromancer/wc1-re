@@ -39,6 +39,11 @@ DirectoryStatus validate_game_directory(std::string_view directoryText);
 // Returns the existing/new entry's index, or -1 for an invalid directory.
 int add_game_installation(std::vector<GameInstallation> &installations,
                           std::string_view directory);
+// Adds the installations in a folder the player picked: the folder and its
+// known subfolders (Kilrathi_Saga, DOS, ...), or failing those, its WC1-named
+// folders, as in a Steam library. Returns the first one's index, or -1.
+int add_game_installations(std::vector<GameInstallation> &installations,
+                           std::string_view directory);
 std::vector<GameInstallation> discover_game_installations();
 
 } // namespace wc1_launcher

@@ -155,7 +155,11 @@ void browse_for_game_directory(LauncherWindow &window,
     const std::string selection = pick_folder(window, std::string(window.get_game_directory()));
     if (selection.empty())
         return;
-    window.set_game_directory(slint::SharedString(selection));
+    // A Steam or GOG copy keeps GAMEDAT in Kilrathi_Saga or DOS, below the
+    // folder players usually pick; take the first installation inside it.
+    const int index = add_game_installations(installations, selection);
+    window.set_game_directory(slint::SharedString(
+        index >= 0 ? installations[index].directory : selection));
     refresh_window(window, installations);
 }
 

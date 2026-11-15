@@ -11,7 +11,15 @@
 #include <optional>
 #include <system_error>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#else
 #include <pwd.h>
 #include <unistd.h>
 #endif
@@ -245,38 +253,60 @@ static bool is_wc1_installation_name(const fs::path &directory)
         name == "kilrathisaga" || name == "thekilrathisaga";
 }
 
-static void scan_game_directory(std::vector<GameInstallation> &installations,
-                                const fs::path &directory, int depth = 0)
+// The directory's installation and those in its known subfolders, such as
+// the 35th Anniversary Edition's Kilrathi_Saga and DOS; returns the first one
+// found, or -1.
+static int scan_game_directory(std::vector<GameInstallation> &installations,
+                               const fs::path &directory, int depth = 0)
 {
     if (directory.empty())
-        return;
-    add_game_installation(installations, path_to_utf8(directory));
+        return -1;
+    int first = add_game_installation(installations, path_to_utf8(directory));
     if (depth == 3)
-        return;
+        return first;
     // Only descend through known package layouts, never through arbitrary
     // user folders, Wine prefixes, or another game's data.
     for (const auto name : {"Kilrathi_Saga", "Kilrathi Saga", "DOS", "WC", "WC1", "WING", "Games"}) {
         const auto child = find_child_case_insensitive(directory, name);
-        if (child)
-            scan_game_directory(installations, *child, depth + 1);
+        if (!child)
+            continue;
+        const int found = scan_game_directory(installations, *child, depth + 1);
+        if (first < 0)
+            first = found;
     }
+    return first;
 }
 
-static void scan_game_library(std::vector<GameInstallation> &installations,
-                              const fs::path &library)
+// The installations in a library's WC1-named folders, such as Steam's
+// steamapps/common/Wing Commander; returns the first one found, or -1.
+static int scan_game_library(std::vector<GameInstallation> &installations,
+                             const fs::path &library)
 {
     std::error_code error;
     fs::directory_iterator iterator(library, error);
     const fs::directory_iterator end;
     std::vector<fs::path> directories;
+    int first = -1;
     while (!error && iterator != end) {
         if (is_wc1_installation_name(iterator->path()))
             directories.push_back(iterator->path());
         iterator.increment(error);
     }
     std::sort(directories.begin(), directories.end());
-    for (const auto &directory : directories)
-        scan_game_directory(installations, directory);
+    for (const auto &directory : directories) {
+        const int found = scan_game_directory(installations, directory);
+        if (first < 0)
+            first = found;
+    }
+    return first;
+}
+
+int add_game_installations(std::vector<GameInstallation> &installations,
+                           std::string_view directory)
+{
+    const fs::path path = path_from_utf8(directory);
+    const int index = scan_game_directory(installations, path);
+    return index >= 0 ? index : scan_game_library(installations, path);
 }
 
 // A Steam installation's default library, and every library its
@@ -337,6 +367,19 @@ static fs::path environment_directory(const char *name)
 #endif
 }
 
+#ifdef _WIN32
+// A folder the registry names, such as where Steam is installed.
+static fs::path registry_directory(HKEY root, const wchar_t *key, const wchar_t *value)
+{
+    wchar_t text[4096];
+    DWORD size = sizeof(text);
+
+    if (RegGetValueW(root, key, value, RRF_RT_REG_SZ, nullptr, text, &size) != ERROR_SUCCESS)
+        return {};
+    return fs::path(text);
+}
+#endif
+
 std::vector<GameInstallation> discover_game_installations()
 {
     std::vector<fs::path> dataDirectories;
@@ -388,6 +431,14 @@ std::vector<GameInstallation> discover_game_installations()
                                     "EA Games", "Origin Games", "Origin Systems"})
             libraries.push_back(programFiles / relative);
         add_steam_libraries(libraries, programFiles / "Steam");
+    }
+    // Steam can be installed on any drive; it records where in the registry.
+    for (const auto &steamRoot : {
+             registry_directory(HKEY_CURRENT_USER, L"Software\\Valve\\Steam", L"SteamPath"),
+             registry_directory(HKEY_LOCAL_MACHINE, L"SOFTWARE\\WOW6432Node\\Valve\\Steam", L"InstallPath"),
+             registry_directory(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Valve\\Steam", L"InstallPath")}) {
+        if (!steamRoot.empty())
+            add_steam_libraries(libraries, steamRoot);
     }
 #elif defined(__APPLE__)
     if (!home.empty())

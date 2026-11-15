@@ -41,8 +41,9 @@ Download the package for your platform from
   bundled files together.
 
 Game data is not included. Open the app, choose a detected installation or use
-**Add path…** to select the folder containing `GAMEDAT`, then select
-**Start WC1**. The launcher remembers your folder and options.
+**Add path…** to select the game's folder: a Steam or GOG copy's main folder,
+or any folder containing `GAMEDAT`. Then select **Start WC1**. The launcher
+remembers your folder and options.
 
 - **Secret Missions:** with Kilrathi Saga or DOS data that includes the
   expansions, the launcher also offers **Start SM1** and **Start SM2**, and can
