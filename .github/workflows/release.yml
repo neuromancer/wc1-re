@@ -57,23 +57,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
-            build-essential ca-certificates clang cmake curl file \
-            libclang-dev libdigest-sha-perl make ninja-build zip
-      - name: Build reconstructed Win32 executable
+            build-essential ca-certificates clang cmake curl \
+            libclang-dev libdigest-sha-perl make ninja-build
+      # make WC1.EXE fails unless the rebuilt executable matches the original
+      # byte for byte (its SHA-256). Releases do not include it: it is always
+      # the original, which is copyrighted.
+      - name: Rebuild WC1.EXE and check that it matches the original
         run: make -j2 WC1.EXE
-      - name: Validate reconstructed executable
-        run: |
-          test -s WC1.EXE
-          file WC1.EXE | grep -q "PE32 executable"
-      - name: Package reconstructed executable
-        run: packaging/package-reference.sh "${{ needs.metadata.outputs.version }}"
-      - name: Upload reconstructed executable
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: release-win32-reference
-          path: dist/*.zip
-          if-no-files-found: error
-          retention-days: 7
 
   build-modern-unix:
     needs: metadata
@@ -347,7 +337,7 @@ jobs:
       - name: Generate checksums
         working-directory: release-assets
         run: |
-          test "$(find . -maxdepth 1 -name '*.zip' | wc -l)" -eq 5
+          test "$(find . -maxdepth 1 -name '*.zip' | wc -l)" -eq 4
           test "$(find . -maxdepth 1 -name '*.dmg' | wc -l)" -eq 2
           test "$(find . -maxdepth 1 -name '*-setup.exe' | wc -l)" -eq 1
           test "$(find . -maxdepth 1 -name '*-experimental.flatpak' | wc -l)" -eq 1
