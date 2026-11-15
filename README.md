@@ -32,13 +32,11 @@ Download the package for your platform from
   (`x86_64`) and drag **Wing Commander** into **Applications**.
 - **Windows:** run the `-setup.exe` installer, then open **Wing Commander**
   from the Start Menu.
-- **Steam Deck / Linux (experimental):** in Desktop Mode, install the `.flatpak`
-  with `flatpak install --user ./downloaded.flatpak` (replace the filename), then
-  add **Wing Commander (Experimental)** to Steam as a non-Steam game. In Game
-  Mode the launcher fills the screen, with its settings and controls in tabs
-  and the joystick calibration in the same window. It has not been tested on
-  Steam Deck yet; please report your results in
-  [Issues](https://github.com/neuromancer/wc1-re/issues).
+- **Steam Deck / Linux:** in Desktop Mode, install the `.flatpak` with
+  `flatpak install --user ./downloaded.flatpak` (replace the filename), then add
+  **Wing Commander** to Steam as a non-Steam game. In Game Mode the launcher
+  fills the screen, with its settings and controls in tabs and the joystick
+  calibration in the same window.
 - **Portable ZIPs** for Windows, macOS, and Linux: extract and run, keeping the
   bundled files together.
 

@@ -208,17 +208,17 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends flatpak librsvg2-bin unzip
-      - name: Package experimental Steam Deck and Linux Flatpak
+      - name: Package the Steam Deck and Linux Flatpak
         env:
           RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
         run: |
           unzip -q "dist/wc1-re-$RELEASE_VERSION-linux-x86_64-sdl2.zip" -d dist/flatpak-input
           packaging/package-flatpak.sh "$RELEASE_VERSION" dist/flatpak-input
-      - name: Upload experimental Flatpak
+      - name: Upload the Flatpak
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: release-linux-x86_64-flatpak-experimental
-          path: dist/*-experimental.flatpak
+          name: release-linux-x86_64-flatpak
+          path: dist/*.flatpak
           if-no-files-found: error
           retention-days: 7
 
@@ -340,7 +340,7 @@ jobs:
           test "$(find . -maxdepth 1 -name '*.zip' | wc -l)" -eq 4
           test "$(find . -maxdepth 1 -name '*.dmg' | wc -l)" -eq 2
           test "$(find . -maxdepth 1 -name '*-setup.exe' | wc -l)" -eq 1
-          test "$(find . -maxdepth 1 -name '*-experimental.flatpak' | wc -l)" -eq 1
+          test "$(find . -maxdepth 1 -name '*.flatpak' | wc -l)" -eq 1
           sha256sum -- *.zip *.dmg *-setup.exe *.flatpak | sort -k2 > SHA256SUMS
       - name: Publish GitHub Release
         working-directory: release-assets
@@ -350,15 +350,12 @@ jobs:
           RELEASE_TAG: ${{ needs.metadata.outputs.version }}
         run: |
           cat > "$RUNNER_TEMP/release-notes.md" <<'EOF'
-          **Experimental Steam Deck / Linux Flatpak:** the `-experimental.flatpak`
-          package has not been tested on Steam Deck. Community testing reports are
-          welcome, particularly for controls, saving and suspend/resume.
-
-          In Desktop Mode, install with `flatpak install --user ./downloaded.flatpak`
-          (replace the filename), then add **Wing Commander (Experimental)** to
-          Steam as a non-Steam game. Select your own game installation in the launcher.
-          Install newer bundles the same way; no automatic application update feed is configured.
-          Game archives and Sega CD recordings are not included.
+          **Steam Deck / Linux Flatpak:** in Desktop Mode, install the `.flatpak`
+          with `flatpak install --user ./downloaded.flatpak` (replace the filename),
+          then add **Wing Commander** to Steam as a non-Steam game. Select your own
+          game installation in the launcher. Install newer bundles the same way; no
+          automatic application update feed is configured. Game archives and Sega CD
+          recordings are not included.
           EOF
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" \

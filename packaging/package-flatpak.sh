@@ -15,7 +15,7 @@ app_id=io.github.neuromancer.wc1
 runtime_version=25.08
 dist_dir=${DIST_DIR:-dist}
 build_dir="$dist_dir/flatpak-$version"
-bundle="$dist_dir/wc1-re-$version-linux-x86_64-experimental.flatpak"
+bundle="$dist_dir/wc1-re-$version-linux-x86_64.flatpak"
 if test -e "$build_dir" || test -e "$bundle"; then
     echo "Flatpak staging path already exists: $version" >&2
     exit 1
@@ -62,6 +62,8 @@ flatpak build-finish "$build_dir" --command=wc1-modern \
     --filesystem=home --filesystem=/run/media --filesystem=/media --filesystem=/mnt \
     --filesystem=~/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps \
     --filesystem=~/.var/app/com.valvesoftware.Steam/data/Steam/steamapps
+# The branch keeps its first name: a bundle on another branch would install
+# beside earlier ones instead of replacing them.
 flatpak build-export "$build_dir/repo" "$build_dir" experimental
 flatpak build-bundle --arch=x86_64 \
     --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \

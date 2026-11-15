@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Wing Commander (Experimental)
-Comment=Experimental SDL2 port; Steam Deck testing reports welcome
+Name=Wing Commander
+Comment=Play Wing Commander with your own game files
 Exec=wc1-modern --gui
 Icon=io.github.neuromancer.wc1
 Terminal=false
