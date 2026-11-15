@@ -218,7 +218,11 @@ void CreateEmptySaveGameFile(void)
     slot = 0;
     gameRecord.occupied = 0;
     PromptInsertNumberedDisk(0x10);
+#ifdef SDL_PORT
+    file = CreateDataFile(SdlSaveGameFileName());
+#else
     file = CreateDataFile("SAVEGAME.WLD");
+#endif
     if (file >= 0) {
         for (; slot < 8; slot++) {
             sprintf(gameRecord.description, "game %d", slot + 1);
@@ -324,7 +328,11 @@ void EnsureSaveGameFile(void)
     long length;
 
     PromptInsertNumberedDisk(0x10);
+#ifdef SDL_PORT
+    file = OpenDataFileOrDie(SdlSaveGameFileName());
+#else
     file = OpenDataFileOrDie("SAVEGAME.WLD");
+#endif
     if (file < 0) {
         CreateEmptySaveGameFile();
         return;
@@ -501,8 +509,10 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
 #ifdef SDL_PORT
     if (SdlSwcFlightActive())
         return SdlWriteSwcSaveGame(slot, &diskRecord);
-#endif
+    file = OpenDataFileOrDie(SdlSaveGameFileName());
+#else
     file = OpenDataFileOrDie("SAVEGAME.WLD");
+#endif
 #ifdef SDL_PORT
     /* An automatic checkpoint must not report a short write as a success. */
     written = file >= 0 &&
@@ -648,7 +658,11 @@ int LoadGame(short slot, SaveGameRecord *gameRecord)
 #endif
     {
         PromptInsertNumberedDisk(0x10);
+#ifdef SDL_PORT
+        file = OpenDataFileOrDie(SdlSaveGameFileName());
+#else
         file = OpenDataFileOrDie("SAVEGAME.WLD");
+#endif
         fileOpen = (file >= 0) & 1;
 #ifdef SDL_PORT
         if (fileOpen && _filelength(file) < (slot + 1) * (long)sizeof(diskRecord))

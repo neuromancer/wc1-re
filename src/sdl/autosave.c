@@ -143,10 +143,10 @@ void SdlAutosaveCampaign(void)
     }
 
     PromptInsertNumberedDisk(0x10);
-    file = OpenDataFileOrDie("SAVEGAME.WLD");
+    file = OpenDataFileOrDie(SdlSaveGameFileName());
     if (file < 0 && errno == ENOENT) {
         CreateEmptySaveGameFile();
-        file = OpenDataFileOrDie("SAVEGAME.WLD");
+        file = OpenDataFileOrDie(SdlSaveGameFileName());
     }
     if (file < 0)
         goto failed;
@@ -193,9 +193,13 @@ void SdlAutosaveCampaign(void)
 
 failed:
     autosavePermission = -1;
-    fprintf(stderr, "Cannot autosave to slot 8 in SAVEGAME.WLD.\n");
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Autosave failed",
-        "Could not read or write SAVEGAME.WLD.\n"
-        "Autosave is off for this game. Check the file and its permissions.\n"
-        "You can still use manual save slots 1-7.", hMainWindow);
+    fprintf(stderr, "Cannot autosave to slot 8 in %s.\n", SdlSaveGameFileName());
+    {
+        char message[256];
+
+        SDL_snprintf(message, sizeof(message), "Could not read or write %s.\n"
+            "Autosave is off for this game. Check the file and its permissions.\n"
+            "You can still use manual save slots 1-7.", SdlSaveGameFileName());
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Autosave failed", message, hMainWindow);
+    }
 }

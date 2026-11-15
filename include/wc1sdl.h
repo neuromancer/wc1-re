@@ -348,6 +348,7 @@ void SdlWaitForVerticalBlank(void);
 int SdlUsingDosData(void);
 int SdlHasSecretMissions(short campaign);
 int SdlPlayingSm2(void);
+const char *SdlSaveGameFileName(void);
 void SdlSm2ClearDisguise(void);
 int SdlSm2StartDisguise(short navPoint, short linkedNav, short type);
 int SdlSm2Disguised(void);

@@ -12,6 +12,16 @@ int SdlPlayingSm2(void)
     return nCampaignDataSet == 2 && !SdlSwcFlightActive();
 }
 
+/* The DOS SM2.EXE keeps its own saves in CRUSADE.WLD (CreateSaveFile,
+ * 147:0308), so a DOS install's SM2 games carry over. WC.EXE and the Kilrathi
+ * Saga's executables share SAVEGAME.WLD, where the transfer barracks also
+ * finds the WC1 and SM1 pilots that SM2 can take over. */
+const char *SdlSaveGameFileName(void)
+{
+    return SdlPlayingSm2() && SdlUsingDosData() && nPilotTransferState != 1 ?
+        "CRUSADE.WLD" : "SAVEGAME.WLD";
+}
+
 /* SM2's captured-Dralthi disguise, as the DOS SM2.EXE plays it (issue #31);
  * the Kilrathi Saga's SM2.EXE kept WC1's code. A nav sphere with a wave link
  * back to itself (EnterSphere, 142:09b5) lets a player flying the Dralthi
@@ -172,6 +182,8 @@ int SdlTransferPilot(short slot, short campaign)
     bCampaignActive = 1;
     bCampaignStartupMode = bPanRoomTransition = 0;
     nQueuedCampaignIndex = -1;
+    /* Done transferring: the autosave goes to the new campaign's save file. */
+    nPilotTransferState = 2;
     SdlResetAutosave();
     SdlAutosaveCampaign();
     return 1;
