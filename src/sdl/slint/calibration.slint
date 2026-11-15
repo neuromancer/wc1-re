@@ -35,11 +35,14 @@ export global DeadZoneText {
     }
 }
 
-export component CalibrationWindow inherits Window {
-    title: @tr("Joystick calibration");
+// The launcher's joystick calibration page.
+export component CalibrationView inherits Rectangle {
+    out property <string> title: @tr("Joystick calibration");
     preferred-width: 560px;
     min-width: 480px;
     background: Palette.background;
+    // Back to the launcher's settings.
+    callback back-requested();
 
     // Joysticks 1 and 2 as the game numbers them; "" for a free slot.
     in property <[string]> device-names: ["", ""];
@@ -67,11 +70,6 @@ export component CalibrationWindow inherits Window {
     callback record();
     callback cancel();
     callback reset();
-    callback dead-zone-edited();
-
-    changed dead-zone => {
-        root.dead-zone-edited();
-    }
 
     pure function instruction() -> string {
         if root.step == CalibrationStep.upper-left {
@@ -111,6 +109,27 @@ export component CalibrationWindow inherits Window {
     VerticalBox {
         padding: 16px;
         spacing: 10px;
+
+        HorizontalLayout {
+            spacing: 14px;
+            height: 32px;
+
+            Button {
+                text: @tr("Back");
+                clicked => {
+                    root.back-requested();
+                }
+            }
+
+            Text {
+                horizontal-stretch: 1;
+                text: root.title;
+                vertical-alignment: center;
+                font-size: 20px;
+                font-weight: 700;
+                color: Palette.foreground;
+            }
+        }
 
         HorizontalLayout {
             spacing: 8px;

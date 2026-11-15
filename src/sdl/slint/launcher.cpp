@@ -5,6 +5,7 @@
 #include "launcher_paths.h"
 #include "wc1_logo.h"
 
+#include <SDL.h>
 #include <nfd.h>
 #include <slint.h>
 
@@ -13,6 +14,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <memory>
@@ -159,15 +161,15 @@ void browse_for_game_directory(LauncherWindow &window,
 
 using KeyboardBindings = slint::VectorModel<std::shared_ptr<slint::Model<InputBinding>>>;
 
-/* One game's rows in the controls window and the bindings shown for them;
-   its mouse rows are named with prefix ("" for WC1, "swc-" for SWC). */
+/* One game's rows in the keyboard and mouse tab and the bindings shown for
+   them; its mouse rows are named with prefix ("" for WC1, "swc-" for SWC). */
 struct BindingTable {
     std::shared_ptr<slint::Model<InputRow>> rows;
     std::shared_ptr<KeyboardBindings> bindings;
     std::string prefix;
 };
 
-BindingTable binding_table(const ControlsWindow &controls, int game)
+BindingTable binding_table(const LauncherWindow &controls, int game)
 {
     if (game == 1)
         return {controls.get_swc_rows(),
@@ -176,8 +178,8 @@ BindingTable binding_table(const ControlsWindow &controls, int game)
             std::dynamic_pointer_cast<KeyboardBindings>(controls.get_keyboard_bindings()), ""};
 }
 
-/* A copy of a table's original bindings, row by row, that the controls
-   window can change. */
+/* A copy of a table's original bindings, row by row, that the keyboard
+   and mouse tab can change. */
 std::shared_ptr<KeyboardBindings> default_bindings(const slint::Model<InputRow> &rows)
 {
     auto table = std::make_shared<KeyboardBindings>();
@@ -260,7 +262,7 @@ std::string encode_bindings(const slint::Model<InputBinding> &bindings)
 /* The rows whose bindings differ from the original keys, as the launcher
    settings' [keys] lines: WC1's, then SWC's. Both show the shared full-screen
    shortcut; WC1's line stands for it. */
-std::string changed_key_bindings(const ControlsWindow &controls)
+std::string changed_key_bindings(const LauncherWindow &controls)
 {
     std::string text;
     for (const int game : {0, 1}) {
@@ -280,8 +282,8 @@ std::string changed_key_bindings(const ControlsWindow &controls)
     return text;
 }
 
-/* How many bindings a row takes: its own limit, or the window's. */
-size_t binding_limit(const ControlsWindow &controls, const InputRow &row)
+/* How many bindings a row takes: its own limit, or the tab's. */
+size_t binding_limit(const LauncherWindow &controls, const InputRow &row)
 {
     return static_cast<size_t>(row.limit > 0 ? row.limit : controls.get_max_bindings());
 }
@@ -340,7 +342,7 @@ void refresh_mouse_rows(const BindingTable &table)
 
 /* Puts saved [keys] lines into the window's current bindings. A saved
    binding that matches a fixed original one keeps it, with its hint. */
-void apply_table_bindings(const ControlsWindow &controls, const BindingTable &table,
+void apply_table_bindings(const LauncherWindow &controls, const BindingTable &table,
                           std::string_view saved)
 {
     const auto &rows = table.rows;
@@ -399,30 +401,25 @@ void apply_table_bindings(const ControlsWindow &controls, const BindingTable &ta
     refresh_mouse_rows(table);
 }
 
-void apply_key_bindings(const ControlsWindow &controls, std::string_view saved)
+void apply_key_bindings(const LauncherWindow &controls, std::string_view saved)
 {
     for (const int game : {0, 1})
         apply_table_bindings(controls, binding_table(controls, game), saved);
 }
 
-/* The controls window starts from the launcher's joystick selectors and has
-   its own; choosing a layout there changes the launcher's selectors too. Its
-   keyboard bindings start from the saved ones, and changed_key_bindings()
-   reads them back for the game. */
-slint::ComponentHandle<ControlsWindow> create_controls_window(
-    const slint::ComponentHandle<LauncherWindow> &window, std::string_view savedBindings = {})
+/* The keyboard and mouse tab's bindings start from the saved ones, and
+   changed_key_bindings() reads them back for the game. */
+void prepare_controls(const slint::ComponentHandle<LauncherWindow> &window,
+                      std::string_view savedBindings = {})
 {
-    auto controls = ControlsWindow::create();
 #ifdef __APPLE__
-    controls->set_apple_keys(true);
+    window->set_apple_keys(true);
 #endif
-    controls->set_joystick_mode(window->get_joystick_mode_index());
-    controls->set_joystick_axes(window->get_joystick_axes_index());
-    controls->set_keyboard_bindings(default_bindings(*controls->get_keyboard_rows()));
-    controls->set_swc_bindings(default_bindings(*controls->get_swc_rows()));
-    apply_key_bindings(*controls, savedBindings);
+    window->set_keyboard_bindings(default_bindings(*window->get_keyboard_rows()));
+    window->set_swc_bindings(default_bindings(*window->get_swc_rows()));
+    apply_key_bindings(*window, savedBindings);
     /* Both games' tables show the shared full-screen shortcut. */
-    const auto sync_full_screen = [](const ControlsWindow &window, int game) {
+    const auto sync_full_screen = [](const LauncherWindow &window, int game) {
         const auto from = binding_table(window, game);
         const auto to = binding_table(window, 1 - game);
         const auto bindings = table_bindings(from, table_row(from, "full-screen"));
@@ -434,14 +431,14 @@ slint::ComponentHandle<ControlsWindow> create_controls_window(
             copy.push_back(bindings->row_data(slot).value_or(InputBinding {}));
         to.bindings->set_row_data(row, std::make_shared<slint::VectorModel<InputBinding>>(std::move(copy)));
     };
-    controls->on_binding_changed(
-        [self = slint::ComponentWeakHandle<ControlsWindow>(controls), sync_full_screen](
+    window->on_binding_changed(
+        [self = slint::ComponentWeakHandle<LauncherWindow>(window), sync_full_screen](
             int row, int slot, InputBinding binding) {
-            const auto controlsWindow = self.lock();
-            if (!controlsWindow)
+            const auto launcher = self.lock();
+            if (!launcher)
                 return;
-            const int game = (*controlsWindow)->get_game();
-            const auto table = binding_table(**controlsWindow, game);
+            const int game = (*launcher)->get_controls_game();
+            const auto table = binding_table(**launcher, game);
             const auto bindings = table_bindings(table, row);
             const auto data = table.rows->row_data(row);
             if (!bindings || !data || slot < 0)
@@ -463,95 +460,116 @@ slint::ComponentHandle<ControlsWindow> create_controls_window(
             }
             if (static_cast<size_t>(slot) < bindings->row_count())
                 bindings->set_row_data(slot, binding);
-            else if (bindings->row_count() < binding_limit(**controlsWindow, *data))
+            else if (bindings->row_count() < binding_limit(**launcher, *data))
                 bindings->push_back(binding);
             refresh_mouse_rows(table);
             if (id == "full-screen")
-                sync_full_screen(**controlsWindow, game);
+                sync_full_screen(**launcher, game);
         });
-    controls->on_binding_removed(
-        [self = slint::ComponentWeakHandle<ControlsWindow>(controls), sync_full_screen](int row, int slot) {
-            const auto controlsWindow = self.lock();
-            if (!controlsWindow)
+    window->on_binding_removed(
+        [self = slint::ComponentWeakHandle<LauncherWindow>(window), sync_full_screen](int row, int slot) {
+            const auto launcher = self.lock();
+            if (!launcher)
                 return;
-            const int game = (*controlsWindow)->get_game();
-            const auto table = binding_table(**controlsWindow, game);
+            const int game = (*launcher)->get_controls_game();
+            const auto table = binding_table(**launcher, game);
             const auto bindings = table_bindings(table, row);
             const auto data = table.rows->row_data(row);
             if (bindings && slot >= 0 && static_cast<size_t>(slot) < bindings->row_count())
                 bindings->erase(slot);
             refresh_mouse_rows(table);
             if (data && data->id == "full-screen")
-                sync_full_screen(**controlsWindow, game);
+                sync_full_screen(**launcher, game);
         });
     /* Restore defaults resets the shown game's table. */
-    controls->on_bindings_reset(
-        [self = slint::ComponentWeakHandle<ControlsWindow>(controls), sync_full_screen]() {
-            const auto controlsWindow = self.lock();
-            if (!controlsWindow)
+    window->on_bindings_reset(
+        [self = slint::ComponentWeakHandle<LauncherWindow>(window), sync_full_screen]() {
+            const auto launcher = self.lock();
+            if (!launcher)
                 return;
-            const int game = (*controlsWindow)->get_game();
+            const int game = (*launcher)->get_controls_game();
             if (game == 1)
-                (*controlsWindow)->set_swc_bindings(default_bindings(*(*controlsWindow)->get_swc_rows()));
+                (*launcher)->set_swc_bindings(default_bindings(*(*launcher)->get_swc_rows()));
             else
-                (*controlsWindow)->set_keyboard_bindings(default_bindings(*(*controlsWindow)->get_keyboard_rows()));
-            sync_full_screen(**controlsWindow, game);
+                (*launcher)->set_keyboard_bindings(default_bindings(*(*launcher)->get_keyboard_rows()));
+            sync_full_screen(**launcher, game);
         });
-    controls->on_layout_changed(
-        [launcher = slint::ComponentWeakHandle<LauncherWindow>(window),
-         self = slint::ComponentWeakHandle<ControlsWindow>(controls)]() {
-            const auto launcherWindow = launcher.lock();
-            const auto controlsWindow = self.lock();
-            if (!launcherWindow || !controlsWindow)
-                return;
-            (*launcherWindow)->set_joystick_mode_index((*controlsWindow)->get_joystick_mode());
-            (*launcherWindow)->set_joystick_axes_index((*controlsWindow)->get_joystick_axes());
-        });
-    return controls;
 }
+
+#ifdef __linux__
+/* Gamescope, the compositor of Steam's Game Mode and other gaming sessions,
+   shows one window at a time, scaled to fit its output. A launcher larger
+   than the output was shrunk and left beyond the X pointer's reach, so the
+   cursor missed the buttons (issue #30); there the launcher fills the output.
+   Gamescope sets both variables for the programs it runs. */
+bool running_under_gamescope()
+{
+    const char *desktop = std::getenv("XDG_CURRENT_DESKTOP");
+
+    return std::getenv("GAMESCOPE_WAYLAND_DISPLAY") != nullptr ||
+           (desktop != nullptr && std::string_view(desktop) == "gamescope");
+}
+
+/* Winit takes the scale from the panel's physical size, about 2.25 on the
+   Steam Deck, where the pages would not fit its 1280x800 screen. The scale
+   that fits the launcher's size (launcher.slint) to the output replaces it,
+   unless SLINT_SCALE_FACTOR already chooses one. */
+void fit_scale_to_output()
+{
+    constexpr double pageWidth = 800.0;
+    constexpr double pageHeight = 660.0;
+    SDL_DisplayMode mode;
+
+    if (std::getenv("SLINT_SCALE_FACTOR") != nullptr || SDL_InitSubSystem(SDL_INIT_VIDEO) != 0)
+        return;
+    if (SDL_GetDesktopDisplayMode(0, &mode) == 0 && mode.w > 0 && mode.h > 0) {
+        const double scale = std::clamp(std::min(mode.w / pageWidth, mode.h / pageHeight), 0.5, 4.0);
+        char text[16];
+
+        std::snprintf(text, sizeof(text), "%.2f", std::floor(scale * 20.0) / 20.0);
+        setenv("SLINT_SCALE_FACTOR", text, 0);
+    }
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
+}
+#endif
 
 int dead_zone_percent(float value)
 {
     return std::clamp(static_cast<int>(std::lround(value)), 0, SDL_JOYSTICK_DEAD_ZONE_MAXIMUM);
 }
 
-/* The calibration window: CalibrateJoystickInteractive's upper-left,
-   lower-right and centre positions (0x4102b0), read from SDL while the window
+/* The calibration page: CalibrateJoystickInteractive's upper-left,
+   lower-right and centre positions (0x4102b0), read from SDL while the page
    shows the stick, the calibration in use and what the game reads through the
    dead zone. A corner takes the furthest position reached before the button,
    so a round gate's edges count; the original took the position at the press. */
 class CalibrationSession {
 public:
-    slint::ComponentHandle<CalibrationWindow> window = CalibrationWindow::create();
-
-    CalibrationSession()
+    explicit CalibrationSession(const slint::ComponentHandle<LauncherWindow> &launcher)
+        : window(launcher)
     {
-        window->on_calibrate([this]() { calibrate(); });
-        window->on_record([this]() { record(); });
-        window->on_cancel([this]() {
-            window->set_step(CalibrationStep::Idle);
-            window->set_message(CalibrationMessage::None);
+        window->on_calibration_start([this]() { calibrate(); });
+        window->on_calibration_record([this]() { record(); });
+        window->on_calibration_cancel([this]() {
+            window->set_calibration_step(CalibrationStep::Idle);
+            window->set_calibration_message(CalibrationMessage::None);
             show_view();
         });
-        window->on_reset([this]() {
+        window->on_calibration_reset([this]() {
             std::string error;
             if (remove_joystick_calibration(path, error)) {
                 stored.reset();
-                window->set_message(CalibrationMessage::Removed);
+                window->set_calibration_message(CalibrationMessage::Removed);
             } else {
-                window->set_message(CalibrationMessage::CannotRemove);
-                window->set_message_detail(slint::SharedString(error));
+                window->set_calibration_message(CalibrationMessage::CannotRemove);
+                window->set_calibration_message_detail(slint::SharedString(error));
             }
             show_view();
         });
-        window->on_device_selected([this](int) {
-            window->set_message(CalibrationMessage::None);
+        window->on_calibration_device_selected([this](int) {
+            window->set_calibration_message(CalibrationMessage::None);
             buttonHeld = true;
             show_view();
-        });
-        window->window().on_close_requested([this]() {
-            hide();
-            return slint::CloseRequestResponse::HideWindow;
         });
     }
 
@@ -559,47 +577,49 @@ public:
     {
         path = joystick_calibration_path(gameDirectory);
         stored = path.empty() ? std::nullopt : read_joystick_calibration(path);
-        window->set_step(CalibrationStep::Idle);
-        window->set_message(CalibrationMessage::None);
+        window->set_calibration_step(CalibrationStep::Idle);
+        window->set_calibration_message(CalibrationMessage::None);
         if (stored && (*stored)[0] < 2)
-            window->set_device_index((*stored)[0]);
+            window->set_calibration_device((*stored)[0]);
         if (!joysticks.start()) {
-            window->set_message(CalibrationMessage::Unavailable);
-            window->set_message_detail(slint::SharedString(SDL_GetError()));
+            window->set_calibration_message(CalibrationMessage::Unavailable);
+            window->set_calibration_message_detail(slint::SharedString(SDL_GetError()));
         }
         buttonHeld = true;
         tick();
         timer.start(slint::TimerMode::Repeated, std::chrono::milliseconds(16), [this]() { tick(); });
-        window->show();
+        window->set_page(2);
     }
 
+    // Stops reading the joysticks and leaves the page for the settings.
     void hide()
     {
         timer.stop();
-        window->set_step(CalibrationStep::Idle);
+        window->set_calibration_step(CalibrationStep::Idle);
         joysticks.stop();
-        window->hide();
+        if (window->get_page() == 2)
+            window->set_page(0);
     }
 
-    // One reading of the joystick; the window's timer calls it.
+    // One reading of the joystick; the page's timer calls it.
     void tick()
     {
         joysticks.update();
         const auto names = joysticks.names();
         if (names != shownNames) {
             shownNames = names;
-            window->set_device_names(std::make_shared<slint::VectorModel<slint::SharedString>>(
+            window->set_calibration_devices(std::make_shared<slint::VectorModel<slint::SharedString>>(
                 std::vector<slint::SharedString> {slint::SharedString(names[0]), slint::SharedString(names[1])}));
         }
         position = joysticks.read(slot());
-        window->set_connected(position.connected);
+        window->set_calibration_connected(position.connected);
         if (!position.connected) {
-            window->set_step(CalibrationStep::Idle);
+            window->set_calibration_step(CalibrationStep::Idle);
             buttonHeld = true;
             show_view();
             return;
         }
-        const auto step = window->get_step();
+        const auto step = window->get_calibration_step();
         if (step == CalibrationStep::UpperLeft) {
             minimumX = std::min(minimumX, position.x);
             minimumY = std::min(minimumY, position.y);
@@ -620,31 +640,31 @@ public:
     {
         if (!position.connected)
             return;
-        window->set_message(CalibrationMessage::None);
+        window->set_calibration_message(CalibrationMessage::None);
         minimumX = position.x;
         minimumY = position.y;
         buttonHeld = position.button;
-        window->set_step(CalibrationStep::UpperLeft);
+        window->set_calibration_step(CalibrationStep::UpperLeft);
         show_view();
     }
 
     void record()
     {
-        switch (window->get_step()) {
+        switch (window->get_calibration_step()) {
         case CalibrationStep::UpperLeft:
             minimumX = std::min(minimumX, position.x);
             minimumY = std::min(minimumY, position.y);
             maximumX = position.x;
             maximumY = position.y;
-            window->set_step(CalibrationStep::LowerRight);
+            window->set_calibration_step(CalibrationStep::LowerRight);
             break;
         case CalibrationStep::LowerRight:
             maximumX = std::max(maximumX, position.x);
             maximumY = std::max(maximumY, position.y);
-            window->set_step(CalibrationStep::Centre);
+            window->set_calibration_step(CalibrationStep::Centre);
             break;
         case CalibrationStep::Centre:
-            window->set_step(CalibrationStep::Idle);
+            window->set_calibration_step(CalibrationStep::Idle);
             save(position.x, position.y);
             break;
         default:
@@ -654,6 +674,7 @@ public:
     }
 
 private:
+    slint::ComponentHandle<LauncherWindow> window;
     JoystickReader joysticks;
     slint::Timer timer;
     fs::path path;
@@ -668,7 +689,7 @@ private:
 
     int slot() const
     {
-        return std::clamp(window->get_device_index(), 0, 1);
+        return std::clamp(window->get_calibration_device(), 0, 1);
     }
 
     // The original checked only that each maximum exceeds its minimum.
@@ -676,7 +697,7 @@ private:
     {
         if (!SdlJoystickAxisCalibrationValid(minimumX, centreX, maximumX) ||
             !SdlJoystickAxisCalibrationValid(minimumY, centreY, maximumY)) {
-            window->set_message(CalibrationMessage::Failed);
+            window->set_calibration_message(CalibrationMessage::Failed);
             return;
         }
         const JoystickCalibration calibration = {
@@ -687,12 +708,12 @@ private:
         };
         std::string error;
         if (path.empty() || !write_joystick_calibration(path, calibration, error)) {
-            window->set_message(CalibrationMessage::CannotSave);
-            window->set_message_detail(slint::SharedString(error));
+            window->set_calibration_message(CalibrationMessage::CannotSave);
+            window->set_calibration_message_detail(slint::SharedString(error));
             return;
         }
         stored = calibration;
-        window->set_message(CalibrationMessage::Saved);
+        window->set_calibration_message(CalibrationMessage::Saved);
     }
 
     // SdlAcceptJoystickCalibration's test, for the joystick shown.
@@ -716,9 +737,9 @@ private:
             SdlDefaultJoystickAxis(&x);
             SdlDefaultJoystickAxis(&y);
         }
-        const int percent = dead_zone_percent(window->get_dead_zone());
+        const int percent = dead_zone_percent(window->get_joystick_dead_zone());
         const int steps = SdlJoystickDeadZoneSteps(percent);
-        const auto step = window->get_step();
+        const auto step = window->get_calibration_step();
         StickView view;
         view.x = position.x;
         view.y = position.y;
@@ -735,8 +756,8 @@ private:
         view.zone_bottom = y.centre + SdlJoystickDeadZoneEdge(y.maximum - y.centre, y.highScale, percent);
         view.step_x = SdlJoystickAxisStep(&x, SdlShapeJoystickPosition(&x, position.x, percent), steps);
         view.step_y = SdlJoystickAxisStep(&y, SdlShapeJoystickPosition(&y, position.y, percent), steps);
-        window->set_view(view);
-        window->set_calibrated(calibrated);
+        window->set_calibration_stick(view);
+        window->set_calibration_stored(calibrated);
     }
 };
 
@@ -766,23 +787,21 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         initialDirectory = error ? "." : path_to_utf8(currentDirectory);
     }
 
+#ifdef __linux__
+    const bool gamescope = running_under_gamescope();
+    if (gamescope)
+        fit_scale_to_output();
+#endif
     auto window = LauncherWindow::create();
-    /* The controls window opens on request and follows the launcher's
-       joystick selectors, which its own selectors also change; it never
-       outlives the launcher. */
-    std::optional<slint::ComponentHandle<ControlsWindow>> controls;
-    const auto sync_controls = [&window, &controls]() {
-        if (!controls)
-            return;
-        (*controls)->set_joystick_mode(window->get_joystick_mode_index());
-        (*controls)->set_joystick_axes(window->get_joystick_axes_index());
-        (*controls)->set_game(window->get_controls_game());
-    };
-    // The calibration window reads joysticks only while it is open.
+#ifdef __linux__
+    if (gamescope)
+        window->window().set_fullscreen(true);
+#endif
+    // The keyboard and mouse tab takes the saved bindings when it first opens.
+    bool controlsReady = false;
+    // The calibration page reads joysticks only while it shows.
     std::unique_ptr<CalibrationSession> calibration;
-    const auto hide_controls = [&controls, &calibration]() {
-        if (controls)
-            (*controls)->hide();
+    const auto stop_calibration = [&calibration]() {
         if (calibration)
             calibration->hide();
     };
@@ -824,42 +843,30 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->on_language_selected([&window, &installations](int language) {
         set_language(*window, installations, language);
     });
-    window->on_installation_selected([&window, &installations, &calibration, hide_controls](int index) {
+    window->on_installation_selected([&window, &installations, stop_calibration](int index) {
         if (index > 0 && static_cast<size_t>(index) <= installations.size())
             window->set_game_directory(slint::SharedString(installations[index - 1].directory));
         refresh_window(*window, installations);
-        if (!window->get_controls_available())
-            hide_controls();
         // Its j.cal belongs to the installation it was opened for.
-        if (calibration)
-            calibration->hide();
+        stop_calibration();
     });
-    window->on_controls_requested([&window, &controls, options, sync_controls]() {
-        if (!controls)
-            controls = create_controls_window(window, options->keyBindings);
-        sync_controls();
-        (*controls)->show();
+    window->on_controls_requested([&window, &controlsReady, options]() {
+        if (controlsReady)
+            return;
+        prepare_controls(window, options->keyBindings);
+        controlsReady = true;
     });
-    window->on_controls_layout_changed(sync_controls);
     window->on_calibration_requested([&window, &calibration]() {
-        if (!calibration) {
-            calibration = std::make_unique<CalibrationSession>();
-            calibration->window->on_dead_zone_edited([&window, &calibration]() {
-                window->set_joystick_dead_zone(calibration->window->get_dead_zone());
-            });
-        }
-        calibration->window->set_dead_zone(window->get_joystick_dead_zone());
+        if (!calibration)
+            calibration = std::make_unique<CalibrationSession>(window);
         calibration->show(path_from_utf8(std::string(window->get_game_directory())));
     });
-    window->on_dead_zone_changed([&window, &calibration]() {
-        if (calibration)
-            calibration->window->set_dead_zone(window->get_joystick_dead_zone());
-    });
-    window->window().on_close_requested([hide_controls]() {
-        hide_controls();
+    window->on_calibration_closed(stop_calibration);
+    window->window().on_close_requested([stop_calibration]() {
+        stop_calibration();
         return slint::CloseRequestResponse::HideWindow;
     });
-    const auto launch = [&window, &accepted, &installations, &controls, options, hide_controls](
+    const auto launch = [&window, &accepted, &installations, &controlsReady, options, stop_calibration](
                             int campaign, bool transfer, bool credits) {
         refresh_window(*window, installations);
         if (!window->get_path_valid() || campaign < 0 || campaign > 2 || (transfer && !campaign) ||
@@ -890,8 +897,8 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         options->campaign = campaign;
         options->transferPilot = transfer;
         options->swcCredits = credits;
-        if (controls) {
-            const auto keyBindings = changed_key_bindings(**controls);
+        if (controlsReady) {
+            const auto keyBindings = changed_key_bindings(*window);
             if (keyBindings.size() < sizeof(options->keyBindings))
                 std::memcpy(options->keyBindings, keyBindings.c_str(), keyBindings.size() + 1);
             else
@@ -901,7 +908,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         /* Hide while the event loop still runs: on Linux the request takes
            effect only when the loop processes it, so hiding after the loop
            left the launcher on screen during the game. */
-        hide_controls();
+        stop_calibration();
         window->hide();
         slint::quit_event_loop();
     };
@@ -911,8 +918,8 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->on_credits_requested([launch]() {
         launch(0, false, true);
     });
-    window->on_cancel_requested([hide_controls]() {
-        hide_controls();
+    window->on_cancel_requested([stop_calibration]() {
+        stop_calibration();
         slint::quit_event_loop();
     });
 
@@ -942,19 +949,16 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         window->set_music_device(SDL_LAUNCHER_MUSIC_MT32);
         show_music_device(*window);
     });
-    window->on_browse_requested([&window, &installations, &calibration, hide_controls, start_picker]() {
+    window->on_browse_requested([&window, &installations, stop_calibration, start_picker]() {
         if (!start_picker())
             return;
         browse_for_game_directory(*window, installations);
-        if (!window->get_controls_available())
-            hide_controls();
-        if (calibration)
-            calibration->hide();
+        stop_calibration();
     });
     slint::run_event_loop();
     if (pickerInitialized)
         NFD_Quit();
-    hide_controls();
+    stop_calibration();
     window->hide();
     if (!accepted)
         return SDL_LAUNCHER_CANCELLED;

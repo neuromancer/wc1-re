@@ -28,7 +28,7 @@ component BindingBox inherits Rectangle {
     pure callback binding(PadControl) -> string;
 
     width: 236px;
-    height: 30px + self.rows.length * 26px;
+    height: 24px + self.rows.length * 22px;
     background: Palette.alternate-background;
     border-color: Palette.border;
     border-width: 1px;
@@ -36,9 +36,9 @@ component BindingBox inherits Rectangle {
 
     Text {
         x: 10px;
-        y: 5px;
+        y: 4px;
         text: root.title;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         color: Palette.alternate-foreground;
         opacity: 0.7;
@@ -46,14 +46,14 @@ component BindingBox inherits Rectangle {
 
     for row[index] in root.rows: HorizontalLayout {
         x: 8px;
-        y: 24px + index * 26px;
+        y: 20px + index * 22px;
         width: root.width - 16px;
-        height: 24px;
-        spacing: 8px;
+        height: 22px;
+        spacing: 7px;
 
         Image {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             source: row.glyph;
             image-fit: contain;
         }
@@ -65,14 +65,14 @@ component BindingBox inherits Rectangle {
                 + (root.binding(row.control) == "" ? "—" : root.binding(row.control));
             color: Palette.alternate-foreground;
             opacity: root.binding(row.control) == "" ? 0.45 : 1;
-            font-size: 13px;
+            font-size: 12px;
             overflow: elide;
         }
     }
 }
 
 // A connector made of one horizontal and one vertical rule, in the
-// coordinates of the window it covers.
+// coordinates of the page it covers.
 component Connector inherits Rectangle {
     x: 0px;
     y: 0px;
@@ -114,9 +114,9 @@ component Connector inherits Rectangle {
 // of keys (joiner "–") or a single input, with a hint on how to use it.
 // Inputs are names, not pictures, so any key can be shown: a typed character
 // such as "e" or "ñ", or a name such as "up", "ctrl" or "mouse-left" (see
-// ControlsWindow.input-label). A fixed binding cannot be changed: mouse
+// ControlsView.input-label). A fixed binding cannot be changed: mouse
 // movement, which steers, or Escape, which also closes menus.
-struct InputBinding {
+export struct InputBinding {
     inputs: [string],
     joiner: string,
     hint: string,
@@ -127,8 +127,8 @@ struct InputBinding {
 // how to use it, and its original bindings. The id names the input in the
 // launcher settings and in src/sdl/keymap.c. A fixed row cannot be changed; a
 // mouse-only row takes only mouse buttons; limit caps its bindings (0 uses
-// ControlsWindow.max-bindings).
-struct InputRow {
+// ControlsView.max-bindings).
+export struct InputRow {
     id: string,
     section: string,
     action: string,
@@ -174,36 +174,20 @@ component KeyCap inherits Rectangle {
     }
 }
 
-export component ControlsWindow inherits Window {
-    title: root.game == 1 ? @tr("Super Wing Commander controls") : @tr("Wing Commander controls");
-    width: 1040px;
-    height: 660px;
-    background: Palette.background;
+// The bindings in a launcher tab: the game controller's drawn around the pad
+// (page 0, under the joystick settings), or the keyboard and mouse's in a
+// table (page 1). Both fit the tab, whose size sets the boxes' width and the
+// pad's scale.
+export component ControlsView inherits Rectangle {
+    min-width: root.page == 0 ? 640px : 560px;
+    min-height: root.page == 0 ? 360px : 300px;
 
-    // The launcher's joystick selectors: 0 original, 1 WCAT four buttons
-    // and two axes, 2 WCAT four buttons and four axes; axis layouts 0-6.
-    // The window has its own copies of the selectors.
-    in-out property <int> joystick-mode;
-    in-out property <int> joystick-axes;
-    // The window's selectors changed joystick-mode or joystick-axes.
-    callback layout-changed();
-    // The selectors' entries, in the launcher's order.
-    out property <[string]> mode-names: [
-        @tr("Original — two axes / two buttons"),
-        @tr("WCAT — four buttons / two axes"),
-        @tr("WCAT — four buttons / four axes")
-    ];
-    out property <[string]> axis-names: [
-        @tr("Twin-stick roll"),
-        @tr("Twin-stick yaw"),
-        @tr("HOTAS yaw"),
-        @tr("HOTAS roll"),
-        @tr("Linear throttle"),
-        @tr("Rudder yaw"),
-        @tr("Rudder roll")
-    ];
+    // The launcher's joystick settings: 0 original, 1 WCAT four buttons and
+    // two axes, 2 WCAT four buttons and four axes; axis layouts 0-6.
+    in property <int> joystick-mode;
+    in property <int> joystick-axes;
     // 0 shows the game controller, 1 the keyboard and mouse.
-    in-out property <int> page;
+    in property <int> page;
     // macOS toggles full screen with Command-Return rather than Alt-Enter.
     in property <bool> apple-keys;
     // 0 shows WC1 (DOS and Kilrathi Saga data), 1 SWC (Mac data).
@@ -501,7 +485,7 @@ export component ControlsWindow inherits Window {
     }
 
     // Where the table's binding column starts.
-    property <length> input-column: 380px;
+    property <length> input-column: max(240px, min(380px, area.width * 0.46));
     // How far the table is scrolled (negative, as the list's viewport-y). It
     // outlasts switching pages, and starts over for another game.
     in-out property <length> table-scroll;
@@ -510,10 +494,20 @@ export component ControlsWindow inherits Window {
     }
 
     // SC Controller's x360.svg is 446x345; its hidden AREA_* rectangles give
-    // the anchors below, in drawing units, scaled into the canvas.
-    property <float> scale: 1.2;
-    property <length> pad-x: (root.width - 446px * root.scale) / 2;
-    property <length> pad-y: 160px;
+    // the anchors below, in drawing units, scaled into the drawing's area.
+    // The side boxes take what a 300px pad leaves, 196px to 236px each; the
+    // Back and Start boxes sit above the pad.
+    property <length> box-width: max(196px, min(236px, (area.width - 300px) / 2 - 10px));
+    property <length> top-band: 52px;
+    property <float> scale: max(0.5, min(1.2, min((area.width - 2 * (root.box-width + 14px)) / 446px,
+        (area.height - root.top-band) / 345px)));
+    property <length> pad-x: (area.width - 446px * root.scale) / 2;
+    property <length> pad-y: root.top-band;
+    // Each column of boxes starts beside the pad's top and spreads over the
+    // height left; both columns hold 272px of boxes.
+    property <length> column-y: root.pad-y - 16px;
+    property <length> box-gap: max(4px, min(44px, (area.height - root.column-y - 272px) / 3));
+    property <length> centre-box-width: max(110px, min(150px, 223px * root.scale - 10px));
     property <brush> ink: Palette.foreground.with-alpha(0.55);
 
     pure function at-x(drawing-x: float) -> length {
@@ -599,636 +593,565 @@ export component ControlsWindow inherits Window {
             + " " + @tr("Y answers Yes in prompts; Back is Escape outside flight.");
     }
 
-    Text {
-        x: 24px;
-        y: 14px;
-        text: root.game == 1
-            ? (root.page == 0 ? @tr("Game controller — Super Wing Commander") : @tr("Keyboard and mouse — Super Wing Commander"))
-            : (root.page == 0 ? @tr("Game controller — Wing Commander") : @tr("Keyboard and mouse — Wing Commander"));
-        font-size: 20px;
-        font-weight: 700;
-        color: Palette.foreground;
-    }
+    VerticalLayout {
+        spacing: 8px;
 
-    HorizontalLayout {
-        x: root.width - self.width - 16px;
-        y: 14px;
-        width: 420px;
-        height: 32px;
-        spacing: 6px;
-        alignment: end;
-
-        Button {
-            text: @tr("Game controller");
-            primary: root.page == 0;
-            clicked => {
-                root.page = 0;
-            }
-        }
-
-        Button {
-            text: @tr("Keyboard and mouse");
-            primary: root.page == 1;
-            clicked => {
-                root.page = 1;
-            }
-        }
-    }
-
-    if root.page == 0: Rectangle {
-        x: 0px;
-        y: 0px;
-        width: 100%;
-        height: 100%;
-
-        HorizontalLayout {
-            x: 24px;
-            y: 50px;
-            width: root.width - 48px;
-            height: 32px;
+        if root.page == 1: HorizontalLayout {
             spacing: 8px;
-            alignment: start;
+            vertical-stretch: 0;
 
             Text {
-                text: @tr("Control mode");
+                horizontal-stretch: 1;
                 vertical-alignment: center;
+                text: @tr("In flight. Click a key or button to change it, or + to add one; changes apply when the game starts.");
+                wrap: word-wrap;
+                font-size: 12px;
                 color: Palette.foreground;
+                opacity: 0.7;
             }
 
-            ComboBox {
-                width: 300px;
-                model: root.mode-names;
-                current-index <=> root.joystick-mode;
-                selected => {
-                    root.layout-changed();
-                }
-            }
-
-            Rectangle {
-                width: 16px;
-            }
-
-            Text {
-                text: @tr("Axis layout");
-                vertical-alignment: center;
-                color: Palette.foreground;
-            }
-
-            ComboBox {
-                width: 210px;
-                enabled: root.joystick-mode == 2;
-                model: root.axis-names;
-                current-index <=> root.joystick-axes;
-                selected => {
-                    root.layout-changed();
+            Button {
+                text: @tr("Restore defaults");
+                clicked => {
+                    root.bindings-reset();
                 }
             }
         }
 
-        Image {
-            x: root.pad-x;
-            y: root.pad-y;
-            width: 446px * root.scale;
-            height: 345px * root.scale;
-            source: @image-url("../../../third_party/sc-controller/images/controller-images/x360.svg");
-        }
+        area := Rectangle {
+            vertical-stretch: 1;
 
-        // Face buttons and Back/Start sit on the drawing's AREA_* rectangles.
-        for glyph in [
-            { x: 319.0, y: 127.8, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/A.svg") },
-            { x: 349.0, y: 98.5, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/B.svg") },
-            { x: 289.9, y: 98.5, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/X.svg") },
-            { x: 319.0, y: 69.4, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/Y.svg") },
-            { x: 172.9, y: 103.6, w: 27.9, h: 23.9, image: @image-url("../../../third_party/sc-controller/images/button-images/BACK.svg") },
-            { x: 243.1, y: 103.6, w: 27.9, h: 23.9, image: @image-url("../../../third_party/sc-controller/images/button-images/START.svg") }
-        ]: Image {
-            x: root.at-x(glyph.x);
-            y: root.at-y(glyph.y);
-            width: glyph.w * 1px * root.scale;
-            height: glyph.h * 1px * root.scale;
-            source: glyph.image;
-            image-fit: contain;
-        }
-
-        // Connectors first, so the boxes cover their starting ends.
-        Connector { from-x: lt.x + lt.width; from-y: lt.line-y; to-x: root.at-x(97.9); to-y: root.at-y(35); ink: root.ink; }
-        Connector { from-x: lb.x + lb.width; from-y: lb.line-y; to-x: root.at-x(75); to-y: root.at-y(52); ink: root.ink; }
-        Connector { from-x: ls.x + ls.width; from-y: ls.line-y; to-x: root.at-x(84.6); to-y: root.at-y(111.3); ink: root.ink; }
-        Connector { from-x: dp.x + dp.width; from-y: dp.line-y; to-x: root.at-x(140); to-y: root.at-y(180); ink: root.ink; }
-        Connector { from-x: rt.x; from-y: rt.line-y; to-x: root.at-x(346.7); to-y: root.at-y(35); ink: root.ink; }
-        Connector { from-x: rb.x; from-y: rb.line-y; to-x: root.at-x(370); to-y: root.at-y(52); ink: root.ink; }
-        Connector { from-x: fb.x; from-y: fb.line-y; to-x: root.at-x(374); to-y: root.at-y(111); ink: root.ink; }
-        Connector { from-x: rs.x; from-y: rs.line-y; to-x: root.at-x(309.7); to-y: root.at-y(180); ink: root.ink; }
-        Connector { from-x: root.at-x(186.8); from-y: bk.y + bk.height; to-x: root.at-x(186.8); to-y: root.at-y(115.5); ink: root.ink; }
-        Connector { from-x: root.at-x(257.0); from-y: st.y + st.height; to-x: root.at-x(257.0); to-y: root.at-y(115.5); ink: root.ink; }
-
-        lt := BindingBox {
-            x: 16px;
-            y: root.pad-y + 8px - self.height / 2;
-            title: "LT";
-            rows: [{ control: PadControl.left-trigger, glyph: @image-url("../../../third_party/sc-controller/images/button-images/LT.svg") }];
-            binding(c) => { return root.pad-binding(c); }
-        }
-
-        lb := BindingBox {
-            x: 16px;
-            y: root.pad-y + 74px - self.height / 2;
-            title: "LB";
-            rows: [{ control: PadControl.left-shoulder, glyph: @image-url("../../../third_party/sc-controller/images/button-images/LB.svg") }];
-            binding(c) => { return root.pad-binding(c); }
-        }
-
-        ls := BindingBox {
-            x: 16px;
-            y: root.pad-y + 168px - self.height / 2;
-            title: @tr("Left stick");
-            rows: [
-                { control: PadControl.left-stick, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("move") },
-                { control: PadControl.left-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
-            ];
-            binding(c) => { return root.pad-binding(c); }
-        }
-
-        dp := BindingBox {
-            x: 16px;
-            y: root.pad-y + 308px - self.height / 2;
-            title: @tr("D-pad");
-            rows: [
-                { control: PadControl.dpad-up, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_UP.svg") },
-                { control: PadControl.dpad-down, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_DOWN.svg") },
-                { control: PadControl.dpad-left, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_LEFT.svg") },
-                { control: PadControl.dpad-right, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_RIGHT.svg") }
-            ];
-            binding(c) => { return root.pad-binding(c); }
-        }
-
-        rt := BindingBox {
-            x: root.width - 16px - self.width;
-            y: root.pad-y + 8px - self.height / 2;
-            title: "RT";
-            rows: [{ control: PadControl.right-trigger, glyph: @image-url("../../../third_party/sc-controller/images/button-images/RT.svg") }];
-            binding(c) => { return root.pad-binding(c); }
-        }
-
-        rb := BindingBox {
-            x: root.width - 16px - self.width;
-            y: root.pad-y + 74px - self.height / 2;
-            title: "RB";
-            rows: [{ control: PadControl.right-shoulder, glyph: @image-url("../../../third_party/sc-controller/images/button-images/RB.svg") }];
-            binding(c) => { return root.pad-binding(c); }
-        }
-
-        fb := BindingBox {
-            x: root.width - 16px - self.width;
-            y: root.pad-y + 198px - self.height / 2;
-            title: @tr("Buttons");
-            line-y: root.at-y(111);
-            rows: [
-                { control: PadControl.y, glyph: @image-url("../../../third_party/sc-controller/images/button-images/Y.svg") },
-                { control: PadControl.x, glyph: @image-url("../../../third_party/sc-controller/images/button-images/X.svg") },
-                { control: PadControl.b, glyph: @image-url("../../../third_party/sc-controller/images/button-images/B.svg") },
-                { control: PadControl.a, glyph: @image-url("../../../third_party/sc-controller/images/button-images/A.svg") }
-            ];
-            binding(c) => { return root.pad-binding(c); }
-        }
-
-        rs := BindingBox {
-            x: root.width - 16px - self.width;
-            y: root.pad-y + 338px - self.height / 2;
-            title: @tr("Right stick");
-            rows: [
-                { control: PadControl.right-stick, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("move") },
-                { control: PadControl.right-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
-            ];
-            binding(c) => { return root.pad-binding(c); }
-        }
-
-        bk := BindingBox {
-            x: root.at-x(186.8) - self.width + 30px;
-            y: root.pad-y - 60px;
-            title: "Back";
-            rows: [{ control: PadControl.back, glyph: @image-url("../../../third_party/sc-controller/images/button-images/BACK.svg") }];
-            binding(c) => { return root.pad-binding(c); }
-        }
-
-        st := BindingBox {
-            x: root.at-x(257.0) - 30px;
-            y: root.pad-y - 60px;
-            title: "Start";
-            rows: [{ control: PadControl.start, glyph: @image-url("../../../third_party/sc-controller/images/button-images/START.svg") }];
-            binding(c) => { return root.pad-binding(c); }
-        }
-
-        Text {
-            x: 24px;
-            y: root.height - 76px;
-            width: root.width - 48px;
-            text: root.notes();
-            wrap: word-wrap;
-            font-size: 13px;
-            color: Palette.foreground;
-            opacity: 0.75;
-        }
-    }
-
-    // The keyboard and mouse table: game inputs on the left, the keys and
-    // mouse actions bound to them on the right.
-    if root.page == 1: Rectangle {
-        x: 0px;
-        y: 0px;
-        width: 100%;
-        height: 100%;
-
-        Text {
-            x: 24px;
-            y: 42px;
-            text: @tr("In flight. Click a key or button to change it, or + to add one; changes apply when the game starts.");
-            font-size: 13px;
-            color: Palette.foreground;
-            opacity: 0.7;
-        }
-
-        Rectangle {
-            x: 16px;
-            y: 72px;
-            width: root.width - 32px;
-            height: root.height - 72px - 64px;
-            background: Palette.alternate-background;
-            border-color: Palette.border;
-            border-width: 1px;
-            border-radius: 6px;
-            clip: true;
-
-            Text {
-                x: 14px;
-                y: 0px;
-                height: 32px;
-                vertical-alignment: center;
-                text: @tr("Game input");
-                font-size: 12px;
-                font-weight: 700;
-                color: Palette.alternate-foreground;
-                opacity: 0.7;
-            }
-
-            Text {
-                x: root.input-column;
-                y: 0px;
-                height: 32px;
-                vertical-alignment: center;
-                text: @tr("Key or mouse");
-                font-size: 12px;
-                font-weight: 700;
-                color: Palette.alternate-foreground;
-                opacity: 0.7;
-            }
-
-            Rectangle {
+            if root.page == 0: Rectangle {
                 x: 0px;
-                y: 32px;
+                y: 0px;
                 width: 100%;
-                height: 1px;
-                background: Palette.border;
+                height: 100%;
+
+                Image {
+                    x: root.pad-x;
+                    y: root.pad-y;
+                    width: 446px * root.scale;
+                    height: 345px * root.scale;
+                    source: @image-url("../../../third_party/sc-controller/images/controller-images/x360.svg");
+                }
+
+                // Face buttons and Back/Start sit on the drawing's AREA_* rectangles.
+                for glyph in [
+                    { x: 319.0, y: 127.8, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/A.svg") },
+                    { x: 349.0, y: 98.5, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/B.svg") },
+                    { x: 289.9, y: 98.5, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/X.svg") },
+                    { x: 319.0, y: 69.4, w: 25.0, h: 25.0, image: @image-url("../../../third_party/sc-controller/images/button-images/Y.svg") },
+                    { x: 172.9, y: 103.6, w: 27.9, h: 23.9, image: @image-url("../../../third_party/sc-controller/images/button-images/BACK.svg") },
+                    { x: 243.1, y: 103.6, w: 27.9, h: 23.9, image: @image-url("../../../third_party/sc-controller/images/button-images/START.svg") }
+                ]: Image {
+                    x: root.at-x(glyph.x);
+                    y: root.at-y(glyph.y);
+                    width: glyph.w * 1px * root.scale;
+                    height: glyph.h * 1px * root.scale;
+                    source: glyph.image;
+                    image-fit: contain;
+                }
+
+                // Connectors first, so the boxes cover their starting ends.
+                Connector { from-x: lt.x + lt.width; from-y: lt.line-y; to-x: root.at-x(97.9); to-y: root.at-y(35); ink: root.ink; }
+                Connector { from-x: lb.x + lb.width; from-y: lb.line-y; to-x: root.at-x(75); to-y: root.at-y(52); ink: root.ink; }
+                Connector { from-x: ls.x + ls.width; from-y: ls.line-y; to-x: root.at-x(84.6); to-y: root.at-y(111.3); ink: root.ink; }
+                Connector { from-x: dp.x + dp.width; from-y: dp.line-y; to-x: root.at-x(140); to-y: root.at-y(180); ink: root.ink; }
+                Connector { from-x: rt.x; from-y: rt.line-y; to-x: root.at-x(346.7); to-y: root.at-y(35); ink: root.ink; }
+                Connector { from-x: rb.x; from-y: rb.line-y; to-x: root.at-x(370); to-y: root.at-y(52); ink: root.ink; }
+                Connector { from-x: fb.x; from-y: fb.line-y; to-x: root.at-x(374); to-y: root.at-y(111); ink: root.ink; }
+                Connector { from-x: rs.x; from-y: rs.line-y; to-x: root.at-x(309.7); to-y: root.at-y(180); ink: root.ink; }
+                Connector { from-x: root.at-x(186.8); from-y: bk.y + bk.height; to-x: root.at-x(186.8); to-y: root.at-y(115.5); ink: root.ink; }
+                Connector { from-x: root.at-x(257.0); from-y: st.y + st.height; to-x: root.at-x(257.0); to-y: root.at-y(115.5); ink: root.ink; }
+
+                lt := BindingBox {
+                    x: 0px;
+                    y: root.column-y;
+                    width: root.box-width;
+                    title: "LT";
+                    rows: [{ control: PadControl.left-trigger, glyph: @image-url("../../../third_party/sc-controller/images/button-images/LT.svg") }];
+                    binding(c) => { return root.pad-binding(c); }
+                }
+
+                lb := BindingBox {
+                    x: 0px;
+                    y: lt.y + lt.height + root.box-gap;
+                    width: root.box-width;
+                    title: "LB";
+                    rows: [{ control: PadControl.left-shoulder, glyph: @image-url("../../../third_party/sc-controller/images/button-images/LB.svg") }];
+                    binding(c) => { return root.pad-binding(c); }
+                }
+
+                ls := BindingBox {
+                    x: 0px;
+                    y: lb.y + lb.height + root.box-gap;
+                    width: root.box-width;
+                    title: @tr("Left stick");
+                    rows: [
+                        { control: PadControl.left-stick, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("move") },
+                        { control: PadControl.left-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
+                    ];
+                    binding(c) => { return root.pad-binding(c); }
+                }
+
+                dp := BindingBox {
+                    x: 0px;
+                    y: ls.y + ls.height + root.box-gap;
+                    width: root.box-width;
+                    title: @tr("D-pad");
+                    rows: [
+                        { control: PadControl.dpad-up, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_UP.svg") },
+                        { control: PadControl.dpad-down, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_DOWN.svg") },
+                        { control: PadControl.dpad-left, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_LEFT.svg") },
+                        { control: PadControl.dpad-right, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_RIGHT.svg") }
+                    ];
+                    binding(c) => { return root.pad-binding(c); }
+                }
+
+                rt := BindingBox {
+                    x: area.width - self.width;
+                    y: root.column-y;
+                    width: root.box-width;
+                    title: "RT";
+                    rows: [{ control: PadControl.right-trigger, glyph: @image-url("../../../third_party/sc-controller/images/button-images/RT.svg") }];
+                    binding(c) => { return root.pad-binding(c); }
+                }
+
+                rb := BindingBox {
+                    x: area.width - self.width;
+                    y: rt.y + rt.height + root.box-gap;
+                    width: root.box-width;
+                    title: "RB";
+                    rows: [{ control: PadControl.right-shoulder, glyph: @image-url("../../../third_party/sc-controller/images/button-images/RB.svg") }];
+                    binding(c) => { return root.pad-binding(c); }
+                }
+
+                fb := BindingBox {
+                    x: area.width - self.width;
+                    y: rb.y + rb.height + root.box-gap;
+                    width: root.box-width;
+                    title: @tr("Buttons");
+                    line-y: root.at-y(111);
+                    rows: [
+                        { control: PadControl.y, glyph: @image-url("../../../third_party/sc-controller/images/button-images/Y.svg") },
+                        { control: PadControl.x, glyph: @image-url("../../../third_party/sc-controller/images/button-images/X.svg") },
+                        { control: PadControl.b, glyph: @image-url("../../../third_party/sc-controller/images/button-images/B.svg") },
+                        { control: PadControl.a, glyph: @image-url("../../../third_party/sc-controller/images/button-images/A.svg") }
+                    ];
+                    binding(c) => { return root.pad-binding(c); }
+                }
+
+                rs := BindingBox {
+                    x: area.width - self.width;
+                    y: fb.y + fb.height + root.box-gap;
+                    width: root.box-width;
+                    title: @tr("Right stick");
+                    rows: [
+                        { control: PadControl.right-stick, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("move") },
+                        { control: PadControl.right-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
+                    ];
+                    binding(c) => { return root.pad-binding(c); }
+                }
+
+                bk := BindingBox {
+                    x: area.width / 2 - 6px - self.width;
+                    y: 0px;
+                    width: root.centre-box-width;
+                    title: "Back";
+                    rows: [{ control: PadControl.back, glyph: @image-url("../../../third_party/sc-controller/images/button-images/BACK.svg") }];
+                    binding(c) => { return root.pad-binding(c); }
+                }
+
+                st := BindingBox {
+                    x: area.width / 2 + 6px;
+                    y: 0px;
+                    width: root.centre-box-width;
+                    title: "Start";
+                    rows: [{ control: PadControl.start, glyph: @image-url("../../../third_party/sc-controller/images/button-images/START.svg") }];
+                    binding(c) => { return root.pad-binding(c); }
+                }
             }
 
-            ListView {
+            // The keyboard and mouse table: game inputs on the left, the keys and
+            // mouse actions bound to them on the right.
+            if root.page == 1: VerticalLayout {
                 x: 0px;
-                y: 33px;
+                y: 0px;
                 width: 100%;
-                height: parent.height - 34px;
-                viewport-y <=> root.table-scroll;
+                height: 100%;
+                spacing: 6px;
 
-                for row[index] in (root.game == 1 ? root.swc-rows : root.keyboard-rows): line := Rectangle {
-                    // The row's current bindings, or its original ones before
-                    // the launcher supplies a copy.
-                    property <[InputBinding]> current: root.game == 1
-                        ? (root.swc-bindings.length > index ? root.swc-bindings[index] : row.bindings)
-                        : (root.keyboard-bindings.length > index ? root.keyboard-bindings[index] : row.bindings);
+                Rectangle {
+                    vertical-stretch: 1;
+                    background: Palette.alternate-background;
+                    border-color: Palette.border;
+                    border-width: 1px;
+                    border-radius: 6px;
+                    clip: true;
 
-                    height: 40px;
-                    background: row.section != "" ? Palette.background : transparent;
-
-                    if row.section != "": Text {
+                    Text {
                         x: 14px;
                         y: 0px;
-                        height: 40px;
+                        height: 32px;
                         vertical-alignment: center;
-                        text: row.section;
-                        font-size: 13px;
+                        text: @tr("Game input");
+                        font-size: 12px;
                         font-weight: 700;
-                        color: Palette.foreground;
+                        color: Palette.alternate-foreground;
+                        opacity: 0.7;
                     }
 
-                    if row.section == "": HorizontalLayout {
-                        x: 14px;
-                        y: 0px;
-                        width: root.input-column - 28px;
-                        height: 40px;
-                        spacing: 8px;
-                        alignment: start;
-
-                        Text {
-                            vertical-alignment: center;
-                            text: row.action;
-                            font-size: 13px;
-                            color: Palette.alternate-foreground;
-                            overflow: elide;
-                        }
-
-                        if row.hint != "": Text {
-                            vertical-alignment: center;
-                            text: row.hint;
-                            font-size: 12px;
-                            color: Palette.alternate-foreground;
-                            opacity: 0.6;
-                        }
-                    }
-
-                    if row.section == "": HorizontalLayout {
+                    Text {
                         x: root.input-column;
-                        y: 5px;
-                        width: parent.width - root.input-column - 14px;
-                        height: 30px;
-                        spacing: 7px;
-                        alignment: start;
-
-                        for binding[slot] in line.current: HorizontalLayout {
-                            spacing: 7px;
-
-                            if slot > 0: Text {
-                                text: "/";
-                                vertical-alignment: center;
-                                font-size: 13px;
-                                color: Palette.alternate-foreground;
-                                opacity: 0.6;
-                            }
-
-                            // Clicking a binding changes it.
-                            Rectangle {
-                                border-radius: 6px;
-                                border-width: choose.has-hover ? 1px : 0px;
-                                border-color: Palette.accent-background;
-                                background: choose.has-hover ? Palette.accent-background.with-alpha(0.12) : transparent;
-
-                                HorizontalLayout {
-                                    padding: 2px;
-                                    spacing: 5px;
-
-                                    for input[part] in binding.inputs: HorizontalLayout {
-                                        spacing: 5px;
-
-                                        if part > 0 && binding.joiner != "": Text {
-                                            text: binding.joiner;
-                                            vertical-alignment: center;
-                                            font-size: 13px;
-                                            color: Palette.alternate-foreground;
-                                        }
-
-                                        KeyCap {
-                                            label: root.input-label(input);
-                                            mouse: root.is-mouse(input);
-                                        }
-                                    }
-
-                                    if binding.hint != "": Text {
-                                        text: binding.hint;
-                                        vertical-alignment: center;
-                                        font-size: 12px;
-                                        color: Palette.alternate-foreground;
-                                        opacity: 0.7;
-                                    }
-                                }
-
-                                choose := TouchArea {
-                                    enabled: !row.fixed && !binding.fixed;
-                                    mouse-cursor: self.enabled ? MouseCursor.pointer : MouseCursor.default;
-                                    clicked => {
-                                        root.start-capture(index, slot, true);
-                                    }
-                                }
-                            }
-                        }
-
-                        if line.current.length == 0: Text {
-                            text: "—";
-                            vertical-alignment: center;
-                            color: Palette.alternate-foreground;
-                            opacity: 0.45;
-                        }
-
-                        // Adds another binding, up to the row's limit.
-                        if !row.fixed
-                                && line.current.length < (row.limit > 0 ? row.limit : root.max-bindings): Rectangle {
-                            width: 26px;
-                            height: 26px;
-                            border-radius: 13px;
-                            border-width: 1px;
-                            border-color: add.has-hover ? Palette.accent-background : Palette.border;
-                            background: add.has-hover ? Palette.accent-background.with-alpha(0.12) : transparent;
-
-                            Text {
-                                text: "+";
-                                vertical-alignment: center;
-                                horizontal-alignment: center;
-                                font-size: 14px;
-                                color: Palette.alternate-foreground;
-                            }
-
-                            add := TouchArea {
-                                mouse-cursor: MouseCursor.pointer;
-                                clicked => {
-                                    root.start-capture(index, line.current.length, false);
-                                }
-                            }
-                        }
+                        y: 0px;
+                        height: 32px;
+                        vertical-alignment: center;
+                        text: @tr("Key or mouse");
+                        font-size: 12px;
+                        font-weight: 700;
+                        color: Palette.alternate-foreground;
+                        opacity: 0.7;
                     }
 
                     Rectangle {
-                        y: parent.height - 1px;
+                        x: 0px;
+                        y: 32px;
                         width: 100%;
                         height: 1px;
                         background: Palette.border;
-                        opacity: 0.6;
+                    }
+
+                    ListView {
+                        x: 0px;
+                        y: 33px;
+                        width: 100%;
+                        height: parent.height - 34px;
+                        viewport-y <=> root.table-scroll;
+
+                        for row[index] in (root.game == 1 ? root.swc-rows : root.keyboard-rows): line := Rectangle {
+                            // The row's current bindings, or its original ones before
+                            // the launcher supplies a copy.
+                            property <[InputBinding]> current: root.game == 1
+                                ? (root.swc-bindings.length > index ? root.swc-bindings[index] : row.bindings)
+                                : (root.keyboard-bindings.length > index ? root.keyboard-bindings[index] : row.bindings);
+
+                            height: 40px;
+                            background: row.section != "" ? Palette.background : transparent;
+
+                            if row.section != "": Text {
+                                x: 14px;
+                                y: 0px;
+                                height: 40px;
+                                vertical-alignment: center;
+                                text: row.section;
+                                font-size: 13px;
+                                font-weight: 700;
+                                color: Palette.foreground;
+                            }
+
+                            if row.section == "": HorizontalLayout {
+                                x: 14px;
+                                y: 0px;
+                                width: root.input-column - 28px;
+                                height: 40px;
+                                spacing: 8px;
+                                alignment: start;
+
+                                Text {
+                                    vertical-alignment: center;
+                                    text: row.action;
+                                    font-size: 13px;
+                                    color: Palette.alternate-foreground;
+                                    overflow: elide;
+                                }
+
+                                if row.hint != "": Text {
+                                    vertical-alignment: center;
+                                    text: row.hint;
+                                    font-size: 12px;
+                                    color: Palette.alternate-foreground;
+                                    opacity: 0.6;
+                                }
+                            }
+
+                            if row.section == "": HorizontalLayout {
+                                x: root.input-column;
+                                y: 5px;
+                                width: parent.width - root.input-column - 14px;
+                                height: 30px;
+                                spacing: 7px;
+                                alignment: start;
+
+                                for binding[slot] in line.current: HorizontalLayout {
+                                    spacing: 7px;
+
+                                    if slot > 0: Text {
+                                        text: "/";
+                                        vertical-alignment: center;
+                                        font-size: 13px;
+                                        color: Palette.alternate-foreground;
+                                        opacity: 0.6;
+                                    }
+
+                                    // Clicking a binding changes it.
+                                    Rectangle {
+                                        border-radius: 6px;
+                                        border-width: choose.has-hover ? 1px : 0px;
+                                        border-color: Palette.accent-background;
+                                        background: choose.has-hover ? Palette.accent-background.with-alpha(0.12) : transparent;
+
+                                        HorizontalLayout {
+                                            padding: 2px;
+                                            spacing: 5px;
+
+                                            for input[part] in binding.inputs: HorizontalLayout {
+                                                spacing: 5px;
+
+                                                if part > 0 && binding.joiner != "": Text {
+                                                    text: binding.joiner;
+                                                    vertical-alignment: center;
+                                                    font-size: 13px;
+                                                    color: Palette.alternate-foreground;
+                                                }
+
+                                                KeyCap {
+                                                    label: root.input-label(input);
+                                                    mouse: root.is-mouse(input);
+                                                }
+                                            }
+
+                                            if binding.hint != "": Text {
+                                                text: binding.hint;
+                                                vertical-alignment: center;
+                                                font-size: 12px;
+                                                color: Palette.alternate-foreground;
+                                                opacity: 0.7;
+                                            }
+                                        }
+
+                                        choose := TouchArea {
+                                            enabled: !row.fixed && !binding.fixed;
+                                            mouse-cursor: self.enabled ? MouseCursor.pointer : MouseCursor.default;
+                                            clicked => {
+                                                root.start-capture(index, slot, true);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if line.current.length == 0: Text {
+                                    text: "—";
+                                    vertical-alignment: center;
+                                    color: Palette.alternate-foreground;
+                                    opacity: 0.45;
+                                }
+
+                                // Adds another binding, up to the row's limit.
+                                if !row.fixed
+                                        && line.current.length < (row.limit > 0 ? row.limit : root.max-bindings): Rectangle {
+                                    width: 26px;
+                                    height: 26px;
+                                    border-radius: 13px;
+                                    border-width: 1px;
+                                    border-color: add.has-hover ? Palette.accent-background : Palette.border;
+                                    background: add.has-hover ? Palette.accent-background.with-alpha(0.12) : transparent;
+
+                                    Text {
+                                        text: "+";
+                                        vertical-alignment: center;
+                                        horizontal-alignment: center;
+                                        font-size: 14px;
+                                        color: Palette.alternate-foreground;
+                                    }
+
+                                    add := TouchArea {
+                                        mouse-cursor: MouseCursor.pointer;
+                                        clicked => {
+                                            root.start-capture(index, line.current.length, false);
+                                        }
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                y: parent.height - 1px;
+                                width: 100%;
+                                height: 1px;
+                                background: Palette.border;
+                                opacity: 0.6;
+                            }
+                        }
                     }
                 }
             }
         }
 
         Text {
-            x: 24px;
-            y: root.height - 56px;
-            width: root.width - 48px - 170px;
-            text: root.game == 1
+            vertical-stretch: 0;
+            text: root.page == 0
+                ? root.notes()
+                : root.game == 1
                 ? @tr("The digit keys 8, 2, 4 and 6 and the keypad steer too; keypad . rolls right, + and − change speed and Enter fires a missile. Two inputs at most per action; the menus' shortcuts and the in-flight computer's keys cannot be changed.")
                 : @tr("The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, 5 stops turning, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Two inputs at most per action; Escape cannot be changed.");
             wrap: word-wrap;
-            font-size: 13px;
+            font-size: 12px;
             color: Palette.foreground;
             opacity: 0.75;
         }
+    }
 
-        Button {
-            x: root.width - 16px - self.width;
-            y: root.height - 56px;
-            text: @tr("Restore defaults");
+    // Captures the next key (with at most one modifier), mouse button or
+    // wheel step for the binding being changed; a mouse-only row takes
+    // only buttons. Escape or a click outside the box cancels.
+    if root.page == 1 && root.capture-row >= 0: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: 100%;
+        height: 100%;
+        background: #00000060;
+
+        TouchArea {
             clicked => {
-                root.bindings-reset();
+                root.capture-row = -1;
             }
         }
 
-        // Captures the next key (with at most one modifier), mouse button or
-        // wheel step for the binding being changed; a mouse-only row takes
-        // only buttons. Escape or a click outside the box cancels.
-        if root.capture-row >= 0: Rectangle {
-            x: 0px;
-            y: 0px;
-            width: 100%;
-            height: 100%;
-            background: #00000060;
-
-            TouchArea {
-                clicked => {
-                    root.capture-row = -1;
-                }
+        capture := FocusScope {
+            x: (parent.width - 480px) / 2;
+            y: (parent.height - 230px) / 2;
+            width: 480px;
+            height: 230px;
+            init => {
+                self.focus();
             }
 
-            capture := FocusScope {
-                x: (parent.width - 480px) / 2;
-                y: (parent.height - 230px) / 2;
-                width: 480px;
-                height: 230px;
-                init => {
-                    self.focus();
+            key-pressed(event) => {
+                if event.text == Key.Escape {
+                    root.capture-row = -1;
+                    return accept;
+                }
+                if root.capture-mouse-only {
+                    return accept;
+                }
+                if root.is-modifier(root.key-input(event.text)) {
+                    root.capture-modifier = root.key-input(event.text);
+                    return accept;
+                }
+                root.capture-key(event.modifiers, root.key-input(event.text));
+                accept
+            }
+
+            key-released(event) => {
+                if !root.capture-mouse-only && root.capture-modifier != ""
+                        && root.key-input(event.text) == root.capture-modifier {
+                    root.finish-capture({ inputs: [root.capture-modifier] });
+                }
+                accept
+            }
+
+            Rectangle {
+                background: Palette.background;
+                border-color: Palette.border;
+                border-width: 1px;
+                border-radius: 8px;
+
+                // Swallow clicks on the panel so they do not cancel.
+                TouchArea { }
+
+                Text {
+                    x: 20px;
+                    y: 16px;
+                    text: @tr("Change binding");
+                    font-size: 16px;
+                    font-weight: 700;
+                    color: Palette.foreground;
                 }
 
-                key-pressed(event) => {
-                    if event.text == Key.Escape {
-                        root.capture-row = -1;
-                        return accept;
-                    }
-                    if root.capture-mouse-only {
-                        return accept;
-                    }
-                    if root.is-modifier(root.key-input(event.text)) {
-                        root.capture-modifier = root.key-input(event.text);
-                        return accept;
-                    }
-                    root.capture-key(event.modifiers, root.key-input(event.text));
-                    accept
-                }
-
-                key-released(event) => {
-                    if !root.capture-mouse-only && root.capture-modifier != ""
-                            && root.key-input(event.text) == root.capture-modifier {
-                        root.finish-capture({ inputs: [root.capture-modifier] });
-                    }
-                    accept
+                Text {
+                    x: 20px;
+                    y: 42px;
+                    width: parent.width - 40px;
+                    text: (root.game == 1 ? root.swc-rows : root.keyboard-rows)[root.capture-row].action;
+                    font-size: 13px;
+                    color: Palette.foreground;
+                    opacity: 0.75;
+                    overflow: elide;
                 }
 
                 Rectangle {
-                    background: Palette.background;
-                    border-color: Palette.border;
+                    x: 20px;
+                    y: 70px;
+                    width: parent.width - 40px;
+                    height: 90px;
+                    border-radius: 6px;
                     border-width: 1px;
-                    border-radius: 8px;
-
-                    // Swallow clicks on the panel so they do not cancel.
-                    TouchArea { }
+                    border-color: Palette.accent-background;
+                    background: Palette.accent-background.with-alpha(0.08);
 
                     Text {
-                        x: 20px;
-                        y: 16px;
-                        text: @tr("Change binding");
-                        font-size: 16px;
-                        font-weight: 700;
-                        color: Palette.foreground;
-                    }
-
-                    Text {
-                        x: 20px;
-                        y: 42px;
-                        width: parent.width - 40px;
-                        text: (root.game == 1 ? root.swc-rows : root.keyboard-rows)[root.capture-row].action;
+                        width: parent.width - 24px;
+                        text: root.capture-mouse-only
+                            ? @tr("Click a mouse button in this box. Esc cancels.")
+                            : @tr("Press a key, or click or scroll in this box with the mouse. Esc cancels.");
+                        wrap: word-wrap;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
                         font-size: 13px;
                         color: Palette.foreground;
-                        opacity: 0.75;
-                        overflow: elide;
                     }
 
-                    Rectangle {
-                        x: 20px;
-                        y: 70px;
-                        width: parent.width - 40px;
-                        height: 90px;
-                        border-radius: 6px;
-                        border-width: 1px;
-                        border-color: Palette.accent-background;
-                        background: Palette.accent-background.with-alpha(0.08);
-
-                        Text {
-                            width: parent.width - 24px;
-                            text: root.capture-mouse-only
-                                ? @tr("Click a mouse button in this box. Esc cancels.")
-                                : @tr("Press a key, or click or scroll in this box with the mouse. Esc cancels.");
-                            wrap: word-wrap;
-                            horizontal-alignment: center;
-                            vertical-alignment: center;
-                            font-size: 13px;
-                            color: Palette.foreground;
+                    TouchArea {
+                        pointer-event(event) => {
+                            if event.kind != PointerEventKind.down {
+                                return;
+                            }
+                            if event.button == PointerEventButton.left {
+                                root.finish-capture({ inputs: ["mouse-left"] });
+                            } else if event.button == PointerEventButton.right {
+                                root.finish-capture({ inputs: ["mouse-right"] });
+                            } else if event.button == PointerEventButton.middle {
+                                root.finish-capture({ inputs: ["mouse-middle"] });
+                            } else if event.button == PointerEventButton.back {
+                                root.finish-capture({ inputs: ["mouse-back"] });
+                            } else if event.button == PointerEventButton.forward {
+                                root.finish-capture({ inputs: ["mouse-forward"] });
+                            }
                         }
 
-                        TouchArea {
-                            pointer-event(event) => {
-                                if event.kind != PointerEventKind.down {
-                                    return;
-                                }
-                                if event.button == PointerEventButton.left {
-                                    root.finish-capture({ inputs: ["mouse-left"] });
-                                } else if event.button == PointerEventButton.right {
-                                    root.finish-capture({ inputs: ["mouse-right"] });
-                                } else if event.button == PointerEventButton.middle {
-                                    root.finish-capture({ inputs: ["mouse-middle"] });
-                                } else if event.button == PointerEventButton.back {
-                                    root.finish-capture({ inputs: ["mouse-back"] });
-                                } else if event.button == PointerEventButton.forward {
-                                    root.finish-capture({ inputs: ["mouse-forward"] });
-                                }
+                        scroll-event(event) => {
+                            if root.capture-mouse-only {
+                                return accept;
                             }
+                            if event.delta-y > 0 {
+                                root.finish-capture({ inputs: ["wheel-up"] });
+                            } else if event.delta-y < 0 {
+                                root.finish-capture({ inputs: ["wheel-down"] });
+                            }
+                            accept
+                        }
+                    }
+                }
 
-                            scroll-event(event) => {
-                                if root.capture-mouse-only {
-                                    return accept;
-                                }
-                                if event.delta-y > 0 {
-                                    root.finish-capture({ inputs: ["wheel-up"] });
-                                } else if event.delta-y < 0 {
-                                    root.finish-capture({ inputs: ["wheel-down"] });
-                                }
-                                accept
-                            }
+                HorizontalLayout {
+                    x: 20px;
+                    y: parent.height - 52px;
+                    width: parent.width - 40px;
+                    height: 32px;
+                    spacing: 8px;
+                    alignment: end;
+
+                    if root.capture-replaces: Button {
+                        text: @tr("Remove");
+                        clicked => {
+                            root.binding-removed(root.capture-row, root.capture-slot);
+                            root.capture-row = -1;
                         }
                     }
 
-                    HorizontalLayout {
-                        x: 20px;
-                        y: parent.height - 52px;
-                        width: parent.width - 40px;
-                        height: 32px;
-                        spacing: 8px;
-                        alignment: end;
-
-                        if root.capture-replaces: Button {
-                            text: @tr("Remove");
-                            clicked => {
-                                root.binding-removed(root.capture-row, root.capture-slot);
-                                root.capture-row = -1;
-                            }
-                        }
-
-                        Button {
-                            text: @tr("Cancel");
-                            clicked => {
-                                root.capture-row = -1;
-                            }
+                    Button {
+                        text: @tr("Cancel");
+                        clicked => {
+                            root.capture-row = -1;
                         }
                     }
                 }

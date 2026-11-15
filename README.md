@@ -34,8 +34,10 @@ Download the package for your platform from
   from the Start Menu.
 - **Steam Deck / Linux (experimental):** in Desktop Mode, install the `.flatpak`
   with `flatpak install --user ./downloaded.flatpak` (replace the filename), then
-  add **Wing Commander (Experimental)** to Steam as a non-Steam game. It has not
-  been tested on Steam Deck yet; please report your results in
+  add **Wing Commander (Experimental)** to Steam as a non-Steam game. In Game
+  Mode the launcher fills the screen, with its settings and controls in tabs
+  and the joystick calibration in the same window. It has not been tested on
+  Steam Deck yet; please report your results in
   [Issues](https://github.com/neuromancer/wc1-re/issues).
 - **Portable ZIPs** for Windows, macOS, and Linux: extract and run, keeping the
   bundled files together.
@@ -83,12 +85,12 @@ Game data is not included. Open the app, choose a detected installation or use
 - Gamepad support, rumble, and alternative joystick layouts, including
   WCAT-style four-button controls.
 - An adjustable joystick dead zone (22% by default, as in the original) and a
-  launcher window that calibrates WC1's joystick. It writes `GAMEDAT/j.cal` as
+  launcher page that calibrates WC1's joystick. It writes `GAMEDAT/j.cal` as
   the game's own calibration does, and the game now reads all of that file,
   not only the centre.
-- A controls window, opened from the launcher, that shows the gamepad,
-  keyboard and mouse bindings for WC1 and Super Wing Commander and lets you
-  rebind keys, mouse buttons and the wheel.
+- Launcher tabs that show the gamepad, keyboard and mouse bindings for WC1
+  and Super Wing Commander and let you rebind keys, mouse buttons and the
+  wheel.
 - Fixes to the 1996 release, such as correctly scaled planets, static on
   knocked-out cockpit displays, landing on the *Tiger's Claw* from any
   direction, and `Esc` pausing spaceflight.
@@ -117,10 +119,10 @@ Game data is not included. Open the app, choose a detected installation or use
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
 | `J` (main menu, barracks), `Ctrl+J` (spaceflight) | Calibrate the joystick, as in the original |
 
-The launcher's **Show controls…** window shows every binding. Click a key or
-mouse input to change it, or **+** to add a second one; changes apply when the
-game starts. `Esc`, and Super Wing Commander's menu shortcuts and in-flight
-computer keys, cannot be changed.
+The launcher's **Joystick** and **Keyboard and mouse** tabs show every
+binding. Click a key or mouse input to change it, or **+** to add a second one;
+changes apply when the game starts. `Esc`, and Super Wing Commander's menu
+shortcuts and in-flight computer keys, cannot be changed.
 
 As in the original, a mission ends only by landing on the *Tiger's Claw*,
 ejecting, or dying; quit from the barracks menu.

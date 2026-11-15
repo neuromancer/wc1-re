@@ -4,14 +4,14 @@ import {
     ComboBox,
     GroupBox,
     Palette,
+    ScrollView,
     Slider,
+    TabWidget,
     VerticalBox
 } from "std-widgets.slint";
-import { DeadZoneText } from "calibration.slint";
-export { DeadZoneText }
-
-export { ControlsWindow, PadControl } from "controls.slint";
-export { CalibrationWindow, CalibrationStep, CalibrationMessage, StickView } from "calibration.slint";
+import { ControlsView, InputBinding, InputRow, PadControl } from "controls.slint";
+import { CalibrationView, CalibrationStep, CalibrationMessage, StickView, DeadZoneText } from "calibration.slint";
+export { DeadZoneText, PadControl, CalibrationStep, CalibrationMessage, StickView }
 
 export enum LauncherMessage {
     choose-directory, path-too-long, not-directory, missing-swc-file,
@@ -21,12 +21,23 @@ export enum LauncherMessage {
     cannot-resolve-directory, cannot-open-directory, dos, kilrathi-saga, mac-demo, mac-retail, fm-towns
 }
 
+// One window holds the launcher: its settings and the controls in tabs above
+// the buttons that start the game, and the joystick calibration as a page in
+// their place. That suits gamescope (Steam's Game Mode), where a single window
+// fills the screen.
 export component LauncherWindow inherits Window {
-    title: "Wing Commander";
-    preferred-width: 760px;
-    preferred-height: 700px;
-    min-width: 640px;
+    title: root.page == 2 ? calibration-view.title : "Wing Commander";
+    preferred-width: 800px;
+    preferred-height: 660px;
+    min-width: 480px;
+    min-height: 360px;
     background: Palette.background;
+
+    // 0 the tabs, 2 the joystick calibration.
+    in-out property <int> page: 0;
+    // The tab shown: 0 the installation, 1 the options, 2 the joystick, 3 the
+    // keyboard and mouse.
+    in-out property <int> settings-tab: 0;
 
     in property <image> title-artwork;
     in-out property <string> game-directory;
@@ -80,7 +91,7 @@ export component LauncherWindow inherits Window {
     out property <string> voice-label: @tr("Sega CD voices");
     out property <string> installation-prompt: root.has-installations
         ? @tr("Select game data…") : @tr("No game data found — add a path");
-    // The controls window covers WC1's DOS and Kilrathi Saga data and SWC.
+    // The bindings cover WC1's DOS and Kilrathi Saga data and SWC.
     out property <bool> controls-available: root.path-valid
         && (root.status == LauncherMessage.dos || root.status == LauncherMessage.kilrathi-saga
             || root.swc-demo);
@@ -126,427 +137,532 @@ export component LauncherWindow inherits Window {
     callback launch-requested(int, bool);
     callback credits-requested();
     callback cancel-requested();
+    // The keyboard and mouse tab opened; the launcher gives it the saved
+    // bindings.
     callback controls-requested();
-    // The selectors the controls window follows while it is open.
-    callback controls-layout-changed();
     callback calibration-requested();
-    // The calibration window shows the same dead zone.
-    callback dead-zone-changed();
 
-    changed joystick-dead-zone => {
-        root.dead-zone-changed();
-    }
-
-    changed joystick-mode-index => {
-        root.controls-layout-changed();
-    }
-    changed joystick-axes-index => {
-        root.controls-layout-changed();
-    }
-    changed controls-game => {
-        root.controls-layout-changed();
-    }
-
-    VerticalBox {
-        padding: 18px;
-        spacing: 12px;
-
-        Rectangle {
-            height: 88px;
-            vertical-stretch: 0;
-            background: #000018;
-            border-radius: 6px;
-
-            Image {
-                x: 12px;
-                y: 7px;
-                width: parent.width - 24px;
-                height: parent.height - 14px;
-                source: root.title-artwork;
-                image-fit: contain;
-                image-rendering: pixelated;
-            }
+    changed settings-tab => {
+        if root.settings-tab == 3 {
+            root.controls-requested();
         }
+    }
 
-        GroupBox {
-            title: @tr("Game installation");
-            vertical-stretch: 0;
+    // The keyboard and mouse tab (controls.slint) and its bindings.
+    in property <bool> apple-keys;
+    out property <[InputRow]> keyboard-rows: keys-view.keyboard-rows;
+    out property <[InputRow]> swc-rows: keys-view.swc-rows;
+    in-out property <[[InputBinding]]> keyboard-bindings <=> keys-view.keyboard-bindings;
+    in-out property <[[InputBinding]]> swc-bindings <=> keys-view.swc-bindings;
+    out property <int> max-bindings: keys-view.max-bindings;
+    callback binding-changed <=> keys-view.binding-changed;
+    callback binding-removed <=> keys-view.binding-removed;
+    callback bindings-reset <=> keys-view.bindings-reset;
 
-            VerticalLayout {
+    // The calibration page (calibration.slint); it shares the dead zone.
+    in property <[string]> calibration-devices: ["", ""];
+    in-out property <int> calibration-device <=> calibration-view.device-index;
+    in property <bool> calibration-connected;
+    in property <StickView> calibration-stick: {
+        x: 32768, y: 32768, left: 16, right: 65518, top: 16, bottom: 65518,
+        centre-x: 32767, centre-y: 32767, zone-left: 25489, zone-right: 40045,
+        zone-top: 25489, zone-bottom: 40045, step-x: 0, step-y: 0
+    };
+    in property <CalibrationStep> calibration-step;
+    // j.cal holds a calibration for the chosen joystick.
+    in property <bool> calibration-stored;
+    in property <CalibrationMessage> calibration-message;
+    in property <string> calibration-message-detail;
+    callback calibration-device-selected <=> calibration-view.device-selected;
+    callback calibration-start <=> calibration-view.calibrate;
+    callback calibration-record <=> calibration-view.record;
+    callback calibration-cancel <=> calibration-view.cancel;
+    callback calibration-reset <=> calibration-view.reset;
+    // Back to the settings; the launcher stops reading the joysticks.
+    callback calibration-closed <=> calibration-view.back-requested;
+
+    // Each page scrolls when the window is smaller than it is. A page fills
+    // the scrolled area from its corner; with a size alone it would be
+    // centred in the visible part instead.
+    settings-scroll := ScrollView {
+        x: 0px;
+        y: 0px;
+        width: 100%;
+        height: 100%;
+        visible: root.page == 0;
+        viewport-width: max(self.visible-width, settings.min-width);
+        viewport-height: max(self.visible-height, settings.min-height);
+
+        // The settings in tabs, above the buttons that start the game,
+        // which every tab shares.
+        settings := VerticalBox {
+            x: 0px;
+            y: 0px;
+            width: settings-scroll.viewport-width;
+            height: settings-scroll.viewport-height;
+            padding: 14px;
+            spacing: 10px;
+
+            Rectangle {
+                height: 64px;
+                vertical-stretch: 0;
+                background: #000018;
+                border-radius: 6px;
+
+                Image {
+                    x: 12px;
+                    y: 5px;
+                    width: parent.width - 24px;
+                    height: parent.height - 10px;
+                    source: root.title-artwork;
+                    image-fit: contain;
+                    image-rendering: pixelated;
+                }
+            }
+
+            TabWidget {
+                vertical-stretch: 1;
+                current-index <=> root.settings-tab;
+
+                Tab {
+                    title: @tr("Installation");
+
+                    VerticalBox {
+                        alignment: start;
+
+                        GroupBox {
+                            title: @tr("Game installation");
+                            vertical-stretch: 0;
+
+                            VerticalLayout {
+                                spacing: 8px;
+                                alignment: start;
+
+                                HorizontalLayout {
+                                    spacing: 8px;
+                                    height: 34px;
+
+                                    ComboBox {
+                                        horizontal-stretch: 1;
+                                        enabled: root.has-installations;
+                                        model: root.installations;
+                                        current-index <=> root.installation-index;
+                                        selected(_) => {
+                                            root.installation-selected(self.current-index);
+                                        }
+                                    }
+
+                                    Button {
+                                        text: @tr("Add path…");
+                                        clicked => {
+                                            root.browse-requested();
+                                        }
+                                    }
+                                }
+
+                                GridLayout {
+                                    spacing: 8px;
+
+                                    Row {
+                                        Text {
+                                            text: @tr("Language");
+                                            vertical-alignment: center;
+                                        }
+                                        ComboBox {
+                                            colspan: 2;
+                                            horizontal-stretch: 1;
+                                            model: root.language-choices;
+                                            current-index: !root.towns-data && root.language-index == 3 ? 2 : root.language-index;
+                                            selected(_) => {
+                                                root.language-selected(!root.towns-data && self.current-index == 2 ? 3 : self.current-index);
+                                            }
+                                        }
+                                    }
+
+                                    Row {
+                                        Text {
+                                            text: @tr("Music");
+                                            vertical-alignment: center;
+                                        }
+                                        ComboBox {
+                                            horizontal-stretch: 1;
+                                            enabled: root.music-available;
+                                            model: root.music-choices;
+                                            current-index <=> root.music-index;
+                                            selected(_) => {
+                                                root.music-selected(self.current-index);
+                                            }
+                                        }
+                                        Button {
+                                            text: @tr("MT-32 ROMs…");
+                                            enabled: root.music-available;
+                                            clicked => {
+                                                root.mt32-browse-requested();
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if root.music-available && root.music-device == 2 : HorizontalLayout {
+                                    spacing: 8px;
+                                    vertical-stretch: 0;
+
+                                    Text {
+                                        text: root.mt32-ready ? "●" : "!";
+                                        color: root.mt32-ready ? #2e7d32 : #b45f06;
+                                        font-size: 14px;
+                                    }
+
+                                    Text {
+                                        horizontal-stretch: 1;
+                                        text: root.mt32-ready
+                                            ? @tr("MT-32: {}", root.mt32-detail)
+                                            : !root.mt32-roms-set
+                                            ? @tr("Choose the folder with your MT-32 or CM-32L ROMs; until then the game plays AdLib music.")
+                                            : @tr("The game plays AdLib music: {}", root.mt32-detail);
+                                        color: root.mt32-ready ? Palette.foreground : #b45f06;
+                                        wrap: word-wrap;
+                                    }
+                                }
+
+                                if root.picker-error || !root.path-valid : HorizontalLayout {
+                                    spacing: 8px;
+                                    vertical-stretch: 0;
+
+                                    Text {
+                                        text: root.picker-error ? "!" : "●";
+                                        color: root.picker-error ? #b3261e : #b45f06;
+                                        font-size: 14px;
+                                    }
+
+                                    Text {
+                                        horizontal-stretch: 1;
+                                        text: root.status-text;
+                                        color: root.picker-error ? #b3261e : #b45f06;
+                                        wrap: word-wrap;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Tab {
+                    title: @tr("Options");
+
+                    VerticalBox {
+                        alignment: start;
+
+                        HorizontalLayout {
+                            spacing: 18px;
+                            vertical-stretch: 0;
+
+                            GroupBox {
+                                title: @tr("Graphics");
+                                horizontal-stretch: 1;
+
+                                VerticalLayout {
+                                    spacing: 8px;
+                                    alignment: start;
+
+                                    CheckBox {
+                                        height: 26px;
+                                        text: @tr("Start in fullscreen");
+                                        checked <=> root.start-fullscreen;
+                                    }
+
+                                    CheckBox {
+                                        height: 26px;
+                                        text: @tr("Enhanced OpenGL");
+                                        checked <=> root.enhanced-renderer;
+                                    }
+
+                                    CheckBox {
+                                        height: 26px;
+                                        text: root.swc-demo ? @tr("EGA dithering (WC1 only)") : @tr("EGA 16-colour dithering");
+                                        enabled: !root.swc-demo;
+                                        checked <=> root.ega-dither;
+                                    }
+                                }
+                            }
+
+                            GroupBox {
+                                title: @tr("Gameplay");
+                                horizontal-stretch: 1;
+
+                                VerticalLayout {
+                                    spacing: 8px;
+                                    alignment: start;
+
+                                    CheckBox {
+                                        height: 26px;
+                                        text: @tr("Autosave (slot 8)");
+                                        checked <=> root.autosave;
+                                    }
+
+                                    CheckBox {
+                                        height: 26px;
+                                        text: @tr("Cockpitless view");
+                                        checked <=> root.cockpitless-view;
+                                    }
+
+                                    CheckBox {
+                                        height: 26px;
+                                        text: @tr("Cheat mode");
+                                        checked <=> root.cheat-mode;
+                                    }
+
+                                    Text {
+                                        text: @tr("Invulnerability and no collisions");
+                                        color: Palette.foreground;
+                                        opacity: 0.65;
+                                        font-size: 12px;
+                                        wrap: word-wrap;
+                                        vertical-stretch: 0;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Tab {
+                    title: @tr("Joystick");
+
+                    VerticalBox {
+                        HorizontalLayout {
+                            spacing: 8px;
+                            height: 34px;
+                            vertical-stretch: 0;
+
+                            Text {
+                                text: @tr("Control mode");
+                                vertical-alignment: center;
+                                color: Palette.foreground;
+                            }
+
+                            ComboBox {
+                                horizontal-stretch: 3;
+                                model: [
+                                    @tr("Original — two axes / two buttons"),
+                                    @tr("WCAT — four buttons / two axes"),
+                                    @tr("WCAT — four buttons / four axes")
+                                ];
+                                current-index <=> root.joystick-mode-index;
+                            }
+
+                            Rectangle { width: 6px; }
+
+                            Text {
+                                text: @tr("Axis layout");
+                                vertical-alignment: center;
+                                color: Palette.foreground;
+                            }
+
+                            ComboBox {
+                                horizontal-stretch: 2;
+                                enabled: root.joystick-mode-index == 2;
+                                model: [
+                                    @tr("Twin-stick roll"),
+                                    @tr("Twin-stick yaw"),
+                                    @tr("HOTAS yaw"),
+                                    @tr("HOTAS roll"),
+                                    @tr("Linear throttle"),
+                                    @tr("Rudder yaw"),
+                                    @tr("Rudder roll")
+                                ];
+                                current-index <=> root.joystick-axes-index;
+                            }
+                        }
+
+                        HorizontalLayout {
+                            spacing: 8px;
+                            height: 34px;
+                            vertical-stretch: 0;
+
+                            Text {
+                                text: @tr("Dead zone");
+                                vertical-alignment: center;
+                                color: Palette.foreground;
+                            }
+
+                            Slider {
+                                horizontal-stretch: 1;
+                                minimum: 0;
+                                maximum: 33;
+                                value <=> root.joystick-dead-zone;
+                                changed(value) => {
+                                    self.value = Math.round(value);
+                                }
+                            }
+
+                            Text {
+                                min-width: 110px;
+                                text: DeadZoneText.describe(Math.round(root.joystick-dead-zone));
+                                vertical-alignment: center;
+                                color: Palette.foreground;
+                            }
+
+                            CheckBox {
+                                text: @tr("Rumble");
+                                checked <=> root.joystick-rumble;
+                            }
+
+                            Button {
+                                text: @tr("Calibrate…");
+                                enabled: root.calibration-available;
+                                clicked => {
+                                    root.calibration-requested();
+                                }
+                            }
+                        }
+
+                        // The game controller's bindings for these settings;
+                        // the view's size limits reach the tabs through this.
+                        Rectangle {
+                            min-width: pad-view.min-width;
+                            min-height: pad-view.min-height;
+
+                            pad-view := ControlsView {
+                                x: 0px;
+                                y: 0px;
+                                width: 100%;
+                                height: 100%;
+                                visible: root.controls-available;
+                                page: 0;
+                                game: root.controls-game;
+                                joystick-mode: root.joystick-mode-index;
+                                joystick-axes: root.joystick-axes-index;
+                            }
+
+                            if !root.controls-available: Text {
+                                x: 0px;
+                                y: 0px;
+                                width: 100%;
+                                text: @tr("The controls are shown for WC1's DOS and Kilrathi Saga installations and for SWC.");
+                                wrap: word-wrap;
+                                color: Palette.foreground;
+                                opacity: 0.75;
+                            }
+                        }
+                    }
+                }
+
+                Tab {
+                    title: @tr("Keyboard and mouse");
+
+                    VerticalBox {
+                        Rectangle {
+                            min-width: keys-view.min-width;
+                            min-height: keys-view.min-height;
+
+                            keys-view := ControlsView {
+                                x: 0px;
+                                y: 0px;
+                                width: 100%;
+                                height: 100%;
+                                visible: root.controls-available;
+                                page: 1;
+                                game: root.controls-game;
+                                apple-keys: root.apple-keys;
+                            }
+
+                            if !root.controls-available: Text {
+                                x: 0px;
+                                y: 0px;
+                                width: 100%;
+                                text: @tr("The controls are shown for WC1's DOS and Kilrathi Saga installations and for SWC.");
+                                wrap: word-wrap;
+                                color: Palette.foreground;
+                                opacity: 0.75;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Every tab shares these: the pilot transfers, then the game's
+            // own start buttons.
+            HorizontalLayout {
                 spacing: 8px;
-                alignment: start;
+                height: 34px;
+                vertical-stretch: 0;
 
-                HorizontalLayout {
-                    spacing: 8px;
-                    height: 34px;
+                if root.path-valid && root.sm1-data: Button {
+                    text: @tr("Transfer pilot to SM1…");
+                    clicked => { root.launch-requested(1, true); }
+                }
 
-                    ComboBox {
-                        horizontal-stretch: 1;
-                        enabled: root.has-installations;
-                        model: root.installations;
-                        current-index <=> root.installation-index;
-                        selected(_) => {
-                            root.installation-selected(self.current-index);
-                        }
-                    }
+                if root.path-valid && root.sm2-data: Button {
+                    text: @tr("Transfer pilot to SM2…");
+                    clicked => { root.launch-requested(2, true); }
+                }
 
-                    Button {
-                        text: @tr("Add path…");
-                        clicked => {
-                            root.browse-requested();
-                        }
+                Rectangle { horizontal-stretch: 1; }
+
+                Button {
+                    text: @tr("Cancel");
+                    clicked => {
+                        root.cancel-requested();
                     }
                 }
 
-                GridLayout {
-                    spacing: 8px;
-
-                    Row {
-                        Text {
-                            text: @tr("Language");
-                            vertical-alignment: center;
-                        }
-                        ComboBox {
-                            colspan: 2;
-                            horizontal-stretch: 1;
-                            model: root.language-choices;
-                            current-index: !root.towns-data && root.language-index == 3 ? 2 : root.language-index;
-                            selected(_) => {
-                                root.language-selected(!root.towns-data && self.current-index == 2 ? 3 : self.current-index);
-                            }
-                        }
-                    }
-
-                    Row {
-                        Text {
-                            text: @tr("Music");
-                            vertical-alignment: center;
-                        }
-                        ComboBox {
-                            horizontal-stretch: 1;
-                            enabled: root.music-available;
-                            model: root.music-choices;
-                            current-index <=> root.music-index;
-                            selected(_) => {
-                                root.music-selected(self.current-index);
-                            }
-                        }
-                        Button {
-                            text: @tr("MT-32 ROMs…");
-                            enabled: root.music-available;
-                            clicked => {
-                                root.mt32-browse-requested();
-                            }
-                        }
+                Button {
+                    text: root.swc-demo ? @tr("Start SWC") : @tr("Start WC1");
+                    enabled: root.path-valid;
+                    primary: true;
+                    clicked => {
+                        root.launch-requested(0, false);
                     }
                 }
 
-                if root.music-available && root.music-device == 2 : HorizontalLayout {
-                    spacing: 8px;
-                    vertical-stretch: 0;
-
-                    Text {
-                        text: root.mt32-ready ? "●" : "!";
-                        color: root.mt32-ready ? #2e7d32 : #b45f06;
-                        font-size: 14px;
-                    }
-
-                    Text {
-                        horizontal-stretch: 1;
-                        text: root.mt32-ready
-                            ? @tr("MT-32: {}", root.mt32-detail)
-                            : !root.mt32-roms-set
-                            ? @tr("Choose the folder with your MT-32 or CM-32L ROMs; until then the game plays AdLib music.")
-                            : @tr("The game plays AdLib music: {}", root.mt32-detail);
-                        color: root.mt32-ready ? Palette.foreground : #b45f06;
-                        wrap: word-wrap;
+                if root.path-valid && root.sm1-data: Button {
+                    text: @tr("Start SM1");
+                    clicked => {
+                        root.launch-requested(1, false);
                     }
                 }
 
-                if root.picker-error || !root.path-valid : HorizontalLayout {
-                    spacing: 8px;
-                    vertical-stretch: 0;
-
-                    Text {
-                        text: root.picker-error ? "!" : "●";
-                        color: root.picker-error ? #b3261e : #b45f06;
-                        font-size: 14px;
+                if root.path-valid && root.sm2-data: Button {
+                    text: @tr("Start SM2");
+                    clicked => {
+                        root.launch-requested(2, false);
                     }
+                }
 
-                    Text {
-                        horizontal-stretch: 1;
-                        text: root.status-text;
-                        color: root.picker-error ? #b3261e : #b45f06;
-                        wrap: word-wrap;
+                if root.path-valid && root.swc-demo && root.swc-credits: Button {
+                    text: @tr("Credits");
+                    clicked => {
+                        root.credits-requested();
                     }
                 }
             }
         }
+    }
 
-        HorizontalLayout {
-            spacing: 18px;
-            vertical-stretch: 0;
+    calibration-scroll := ScrollView {
+        x: 0px;
+        y: 0px;
+        width: 100%;
+        height: 100%;
+        visible: root.page == 2;
+        viewport-width: max(self.visible-width, calibration-view.min-width);
+        viewport-height: max(self.visible-height, calibration-view.min-height);
 
-            GroupBox {
-                title: @tr("Graphics");
-                horizontal-stretch: 1;
-
-                VerticalLayout {
-                    spacing: 8px;
-                    alignment: start;
-
-                    CheckBox {
-                        height: 26px;
-                        text: @tr("Start in fullscreen");
-                        checked <=> root.start-fullscreen;
-                    }
-
-                    CheckBox {
-                        height: 26px;
-                        text: @tr("Enhanced OpenGL");
-                        checked <=> root.enhanced-renderer;
-                    }
-
-                    CheckBox {
-                        height: 26px;
-                        text: root.swc-demo ? @tr("EGA dithering (WC1 only)") : @tr("EGA 16-colour dithering");
-                        enabled: !root.swc-demo;
-                        checked <=> root.ega-dither;
-                    }
-                }
-            }
-
-            GroupBox {
-                title: @tr("Gameplay");
-                horizontal-stretch: 1;
-
-                VerticalLayout {
-                    spacing: 8px;
-                    alignment: start;
-
-                    CheckBox {
-                        height: 26px;
-                        text: @tr("Autosave (slot 8)");
-                        checked <=> root.autosave;
-                    }
-
-                    CheckBox {
-                        height: 26px;
-                        text: @tr("Cockpitless view");
-                        checked <=> root.cockpitless-view;
-                    }
-
-                    CheckBox {
-                        height: 26px;
-                        text: @tr("Cheat mode");
-                        checked <=> root.cheat-mode;
-                    }
-
-                    Text {
-                        text: @tr("Invulnerability and no collisions");
-                        color: Palette.foreground;
-                        opacity: 0.65;
-                        font-size: 12px;
-                        wrap: word-wrap;
-                        vertical-stretch: 0;
-                    }
-                }
-            }
-        }
-
-        GroupBox {
-            title: @tr("Joystick");
-            vertical-stretch: 0;
-
-            GridLayout {
-                spacing: 10px;
-
-                Row {
-
-                    Text {
-                        text: @tr("Control mode");
-                        vertical-alignment: center;
-                        min-width: 105px;
-                        color: Palette.foreground;
-                    }
-
-                    ComboBox {
-                        height: 34px;
-                        horizontal-stretch: 1;
-                        model: [
-                            @tr("Original — two axes / two buttons"),
-                            @tr("WCAT — four buttons / two axes"),
-                            @tr("WCAT — four buttons / four axes")
-                        ];
-                        current-index <=> root.joystick-mode-index;
-                    }
-
-                }
-
-                Row {
-
-                    Text {
-                        text: @tr("Axis layout");
-                        vertical-alignment: center;
-                        min-width: 105px;
-                        color: Palette.foreground;
-                    }
-
-                    ComboBox {
-                        height: 34px;
-                        horizontal-stretch: 1;
-                        enabled: root.joystick-mode-index == 2;
-                        model: [
-                            @tr("Twin-stick roll"),
-                            @tr("Twin-stick yaw"),
-                            @tr("HOTAS yaw"),
-                            @tr("HOTAS roll"),
-                            @tr("Linear throttle"),
-                            @tr("Rudder yaw"),
-                            @tr("Rudder roll")
-                        ];
-                        current-index <=> root.joystick-axes-index;
-                    }
-                }
-
-                Row {
-
-                    Text {
-                        text: @tr("Dead zone");
-                        vertical-alignment: center;
-                        min-width: 105px;
-                        color: Palette.foreground;
-                    }
-
-                    HorizontalLayout {
-                        spacing: 8px;
-                        height: 34px;
-
-                        Slider {
-                            horizontal-stretch: 1;
-                            minimum: 0;
-                            maximum: 33;
-                            value <=> root.joystick-dead-zone;
-                            changed(value) => {
-                                self.value = Math.round(value);
-                            }
-                        }
-
-                        Text {
-                            min-width: 110px;
-                            text: DeadZoneText.describe(Math.round(root.joystick-dead-zone));
-                            vertical-alignment: center;
-                            color: Palette.foreground;
-                        }
-                    }
-                }
-
-                HorizontalLayout {
-                    row: 3;
-                    col: 1;
-                    spacing: 8px;
-
-                    CheckBox {
-                        height: 26px;
-                        text: @tr("Rumble");
-                        checked <=> root.joystick-rumble;
-                    }
-
-                    Rectangle { horizontal-stretch: 1; }
-
-                    Button {
-                        text: @tr("Calibrate…");
-                        enabled: root.calibration-available;
-                        clicked => {
-                            root.calibration-requested();
-                        }
-                    }
-
-                    Button {
-                        text: @tr("Show controls…");
-                        enabled: root.controls-available;
-                        clicked => {
-                            root.controls-requested();
-                        }
-                    }
-                }
-            }
-        }
-
-        // Resizing gives extra space to this gap, not to the controls above.
-        Rectangle {
-            min-height: 0px;
-            vertical-stretch: 1;
-        }
-
-        if root.path-valid && (root.sm1-data || root.sm2-data): HorizontalLayout {
-            spacing: 8px;
-            height: 34px;
-            vertical-stretch: 0;
-
-            Rectangle { horizontal-stretch: 1; }
-
-            if root.path-valid && root.sm1-data: Button {
-                text: @tr("Transfer pilot to SM1…");
-                clicked => { root.launch-requested(1, true); }
-            }
-
-            if root.path-valid && root.sm2-data: Button {
-                text: @tr("Transfer pilot to SM2…");
-                clicked => { root.launch-requested(2, true); }
-            }
-        }
-
-        HorizontalLayout {
-            spacing: 8px;
-            height: 34px;
-            vertical-stretch: 0;
-
-            Text {
-                horizontal-stretch: 1;
-                text: root.swc-demo ? @tr("Mouse/arrows: steer · Right-drag: roll/throttle") : @tr("Close this window to cancel.");
-                wrap: word-wrap;
-                color: Palette.foreground;
-                opacity: 0.65;
-                vertical-alignment: center;
-            }
-
-            Button {
-                text: @tr("Cancel");
-                clicked => {
-                    root.cancel-requested();
-                }
-            }
-
-            Button {
-                text: root.swc-demo ? @tr("Start SWC") : @tr("Start WC1");
-                enabled: root.path-valid;
-                primary: true;
-                clicked => {
-                    root.launch-requested(0, false);
-                }
-            }
-
-            if root.path-valid && root.sm1-data: Button {
-                text: @tr("Start SM1");
-                clicked => {
-                    root.launch-requested(1, false);
-                }
-            }
-
-            if root.path-valid && root.sm2-data: Button {
-                text: @tr("Start SM2");
-                clicked => {
-                    root.launch-requested(2, false);
-                }
-            }
-
-            if root.path-valid && root.swc-demo && root.swc-credits: Button {
-                text: @tr("Credits");
-                clicked => {
-                    root.credits-requested();
-                }
-            }
+        // At most 640px wide, in the middle.
+        calibration-view := CalibrationView {
+            x: max(0px, (calibration-scroll.viewport-width - self.width) / 2);
+            y: 0px;
+            width: min(calibration-scroll.viewport-width, 640px);
+            height: calibration-scroll.viewport-height;
+            device-names: root.calibration-devices;
+            connected: root.calibration-connected;
+            view: root.calibration-stick;
+            step: root.calibration-step;
+            calibrated: root.calibration-stored;
+            message: root.calibration-message;
+            message-detail: root.calibration-message-detail;
+            dead-zone <=> root.joystick-dead-zone;
         }
     }
 }
