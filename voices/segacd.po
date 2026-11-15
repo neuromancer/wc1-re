@@ -21,7 +21,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/0/scene/1/record/1"
 msgid "wc1:f142c49819505c5f"
-msgstr ""
+msgstr "Funeral/funpc0005.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/0/scene/1/record/2"
 msgid "wc1:155b178efef3e20c"
@@ -309,7 +309,7 @@ msgstr "Player/off0015.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/1/scene/0/record/13"
 msgid "wc1:7157254c2e22f5c9"
-msgstr ""
+msgstr "Office/off0016.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/1/scene/0/record/14"
 msgid "wc1:5f77d4969177e4c6"
@@ -393,7 +393,7 @@ msgstr "Office/off0051.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/1/scene/0/record/34"
 msgid "wc1:3c79dac175baf38f"
-msgstr ""
+msgstr "Office/off0052.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/2/scene/0/record/0"
 msgid "wc1:4ff771124e96787a"
@@ -413,7 +413,7 @@ msgstr "Medal/med0003.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/2/scene/0/record/4"
 msgid "wc1:dedd3dd8ac90aa31"
-msgstr ""
+msgstr "Medal/med0004.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/2/scene/0/record/5"
 msgid "wc1:dc35962d86b40b4a"
@@ -501,7 +501,7 @@ msgstr "Briefing/bri0009.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/4/scene/0/record/10"
 msgid "wc1:5c217368f6cb420c"
-msgstr ""
+msgstr "Player/bri0010.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/4/scene/0/record/11"
 msgid "wc1:2f181629ee4629cb"
@@ -521,7 +521,7 @@ msgstr "Briefing/bri0014.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/4/scene/0/record/15"
 msgid "wc1:7386be5cdb1c851d"
-msgstr ""
+msgstr "Briefing/bri0015.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/4/scene/0/record/16"
 msgid "wc1:2324a63060bd879e"
@@ -553,7 +553,7 @@ msgstr "Briefing/bri0022.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/4/scene/0/record/23"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0023.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/4/scene/1/record/0"
 msgid "wc1:fdfc293ba22ce51d"
@@ -665,7 +665,7 @@ msgstr "Debriefing/deb0034.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/4/scene/1/record/28"
 msgid "wc1:b8fd16060daab595"
-msgstr ""
+msgstr "Debriefing/deb0035.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/4/scene/1/record/29"
 msgid "wc1:8dcd3a4cb8203fd0"
@@ -673,7 +673,7 @@ msgstr "Debriefing/deb0036.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/4/scene/1/record/30"
 msgid "wc1:18fbfcfed6d3b081"
-msgstr ""
+msgstr "Debriefing/deb0037.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/4/scene/2/record/0"
 msgid "wc1:e289027f88454ab3"
@@ -793,11 +793,11 @@ msgstr "Briefing/bri0030.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/0/record/4"
 msgid "wc1:2e59ae26443043da"
-msgstr ""
+msgstr "Briefing/bri0031.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/0/record/5"
 msgid "wc1:51109eb87708a4ec"
-msgstr ""
+msgstr "Briefing/bri0032.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/0/record/6"
 msgid "wc1:39e1282b63c767d5"
@@ -829,7 +829,7 @@ msgstr "Briefing/bri0039.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/0/record/13"
 msgid "wc1:73b125aabf2a94c7"
-msgstr ""
+msgstr "Briefing/bri0040.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/0/record/14"
 msgid "wc1:738df61929b2a199"
@@ -849,15 +849,15 @@ msgstr "Briefing/bri0044.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/0/record/18"
 msgid "wc1:aff1f4d791d3f18d"
-msgstr ""
+msgstr "Briefing/bri0045.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/0/record/19"
 msgid "wc1:e82ca6dcdca7432a"
-msgstr ""
+msgstr "Briefing/bri0046.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/0/record/20"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0047.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -865,7 +865,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/1/record/1"
 msgid "wc1:8d927edc5e1d05f2"
-msgstr ""
+msgstr "Debriefing/deb0039.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/1/record/2"
 msgid "wc1:a2dbf74d2885b004"
@@ -949,7 +949,7 @@ msgstr "Debriefing/deb0067.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/1/record/22"
 msgid "wc1:b8fd16060daab595"
-msgstr ""
+msgstr "Debriefing/deb0068.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/1/record/23"
 msgid "wc1:445d97e4270ab176"
@@ -957,7 +957,7 @@ msgstr "Debriefing/deb0069.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/1/record/24"
 msgid "wc1:18fbfcfed6d3b081"
-msgstr ""
+msgstr "Debriefing/deb0070.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/5/scene/2/record/0"
 msgid "wc1:b5c47795851c2352"
@@ -1073,7 +1073,7 @@ msgstr "Paladin/bri0054.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/4"
 msgid "wc1:9dd9e9b0cfc2b471"
-msgstr ""
+msgstr "Briefing/bri0055.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/5"
 msgid "wc1:0a840df77670133f"
@@ -1089,11 +1089,11 @@ msgstr "Briefing/bri0058.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/8"
 msgid "wc1:c18f47ea241ffa89"
-msgstr ""
+msgstr "Briefing/bri0059.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/9"
 msgid "wc1:101834585acd53a1"
-msgstr ""
+msgstr "Briefing/bri0060.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/10"
 msgid "wc1:1ef8c36df3e4d871"
@@ -1105,11 +1105,11 @@ msgstr "Briefing/bri0062.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/12"
 msgid "wc1:74e6710a18f7bb04"
-msgstr ""
+msgstr "Briefing/bri0063.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/13"
 msgid "wc1:73b125aabf2a94c7"
-msgstr ""
+msgstr "Briefing/bri0064.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/14"
 msgid "wc1:5420405039a2dbc3"
@@ -1117,23 +1117,23 @@ msgstr "Briefing/bri0065.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/15"
 msgid "wc1:0ef29010026ad2b3"
-msgstr ""
+msgstr "Narrator/bri0066.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/16"
 msgid "wc1:6673f79156030bf9"
-msgstr ""
+msgstr "Briefing/bri0067.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/17"
 msgid "wc1:04eb2226b5ef7d7c"
-msgstr ""
+msgstr "Narrator/bri0068.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/18"
 msgid "wc1:46bfce93a93d84df"
-msgstr ""
+msgstr "Briefing/bri0069.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/0/record/19"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0070.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -1153,7 +1153,7 @@ msgstr "Player/deb0074.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/1/record/4"
 msgid "wc1:138e43576564a402"
-msgstr ""
+msgstr "Paladin/deb0075.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/1/record/5"
 msgid "wc1:a24459b11ead1ec2"
@@ -1213,7 +1213,7 @@ msgstr "Debriefing/deb0099.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/1/record/19"
 msgid "wc1:18fbfcfed6d3b081"
-msgstr ""
+msgstr "Debriefing/deb0100.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/2/record/0"
 msgid "wc1:c7677c8c8c100681"
@@ -1265,7 +1265,7 @@ msgstr "Knight/rig0016.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/3/record/3"
 msgid "wc1:177b0b82189ab715"
-msgstr ""
+msgstr "Knight/rig0017.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/3/record/4"
 msgid "wc1:eff045e8284d4923"
@@ -1277,7 +1277,7 @@ msgstr "Knight/rig0019.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/3/record/6"
 msgid "wc1:408e5a50f5a99121"
-msgstr ""
+msgstr "Knight/rig0020.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/8/scene/4/record/0"
 msgid "wc1:727bdd94b857e333"
@@ -1369,7 +1369,7 @@ msgstr "Paladin/bri0086.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/0/record/14"
 msgid "wc1:c18f47ea241ffa89"
-msgstr ""
+msgstr "Briefing/bri0087.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/0/record/15"
 msgid "wc1:088ee606b9d61ccf"
@@ -1397,7 +1397,7 @@ msgstr "Narrator/bri0093.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/0/record/21"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0094.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -1409,7 +1409,7 @@ msgstr "Debriefing/deb0102.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/1/record/2"
 msgid "wc1:9ae24e2a481e8f67"
-msgstr ""
+msgstr "Debriefing/deb0103.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/1/record/3"
 msgid "wc1:cb370b31fdddb0ab"
@@ -1429,7 +1429,7 @@ msgstr "Debriefing/deb0107.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/1/record/7"
 msgid "wc1:bb55cdfe3ca94526"
-msgstr ""
+msgstr "Player/deb0108.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/1/record/8"
 msgid "wc1:c9f2337354fbbd97"
@@ -1481,11 +1481,11 @@ msgstr "Debriefing/deb0132.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/1/record/20"
 msgid "wc1:464079f2395c8ecc"
-msgstr ""
+msgstr "Debriefing/deb0133.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/1/record/21"
 msgid "wc1:fd4f8b0a1926801e"
-msgstr ""
+msgstr "Debriefing/deb0134.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/9/scene/2/record/0"
 msgid "wc1:e672905fed889bb4"
@@ -1629,19 +1629,19 @@ msgstr "Briefing/bri0125.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/6"
 msgid "wc1:72efc71ca9c46fbd"
-msgstr ""
+msgstr "Narrator/bri0126.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/7"
 msgid "wc1:2d235ad9e5c0dc27"
-msgstr ""
+msgstr "Briefing/bri0127.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/8"
 msgid "wc1:39f046b04ebce849"
-msgstr ""
+msgstr "Briefing/bri0128.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/9"
 msgid "wc1:f245371f10b28e98"
-msgstr ""
+msgstr "Briefing/bri0129.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/10"
 msgid "wc1:0958cecc35d052c8"
@@ -1653,11 +1653,11 @@ msgstr "Briefing/bri0131.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/12"
 msgid "wc1:5a3ad3869d6a2292"
-msgstr ""
+msgstr "Briefing/bri0132.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/13"
 msgid "wc1:209ef480d2a5f12a"
-msgstr ""
+msgstr "Briefing/bri0133.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/14"
 msgid "wc1:77a61b2cce0b486c"
@@ -1673,7 +1673,7 @@ msgstr "Briefing/bri0136.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/17"
 msgid "wc1:8eeaff5a9b71f0b8"
-msgstr ""
+msgstr "Angel/bri0137.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/18"
 msgid "wc1:9429549e2ec62f9c"
@@ -1689,7 +1689,7 @@ msgstr "Briefing/bri0140.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/0/record/21"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0141.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -1701,11 +1701,11 @@ msgstr "Debriefing/deb0171.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/2"
 msgid "wc1:f9ee1661826ba39a"
-msgstr ""
+msgstr "Debriefing/deb0172.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/3"
 msgid "wc1:ed4dc252792e6338"
-msgstr ""
+msgstr "Debriefing/deb0173.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/4"
 msgid "wc1:e4f18dd530421cb7"
@@ -1713,7 +1713,7 @@ msgstr "Player/deb0174.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/5"
 msgid "wc1:8a37351679f8b4f2"
-msgstr ""
+msgstr "Paladin/deb0175.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/6"
 msgid "wc1:dea3bcbedda7b38c"
@@ -1721,43 +1721,43 @@ msgstr "Debriefing/deb0176.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/7"
 msgid "wc1:13a9aecd440550e8"
-msgstr ""
+msgstr "Player/deb0177.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/8"
 msgid "wc1:aaebcf8c35a034a4"
-msgstr ""
+msgstr "Player/deb0178.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/9"
 msgid "wc1:8799316cc8f24916"
-msgstr ""
+msgstr "Debriefing/deb0179.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/10"
 msgid "wc1:cf35c592bf3e8703"
-msgstr ""
+msgstr "Debriefing/deb0180.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/11"
 msgid "wc1:1bb73e5289eaf886"
-msgstr ""
+msgstr "Debriefing/deb0181.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/12"
 msgid "wc1:64a14e52dceec410"
-msgstr ""
+msgstr "Debriefing/deb0182.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/13"
 msgid "wc1:956ea8b56a261ef1"
-msgstr ""
+msgstr "Debriefing/deb0183.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/14"
 msgid "wc1:89d0726fd8130f70"
-msgstr ""
+msgstr "Debriefing/deb0184.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/15"
 msgid "wc1:87288a45f700c01f"
-msgstr ""
+msgstr "Debriefing/deb0185.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/16"
 msgid "wc1:d7cd44ee2a372c1f"
-msgstr ""
+msgstr "Debriefing/deb0186.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/1/record/17"
 msgid "wc1:e57e3e0b060989ea"
@@ -1865,7 +1865,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/4/record/0"
 msgid "wc1:9cdf0c7935f2c2a7"
-msgstr ""
+msgstr "Paladin/lef0049.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/10/scene/4/record/1"
 msgid "wc1:0ff1f2a0510913da"
@@ -1933,7 +1933,7 @@ msgstr "Paladin/bri0103.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/7"
 msgid "wc1:9dd9e9b0cfc2b471"
-msgstr ""
+msgstr "Briefing/bri0104.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/8"
 msgid "wc1:1ad62a1d41c9cbf2"
@@ -1945,7 +1945,7 @@ msgstr "Briefing/bri0106.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/10"
 msgid "wc1:101834585acd53a1"
-msgstr ""
+msgstr "Briefing/bri0107.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/11"
 msgid "wc1:c35385cf2f88fd9f"
@@ -1953,15 +1953,15 @@ msgstr "Briefing/bri0108.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/12"
 msgid "wc1:3311c48377a2824e"
-msgstr ""
+msgstr "Briefing/bri0109.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/13"
 msgid "wc1:74e6710a18f7bb04"
-msgstr ""
+msgstr "Briefing/bri0110.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/14"
 msgid "wc1:73b125aabf2a94c7"
-msgstr ""
+msgstr "Briefing/bri0111.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/15"
 msgid "wc1:e94f200a50456503"
@@ -1969,23 +1969,23 @@ msgstr "Briefing/bri0112.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/16"
 msgid "wc1:0ef29010026ad2b3"
-msgstr ""
+msgstr "Narrator/bri0113.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/17"
 msgid "wc1:6673f79156030bf9"
-msgstr ""
+msgstr "Briefing/bri0114.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/18"
 msgid "wc1:04eb2226b5ef7d7c"
-msgstr ""
+msgstr "Narrator/bri0115.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/19"
 msgid "wc1:46bfce93a93d84df"
-msgstr ""
+msgstr "Briefing/bri0116.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/0/record/20"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0117.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -1993,7 +1993,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/1/record/1"
 msgid "wc1:8d927edc5e1d05f2"
-msgstr ""
+msgstr "Debriefing/deb0136.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/1/record/2"
 msgid "wc1:0b0dfa917c26651d"
@@ -2005,7 +2005,7 @@ msgstr "Player/deb0138.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/1/record/4"
 msgid "wc1:138e43576564a402"
-msgstr ""
+msgstr "Paladin/deb0139.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/1/record/5"
 msgid "wc1:c941b84e2c81d59e"
@@ -2061,11 +2061,11 @@ msgstr "Debriefing/deb0167.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/1/record/18"
 msgid "wc1:8af0bf5bf0588005"
-msgstr ""
+msgstr "Debriefing/deb0168.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/1/record/19"
 msgid "wc1:18fbfcfed6d3b081"
-msgstr ""
+msgstr "Debriefing/deb0169.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/12/scene/2/record/0"
 msgid "wc1:c7677c8c8c100681"
@@ -2221,7 +2221,7 @@ msgstr "Briefing/bri0157.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/13/scene/0/record/14"
 msgid "wc1:7779b5de07322c28"
-msgstr ""
+msgstr "Briefing/bri0158.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/13/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -2233,7 +2233,7 @@ msgstr "Debriefing/deb1635.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/13/scene/1/record/2"
 msgid "wc1:9ae24e2a481e8f67"
-msgstr ""
+msgstr "Debriefing/deb1636.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/13/scene/1/record/3"
 msgid "wc1:f37a68405a9e7b41"
@@ -2301,11 +2301,11 @@ msgstr "Debriefing/deb1670.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/13/scene/1/record/19"
 msgid "wc1:464079f2395c8ecc"
-msgstr ""
+msgstr "Debriefing/deb1671.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/13/scene/1/record/20"
 msgid "wc1:fd4f8b0a1926801e"
-msgstr ""
+msgstr "Debriefing/deb1672.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/13/scene/2/record/0"
 msgid "wc1:e672905fed889bb4"
@@ -2449,19 +2449,19 @@ msgstr "Briefing/bri0166.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/6"
 msgid "wc1:72efc71ca9c46fbd"
-msgstr ""
+msgstr "Narrator/bri0167.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/7"
 msgid "wc1:2d235ad9e5c0dc27"
-msgstr ""
+msgstr "Briefing/bri0168.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/8"
 msgid "wc1:39f046b04ebce849"
-msgstr ""
+msgstr "Briefing/bri0169.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/9"
 msgid "wc1:143286fc29ae15c3"
-msgstr ""
+msgstr "Briefing/bri0170.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/10"
 msgid "wc1:56cc9ec83046cf66"
@@ -2473,11 +2473,11 @@ msgstr "Briefing/bri0172.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/12"
 msgid "wc1:5a3ad3869d6a2292"
-msgstr ""
+msgstr "Briefing/bri0173.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/13"
 msgid "wc1:209ef480d2a5f12a"
-msgstr ""
+msgstr "Briefing/bri0174.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/14"
 msgid "wc1:3f3dc0feae56d863"
@@ -2493,7 +2493,7 @@ msgstr "Briefing/bri0177.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/17"
 msgid "wc1:8eeaff5a9b71f0b8"
-msgstr ""
+msgstr "Angel/bri0178.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/18"
 msgid "wc1:28f4bc0cd640af9c"
@@ -2513,7 +2513,7 @@ msgstr "Briefing/bri0182.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/0/record/22"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0183.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -2525,11 +2525,11 @@ msgstr "Debriefing/deb0205.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/2"
 msgid "wc1:f9ee1661826ba39a"
-msgstr ""
+msgstr "Debriefing/deb0206.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/3"
 msgid "wc1:ed4dc252792e6338"
-msgstr ""
+msgstr "Debriefing/deb0207.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/4"
 msgid "wc1:9aa03bd04808cc90"
@@ -2537,7 +2537,7 @@ msgstr "Player/deb0208.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/5"
 msgid "wc1:8a37351679f8b4f2"
-msgstr ""
+msgstr "Paladin/deb0209.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/6"
 msgid "wc1:ce787b54294df86e"
@@ -2545,51 +2545,51 @@ msgstr "Debriefing/deb0210.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/7"
 msgid "wc1:13a9aecd440550e8"
-msgstr ""
+msgstr "Player/deb0211.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/8"
 msgid "wc1:aaebcf8c35a034a4"
-msgstr ""
+msgstr "Player/deb0212.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/9"
 msgid "wc1:8799316cc8f24916"
-msgstr ""
+msgstr "Debriefing/deb0213.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/10"
 msgid "wc1:cf35c592bf3e8703"
-msgstr ""
+msgstr "Debriefing/deb0214.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/11"
 msgid "wc1:1bb73e5289eaf886"
-msgstr ""
+msgstr "Debriefing/deb0215.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/12"
 msgid "wc1:64a14e52dceec410"
-msgstr ""
+msgstr "Debriefing/deb0216.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/13"
 msgid "wc1:c33c041987201e1d"
-msgstr ""
+msgstr "Debriefing/deb0217.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/14"
 msgid "wc1:89d0726fd8130f70"
-msgstr ""
+msgstr "Debriefing/deb0218.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/15"
 msgid "wc1:87288a45f700c01f"
-msgstr ""
+msgstr "Debriefing/deb0219.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/16"
 msgid "wc1:d7cd44ee2a372c1f"
-msgstr ""
+msgstr "Debriefing/deb0220.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/17"
 msgid "wc1:e57e3e0b060989ea"
-msgstr ""
+msgstr "Debriefing/deb0221.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/18"
 msgid "wc1:a7f612550ab3a121"
-msgstr ""
+msgstr "Debriefing/deb0222.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/1/record/19"
 msgid "wc1:dfbf13c79b816ea3"
@@ -2685,7 +2685,7 @@ msgstr "Bossman/rig0049.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/3/record/10"
 msgid "wc1:f6ba9570fb8926fb"
-msgstr ""
+msgstr "Bossman/rig0050.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/14/scene/4/record/0"
 msgid "wc1:3dd1da57d0fc57bd"
@@ -2773,11 +2773,11 @@ msgstr "Briefing/bri0196.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/0/record/11"
 msgid "wc1:cc410f2b1c4cb0ea"
-msgstr ""
+msgstr "Briefing/bri0197.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/0/record/12"
 msgid "wc1:920069a1ad18f238"
-msgstr ""
+msgstr "Briefing/bri0198.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/0/record/13"
 msgid "wc1:1209e432adfaf246"
@@ -2793,7 +2793,7 @@ msgstr "Briefing/bri0201.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/0/record/16"
 msgid "wc1:7386be5cdb1c851d"
-msgstr ""
+msgstr "Briefing/bri0202.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/0/record/17"
 msgid "wc1:c448826893f8160e"
@@ -2801,7 +2801,7 @@ msgstr "Briefing/bri0203.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/0/record/18"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0204.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -2881,7 +2881,7 @@ msgstr "Debriefing/deb0274.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/2/record/0"
 msgid "wc1:6695d5d48464751d"
-msgstr ""
+msgstr "Shotglass/bar0071.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/2/record/1"
 msgid "wc1:9c646a965964c557"
@@ -2909,7 +2909,7 @@ msgstr "Shotglass/bar0077.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/3/record/0"
 msgid "wc1:a3370abdd9e288f5"
-msgstr ""
+msgstr "Angel/rig0079.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/16/scene/3/record/1"
 msgid "wc1:1ac63f998f8d1518"
@@ -2981,11 +2981,11 @@ msgstr "Briefing/bri0213.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/17/scene/0/record/7"
 msgid "wc1:51109eb87708a4ec"
-msgstr ""
+msgstr "Briefing/bri0214.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/17/scene/0/record/8"
 msgid "wc1:2ed4bd5d3a659b59"
-msgstr ""
+msgstr "Briefing/bri0215.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/17/scene/0/record/9"
 msgid "wc1:37b6c4ebe973acbd"
@@ -3041,15 +3041,15 @@ msgstr "Player/bri0228.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/17/scene/0/record/22"
 msgid "wc1:4bae01305e208ca2"
-msgstr ""
+msgstr "Briefing/bri0229.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/17/scene/0/record/23"
 msgid "wc1:3cc6b2c7bc0dc8ac"
-msgstr ""
+msgstr "Briefing/bri0230.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/17/scene/0/record/24"
 msgid "wc1:bc53288c9fe95c7f"
-msgstr ""
+msgstr "Briefing/bri0231.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/17/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -3121,11 +3121,11 @@ msgstr "Debriefing/deb0306.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/17/scene/1/record/18"
 msgid "wc1:8af0bf5bf0588005"
-msgstr ""
+msgstr "Debriefing/deb0307.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/17/scene/1/record/19"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb0308.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/17/scene/2/record/0"
 msgid "wc1:5cbb4acab9536a6e"
@@ -3289,7 +3289,7 @@ msgstr "Briefing/bri0254.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/18/scene/0/record/21"
 msgid "wc1:5c217368f6cb420c"
-msgstr ""
+msgstr "Player/bri0255.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/18/scene/0/record/22"
 msgid "wc1:d3851f99d7126889"
@@ -3305,7 +3305,7 @@ msgstr "Narrator/bri0258.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/18/scene/0/record/25"
 msgid "wc1:bc53288c9fe95c7f"
-msgstr ""
+msgstr "Briefing/bri0259.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/18/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -3365,11 +3365,11 @@ msgstr "Debriefing/deb1691.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/18/scene/1/record/14"
 msgid "wc1:9904cdfe7010ecff"
-msgstr ""
+msgstr "Debriefing/deb1692.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/18/scene/1/record/15"
 msgid "wc1:ed1485d565d66fc7"
-msgstr ""
+msgstr "Debriefing/deb1693.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/18/scene/1/record/16"
 msgid "wc1:7878a53a4f8ffbfb"
@@ -3461,7 +3461,7 @@ msgstr "Iceman/lef0092.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/18/scene/4/record/4"
 msgid "wc1:2fab5043c59e9b9d"
-msgstr ""
+msgstr "Iceman/lef0093.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/18/scene/4/record/5"
 msgid "wc1:1c0f84c7b06df900"
@@ -3473,7 +3473,7 @@ msgstr "Iceman/lef0095.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/18/scene/4/record/7"
 msgid "wc1:97fc1517d6b5f988"
-msgstr ""
+msgstr "Iceman/lef0096.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/20/scene/0/record/0"
 msgid "wc1:8f5b788003058246"
@@ -3645,11 +3645,11 @@ msgstr "Debriefing/deb0334.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/20/scene/1/record/16"
 msgid "wc1:c3fc5b67aa94e6f2"
-msgstr ""
+msgstr "Debriefing/deb0335.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/20/scene/1/record/17"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb0336.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/20/scene/2/record/0"
 msgid "wc1:63a7b28ae569b97a"
@@ -3757,7 +3757,7 @@ msgstr "Briefing/bri0298.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/0/record/9"
 msgid "wc1:143286fc29ae15c3"
-msgstr ""
+msgstr "Briefing/bri0299.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/0/record/10"
 msgid "wc1:55e61e799eb90dbd"
@@ -3789,11 +3789,11 @@ msgstr "Briefing/bri0306.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/0/record/17"
 msgid "wc1:c1a03b667f10cdb2"
-msgstr ""
+msgstr "Maniac/bri0307.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/0/record/18"
 msgid "wc1:ed1389b66e2ffec0"
-msgstr ""
+msgstr "Player/bri0308.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/0/record/19"
 msgid "wc1:fedc767704299c59"
@@ -3801,11 +3801,11 @@ msgstr "Briefing/bri0309.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/0/record/20"
 msgid "wc1:192b8bf32bc0e6b8"
-msgstr ""
+msgstr "Player/bri0310.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/0/record/21"
 msgid "wc1:4bae01305e208ca2"
-msgstr ""
+msgstr "Briefing/bri0311.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/0/record/22"
 msgid "wc1:9bf4aa56690d506d"
@@ -3813,7 +3813,7 @@ msgstr "Briefing/bri0312.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/0/record/23"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0313.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -3901,15 +3901,15 @@ msgstr "Debriefing/deb0372.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/1/record/21"
 msgid "wc1:b512e4c4034710e9"
-msgstr ""
+msgstr "Debriefing/deb0373.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/1/record/22"
 msgid "wc1:c3fc5b67aa94e6f2"
-msgstr ""
+msgstr "Debriefing/deb0374.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/1/record/23"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb0375.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/21/scene/2/record/0"
 msgid "wc1:c33cd8371fa14100"
@@ -4089,7 +4089,7 @@ msgstr "Briefing/bri0333.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/22/scene/0/record/18"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0334.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/22/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -4097,11 +4097,11 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/22/scene/1/record/1"
 msgid "wc1:03284657497ad75e"
-msgstr ""
+msgstr "Debriefing/deb0382.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/22/scene/1/record/2"
 msgid "wc1:3aaece9dbf7d9f45"
-msgstr ""
+msgstr "Debriefing/deb0383.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/22/scene/1/record/3"
 msgid "wc1:ec859498b0a0982a"
@@ -4161,11 +4161,11 @@ msgstr "Debriefing/deb0413.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/22/scene/1/record/18"
 msgid "wc1:b512e4c4034710e9"
-msgstr ""
+msgstr "Debriefing/deb0414.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/22/scene/1/record/19"
 msgid "wc1:464079f2395c8ecc"
-msgstr ""
+msgstr "Debriefing/deb0415.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/22/scene/1/record/20"
 msgid "wc1:fd4f8b0a1926801e"
@@ -4289,11 +4289,11 @@ msgstr "Briefing/bri0342.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/24/scene/0/record/6"
 msgid "wc1:2e59ae26443043da"
-msgstr ""
+msgstr "Briefing/bri0343.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/24/scene/0/record/7"
 msgid "wc1:cc410f2b1c4cb0ea"
-msgstr ""
+msgstr "Briefing/bri0344.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/24/scene/0/record/8"
 msgid "wc1:e43b8df2bd8c8360"
@@ -4337,7 +4337,7 @@ msgstr "Briefing/bri0354.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/24/scene/0/record/18"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0355.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/24/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -4401,7 +4401,7 @@ msgstr "Player/deb0433.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/24/scene/1/record/15"
 msgid "wc1:a927518f82ca41fe"
-msgstr ""
+msgstr "Debriefing/deb0434.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/24/scene/1/record/16"
 msgid "wc1:5bd6dbb33c7c8591"
@@ -4505,7 +4505,7 @@ msgstr "Angel/rig0133.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/24/scene/4/record/0"
 msgid "wc1:68df2719140ce0f1"
-msgstr ""
+msgstr "Spirit/lef0127.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/24/scene/4/record/1"
 msgid "wc1:fb9295d8a8e5ce96"
@@ -4545,7 +4545,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/0/record/1"
 msgid "wc1:c28d24ec2a424030"
-msgstr ""
+msgstr "Narrator/bri0359.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/0/record/2"
 msgid "wc1:86485a1cfdbca36e"
@@ -4589,7 +4589,7 @@ msgstr "Briefing/bri0369.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/0/record/12"
 msgid "wc1:73b125aabf2a94c7"
-msgstr ""
+msgstr "Briefing/bri0370.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/0/record/13"
 msgid "wc1:29903be70e12d95d"
@@ -4617,11 +4617,11 @@ msgstr "Briefing/bri0376.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/0/record/19"
 msgid "wc1:aff1f4d791d3f18d"
-msgstr ""
+msgstr "Briefing/bri0377.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/0/record/20"
 msgid "wc1:bc53288c9fe95c7f"
-msgstr ""
+msgstr "Briefing/bri0378.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -4713,15 +4713,15 @@ msgstr "Debriefing/deb1795.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/1/record/22"
 msgid "wc1:9bfb33c875f1523a"
-msgstr ""
+msgstr "Debriefing/deb1796.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/1/record/23"
 msgid "wc1:b12195169b9ac38c"
-msgstr ""
+msgstr "Debriefing/deb1797.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/1/record/24"
 msgid "wc1:8fb680ddd8326f5b"
-msgstr ""
+msgstr "Debriefing/deb1798.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/1/record/25"
 msgid "wc1:382cbab6f619bff7"
@@ -4801,7 +4801,7 @@ msgstr "Iceman/lef0092.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/4/record/4"
 msgid "wc1:e889413247fe5a02"
-msgstr ""
+msgstr "Iceman/lef0093.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/25/scene/4/record/5"
 msgid "wc1:1c0f84c7b06df900"
@@ -4873,7 +4873,7 @@ msgstr "Briefing/bri0394.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/0/record/14"
 msgid "wc1:7779b5de07322c28"
-msgstr ""
+msgstr "Briefing/bri0395.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -4881,7 +4881,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/1/record/1"
 msgid "wc1:3a74cc9dbf4c2398"
-msgstr ""
+msgstr "Debriefing/deb0457.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/1/record/2"
 msgid "wc1:8fb34693775ce573"
@@ -4929,23 +4929,23 @@ msgstr "Debriefing/deb0469.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/1/record/13"
 msgid "wc1:addad9ed0c00fe1d"
-msgstr ""
+msgstr "Debriefing/deb0470.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/1/record/14"
 msgid "wc1:c33c041987201e1d"
-msgstr ""
+msgstr "Debriefing/deb0471.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/1/record/15"
 msgid "wc1:ed1485d565d66fc7"
-msgstr ""
+msgstr "Debriefing/deb0472.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/1/record/16"
 msgid "wc1:7878a53a4f8ffbfb"
-msgstr ""
+msgstr "Debriefing/deb0473.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/1/record/17"
 msgid "wc1:b12195169b9ac38c"
-msgstr ""
+msgstr "Debriefing/deb0474.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/1/record/18"
 msgid "wc1:382cbab6f619bff7"
@@ -5013,7 +5013,7 @@ msgstr "Knight/rig0016.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/3/record/4"
 msgid "wc1:177b0b82189ab715"
-msgstr ""
+msgstr "Knight/rig0017.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/26/scene/3/record/5"
 msgid "wc1:eff045e8284d4923"
@@ -5121,7 +5121,7 @@ msgstr "Briefing/bri0457.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/0/record/15"
 msgid "wc1:7386be5cdb1c851d"
-msgstr ""
+msgstr "Briefing/bri0458.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/0/record/16"
 msgid "wc1:83d3f6bcb3e45d0a"
@@ -5137,7 +5137,7 @@ msgstr "Briefing/bri0461.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/0/record/19"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Briefing/bri0462.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/1/record/0"
 msgid "wc1:fdfc293ba22ce51d"
@@ -5153,7 +5153,7 @@ msgstr "Player/deb0491.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/1/record/3"
 msgid "wc1:96c90e1c59248007"
-msgstr ""
+msgstr "Player/deb0492.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/1/record/4"
 msgid "wc1:59d4136b5067a562"
@@ -5201,7 +5201,7 @@ msgstr "Player/deb0508.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/1/record/16"
 msgid "wc1:5928c1aa96872b06"
-msgstr ""
+msgstr "Debriefing/deb0509.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/1/record/17"
 msgid "wc1:b6cbcf5ecf37a690"
@@ -5237,7 +5237,7 @@ msgstr "Debriefing/deb0543.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/1/record/25"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb0544.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/2/record/0"
 msgid "wc1:d9aea9c06eb2b7ad"
@@ -5253,7 +5253,7 @@ msgstr "Shotglass/bar0138.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/2/record/3"
 msgid "wc1:b48c36fc23b858e0"
-msgstr ""
+msgstr "Shotglass/bar0139.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/2/record/4"
 msgid "wc1:fd48943ec1f64c23"
@@ -5265,7 +5265,7 @@ msgstr "Shotglass/bar0141.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/3/record/0"
 msgid "wc1:4899ad81346cab27"
-msgstr ""
+msgstr "Hunter/rig0147.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/3/record/1"
 msgid "wc1:3a6f59bebed97b6a"
@@ -5277,7 +5277,7 @@ msgstr "Hunter/rig0149.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/3/record/3"
 msgid "wc1:d2435c9325660500"
-msgstr ""
+msgstr "Hunter/rig0150.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/3/record/4"
 msgid "wc1:3d0f0d1aa021944b"
@@ -5285,7 +5285,7 @@ msgstr "Maniac/rig0151.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/3/record/5"
 msgid "wc1:0af94f7e89d4e54a"
-msgstr ""
+msgstr "Hunter/rig0152.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/28/scene/3/record/6"
 msgid "wc1:44623f11a1fb1690"
@@ -5349,7 +5349,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/0/record/1"
 msgid "wc1:c28d24ec2a424030"
-msgstr ""
+msgstr "Narrator/bri0399.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/0/record/2"
 msgid "wc1:ad32d5810c5928a8"
@@ -5381,7 +5381,7 @@ msgstr "Briefing/bri0406.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/0/record/9"
 msgid "wc1:3bf040076872c8ec"
-msgstr ""
+msgstr "Player/bri0407.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/0/record/10"
 msgid "wc1:5c1eed1b7622fe35"
@@ -5421,7 +5421,7 @@ msgstr "Briefing/bri0417.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/0/record/19"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0418.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -5465,7 +5465,7 @@ msgstr "Debriefing/deb0562.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/1/record/10"
 msgid "wc1:33f689bfd17edc9f"
-msgstr ""
+msgstr "Player/deb0563.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/1/record/11"
 msgid "wc1:a561054abecf2fe1"
@@ -5497,7 +5497,7 @@ msgstr "Debriefing/deb0587.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/1/record/18"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb0588.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/2/record/0"
 msgid "wc1:c09a35dcdc20ecde"
@@ -5513,19 +5513,19 @@ msgstr "Shotglass/bar0144.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/2/record/3"
 msgid "wc1:658ce3e4e262c988"
-msgstr ""
+msgstr "Shotglass/bar0145.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/2/record/4"
 msgid "wc1:bc40610d44c7d508"
-msgstr ""
+msgstr "Shotglass/bar0146.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/2/record/5"
 msgid "wc1:7248dd087faacc3e"
-msgstr ""
+msgstr "Shotglass/bar0147.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/2/record/6"
 msgid "wc1:b4889d1c0381f5ef"
-msgstr ""
+msgstr "Shotglass/bar0148.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/2/record/7"
 msgid "wc1:891ae8f90dc98238"
@@ -5533,7 +5533,7 @@ msgstr "Shotglass/bar0149.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/2/record/8"
 msgid "wc1:4268b6ac25ad9879"
-msgstr ""
+msgstr "Shotglass/bar0150.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/29/scene/3/record/0"
 msgid "wc1:be5fc00abc96c40a"
@@ -5681,7 +5681,7 @@ msgstr "Briefing/bri0438.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/30/scene/0/record/18"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Briefing/bri0439.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/30/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -5797,7 +5797,7 @@ msgstr "Debriefing/deb0660.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/30/scene/1/record/32"
 msgid "wc1:5fd9bd2a8751afe5"
-msgstr ""
+msgstr "Debriefing/deb0661.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/30/scene/1/record/33"
 msgid "wc1:89a10f84b8d3cbb4"
@@ -5961,7 +5961,7 @@ msgstr "Briefing/bri0480.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/32/scene/0/record/16"
 msgid "wc1:042276b5f1d70d4b"
-msgstr ""
+msgstr "Player/bri0481.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/32/scene/0/record/17"
 msgid "wc1:90a8c186ad138da8"
@@ -5985,7 +5985,7 @@ msgstr "Briefing/bri0486.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/32/scene/0/record/22"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0487.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/32/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -6141,7 +6141,7 @@ msgstr "Hunter/rig0149.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/32/scene/3/record/3"
 msgid "wc1:d2435c9325660500"
-msgstr ""
+msgstr "Hunter/rig0150.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/32/scene/3/record/4"
 msgid "wc1:3d0f0d1aa021944b"
@@ -6149,7 +6149,7 @@ msgstr "Maniac/rig0151.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/32/scene/3/record/5"
 msgid "wc1:0af94f7e89d4e54a"
-msgstr ""
+msgstr "Hunter/rig0152.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/32/scene/3/record/6"
 msgid "wc1:44623f11a1fb1690"
@@ -6229,7 +6229,7 @@ msgstr "Briefing/bri0494.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/0/record/5"
 msgid "wc1:5c217368f6cb420c"
-msgstr ""
+msgstr "Player/bri0495.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/0/record/6"
 msgid "wc1:2b7b031df24e966f"
@@ -6273,7 +6273,7 @@ msgstr "Briefing/bri0505.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/0/record/16"
 msgid "wc1:7386be5cdb1c851d"
-msgstr ""
+msgstr "Briefing/bri0506.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/0/record/17"
 msgid "wc1:f3cd08ad8840ac69"
@@ -6285,7 +6285,7 @@ msgstr "Briefing/bri0509.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/0/record/19"
 msgid "wc1:aff1f4d791d3f18d"
-msgstr ""
+msgstr "Briefing/bri0510.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/0/record/20"
 msgid "wc1:d66cf810dd000542"
@@ -6293,7 +6293,7 @@ msgstr "Briefing/bri0511.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/0/record/21"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Briefing/bri0512.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -6329,7 +6329,7 @@ msgstr "Player/deb0716.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/1/record/8"
 msgid "wc1:7c6fe18c37e06f8d"
-msgstr ""
+msgstr "Player/deb0717.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/1/record/9"
 msgid "wc1:3cb8faa370d099f7"
@@ -6417,7 +6417,7 @@ msgstr "Debriefing/deb0752.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/1/record/30"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb0753.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/2/record/0"
 msgid "wc1:8414e457d8dcf67b"
@@ -6433,19 +6433,19 @@ msgstr "Shotglass/bar0168.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/2/record/3"
 msgid "wc1:658ce3e4e262c988"
-msgstr ""
+msgstr "Shotglass/bar0169.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/2/record/4"
 msgid "wc1:bc40610d44c7d508"
-msgstr ""
+msgstr "Shotglass/bar0170.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/2/record/5"
 msgid "wc1:7248dd087faacc3e"
-msgstr ""
+msgstr "Shotglass/bar0171.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/2/record/6"
 msgid "wc1:b4889d1c0381f5ef"
-msgstr ""
+msgstr "Shotglass/bar0172.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/2/record/7"
 msgid "wc1:7cab4050599d4630"
@@ -6453,7 +6453,7 @@ msgstr "Shotglass/bar0173.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/2/record/8"
 msgid "wc1:4268b6ac25ad9879"
-msgstr ""
+msgstr "Shotglass/bar0174.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/33/scene/3/record/0"
 msgid "wc1:be5fc00abc96c40a"
@@ -6617,7 +6617,7 @@ msgstr "Briefing/bri0536.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/34/scene/0/record/22"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Briefing/bri0537.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/34/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -6629,7 +6629,7 @@ msgstr "Debriefing/deb0755.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/34/scene/1/record/2"
 msgid "wc1:73734f3fa8526084"
-msgstr ""
+msgstr "Player/deb0756.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/34/scene/1/record/3"
 msgid "wc1:b70fd17e79eb48e5"
@@ -6717,7 +6717,7 @@ msgstr "Shotglass/bar0175.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/34/scene/2/record/1"
 msgid "wc1:9650eb10f72fd76b"
-msgstr ""
+msgstr "Shotglass/bar0176.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/34/scene/2/record/2"
 msgid "wc1:50e6d53d5a1f41d4"
@@ -6889,7 +6889,7 @@ msgstr "Briefing/bri0560.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/36/scene/0/record/21"
 msgid "wc1:73b125aabf2a94c7"
-msgstr ""
+msgstr "Briefing/bri0561.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/36/scene/0/record/22"
 msgid "wc1:edbf3879027a6c11"
@@ -6913,7 +6913,7 @@ msgstr "Briefing/bri0566.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/36/scene/0/record/27"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0567.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/36/scene/1/record/0"
 msgid "wc1:fdfc293ba22ce51d"
@@ -6921,7 +6921,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/36/scene/1/record/1"
 msgid "wc1:5a2081cd9b990968"
-msgstr ""
+msgstr "Debriefing/deb0821.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/36/scene/1/record/2"
 msgid "wc1:2e21c29ea39a5808"
@@ -6993,7 +6993,7 @@ msgstr "Debriefing/deb0869.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/36/scene/1/record/19"
 msgid "wc1:fd4f8b0a1926801e"
-msgstr ""
+msgstr "Debriefing/deb0870.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/36/scene/2/record/0"
 msgid "wc1:865545b77fb7cd50"
@@ -7005,7 +7005,7 @@ msgstr "Shotglass/bar0183.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/36/scene/2/record/2"
 msgid "wc1:6883b25d3d9a0e8e"
-msgstr ""
+msgstr "Shotglass/bar0184.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/36/scene/2/record/3"
 msgid "wc1:122095a4e5a7ba33"
@@ -7101,15 +7101,15 @@ msgstr "Briefing/bri0578.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/0/record/9"
 msgid "wc1:3bf040076872c8ec"
-msgstr ""
+msgstr "Player/bri0579.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/0/record/10"
 msgid "wc1:cc410f2b1c4cb0ea"
-msgstr ""
+msgstr "Briefing/bri0580.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/0/record/11"
 msgid "wc1:2ed4bd5d3a659b59"
-msgstr ""
+msgstr "Briefing/bri0581.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/0/record/12"
 msgid "wc1:f3240977e1c3d7de"
@@ -7121,7 +7121,7 @@ msgstr "Briefing/bri0583.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/0/record/14"
 msgid "wc1:19f0dda732d8bfcc"
-msgstr ""
+msgstr "Briefing/bri0584.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/0/record/15"
 msgid "wc1:a2704086f515f065"
@@ -7137,7 +7137,7 @@ msgstr "Briefing/bri0587.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/0/record/18"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Briefing/bri0588.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -7145,7 +7145,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/1/record/1"
 msgid "wc1:c43bb12477d603fd"
-msgstr ""
+msgstr "Debriefing/deb0872.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/1/record/2"
 msgid "wc1:c9caa7a73ced17ad"
@@ -7217,7 +7217,7 @@ msgstr "Debriefing/deb0913.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/1/record/19"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb0914.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/2/record/0"
 msgid "wc1:442fe243c7189a14"
@@ -7237,7 +7237,7 @@ msgstr "Shotglass/bar0191.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/2/record/4"
 msgid "wc1:a932b3d003ede137"
-msgstr ""
+msgstr "Shotglass/bar0192.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/37/scene/2/record/5"
 msgid "wc1:49189973c6ac601a"
@@ -7309,7 +7309,7 @@ msgstr "Briefing/bri0593.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/0/record/3"
 msgid "wc1:1372a7be3ca7b8e1"
-msgstr ""
+msgstr "Briefing/bri0594.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/0/record/4"
 msgid "wc1:780abaedfacd6ed4"
@@ -7361,7 +7361,7 @@ msgstr "Briefing/bri0606.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/0/record/16"
 msgid "wc1:19f0dda732d8bfcc"
-msgstr ""
+msgstr "Briefing/bri0607.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/0/record/17"
 msgid "wc1:0c2e8e811b62846e"
@@ -7373,7 +7373,7 @@ msgstr "Briefing/bri0609.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/0/record/19"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Briefing/bri0610.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -7417,11 +7417,11 @@ msgstr "Debriefing/deb1726.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/1/record/11"
 msgid "wc1:3b229c5af56acebd"
-msgstr ""
+msgstr "Debriefing/deb1727.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/1/record/12"
 msgid "wc1:8e2e2e09436f8438"
-msgstr ""
+msgstr "Player/deb1728.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/1/record/13"
 msgid "wc1:ec03be683085c375"
@@ -7461,7 +7461,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/2/record/0"
 msgid "wc1:48520b110c558841"
-msgstr ""
+msgstr "Shotglass/bar0199.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/2/record/1"
 msgid "wc1:089ef9f6ccd1a790"
@@ -7489,7 +7489,7 @@ msgstr "Hunter/rig0205.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/3/record/1"
 msgid "wc1:4e4aa63ec0f677b8"
-msgstr ""
+msgstr "Hunter/rig0206.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/3/record/2"
 msgid "wc1:63c9b0fe76b01550"
@@ -7501,11 +7501,11 @@ msgstr "Hunter/rig0208.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/3/record/4"
 msgid "wc1:563003fa150befc7"
-msgstr ""
+msgstr "Hunter/rig0209.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/3/record/5"
 msgid "wc1:701a5e37eb51b4b0"
-msgstr ""
+msgstr "Hunter/rig0210.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/3/record/6"
 msgid "wc1:090f3501588acad9"
@@ -7513,7 +7513,7 @@ msgstr "Hunter/rig0211.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/4/record/0"
 msgid "wc1:a2144417bbf47867"
-msgstr ""
+msgstr "Iceman/lef0231.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/38/scene/4/record/1"
 msgid "wc1:bb748addc2df990e"
@@ -7613,7 +7613,7 @@ msgstr "Briefing/bri0631.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/40/scene/0/record/19"
 msgid "wc1:7386be5cdb1c851d"
-msgstr ""
+msgstr "Briefing/bri0632.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/40/scene/0/record/20"
 msgid "wc1:a4c439798e15029c"
@@ -7629,7 +7629,7 @@ msgstr "Briefing/bri0635.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/40/scene/0/record/23"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0636.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/40/scene/1/record/0"
 msgid "wc1:903b62a971a8654b"
@@ -7637,7 +7637,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/40/scene/1/record/1"
 msgid "wc1:758818c5fc75a405"
-msgstr ""
+msgstr "Debriefing/deb0916.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/40/scene/1/record/2"
 msgid "wc1:2ef70a2c24e7db17"
@@ -7881,7 +7881,7 @@ msgstr "Briefing/bri0657.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/41/scene/0/record/19"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0658.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/41/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -7889,7 +7889,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/41/scene/1/record/1"
 msgid "wc1:77ff8c15c7489bb7"
-msgstr ""
+msgstr "Debriefing/deb0964.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/41/scene/1/record/2"
 msgid "wc1:6b3c76276e33fcd4"
@@ -7913,7 +7913,7 @@ msgstr "Debriefing/deb0969.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/41/scene/1/record/7"
 msgid "wc1:bb55cdfe3ca94526"
-msgstr ""
+msgstr "Player/deb0970.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/41/scene/1/record/8"
 msgid "wc1:353e6d51384b105d"
@@ -7961,7 +7961,7 @@ msgstr "Debriefing/deb0999.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/41/scene/1/record/19"
 msgid "wc1:fd4f8b0a1926801e"
-msgstr ""
+msgstr "Debriefing/deb1000.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/41/scene/2/record/0"
 msgid "wc1:22a020c20c19baab"
@@ -8073,7 +8073,7 @@ msgstr "Briefing/bri0669.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/42/scene/0/record/9"
 msgid "wc1:192b8bf32bc0e6b8"
-msgstr ""
+msgstr "Player/bri0670.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/42/scene/0/record/10"
 msgid "wc1:60f2a9c74974277a"
@@ -8109,7 +8109,7 @@ msgstr "Briefing/bri0678.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/42/scene/0/record/18"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0679.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/42/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -8117,7 +8117,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/42/scene/1/record/1"
 msgid "wc1:05a46fb0aaa39ca5"
-msgstr ""
+msgstr "Debriefing/deb1007.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/42/scene/1/record/2"
 msgid "wc1:308e86a9c86c0037"
@@ -8221,7 +8221,7 @@ msgstr "Debriefing/deb1053.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/42/scene/1/record/30"
 msgid "wc1:d1644416cdee6fff"
-msgstr ""
+msgstr "Debriefing/deb1054.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/42/scene/2/record/0"
 msgid "wc1:30c147748930d712"
@@ -8357,7 +8357,7 @@ msgstr "Briefing/bri0691.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/44/scene/0/record/11"
 msgid "wc1:b983ab2729774f71"
-msgstr ""
+msgstr "Briefing/bri0692.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/44/scene/0/record/12"
 msgid "wc1:575be8fe0d96cabb"
@@ -8381,7 +8381,7 @@ msgstr "Briefing/bri0697.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/44/scene/0/record/17"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0698.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/44/scene/1/record/0"
 msgid "wc1:fdfc293ba22ce51d"
@@ -8389,7 +8389,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/44/scene/1/record/1"
 msgid "wc1:84ce74eecccab749"
-msgstr ""
+msgstr "Debriefing/deb1056.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/44/scene/1/record/2"
 msgid "wc1:56bbf0246d0e4eef"
@@ -8525,7 +8525,7 @@ msgstr "Briefing/bri0708.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/0/record/8"
 msgid "wc1:2ed4bd5d3a659b59"
-msgstr ""
+msgstr "Briefing/bri0709.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/0/record/9"
 msgid "wc1:284ed2fa987c392c"
@@ -8549,7 +8549,7 @@ msgstr "Briefing/bri0715.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/0/record/14"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0716.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -8557,7 +8557,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/1/record/1"
 msgid "wc1:2203e748b8f476cf"
-msgstr ""
+msgstr "Debriefing/deb1110.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/1/record/2"
 msgid "wc1:f69c7778dd2a0a5d"
@@ -8661,11 +8661,11 @@ msgstr "Debriefing/deb1159.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/1/record/29"
 msgid "wc1:382cbab6f619bff7"
-msgstr ""
+msgstr "Debriefing/deb1160.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/1/record/30"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb1161.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/2/record/0"
 msgid "wc1:f77b2250aa337425"
@@ -8689,11 +8689,11 @@ msgstr "Shotglass/bar0237.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/2/record/5"
 msgid "wc1:67f9d6a23823fa3c"
-msgstr ""
+msgstr "Shotglass/bar0238.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/3/record/0"
 msgid "wc1:12c987608c8881dc"
-msgstr ""
+msgstr "Bossman/rig0234.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/45/scene/3/record/1"
 msgid "wc1:81ea0efd839e8d26"
@@ -8797,7 +8797,7 @@ msgstr "Briefing/bri0729.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/46/scene/0/record/11"
 msgid "wc1:3ec4aa1f3b9cd299"
-msgstr ""
+msgstr "Briefing/bri0730.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/46/scene/0/record/12"
 msgid "wc1:e914200c13b60880"
@@ -8825,7 +8825,7 @@ msgstr "Briefing/bri0736.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/46/scene/0/record/18"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Briefing/bri0737.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/46/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -8833,7 +8833,7 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/46/scene/1/record/1"
 msgid "wc1:a691c40f4d1c9f75"
-msgstr ""
+msgstr "Debriefing/deb1163.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/46/scene/1/record/2"
 msgid "wc1:38d012f06f066191"
@@ -8917,7 +8917,7 @@ msgstr "Debriefing/deb1203.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/46/scene/1/record/23"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb1204.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/46/scene/2/record/0"
 msgid "wc1:22ba76a1d4478883"
@@ -9041,7 +9041,7 @@ msgstr "Briefing/bri0752.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/48/scene/0/record/13"
 msgid "wc1:2e59ae26443043da"
-msgstr ""
+msgstr "Briefing/bri0753.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/48/scene/0/record/14"
 msgid "wc1:a9ddd93ab05022c6"
@@ -9101,11 +9101,11 @@ msgstr "Briefing/bri0767.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/48/scene/0/record/28"
 msgid "wc1:3cc6b2c7bc0dc8ac"
-msgstr ""
+msgstr "Briefing/bri0768.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/48/scene/0/record/29"
 msgid "wc1:bc53288c9fe95c7f"
-msgstr ""
+msgstr "Briefing/bri0769.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/48/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -9161,7 +9161,7 @@ msgstr "Player/deb1219.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/48/scene/1/record/14"
 msgid "wc1:d8bf7c08fdabfa3f"
-msgstr ""
+msgstr "Debriefing/deb1220.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/48/scene/1/record/15"
 msgid "wc1:63aa14995fffe4ec"
@@ -9181,7 +9181,7 @@ msgstr "Player/deb1224.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/48/scene/1/record/19"
 msgid "wc1:68484eb536932bff"
-msgstr ""
+msgstr "Debriefing/deb1225.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/48/scene/1/record/20"
 msgid "wc1:3cf7a721349fb5de"
@@ -9405,7 +9405,7 @@ msgstr "Briefing/bri0787.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/0/record/16"
 msgid "wc1:73b125aabf2a94c7"
-msgstr ""
+msgstr "Briefing/bri0788.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/0/record/17"
 msgid "wc1:11cf2d866b6a181a"
@@ -9413,7 +9413,7 @@ msgstr "Hunter/bri0789.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/0/record/18"
 msgid "wc1:a2dac551f43fa48e"
-msgstr ""
+msgstr "Player/bri0790.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/0/record/19"
 msgid "wc1:6ad41f129a31cbd5"
@@ -9425,7 +9425,7 @@ msgstr "Briefing/bri0792.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/0/record/21"
 msgid "wc1:e13d1448b6e1393d"
-msgstr ""
+msgstr "Briefing/bri0793.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/0/record/22"
 msgid "wc1:b976ea783d965ba4"
@@ -9449,7 +9449,7 @@ msgstr "Briefing/bri0803.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/0/record/27"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0804.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -9457,11 +9457,11 @@ msgstr ""
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/1/record/1"
 msgid "wc1:8867ba8c8562e49e"
-msgstr ""
+msgstr "Debriefing/deb1264.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/1/record/2"
 msgid "wc1:03284657497ad75e"
-msgstr ""
+msgstr "Debriefing/deb1265.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/1/record/3"
 msgid "wc1:66addb9a7672dec0"
@@ -9497,7 +9497,7 @@ msgstr "Debriefing/deb1273.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/1/record/11"
 msgid "wc1:5772477db08b9cea"
-msgstr ""
+msgstr "Hunter/deb1274.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/1/record/12"
 msgid "wc1:b5131f7e036e900b"
@@ -9561,11 +9561,11 @@ msgstr "Debriefing/deb1313.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/1/record/27"
 msgid "wc1:464079f2395c8ecc"
-msgstr ""
+msgstr "Debriefing/deb1314.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/1/record/28"
 msgid "wc1:fd4f8b0a1926801e"
-msgstr ""
+msgstr "Debriefing/deb1315.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/2/record/0"
 msgid "wc1:5f72735173445bb7"
@@ -9681,7 +9681,7 @@ msgstr "Maniac/lef0294.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/49/scene/4/record/7"
 msgid "wc1:fbea9f97e421ff61"
-msgstr ""
+msgstr "Maniac/lef0295.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/0/record/0"
 msgid "wc1:872afff74725c12d"
@@ -9729,7 +9729,7 @@ msgstr "Briefing/bri0817.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/0/record/11"
 msgid "wc1:3ec4aa1f3b9cd299"
-msgstr ""
+msgstr "Briefing/bri0818.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/0/record/12"
 msgid "wc1:73c9714c619857e0"
@@ -9757,7 +9757,7 @@ msgstr "Briefing/bri0824.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/0/record/18"
 msgid "wc1:7386be5cdb1c851d"
-msgstr ""
+msgstr "Briefing/bri0825.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/0/record/19"
 msgid "wc1:e385395a05fbbb34"
@@ -9781,7 +9781,7 @@ msgstr "Briefing/bri0830.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/0/record/24"
 msgid "wc1:bc53288c9fe95c7f"
-msgstr ""
+msgstr "Briefing/bri0831.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/1/record/0"
 msgid "wc1:bd4e0aec21244a9f"
@@ -9945,7 +9945,7 @@ msgstr "Debriefing/deb1373.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/1/record/41"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb1374.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/2/record/0"
 msgid "wc1:4dda911367d768f5"
@@ -9981,11 +9981,11 @@ msgstr "Hunter/rig0265.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/3/record/1"
 msgid "wc1:7dfbf7cdb8949f78"
-msgstr ""
+msgstr "Hunter/rig0266.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/3/record/2"
 msgid "wc1:a571110d94f4bbdb"
-msgstr ""
+msgstr "Hunter/rig0267.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/3/record/3"
 msgid "wc1:80f678ef9376c417"
@@ -10001,11 +10001,11 @@ msgstr "Hunter/rig0270.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/3/record/6"
 msgid "wc1:b286e061eee9862a"
-msgstr ""
+msgstr "Hunter/rig0271.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/3/record/7"
 msgid "wc1:90485568d74953ea"
-msgstr ""
+msgstr "Hunter/rig0272.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/3/record/8"
 msgid "wc1:a13f151ac2ed19c3"
@@ -10029,7 +10029,7 @@ msgstr "Paladin/lef0299.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/4/record/4"
 msgid "wc1:bb9fcdabde62898d"
-msgstr ""
+msgstr "Paladin/lef0300.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/4/record/5"
 msgid "wc1:719062e4e018de11"
@@ -10041,11 +10041,11 @@ msgstr "Paladin/lef0302.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/4/record/7"
 msgid "wc1:055b3e5698a91735"
-msgstr ""
+msgstr "Paladin/lef0303.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/50/scene/4/record/8"
 msgid "wc1:c92d1a002d66fa0c"
-msgstr ""
+msgstr "Paladin/lef0304.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/0/record/0"
 msgid "wc1:cdff5dd6ad56e16b"
@@ -10133,7 +10133,7 @@ msgstr "Briefing/bri0854.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/0/record/21"
 msgid "wc1:73b125aabf2a94c7"
-msgstr ""
+msgstr "Briefing/bri0855.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/0/record/22"
 msgid "wc1:722b23e7cfb3cce4"
@@ -10141,7 +10141,7 @@ msgstr "Hunter/bri0856.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/0/record/23"
 msgid "wc1:670853ff4b85bb2d"
-msgstr ""
+msgstr "Player/bri0857.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/0/record/24"
 msgid "wc1:2894eda5bf1ea977"
@@ -10153,15 +10153,15 @@ msgstr "Briefing/bri0859.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/0/record/26"
 msgid "wc1:e13d1448b6e1393d"
-msgstr ""
+msgstr "Briefing/bri0860.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/0/record/27"
 msgid "wc1:e82ca6dcdca7432a"
-msgstr ""
+msgstr "Briefing/bri0861.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/0/record/28"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0862.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -10245,11 +10245,11 @@ msgstr "Player/deb1400.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/1/record/20"
 msgid "wc1:0137063893f4fdd8"
-msgstr ""
+msgstr "Hunter/deb1401.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/1/record/21"
 msgid "wc1:24a7da724f0bfd81"
-msgstr ""
+msgstr "Hunter/deb1402.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/1/record/22"
 msgid "wc1:99d6ce5a6daac833"
@@ -10269,7 +10269,7 @@ msgstr "Debriefing/deb1406.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/1/record/26"
 msgid "wc1:8257b2c331ab92ca"
-msgstr ""
+msgstr "Debriefing/deb1407.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/2/record/0"
 msgid "wc1:c787984a43e787dd"
@@ -10293,15 +10293,15 @@ msgstr "Shotglass/bar0273.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/2/record/5"
 msgid "wc1:f7fdc1090e9fb271"
-msgstr ""
+msgstr "Shotglass/bar0274.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/2/record/6"
 msgid "wc1:74545ef70dcf30ee"
-msgstr ""
+msgstr "Shotglass/bar0275.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/2/record/7"
 msgid "wc1:5c9259bc75a8227d"
-msgstr ""
+msgstr "Shotglass/bar0276.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/2/record/8"
 msgid "wc1:62a368ceab13ca31"
@@ -10309,7 +10309,7 @@ msgstr "Shotglass/bar0277.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/2/record/9"
 msgid "wc1:e58c7bb61299bd8e"
-msgstr ""
+msgstr "Shotglass/bar0278.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/2/record/10"
 msgid "wc1:6a4e8d71b89358ed"
@@ -10321,7 +10321,7 @@ msgstr "Shotglass/bar0280.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/3/record/0"
 msgid "wc1:33b372916bc1e095"
-msgstr ""
+msgstr "Angel/rig0279.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/51/scene/3/record/1"
 msgid "wc1:42cf692e97a1526b"
@@ -10417,7 +10417,7 @@ msgstr "Briefing/bri0872.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/0/record/8"
 msgid "wc1:c18f47ea241ffa89"
-msgstr ""
+msgstr "Briefing/bri0873.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/0/record/9"
 msgid "wc1:1ba86f343bec3e57"
@@ -10473,7 +10473,7 @@ msgstr "Briefing/bri0886.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/0/record/22"
 msgid "wc1:d368d268a734fa18"
-msgstr ""
+msgstr "Paladin/bri0887.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/0/record/23"
 msgid "wc1:258f9b6adb4d3d0f"
@@ -10481,7 +10481,7 @@ msgstr "Briefing/bri0888.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/0/record/24"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0889.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -10505,11 +10505,11 @@ msgstr "Hunter/deb1412.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/1/record/5"
 msgid "wc1:a497651d739718d3"
-msgstr ""
+msgstr "Hunter/deb1413.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/1/record/6"
 msgid "wc1:35fee06cd08e8499"
-msgstr ""
+msgstr "Hunter/deb1414.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/1/record/7"
 msgid "wc1:e0fa2be1d8d024ea"
@@ -10577,11 +10577,11 @@ msgstr "Debriefing/deb1454.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/1/record/23"
 msgid "wc1:3be1e8e3ecd5c496"
-msgstr ""
+msgstr "Debriefing/deb1455.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/1/record/24"
 msgid "wc1:ad8efbf05eb95567"
-msgstr ""
+msgstr "Debriefing/deb1456.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/1/record/25"
 msgid "wc1:be296b6eef9b39a5"
@@ -10589,7 +10589,7 @@ msgstr "Debriefing/deb1457.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/1/record/26"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb1458.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/2/record/0"
 msgid "wc1:6433e73085da6945"
@@ -10665,39 +10665,39 @@ msgstr "Paladin/lef0310.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/4/record/1"
 msgid "wc1:119b3196d1b7ee2f"
-msgstr ""
+msgstr "Paladin/lef0311.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/4/record/2"
 msgid "wc1:1059a775c3312ef5"
-msgstr ""
+msgstr "Paladin/lef0312.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/4/record/3"
 msgid "wc1:917018cdf8fdd911"
-msgstr ""
+msgstr "Paladin/lef0313.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/4/record/4"
 msgid "wc1:171ddfc8baca1828"
-msgstr ""
+msgstr "Paladin/lef0314.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/4/record/5"
 msgid "wc1:0f7738e84071dbde"
-msgstr ""
+msgstr "Paladin/lef0315.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/4/record/6"
 msgid "wc1:62b7629394009f56"
-msgstr ""
+msgstr "Paladin/lef0316.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/4/record/7"
 msgid "wc1:d7167b6b69e83a69"
-msgstr ""
+msgstr "Paladin/lef0317.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/4/record/8"
 msgid "wc1:74338e17cb420efa"
-msgstr ""
+msgstr "Paladin/lef0318.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/52/scene/4/record/9"
 msgid "wc1:b3d44832ad01157c"
-msgstr ""
+msgstr "Paladin/lef0319.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/0/record/0"
 msgid "wc1:c2df51f2311da98a"
@@ -10769,7 +10769,7 @@ msgstr "Briefing/bri0908.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/0/record/17"
 msgid "wc1:c6e857e3c650d282"
-msgstr ""
+msgstr "Briefing/bri0909.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/0/record/18"
 msgid "wc1:1fb1df8fcdcd2027"
@@ -10777,7 +10777,7 @@ msgstr "Briefing/bri0910.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/0/record/19"
 msgid "wc1:aff1f4d791d3f18d"
-msgstr ""
+msgstr "Briefing/bri0911.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/0/record/20"
 msgid "wc1:3e6e8384b0a2676a"
@@ -10785,7 +10785,7 @@ msgstr "Briefing/bri0912.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/0/record/21"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0913.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -10809,11 +10809,11 @@ msgstr "Debriefing/deb1463.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/1/record/5"
 msgid "wc1:10a207181e61e722"
-msgstr ""
+msgstr "Hunter/deb1464.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/1/record/6"
 msgid "wc1:120e450137dca2d4"
-msgstr ""
+msgstr "Player/deb1465.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/1/record/7"
 msgid "wc1:8e169729b21942b9"
@@ -10897,7 +10897,7 @@ msgstr "Debriefing/deb1516.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/1/record/27"
 msgid "wc1:89a10f84b8d3cbb4"
-msgstr ""
+msgstr "Debriefing/deb1517.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/2/record/0"
 msgid "wc1:5f72735173445bb7"
@@ -11013,7 +11013,7 @@ msgstr "Maniac/lef0294.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/53/scene/4/record/7"
 msgid "wc1:fbea9f97e421ff61"
-msgstr ""
+msgstr "Maniac/lef0295.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/0/record/0"
 msgid "wc1:c2df51f2311da98a"
@@ -11073,7 +11073,7 @@ msgstr "Briefing/bri0929.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/0/record/14"
 msgid "wc1:920069a1ad18f238"
-msgstr ""
+msgstr "Briefing/bri0930.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/0/record/15"
 msgid "wc1:4e67a7815ded63bb"
@@ -11117,7 +11117,7 @@ msgstr "Briefing/bri0940.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/0/record/25"
 msgid "wc1:7779b4de07322a75"
-msgstr ""
+msgstr "Briefing/bri0941.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/1/record/0"
 msgid "wc1:c05f4354924975a9"
@@ -11145,11 +11145,11 @@ msgstr "Player/deb1524.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/1/record/6"
 msgid "wc1:e9062404a6d11ffb"
-msgstr ""
+msgstr "Hunter/deb1525.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/1/record/7"
 msgid "wc1:98b720cc3eead6dc"
-msgstr ""
+msgstr "Hunter/deb1526.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/1/record/8"
 msgid "wc1:683e91e323563006"
@@ -11177,7 +11177,7 @@ msgstr "Debriefing/deb1532.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/1/record/14"
 msgid "wc1:a74fce953f65f64f"
-msgstr ""
+msgstr "Player/deb1533.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/1/record/15"
 msgid "wc1:ff302443a8187aed"
@@ -11217,11 +11217,11 @@ msgstr "Debriefing/deb1564.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/1/record/24"
 msgid "wc1:3658d7a3f7bf6410"
-msgstr ""
+msgstr "Debriefing/deb1565.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/1/record/25"
 msgid "wc1:18fbfcfed6d3b081"
-msgstr ""
+msgstr "Debriefing/deb1566.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/2/record/0"
 msgid "wc1:4dda911367d768f5"
@@ -11261,11 +11261,11 @@ msgstr "Hunter/rig0265.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/3/record/1"
 msgid "wc1:51635761149d07d0"
-msgstr ""
+msgstr "Hunter/rig0266.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/3/record/2"
 msgid "wc1:a571110d94f4bbdb"
-msgstr ""
+msgstr "Hunter/rig0267.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/3/record/3"
 msgid "wc1:80f678ef9376c417"
@@ -11281,11 +11281,11 @@ msgstr "Hunter/rig0270.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/3/record/6"
 msgid "wc1:9da89e3bae069f96"
-msgstr ""
+msgstr "Hunter/rig0271.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/3/record/7"
 msgid "wc1:90485568d74953ea"
-msgstr ""
+msgstr "Hunter/rig0272.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/3/record/8"
 msgid "wc1:a13f151ac2ed19c3"
@@ -11313,7 +11313,7 @@ msgstr "Iceman/lef0332.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/4/record/5"
 msgid "wc1:719062e4e018de11"
-msgstr ""
+msgstr "Hunter/lef0333.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/4/record/6"
 msgid "wc1:2939d6e9af63b0ea"
@@ -11321,11 +11321,11 @@ msgstr "Iceman/lef0334.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/4/record/7"
 msgid "wc1:055b3e5698a91735"
-msgstr ""
+msgstr "Iceman/lef0335.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/54/scene/4/record/8"
 msgid "wc1:c92d1a002d66fa0c"
-msgstr ""
+msgstr "Iceman/lef0336.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/55/scene/0/record/0"
 msgid "wc1:c2df51f2311da98a"
@@ -11361,7 +11361,7 @@ msgstr "Briefing/bri0951.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/55/scene/0/record/8"
 msgid "wc1:f245371f10b28e98"
-msgstr ""
+msgstr "Briefing/bri0952.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/55/scene/0/record/9"
 msgid "wc1:e20a1f6f39a93f5a"
@@ -11405,11 +11405,11 @@ msgstr "Player/bri0962.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/55/scene/0/record/19"
 msgid "wc1:bb1b18463c87fd6d"
-msgstr ""
+msgstr "Hunter/bri0963.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/55/scene/0/record/20"
 msgid "wc1:9dc135312b4b14d4"
-msgstr ""
+msgstr "Hunter/bri0964.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/55/scene/0/record/21"
 msgid "wc1:e23f562f5232fbce"
@@ -11421,7 +11421,7 @@ msgstr "Briefing/bri0966.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/55/scene/0/record/23"
 msgid "wc1:13529d7bb1be83b3"
-msgstr ""
+msgstr "Briefing/bri0967.wav"
 
 msgctxt "wc1/BRIEFING.000/packet/55/scene/0/record/24"
 msgid "wc1:7779b4de07322a75"
