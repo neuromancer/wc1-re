@@ -53,11 +53,15 @@ if grep -q 'not found' "$build_dir/dependencies.txt"; then
     exit 1
 fi
 
-# Home and removable media contain user-selected installations and WC1 saves.
+# Home, removable media and other mounted drives hold user-selected and Steam
+# installations, and WC1 saves beside their data. Home access excludes
+# ~/.var/app, so the Steam Flatpak's default library is granted on its own.
 # Device access also supports controllers on older SteamOS Flatpak versions.
 flatpak build-finish "$build_dir" --command=wc1-modern \
     --share=ipc --socket=x11 --socket=wayland --socket=pulseaudio --device=all \
-    --filesystem=home --filesystem=/run/media --filesystem=/media
+    --filesystem=home --filesystem=/run/media --filesystem=/media --filesystem=/mnt \
+    --filesystem=~/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps \
+    --filesystem=~/.var/app/com.valvesoftware.Steam/data/Steam/steamapps
 flatpak build-export "$build_dir/repo" "$build_dir" experimental
 flatpak build-bundle --arch=x86_64 \
     --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \

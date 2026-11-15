@@ -279,6 +279,51 @@ static void scan_game_library(std::vector<GameInstallation> &installations,
         scan_game_directory(installations, directory);
 }
 
+// A Steam installation's default library, and every library its
+// steamapps/libraryfolders.vdf names: as "path" values since 2021, as numbered
+// values before. Libraries on other drives, such as a Steam Deck's microSD
+// card, are listed only there.
+static void add_steam_libraries(std::vector<fs::path> &libraries,
+                                const fs::path &steamRoot)
+{
+    libraries.push_back(steamRoot / "steamapps" / "common");
+    std::ifstream file(steamRoot / "steamapps" / "libraryfolders.vdf",
+                       std::ios::binary);
+    std::string key;
+    bool haveKey = false;
+    char character;
+
+    while (file.get(character)) {
+        if (character == '{' || character == '}') {
+            haveKey = false;
+            continue;
+        }
+        if (character != '"')
+            continue;
+        std::string text;
+        // VDF escapes backslashes, as in Windows paths, and quotes.
+        while (file.get(character) && character != '"') {
+            if (character == '\\' && !file.get(character))
+                break;
+            text += character;
+        }
+        if (!haveKey) {
+            key = std::move(text);
+            haveKey = true;
+            continue;
+        }
+        haveKey = false;
+        // Numbered keys also count each app's size; only paths are kept.
+        const bool numbered = !key.empty() &&
+            std::all_of(key.begin(), key.end(), [](unsigned char digit) {
+                return digit >= '0' && digit <= '9';
+            });
+        const auto library = path_from_utf8(text);
+        if ((numbered || equal_ascii_case(key, "path")) && library.is_absolute())
+            libraries.push_back(library / "steamapps" / "common");
+    }
+}
+
 static fs::path environment_directory(const char *name)
 {
 #ifdef _WIN32
@@ -340,18 +385,21 @@ std::vector<GameInstallation> discover_game_installations()
             continue;
         libraries.push_back(programFiles);
         for (const auto relative : {"GOG.com", "GOG Games", "GOG Galaxy/Games",
-                                    "Steam/steamapps/common", "EA Games", "Origin Games",
-                                    "Origin Systems"})
+                                    "EA Games", "Origin Games", "Origin Systems"})
             libraries.push_back(programFiles / relative);
+        add_steam_libraries(libraries, programFiles / "Steam");
     }
 #elif defined(__APPLE__)
     if (!home.empty())
-        libraries.push_back(home / "Library/Application Support/Steam/steamapps/common");
+        add_steam_libraries(libraries, home / "Library/Application Support/Steam");
 #else
     if (!home.empty()) {
-        libraries.push_back(home / ".steam/steam/steamapps/common");
-        libraries.push_back(home / ".local/share/Steam/steamapps/common");
-        libraries.push_back(home / ".var/app/com.valvesoftware.Steam/data/Steam/steamapps/common");
+        // Native Steam, then the Steam Flatpak's, in the home it keeps in
+        // ~/.var/app or in its Flatpak data folder.
+        for (const auto relative : {".steam/steam", ".local/share/Steam",
+                                    ".var/app/com.valvesoftware.Steam/.local/share/Steam",
+                                    ".var/app/com.valvesoftware.Steam/data/Steam"})
+            add_steam_libraries(libraries, home / relative);
     }
 #endif
     std::vector<GameInstallation> installations;
