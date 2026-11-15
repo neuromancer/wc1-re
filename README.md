@@ -49,7 +49,9 @@ Game data is not included. Open the app, choose a detected installation or use
 - **Secret Missions:** with Kilrathi Saga or DOS data that includes the
   expansions, the launcher also offers **Start SM1** and **Start SM2**, and can
   transfer a pilot from an existing save with their statistics and awards. Both
-  releases play the expansions the same way, following the Kilrathi Saga.
+  releases play the expansions the same way, following the Kilrathi Saga, but
+  SM2's captured Dralthi keeps its DOS disguise: in the stealth missions the
+  Kilrathi ignore it until it fires on them.
 - **Languages:** choose **Español**, **Français**, or **Japanese (FM Towns)**
   in the launcher's **Language** menu.
 - **German fan translation:** a DOS installation you have patched yourself

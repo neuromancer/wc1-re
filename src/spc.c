@@ -1430,6 +1430,10 @@ int object_collision(short obj)
                     else
                         aPaletteFadeEntries[4][0] = 0x38;
                 }
+#ifdef SDL_PORT
+                /* SM2 (DOS HandleCollisions 138:209d). */
+                SdlSm2DisguiseHit(acObjOwnersTable[objectIndex], partner);
+#endif
                 acPreviousAttackers[partner] = acObjOwnersTable[objectIndex];
                 acShipAiCooldowns[partner] += 4;
                 projectileDamage = (asShipAccumulatedDmg[objectIndex] -

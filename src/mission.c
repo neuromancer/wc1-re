@@ -607,10 +607,20 @@ int set_up_action_sphere(short navPoint)
             init_ship(nav->missionShips[obj], navPoint);
     }
 
+#ifdef SDL_PORT
+    SdlSm2ClearDisguise();
+#endif
     trigger = 0;
     do {
         triggerType = ((signed char *)nav->triggers)[trigger];
         if (triggerType != -1) {
+#ifdef SDL_PORT
+            /* SM2 (DOS EnterSphere 142:09b5): a link back to this sphere
+               disguises a player flying the Dralthi instead. */
+            if (!SdlSm2StartDisguise(navPoint,
+                                     ((signed char *)nav->triggers)[trigger + 1],
+                                     triggerType))
+#endif
             aMissionNavPoints[
                 ((signed char *)nav->triggers)[trigger + 1]].type =
                 triggerType;

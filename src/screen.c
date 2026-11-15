@@ -234,6 +234,9 @@ void request(short requester, short ship, short command)
                         SPECIAL_MANEUVER_UNKNOWN_9 &&
                     aeShipSide[ship] !=
                         aeShipSide[object] &&
+#ifdef SDL_PORT
+                    !SdlSm2Overlooks(ship, object) &&
+#endif
                     acShipTargetTable[object] == requester) {
                     attacker = object;
                     break;

@@ -695,6 +695,9 @@ void call_enemy(short obj)
             aeSpecialManeuvers[otherIndex] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             aeShipSide[obj] != aeShipSide[otherIndex] &&
+#ifdef SDL_PORT
+            !SdlSm2Overlooks(obj, other) &&
+#endif
             RandomBelow(100) < 50)
             acShipTargetTable[otherIndex] = obj;
     }

@@ -173,7 +173,12 @@ unsigned int select_target(short obj)
 {
     if (aeShipSide[obj] == SIDE_KILRATHI) {
         if (RandomBelow(100) < 50) {
+#ifdef SDL_PORT
+            /* SM2 (DOS AiNewTarget 161:04b0). */
+            if (!SdlSm2Disguised() && attacker_in_range(0, 16000) == 0) {
+#else
             if (attacker_in_range(0, 16000) == 0) {
+#endif
                 if (distance_from_object(obj, 0) < 5000) {
                     acShipTargetTable[obj] = 0;
                     return 0;

@@ -12,6 +12,58 @@ int SdlPlayingSm2(void)
     return nCampaignDataSet == 2 && !SdlSwcFlightActive();
 }
 
+/* SM2's captured-Dralthi disguise, as the DOS SM2.EXE plays it (issue #31);
+ * the Kilrathi Saga's SM2.EXE kept WC1's code. A nav sphere with a wave link
+ * back to itself (EnterSphere, 142:09b5) lets a player flying the Dralthi
+ * pass as Kilrathi there. Kilrathi ships then overlook Confederation
+ * Dralthis, until one of their gun shots hits a Kilrathi ship
+ * (HandleCollisions, 138:209d). The DOS flag g_kilrathiMayTarget is the
+ * opposite of bSdlSm2Disguised. */
+static int bSdlSm2Disguised;
+
+/* Each sphere starts without the disguise. */
+void SdlSm2ClearDisguise(void)
+{
+    bSdlSm2Disguised = 0;
+}
+
+/* Whether the sphere's wave link of this type to linkedNav starts the
+ * disguise, instead of activating its sphere as in WC1. */
+int SdlSm2StartDisguise(short navPoint, short linkedNav, short type)
+{
+    /* g_playerShip: the type of the player's mission ship. */
+    if (!SdlPlayingSm2() || linkedNav != navPoint || type == 0 ||
+        aMissionShips[stCurrentMissionHeader.playerMissionShip].type !=
+            OBJECT_TYPE_DRALTHI)
+        return 0;
+    bSdlSm2Disguised = 1;
+    return 1;
+}
+
+int SdlSm2Disguised(void)
+{
+    return bSdlSm2Disguised;
+}
+
+/* Whether the ship scanner, looking for enemies, overlooks other: a Kilrathi
+ * ship passes over a Dralthi on the other side while the disguise holds. */
+int SdlSm2Overlooks(short scanner, short other)
+{
+    return bSdlSm2Disguised && aeObjectTypeList[other] == OBJECT_TYPE_DRALTHI &&
+        aeShipSide[scanner] == SIDE_KILRATHI;
+}
+
+/* A gun shot that a Confederation Dralthi fired and that hit a Kilrathi
+ * ship ends the disguise. */
+void SdlSm2DisguiseHit(short shooter, short victim)
+{
+    if (bSdlSm2Disguised && shooter >= 0 && shooter < SPACE_OBJECT_COUNT &&
+        aeShipSide[victim] == SIDE_KILRATHI &&
+        aeObjectTypeList[shooter] == OBJECT_TYPE_DRALTHI &&
+        aeShipSide[shooter] == SIDE_IMPERIAL)
+        bSdlSm2Disguised = 0;
+}
+
 void SdlSetSm2Pilots(PilotRecord *pilots, int fresh)
 {
     /* SM2.EXE initial roster (0x4a92d8); LoadGame (0x4686bc) changes

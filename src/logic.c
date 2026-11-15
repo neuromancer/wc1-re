@@ -522,6 +522,9 @@ int any_enemy_tail(short obj)
             aeSpecialManeuvers[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             aeShipSide[obj] != aeShipSide[other] &&
+#ifdef SDL_PORT
+            !SdlSm2Overlooks(obj, other) &&
+#endif
             acShipTargetTable[other] == obj &&
             being_tailed(obj, other) != 0) {
             nTargetShip = other;
@@ -545,6 +548,9 @@ short detect_enemy_tail(short obj)
             aeSpecialManeuvers[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             aeShipSide[obj] != aeShipSide[other] &&
+#ifdef SDL_PORT
+            !SdlSm2Overlooks(obj, other) &&
+#endif
             acShipTargetTable[other] == obj &&
             being_tailed(obj, other) != 0)
             return other;
@@ -876,6 +882,10 @@ short scan_for_enemy(short obj, unsigned short range)
             continue;
         if (aeShipSide[obj] == aeShipSide[other])
             continue;
+#ifdef SDL_PORT
+        if (SdlSm2Overlooks(obj, other))
+            continue;
+#endif
         distance = distance_from_point(other, &aShipPositionsArray[obj]);
         if (distance < range &&
             (nTargetShip == -1 ||
@@ -902,7 +912,11 @@ int any_enemy(short obj, short range)
         if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
             aeSpecialManeuvers[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            aeShipSide[obj] != aeShipSide[other]) {
+            aeShipSide[obj] != aeShipSide[other]
+#ifdef SDL_PORT
+            && !SdlSm2Overlooks(obj, other)
+#endif
+            ) {
             nTgtRange = distance_from_object(obj, other);
             if (nTgtRange < range) {
                 nTargetShip = other;
@@ -925,7 +939,11 @@ short nearest_enemy_range(short obj)
         if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
             aeSpecialManeuvers[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            aeShipSide[obj] != aeShipSide[other])
+            aeShipSide[obj] != aeShipSide[other]
+#ifdef SDL_PORT
+            && !SdlSm2Overlooks(obj, other)
+#endif
+            )
             range = MinShort(range, distance_from_object(obj, other));
     }
     return range;
@@ -995,6 +1013,9 @@ int attacker_in_range(short obj, unsigned short range)
             aeSpecialManeuvers[obj] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             aeShipSide[defendedObject] != aeShipSide[obj] &&
+#ifdef SDL_PORT
+            !SdlSm2Overlooks(defendedObject, obj) &&
+#endif
             acShipTargetTable[obj] == defendedObject) {
             attacker = obj;
 
@@ -1023,7 +1044,11 @@ int in_danger(short obj)
         if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
             aeSpecialManeuvers[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            aeShipSide[obj] != aeShipSide[other]) {
+            aeShipSide[obj] != aeShipSide[other]
+#ifdef SDL_PORT
+            && !SdlSm2Overlooks(obj, other)
+#endif
+            ) {
             nTargetShip = target;
             if (acShipTargetTable[other] != obj)
                 continue;
@@ -1061,7 +1086,11 @@ short build_target_list(short obj, short range)
         if (aeObjectClass[other] >= OBJECT_CLASS_SHIP &&
             aeSpecialManeuvers[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
-            aeShipSide[obj] != aeShipSide[other]) {
+            aeShipSide[obj] != aeShipSide[other]
+#ifdef SDL_PORT
+            && !SdlSm2Overlooks(obj, other)
+#endif
+            ) {
             distance = distance_from_object(obj, other);
             if (distance < range) {
                 acFormationMemberLists[count] =
