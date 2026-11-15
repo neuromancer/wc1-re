@@ -58,11 +58,11 @@ Game data is not included. Open the app, choose a detected installation or use
   CM-32L. Put your own control and PCM ROM files in a folder, choose
   **Roland MT-32** under **Music** in the launcher, and select the folder with
   **MT-32 ROMs…**. The launcher names the machine it found, preferring the
-  CM-32L. A DOS installation plays its sound effects on the MT-32 too, sharing
-  its channels with the music as the original does. A *Kilrathi Saga*
-  installation can play its own digital music, the AdLib or the MT-32 scores,
-  and keeps its digital sound effects. Without usable ROMs the game plays the
-  AdLib music. The command line takes `--music=default|adlib|mt32`,
+  CM-32L. The MT-32 plays the sound effects too, sharing its channels with the
+  music as the original does. A *Kilrathi Saga* installation can instead keep
+  its own digital music or play the AdLib scores, and both keep its digital
+  sound effects. Without usable ROMs the game plays the AdLib music. The
+  command line takes `--music=default|adlib|mt32`,
   `--mt32-roms=DIR`, `--mt32-model=ID` (such as `mt32_1_07`) and
   `--mt32-check`, which reports what a ROM folder holds.
 - **FM Towns:** copy `WC.EXP` and the complete `GAMEDAT` folder from your CD

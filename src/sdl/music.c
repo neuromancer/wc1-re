@@ -24,8 +24,8 @@ static unsigned char *g_pSdlDosAdlibTimbres;
 static SdlOriginFxPlayer *g_pSdlOriginFxPlayer;
 static SdlOriginFxPlayer *g_pSdlQueuedOriginFxPlayer;
 static SdlOriginFxPlayer *g_pSdlOriginFxSoundPlayer;
-/* With MT-32 ROMs one MT-32 plays the music and, for DOS data, the sound
- * effects, which share its channels as in WC.EXE. */
+/* With MT-32 ROMs one MT-32 plays the music and the sound effects, which
+ * share its channels as in WC.EXE. */
 static SdlMt32Synth *g_pSdlMt32;
 static int g_nSdlMusicDevice = SDL_PORT_MUSIC_INSTALLED;
 static size_t g_nSdlDosMusicArchiveSize;
@@ -177,6 +177,15 @@ static void SdlUpdateDosAdlibMusicVolume(void)
         g_nSdlSoundVolumeSetting = nSfxVolumeSetting;
         g_nSdlDosSoundGain =
             SdlCalculateDosAudioGain(g_nSdlSoundVolumeSetting);
+        /* Silent effects are off, and SoundEffectsOff (003:0758) stops
+         * the playing ones, which gives the MT-32's channels back to the
+         * music. */
+        if (g_nSdlDosSoundGain == 0) {
+            if (g_pSdlMt32 != 0)
+                SdlStopMt32Effects(g_pSdlMt32);
+            else
+                SdlStopOriginFxSoundEffects(g_pSdlOriginFxSoundPlayer);
+        }
     }
     /* The MT-32 mixes the music and the effects itself, so the settings
      * scale their MIDI volumes instead, 256 being full. */
@@ -201,6 +210,15 @@ int SdlUsingOriginFxMusic(void)
 {
     return g_bSdlDosMusicInitialized != 0 &&
         g_bSdlOriginFxServicesAllTracks != 0;
+}
+
+/* Whether OriginFX plays the game's sound effects: always for DOS data,
+ * and for Kilrathi Saga data when the MT-32 plays its music, so that one
+ * MT-32 plays everything as in WC.EXE. With digital or AdLib music the
+ * Kilrathi Saga keeps its digital effects. */
+int SdlUsingOriginFxSoundEffects(void)
+{
+    return SdlUsingDosData() || g_pSdlMt32 != 0;
 }
 
 /* With MT-32 music chosen, one MT-32 with WINGLDR.TIM's MT-32 instruments;
@@ -328,6 +346,11 @@ int SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
         (g_pSdlOriginFxSoundPlayer == 0 && g_pSdlMt32 == 0))
         return 0;
     SDL_LockMutex(g_pSdlDosMusicMutex);
+    /* PlayEffect (003:07a5) starts nothing while the effects are off. */
+    if (g_nSdlDosSoundGain == 0) {
+        SDL_UnlockMutex(g_pSdlDosMusicMutex);
+        return 0;
+    }
     if (soundNumber == 8) {
         tag = 64 + (int)(g_nSdlDosRapidFireTag & 1U);
         g_nSdlDosRapidFireTag++;
@@ -395,7 +418,7 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
         pan = SdlSoundEffectPan(&delta);
     }
 
-    if (SdlUsingDosData() || SdlUsingTownsData()) {
+    if (SdlUsingOriginFxSoundEffects() || SdlUsingTownsData()) {
         volume = SDL_SOUND_FULL_VOLUME;
         if (sourceObject != -1) {
             volume -= (int)((magnitude /

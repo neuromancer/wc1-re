@@ -522,6 +522,7 @@ enum {
 void SdlSetMusicDevice(int device);
 int SdlGetMusicDevice(void);
 int SdlUsingOriginFxMusic(void);
+int SdlUsingOriginFxSoundEffects(void);
 int SdlOriginFxMusicCommand(int track, int command);
 void SdlOriginFxMusicBreakpoint(void);
 void SdlStopOriginFxMusic(void);

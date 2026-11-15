@@ -307,6 +307,12 @@ void PlaySnowStaticSound(void)
         SdlPlayTownsEffect(23, 100, 64, -1, 0);
         return;
     }
+    /* VduEffect (134:2972) plays the static as sound 0x17, like the
+     * VDUs' other noises. */
+    if (SdlUsingOriginFxSoundEffects()) {
+        PlaySfxWaveFileByNumber(0x17, -1, 0);
+        return;
+    }
 #endif
     if (bIxAudioEnabled != 0) {
         ReleaseFinishedSoundEntries();
