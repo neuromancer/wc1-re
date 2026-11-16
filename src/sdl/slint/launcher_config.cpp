@@ -40,8 +40,7 @@ constexpr IntegerSetting integerSettings[] = {
     {"joystick_rumble", &SdlLauncherOptions::joystickRumble,
      SDL_LAUNCHER_EXPLICIT_RUMBLE, 1},
     {"joystick_mode", &SdlLauncherOptions::joystickMode,
-     SDL_LAUNCHER_EXPLICIT_JOYSTICK_MODE,
-     SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS},
+     SDL_LAUNCHER_EXPLICIT_JOYSTICK_MODE, SDL_LAUNCHER_JOYSTICK_CUSTOM},
     {"joystick_axes", &SdlLauncherOptions::joystickAxes,
      SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES, SDL_LAUNCHER_AXES_RUDDER_ROLL},
     {"joystick_dead_zone", &SdlLauncherOptions::joystickDeadZone,
@@ -57,6 +56,17 @@ std::string_view trim_setting(std::string_view text)
         return {};
     const auto last = text.find_last_not_of(" \t\r");
     return text.substr(first, last - first + 1);
+}
+
+/* A name in the settings: lowercase letters, digits and dashes. */
+bool valid_name(std::string_view name)
+{
+    for (const char character : name) {
+        if (!((character >= 'a' && character <= 'z') ||
+              (character >= '0' && character <= '9') || character == '-'))
+            return false;
+    }
+    return true;
 }
 
 /* A [keys] line: an action name and its bindings, both plain ASCII with
@@ -144,8 +154,10 @@ void load_launcher_config(const std::filesystem::path &path,
     std::string line;
     bool inLauncherSection = false;
     bool inKeysSection = false;
+    bool inPadSection = false;
     bool firstLine = true;
     std::string keyBindings;
+    std::string padBindings;
 
     while (std::getline(input, line)) {
         std::string_view text(line);
@@ -160,10 +172,12 @@ void load_launcher_config(const std::filesystem::path &path,
         if (text.front() == '[') {
             inLauncherSection = text == "[launcher]";
             inKeysSection = text == "[keys]";
+            inPadSection = text == "[pad]";
             continue;
         }
         const auto separator = text.find('=');
-        if ((!inLauncherSection && !inKeysSection) || separator == std::string_view::npos)
+        if ((!inLauncherSection && !inKeysSection && !inPadSection) ||
+            separator == std::string_view::npos)
             continue;
         const auto key = trim_setting(text.substr(0, separator));
         auto value = trim_setting(text.substr(separator + 1));
@@ -172,6 +186,14 @@ void load_launcher_config(const std::filesystem::path &path,
             if (valid_key_binding(key, value) &&
                 keyBindings.size() + key.size() + value.size() + 2 < sizeof(options.keyBindings))
                 keyBindings.append(key).append("=").append(value).append("\n");
+            continue;
+        }
+        if (inPadSection) {
+            /* A game controller input and its function (src/sdl/pad_bindings.h);
+               an empty value leaves the input unbound. */
+            if (!key.empty() && valid_name(key) && valid_name(value) &&
+                padBindings.size() + key.size() + value.size() + 2 < sizeof(options.padBindings))
+                padBindings.append(key).append("=").append(value).append("\n");
             continue;
         }
         if (value.empty())
@@ -206,6 +228,7 @@ void load_launcher_config(const std::filesystem::path &path,
         }
     }
     std::memcpy(options.keyBindings, keyBindings.c_str(), keyBindings.size() + 1);
+    std::memcpy(options.padBindings, padBindings.c_str(), padBindings.size() + 1);
 }
 
 bool save_launcher_config(const std::filesystem::path &path,
@@ -232,6 +255,13 @@ bool save_launcher_config(const std::filesystem::path &path,
     if (!keyBindings.empty()) {
         output << "[keys]\n" << keyBindings;
         if (keyBindings.back() != '\n')
+            output << '\n';
+    }
+    const std::string_view padBindings(options.padBindings,
+                                       strnlen(options.padBindings, sizeof(options.padBindings)));
+    if (!padBindings.empty()) {
+        output << "[pad]\n" << padBindings;
+        if (padBindings.back() != '\n')
             output << '\n';
     }
     output.close();

@@ -7,7 +7,7 @@
 #include <string.h>
 
 static const char *const g_apszSdlLauncherJoystickModes[] = {
-    "original", "4button-2axis", "4button-4axis"
+    "original", "4button-2axis", "4button-4axis", "custom"
 };
 
 static const char *const g_apszSdlLauncherMusic[] = {
@@ -267,7 +267,7 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     nLaunchCampaign = options->campaign;
     nPilotTransferState = options->transferPilot != 0;
     if (options->joystickMode < SDL_LAUNCHER_JOYSTICK_ORIGINAL ||
-        options->joystickMode > SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS ||
+        options->joystickMode > SDL_LAUNCHER_JOYSTICK_CUSTOM ||
         options->joystickAxes < SDL_LAUNCHER_AXES_TWIN_STICK_ROLL ||
         options->joystickAxes > SDL_LAUNCHER_AXES_RUDDER_ROLL) {
         fprintf(stderr, "Invalid launcher joystick options.\n");
@@ -275,6 +275,7 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     }
     SdlSetJoystickMode(g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
+    SdlSetPadBindings(options->padBindings);
     if (!SdlSetJoystickDeadZone(options->joystickDeadZone)) {
         fprintf(stderr, "Invalid joystick dead zone.\n");
         return 0;

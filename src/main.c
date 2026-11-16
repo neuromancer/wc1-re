@@ -688,6 +688,10 @@ void get_player_input(void)
         bInputPollingGuard == 0) {
         bInputPollingGuard++;
         UpdateInputDeviceTransitions(0);
+#ifdef SDL_PORT
+        /* Custom gamepad bindings steer with the stick themselves. */
+        SdlTakeFlightStickSample();
+#endif
         if (aInputDevSamples[nCurrentActiveInputDevice].x == 0 &&
             aInputDevSamples[nCurrentActiveInputDevice].y == 0 &&
             aInputDevSamples[nCurrentActiveInputDevice].buttons == 0) {

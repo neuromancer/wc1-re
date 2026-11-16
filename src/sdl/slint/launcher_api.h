@@ -7,6 +7,7 @@
 
 #define SDL_LAUNCHER_DIRECTORY_CAPACITY 4096
 #define SDL_LAUNCHER_KEY_BINDINGS_CAPACITY 4096
+#define SDL_LAUNCHER_PAD_BINDINGS_CAPACITY 1024
 
 enum SdlLauncherResult {
     SDL_LAUNCHER_UNAVAILABLE = -2,
@@ -18,7 +19,8 @@ enum SdlLauncherResult {
 enum SdlLauncherJoystickMode {
     SDL_LAUNCHER_JOYSTICK_ORIGINAL = 0,
     SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_TWO_AXIS = 1,
-    SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS = 2
+    SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS = 2,
+    SDL_LAUNCHER_JOYSTICK_CUSTOM = 3
 };
 
 enum SdlLauncherJoystickAxes {
@@ -85,6 +87,9 @@ typedef struct SdlLauncherOptions {
     /* WC1 flight keys changed in the controls window, one "action=bindings"
      * line each (see src/sdl/keymap.c). */
     char keyBindings[SDL_LAUNCHER_KEY_BINDINGS_CAPACITY];
+    /* The Custom joystick mode's bindings, one "control=function" line each
+     * (see src/sdl/pad_bindings.h); empty for the defaults. */
+    char padBindings[SDL_LAUNCHER_PAD_BINDINGS_CAPACITY];
     /* Command-line values take precedence over saved GUI settings. */
     unsigned int explicitOptions;
 } SdlLauncherOptions;

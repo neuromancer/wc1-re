@@ -158,6 +158,18 @@ export component LauncherWindow inherits Window {
     callback binding-changed <=> keys-view.binding-changed;
     callback binding-removed <=> keys-view.binding-removed;
     callback bindings-reset <=> keys-view.bindings-reset;
+    // The Custom joystick mode's bindings (controls.slint); the launcher
+    // fills them in when the mode is first chosen.
+    in property <[int]> pad-codes;
+    callback pad-code-changed <=> pad-view.pad-code-changed;
+    callback pad-reset <=> pad-view.pad-reset;
+    callback custom-pad-requested();
+
+    changed joystick-mode-index => {
+        if root.joystick-mode-index == 3 {
+            root.custom-pad-requested();
+        }
+    }
 
     // The calibration page (calibration.slint); it shares the dead zone.
     in property <[string]> calibration-devices: ["", ""];
@@ -446,7 +458,8 @@ export component LauncherWindow inherits Window {
                                 model: [
                                     @tr("Original — two axes / two buttons"),
                                     @tr("WCAT — four buttons / two axes"),
-                                    @tr("WCAT — four buttons / four axes")
+                                    @tr("WCAT — four buttons / four axes"),
+                                    @tr("Custom — your own bindings")
                                 ];
                                 current-index <=> root.joystick-mode-index;
                             }
@@ -459,9 +472,12 @@ export component LauncherWindow inherits Window {
                                 color: Palette.foreground;
                             }
 
+                            // WC1's Custom mode binds each axis itself; SWC
+                            // reads it as the four-axis layout.
                             ComboBox {
                                 horizontal-stretch: 2;
-                                enabled: root.joystick-mode-index == 2;
+                                enabled: root.joystick-mode-index == 2
+                                    || (root.joystick-mode-index == 3 && root.swc-demo);
                                 model: [
                                     @tr("Twin-stick roll"),
                                     @tr("Twin-stick yaw"),
@@ -533,6 +549,9 @@ export component LauncherWindow inherits Window {
                                 game: root.controls-game;
                                 joystick-mode: root.joystick-mode-index;
                                 joystick-axes: root.joystick-axes-index;
+                                pad-codes: root.pad-codes;
+                                // Its tooltips name the keys of the keyboard tab.
+                                keyboard-bindings: keys-view.keyboard-bindings;
                             }
 
                             if !root.controls-available: Text {

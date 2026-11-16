@@ -2,14 +2,17 @@
 // Controller's binding display with its CC0 artwork (third_party/sc-controller),
 // and for the keyboard and mouse, as a table that names each key in text so
 // that any key can appear in it. It covers WC1's DOS and Kilrathi Saga data,
-// whose keys and mouse can be rebound, and the SWC Mac data.
-import { Button, ComboBox, ListView, Palette } from "std-widgets.slint";
+// whose keys and mouse can be rebound, and its game controller too in the
+// Custom mode, and the SWC Mac data.
+import { Button, CheckBox, ComboBox, ListView, Palette, ScrollView } from "std-widgets.slint";
 
 export enum PadControl {
     left-trigger, left-shoulder, left-stick, left-stick-click,
     dpad-up, dpad-down, dpad-left, dpad-right,
     right-trigger, right-shoulder, y, x, b, a, right-stick, right-stick-click,
-    back, start
+    back, start,
+    // The sticks' axes, bound one by one in the Custom mode.
+    left-stick-x, left-stick-y, right-stick-x, right-stick-y
 }
 
 struct PadRow {
@@ -18,14 +21,60 @@ struct PadRow {
     caption: string,
 }
 
+// A tooltip: an optional heading over a short explanation, both wrapped to
+// a column narrow enough to show beside the element it explains.
+component Hint inherits Rectangle {
+    in property <string> title;
+    in property <string> text;
+    property <length> column: min(280px, max(heading.preferred-width, body.preferred-width));
+
+    width: root.column + 18px;
+    height: body.y + body.height + 6px;
+    background: Palette.alternate-background;
+    border-color: Palette.border;
+    border-width: 1px;
+    border-radius: 4px;
+    drop-shadow-blur: 6px;
+    drop-shadow-offset-y: 2px;
+    drop-shadow-color: #00000040;
+
+    heading := Text {
+        x: 9px;
+        y: 6px;
+        width: root.column;
+        height: root.title == "" ? 0px : self.preferred-height;
+        text: root.title;
+        wrap: word-wrap;
+        font-size: 12px;
+        font-weight: 700;
+        color: Palette.alternate-foreground;
+    }
+
+    body := Text {
+        x: 9px;
+        y: heading.y + heading.height + (root.title == "" ? 0px : 3px);
+        width: root.column;
+        height: self.preferred-height;
+        text: root.text;
+        wrap: word-wrap;
+        font-size: 12px;
+        color: Palette.alternate-foreground;
+    }
+}
+
 // One labelled box: rows of glyph and action, joined to the drawing by a
-// horizontal then a vertical line ending in a dot.
+// horizontal then a vertical line ending in a dot. Every row reports the
+// pointer resting on it, with where it is in the window, for a tooltip;
+// editable rows can also be clicked to change them.
 component BindingBox inherits Rectangle {
     in property <[PadRow]> rows;
     in property <string> title;
+    in property <bool> editable;
     // Where the connector leaves the box; the middle unless set.
     in property <length> line-y: self.y + self.height / 2;
     pure callback binding(PadControl) -> string;
+    callback row-clicked(PadRow);
+    callback row-hovered(control: PadControl, hovered: bool, x: length, y: length, height: length);
 
     width: 236px;
     height: 24px + self.rows.length * 22px;
@@ -44,31 +93,96 @@ component BindingBox inherits Rectangle {
         opacity: 0.7;
     }
 
-    for row[index] in root.rows: HorizontalLayout {
-        x: 8px;
+    for row[index] in root.rows: Rectangle {
+        x: 4px;
         y: 20px + index * 22px;
-        width: root.width - 16px;
+        width: root.width - 8px;
         height: 22px;
-        spacing: 7px;
+        border-radius: 4px;
+        background: root.editable && choose.has-hover ? Palette.accent-background.with-alpha(0.15) : transparent;
 
-        Image {
-            width: 20px;
-            height: 20px;
-            source: row.glyph;
-            image-fit: contain;
+        HorizontalLayout {
+            padding-left: 4px;
+            padding-right: 4px;
+            spacing: 7px;
+
+            Image {
+                width: 20px;
+                height: 20px;
+                source: row.glyph;
+                image-fit: contain;
+            }
+
+            Text {
+                horizontal-stretch: 1;
+                vertical-alignment: center;
+                text: (row.caption == "" ? "" : row.caption + ": ")
+                    + (root.binding(row.control) == "" ? "—" : root.binding(row.control));
+                color: Palette.alternate-foreground;
+                opacity: root.binding(row.control) == "" ? 0.45 : 1;
+                font-size: 12px;
+                overflow: elide;
+            }
         }
 
-        Text {
-            horizontal-stretch: 1;
-            vertical-alignment: center;
-            text: (row.caption == "" ? "" : row.caption + ": ")
-                + (root.binding(row.control) == "" ? "—" : root.binding(row.control));
-            color: Palette.alternate-foreground;
-            opacity: root.binding(row.control) == "" ? 0.45 : 1;
-            font-size: 12px;
-            overflow: elide;
+        choose := TouchArea {
+            mouse-cursor: root.editable ? MouseCursor.pointer : MouseCursor.default;
+            clicked => {
+                if root.editable {
+                    root.row-clicked(row);
+                }
+            }
+            changed has-hover => {
+                root.row-hovered(row.control, self.has-hover, self.absolute-position.x,
+                    self.absolute-position.y, self.height);
+            }
         }
     }
+}
+
+// A choice in the binding chooser, which reports the pointer resting on it
+// for a tooltip on what it does, and a heading above a group of them.
+component ChoiceRow inherits Rectangle {
+    in property <string> label;
+    in property <string> help;
+    in property <bool> selected;
+    callback clicked();
+    callback hovered(hovered: bool, x: length, y: length, height: length);
+
+    height: 26px;
+    border-radius: 4px;
+    background: root.selected ? Palette.accent-background.with-alpha(0.25)
+        : touch.has-hover ? Palette.accent-background.with-alpha(0.12) : transparent;
+
+    Text {
+        x: 10px;
+        width: parent.width - 20px;
+        height: parent.height;
+        vertical-alignment: center;
+        text: root.label;
+        font-size: 13px;
+        color: Palette.foreground;
+        overflow: elide;
+    }
+
+    touch := TouchArea {
+        mouse-cursor: MouseCursor.pointer;
+        clicked => {
+            root.clicked();
+        }
+        changed has-hover => {
+            root.hovered(self.has-hover, self.absolute-position.x, self.absolute-position.y, self.height);
+        }
+    }
+}
+
+component ChoiceHeading inherits Text {
+    height: 28px;
+    vertical-alignment: bottom;
+    font-size: 12px;
+    font-weight: 700;
+    color: Palette.foreground;
+    opacity: 0.7;
 }
 
 // A connector made of one horizontal and one vertical rule, in the
@@ -183,9 +297,28 @@ export component ControlsView inherits Rectangle {
     min-height: root.page == 0 ? 360px : 300px;
 
     // The launcher's joystick settings: 0 original, 1 WCAT four buttons and
-    // two axes, 2 WCAT four buttons and four axes; axis layouts 0-6.
+    // two axes, 2 WCAT four buttons and four axes, 3 custom; axis layouts 0-6.
     in property <int> joystick-mode;
     in property <int> joystick-axes;
+    // The Custom mode applies to WC1; SWC keeps the four-axis layout.
+    property <bool> custom: root.joystick-mode == 3 && root.game == 0;
+    property <int> layout-mode: root.joystick-mode == 3 ? 2 : root.joystick-mode;
+    // The Custom mode's bindings, one code per control in the order of
+    // src/sdl/pad_bindings.h (A, B, X, Y, LB, RB, LT, RT, Back, Start, the
+    // stick clicks, the D-pad, then the sticks' axes): the index of a
+    // keyboard-rows action, -1 for none, -2 to cycle the views, -3 to roll
+    // and change speed while held, and for an axis function, -10 less twice
+    // its number (pitch, yaw, roll, speed, throttle), less one more when
+    // reversed. The launcher turns them into the settings' names.
+    in property <[int]> pad-codes;
+    callback pad-code-changed(control: int, code: int);
+    callback pad-reset();
+    // The control whose binding is being chosen (-1 when none), as the
+    // chooser shows it.
+    out property <int> choose-control: -1;
+    property <string> choose-title;
+    property <image> choose-glyph;
+    property <bool> choose-reversed;
     // 0 shows the game controller, 1 the keyboard and mouse.
     in property <int> page;
     // macOS toggles full screen with Command-Return rather than Alt-Enter.
@@ -491,6 +624,7 @@ export component ControlsView inherits Rectangle {
     in-out property <length> table-scroll;
     changed game => {
         root.table-scroll = 0px;
+        root.hide-tip();
     }
 
     // SC Controller's x360.svg is 446x345; its hidden AREA_* rectangles give
@@ -504,9 +638,11 @@ export component ControlsView inherits Rectangle {
     property <length> pad-x: (area.width - 446px * root.scale) / 2;
     property <length> pad-y: root.top-band;
     // Each column of boxes starts beside the pad's top and spreads over the
-    // height left; both columns hold 272px of boxes.
+    // height left; both columns hold 272px of boxes, or 294px with the Custom
+    // mode's row for each of a stick's axes.
     property <length> column-y: root.pad-y - 16px;
-    property <length> box-gap: max(4px, min(44px, (area.height - root.column-y - 272px) / 3));
+    property <length> column-height: root.custom ? 294px : 272px;
+    property <length> box-gap: max(4px, min(44px, (area.height - root.column-y - root.column-height) / 3));
     property <length> centre-box-width: max(110px, min(150px, 223px * root.scale - 10px));
     property <brush> ink: Palette.foreground.with-alpha(0.55);
 
@@ -518,10 +654,255 @@ export component ControlsView inherits Rectangle {
         return root.pad-y + drawing-y * 1px * root.scale;
     }
 
+    // The Custom mode's controls in the order of src/sdl/pad_bindings.h.
+    pure function control-index(control: PadControl) -> int {
+        if control == PadControl.a { return 0; }
+        if control == PadControl.b { return 1; }
+        if control == PadControl.x { return 2; }
+        if control == PadControl.y { return 3; }
+        if control == PadControl.left-shoulder { return 4; }
+        if control == PadControl.right-shoulder { return 5; }
+        if control == PadControl.left-trigger { return 6; }
+        if control == PadControl.right-trigger { return 7; }
+        if control == PadControl.back { return 8; }
+        if control == PadControl.start { return 9; }
+        if control == PadControl.left-stick-click { return 10; }
+        if control == PadControl.right-stick-click { return 11; }
+        if control == PadControl.dpad-up { return 12; }
+        if control == PadControl.dpad-down { return 13; }
+        if control == PadControl.dpad-left { return 14; }
+        if control == PadControl.dpad-right { return 15; }
+        if control == PadControl.left-stick-x { return 16; }
+        if control == PadControl.left-stick-y { return 17; }
+        if control == PadControl.right-stick-x { return 18; }
+        if control == PadControl.right-stick-y { return 19; }
+        return -1;
+    }
+
+    // An axis function in the chooser: a stick's, or for a trigger, which
+    // way pressing it turns or changes speed.
+    pure function axis-choice-label(code: int, trigger: bool) -> string {
+        if trigger {
+            if code == -10 { return @tr("Pitch down"); }
+            if code == -11 { return @tr("Pitch up"); }
+            if code == -12 { return @tr("Yaw right"); }
+            if code == -13 { return @tr("Yaw left"); }
+            if code == -14 { return @tr("Roll right"); }
+            if code == -15 { return @tr("Roll left"); }
+            if code == -16 { return @tr("Speed up"); }
+            if code == -17 { return @tr("Slow down"); }
+        }
+        if code >= -11 { return @tr("Pitch"); }
+        if code >= -13 { return @tr("Yaw"); }
+        if code >= -15 { return @tr("Roll"); }
+        if code >= -17 { return @tr("Speed"); }
+        return @tr("Throttle position");
+    }
+
+    // An axis function's code without its reversal.
+    pure function axis-base(code: int) -> int {
+        return code + Math.mod(-10 - code, 2);
+    }
+
+    pure function code-reversed(code: int) -> bool {
+        return code <= -10 && code != root.axis-base(code);
+    }
+
+    // A Custom binding as the boxes show it.
+    pure function code-label(code: int, control: int) -> string {
+        if code >= 0 { return root.keyboard-rows[code].action.to-lowercase(); }
+        if code == -2 { return @tr("cycle views"); }
+        if code == -3 { return @tr("hold to roll and change speed"); }
+        if code > -10 || code < -19 { return ""; }
+        if control == 6 || control == 7 {
+            return @tr("{} (analog)", root.axis-choice-label(code, true).to-lowercase());
+        }
+        return root.code-reversed(code)
+            ? @tr("{}, reversed", root.axis-choice-label(code, false).to-lowercase())
+            : root.axis-choice-label(code, false).to-lowercase();
+    }
+
+    // A keyboard and mouse row's inputs as the table shows them now, or as
+    // they were originally until the launcher fills in the table.
+    pure function current-bindings(index: int) -> [InputBinding] {
+        return root.keyboard-bindings.length > index ? root.keyboard-bindings[index] : root.keyboard-rows[index].bindings;
+    }
+
+    pure function binding-text(binding: InputBinding) -> string {
+        if binding.inputs.length == 0 { return ""; }
+        if binding.inputs.length == 1 { return root.input-label(binding.inputs[0]); }
+        return root.input-label(binding.inputs[0]) + " " + binding.joiner + " " + root.input-label(binding.inputs[1]);
+    }
+
+    pure function keys-text(index: int) -> string {
+        if root.current-bindings(index).length == 0 { return "—"; }
+        if root.current-bindings(index).length == 1 { return root.binding-text(root.current-bindings(index)[0]); }
+        return root.binding-text(root.current-bindings(index)[0]) + " / " + root.binding-text(root.current-bindings(index)[1]);
+    }
+
+    // How a button works a flight key's action (src/sdl/joystick.c): the
+    // guns, the afterburner, steering and speed while it is held, the rest
+    // once per press.
+    pure function action-behaviour(id: string) -> string {
+        if id == "fire-guns" { return @tr("Fires while held."); }
+        if id == "afterburner" { return @tr("Burns while held."); }
+        if id == "full-turn-rate" { return @tr("Turns at the full rate while held, with a turn button or key."); }
+        if id == "speed-up" || id == "slow-down" { return @tr("Changes speed while held."); }
+        if id.starts-with("pitch-") || id.starts-with("yaw-") || id.starts-with("roll-") { return @tr("Steers while held."); }
+        return @tr("Once per press.");
+    }
+
+    // What a stick's axis function does, by the way the stick moves.
+    pure function stick-help(code: int, horizontal: bool) -> string {
+        if code == -10 {
+            return horizontal ? @tr("Right dives and left climbs.") : @tr("Up dives and down climbs, as with the original joystick.");
+        }
+        if code == -12 {
+            return horizontal ? @tr("Right turns right and left turns left.") : @tr("Up turns right and down turns left.");
+        }
+        if code == -14 {
+            return horizontal ? @tr("Right rolls right and left rolls left.") : @tr("Up rolls right and down rolls left.");
+        }
+        if code == -16 {
+            return horizontal ? @tr("Right speeds up and left slows down, faster the further it goes.")
+                : @tr("Up speeds up and down slows down, faster the further it goes.");
+        }
+        return horizontal ? @tr("Sets the speed like a throttle lever: fully right is full speed and fully left stops.")
+            : @tr("Sets the speed like a throttle lever: fully up is full speed and fully down stops.");
+    }
+
+    // What a Custom binding does on a control, for the chooser's tooltips.
+    pure function choice-help(code: int, control: int) -> string {
+        if code >= 0 {
+            return root.action-behaviour(root.keyboard-rows[code].id) + " "
+                + @tr("Keyboard and mouse: {}.", root.keys-text(code));
+        }
+        if code == -1 { return @tr("The input does nothing in flight."); }
+        if code == -2 { return @tr("Steps through the front, left, right, rear and chase views."); }
+        if code == -3 {
+            return @tr("While held, what yaws rolls instead and what pitches changes speed, as the original joystick's second button does.");
+        }
+        if control == 6 || control == 7 {
+            if code > -18 { return @tr("{}, faster the further the trigger is pressed.", root.axis-choice-label(code, true)); }
+            return @tr("Sets the speed like a throttle lever: fully pressed is full speed and released stops.")
+                + (root.code-reversed(code) ? " " + @tr("Reversed: the other way round.") : "");
+        }
+        return root.stick-help(root.axis-base(code), control == 16 || control == 18)
+            + (root.code-reversed(code) ? " " + @tr("Reversed: the other way round.") : "");
+    }
+
+    // Outside the Custom mode a row of WC1's drawing has a tooltip on how to
+    // rebind it. In the Custom mode the pointer shows that rows are clicked
+    // to change them, and SWC keeps its layout.
+    property <string> rebind-hint: !root.custom && root.game == 0
+        ? @tr("To rebind it, choose Custom in Control mode.") : "";
+
+    // The tooltip owner of a row of the drawing.
+    pure function row-tip-owner(control: PadControl) -> int {
+        if control == PadControl.left-stick { return 20; }
+        if control == PadControl.right-stick { return 21; }
+        return root.control-index(control);
+    }
+
+    // The keyboard and mouse table's rows that a button can take: the game
+    // inputs that are neither fixed, the mouse's own, nor full screen, and
+    // the headings of their sections.
+    pure function choosable(row: InputRow) -> bool {
+        return row.id != "" && !row.fixed && !row.mouse-only && row.id != "full-screen";
+    }
+
+    pure function heading-choosable(index: int) -> bool {
+        return root.keyboard-rows[index].section != "" && index + 1 < root.keyboard-rows.length
+            && root.choosable(root.keyboard-rows[index + 1]);
+    }
+
+    property <bool> choose-trigger: root.choose-control == 6 || root.choose-control == 7;
+    property <bool> choose-stick: root.choose-control >= 16;
+    property <int> choose-current: root.choose-control >= 0 ? root.pad-codes[root.choose-control] : -1;
+
+    function choose(row: PadRow, title: string) {
+        root.choose-glyph = row.glyph;
+        root.choose-title = row.caption == "" ? title : title + ", " + row.caption;
+        root.choose-control = root.control-index(row.control);
+        root.choose-reversed = root.code-reversed(root.pad-codes[root.choose-control]);
+    }
+
+    function pick(code: int) {
+        root.pad-code-changed(root.choose-control, code);
+        root.choose-control = -1;
+    }
+
+    // The tooltip on what a binding or a choice does. Slint's Tooltip is not
+    // kept within the window and would run past it beside the right-hand
+    // boxes, so this one shows below the element under the pointer, or above
+    // it near the bottom, within the view. Each element passes a distinct
+    // owner so that leaving one does not hide the next one's tooltip.
+    property <string> tip-title;
+    property <string> tip-text;
+    property <length> tip-left;
+    property <length> tip-top;
+    property <length> tip-bottom;
+    property <int> tip-owner: -1;
+    property <bool> tip-shown;
+
+    tip-timer := Timer {
+        interval: 600ms;
+        running: false;
+        triggered => {
+            self.stop();
+            root.tip-shown = true;
+        }
+    }
+
+    function hide-tip() {
+        tip-timer.stop();
+        root.tip-shown = false;
+        root.tip-owner = -1;
+    }
+
+    // x, y and height place the element in the window.
+    function hover-tip(owner: int, hovered: bool, title: string, text: string, x: length, y: length,
+                       height: length) {
+        if !hovered {
+            if root.tip-owner == owner {
+                root.hide-tip();
+            }
+            return;
+        }
+        root.tip-owner = owner;
+        root.tip-title = title;
+        root.tip-text = text;
+        root.tip-left = x - root.absolute-position.x;
+        root.tip-top = y - root.absolute-position.y;
+        root.tip-bottom = root.tip-top + height;
+        root.tip-shown = false;
+        // restart() only restarts a running timer.
+        if tip-timer.running {
+            tip-timer.restart();
+        } else {
+            tip-timer.start();
+        }
+    }
+
+    // Opening or closing the chooser removes the elements whose tooltips may
+    // be pending, and other settings change what the drawing's rows do.
+    changed choose-control => {
+        root.hide-tip();
+    }
+    changed joystick-mode => {
+        root.hide-tip();
+    }
+    changed joystick-axes => {
+        root.hide-tip();
+    }
+
     // WC1 flight bindings (src/sdl/joystick.c). An empty string is unbound.
     public pure function wc1-binding(control: PadControl) -> string {
+        if root.custom {
+            return root.code-label(root.pad-codes[root.control-index(control)], root.control-index(control));
+        }
         if control == PadControl.left-stick {
-            if root.joystick-mode == 2 && (root.joystick-axes == 1 || root.joystick-axes == 2
+            if root.layout-mode == 2 && (root.joystick-axes == 1 || root.joystick-axes == 2
                     || root.joystick-axes == 5) {
                 return @tr("roll and pitch");
             }
@@ -531,7 +912,7 @@ export component ControlsView inherits Rectangle {
         if control == PadControl.a || control == PadControl.right-trigger { return @tr("fire guns"); }
         if control == PadControl.back { return @tr("cycle views"); }
         if control == PadControl.start { return @tr("pause"); }
-        if root.joystick-mode == 0 {
+        if root.layout-mode == 0 {
             if control == PadControl.b || control == PadControl.left-trigger {
                 return @tr("hold to roll and change speed");
             }
@@ -540,7 +921,7 @@ export component ControlsView inherits Rectangle {
         if control == PadControl.b || control == PadControl.left-trigger { return @tr("fire missile"); }
         if control == PadControl.x { return @tr("afterburner"); }
         if control == PadControl.y {
-            return root.joystick-mode == 1 ? @tr("hold to roll and change speed") : @tr("cycle targets");
+            return root.layout-mode == 1 ? @tr("hold to roll and change speed") : @tr("cycle targets");
         }
         if control == PadControl.left-shoulder { return @tr("cycle guns"); }
         if control == PadControl.right-shoulder { return @tr("cycle missiles"); }
@@ -550,7 +931,7 @@ export component ControlsView inherits Rectangle {
         if control == PadControl.dpad-down { return @tr("stop"); }
         if control == PadControl.dpad-left { return @tr("communications"); }
         if control == PadControl.dpad-right { return @tr("lock target"); }
-        if control == PadControl.right-stick && root.joystick-mode == 2 {
+        if control == PadControl.right-stick && root.layout-mode == 2 {
             if root.joystick-axes == 0 { return @tr("roll, speed"); }
             if root.joystick-axes == 1 { return @tr("yaw, speed"); }
             if root.joystick-axes == 2 { return @tr("yaw, throttle position"); }
@@ -571,7 +952,7 @@ export component ControlsView inherits Rectangle {
             return "";
         }
         if control == PadControl.dpad-left {
-            return root.joystick-mode == 0 ? "" : @tr("in-flight computer");
+            return root.layout-mode == 0 ? "" : @tr("in-flight computer");
         }
         return root.wc1-binding(control);
     }
@@ -582,12 +963,14 @@ export component ControlsView inherits Rectangle {
 
     public pure function notes() -> string {
         if root.game == 1 {
-            return (root.joystick-mode == 0
+            return (root.layout-mode == 0
                     ? @tr("Original joystick: A and B together fire a missile; double-click B and hold it for the afterburner.")
                     : @tr("SWC has no keys for the left stick's click or for D-pad up, down and right."))
-                + " " + @tr("In menus, A selects, B and Back go back, X presses Space and the D-pad moves.");
+                + " " + @tr("In menus, A selects, B and Back go back, X presses Space and the D-pad moves.")
+                + (root.joystick-mode == 3 ? " " + @tr("SWC keeps the WCAT four-axis layout in the Custom mode.") : "");
         }
-        return (root.joystick-mode == 0
+        return (root.custom ? @tr("Click an input to change it; changes apply when the game starts.") + " " : "")
+            + (root.joystick-mode == 0
                 ? @tr("Original joystick: A and B together fire a missile; double-click B and hold it for the afterburner.")
                 : @tr("In the communications display, the D-pad's up and down choose, right sends and left closes."))
             + " " + @tr("Y answers Yes in prompts; Back is Escape outside flight.");
@@ -669,8 +1052,13 @@ export component ControlsView inherits Rectangle {
                     y: root.column-y;
                     width: root.box-width;
                     title: "LT";
+                    editable: root.custom;
                     rows: [{ control: PadControl.left-trigger, glyph: @image-url("../../../third_party/sc-controller/images/button-images/LT.svg") }];
                     binding(c) => { return root.pad-binding(c); }
+                    row-hovered(c, on, x, y, h) => {
+                        root.hover-tip(root.row-tip-owner(c), on && root.rebind-hint != "", "", root.rebind-hint, x, y, h);
+                    }
+                    row-clicked(row) => { root.choose(row, self.title); }
                 }
 
                 lb := BindingBox {
@@ -678,20 +1066,35 @@ export component ControlsView inherits Rectangle {
                     y: lt.y + lt.height + root.box-gap;
                     width: root.box-width;
                     title: "LB";
+                    editable: root.custom;
                     rows: [{ control: PadControl.left-shoulder, glyph: @image-url("../../../third_party/sc-controller/images/button-images/LB.svg") }];
                     binding(c) => { return root.pad-binding(c); }
+                    row-hovered(c, on, x, y, h) => {
+                        root.hover-tip(root.row-tip-owner(c), on && root.rebind-hint != "", "", root.rebind-hint, x, y, h);
+                    }
+                    row-clicked(row) => { root.choose(row, self.title); }
                 }
 
+                // In the Custom mode each of a stick's axes has a row.
                 ls := BindingBox {
                     x: 0px;
                     y: lb.y + lb.height + root.box-gap;
                     width: root.box-width;
                     title: @tr("Left stick");
-                    rows: [
+                    editable: root.custom;
+                    rows: root.custom ? [
+                        { control: PadControl.left-stick-x, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("left and right") },
+                        { control: PadControl.left-stick-y, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("up and down") },
+                        { control: PadControl.left-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
+                    ] : [
                         { control: PadControl.left-stick, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("move") },
                         { control: PadControl.left-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
                     ];
                     binding(c) => { return root.pad-binding(c); }
+                    row-hovered(c, on, x, y, h) => {
+                        root.hover-tip(root.row-tip-owner(c), on && root.rebind-hint != "", "", root.rebind-hint, x, y, h);
+                    }
+                    row-clicked(row) => { root.choose(row, self.title); }
                 }
 
                 dp := BindingBox {
@@ -699,6 +1102,7 @@ export component ControlsView inherits Rectangle {
                     y: ls.y + ls.height + root.box-gap;
                     width: root.box-width;
                     title: @tr("D-pad");
+                    editable: root.custom;
                     rows: [
                         { control: PadControl.dpad-up, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_UP.svg") },
                         { control: PadControl.dpad-down, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_DOWN.svg") },
@@ -706,6 +1110,10 @@ export component ControlsView inherits Rectangle {
                         { control: PadControl.dpad-right, glyph: @image-url("../../../third_party/sc-controller/images/DPAD_RIGHT.svg") }
                     ];
                     binding(c) => { return root.pad-binding(c); }
+                    row-hovered(c, on, x, y, h) => {
+                        root.hover-tip(root.row-tip-owner(c), on && root.rebind-hint != "", "", root.rebind-hint, x, y, h);
+                    }
+                    row-clicked(row) => { root.choose(row, self.title); }
                 }
 
                 rt := BindingBox {
@@ -713,8 +1121,13 @@ export component ControlsView inherits Rectangle {
                     y: root.column-y;
                     width: root.box-width;
                     title: "RT";
+                    editable: root.custom;
                     rows: [{ control: PadControl.right-trigger, glyph: @image-url("../../../third_party/sc-controller/images/button-images/RT.svg") }];
                     binding(c) => { return root.pad-binding(c); }
+                    row-hovered(c, on, x, y, h) => {
+                        root.hover-tip(root.row-tip-owner(c), on && root.rebind-hint != "", "", root.rebind-hint, x, y, h);
+                    }
+                    row-clicked(row) => { root.choose(row, self.title); }
                 }
 
                 rb := BindingBox {
@@ -722,8 +1135,13 @@ export component ControlsView inherits Rectangle {
                     y: rt.y + rt.height + root.box-gap;
                     width: root.box-width;
                     title: "RB";
+                    editable: root.custom;
                     rows: [{ control: PadControl.right-shoulder, glyph: @image-url("../../../third_party/sc-controller/images/button-images/RB.svg") }];
                     binding(c) => { return root.pad-binding(c); }
+                    row-hovered(c, on, x, y, h) => {
+                        root.hover-tip(root.row-tip-owner(c), on && root.rebind-hint != "", "", root.rebind-hint, x, y, h);
+                    }
+                    row-clicked(row) => { root.choose(row, self.title); }
                 }
 
                 fb := BindingBox {
@@ -731,6 +1149,7 @@ export component ControlsView inherits Rectangle {
                     y: rb.y + rb.height + root.box-gap;
                     width: root.box-width;
                     title: @tr("Buttons");
+                    editable: root.custom;
                     line-y: root.at-y(111);
                     rows: [
                         { control: PadControl.y, glyph: @image-url("../../../third_party/sc-controller/images/button-images/Y.svg") },
@@ -739,6 +1158,13 @@ export component ControlsView inherits Rectangle {
                         { control: PadControl.a, glyph: @image-url("../../../third_party/sc-controller/images/button-images/A.svg") }
                     ];
                     binding(c) => { return root.pad-binding(c); }
+                    row-hovered(c, on, x, y, h) => {
+                        root.hover-tip(root.row-tip-owner(c), on && root.rebind-hint != "", "", root.rebind-hint, x, y, h);
+                    }
+                    row-clicked(row) => {
+                        root.choose(row, row.control == PadControl.y ? "Y" : row.control == PadControl.x ? "X"
+                            : row.control == PadControl.b ? "B" : "A");
+                    }
                 }
 
                 rs := BindingBox {
@@ -746,11 +1172,20 @@ export component ControlsView inherits Rectangle {
                     y: fb.y + fb.height + root.box-gap;
                     width: root.box-width;
                     title: @tr("Right stick");
-                    rows: [
+                    editable: root.custom;
+                    rows: root.custom ? [
+                        { control: PadControl.right-stick-x, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("left and right") },
+                        { control: PadControl.right-stick-y, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("up and down") },
+                        { control: PadControl.right-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
+                    ] : [
                         { control: PadControl.right-stick, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("move") },
                         { control: PadControl.right-stick-click, glyph: @image-url("../../../third_party/sc-controller/images/STICK.svg"), caption: @tr("click") }
                     ];
                     binding(c) => { return root.pad-binding(c); }
+                    row-hovered(c, on, x, y, h) => {
+                        root.hover-tip(root.row-tip-owner(c), on && root.rebind-hint != "", "", root.rebind-hint, x, y, h);
+                    }
+                    row-clicked(row) => { root.choose(row, self.title); }
                 }
 
                 bk := BindingBox {
@@ -758,8 +1193,13 @@ export component ControlsView inherits Rectangle {
                     y: 0px;
                     width: root.centre-box-width;
                     title: "Back";
+                    editable: root.custom;
                     rows: [{ control: PadControl.back, glyph: @image-url("../../../third_party/sc-controller/images/button-images/BACK.svg") }];
                     binding(c) => { return root.pad-binding(c); }
+                    row-hovered(c, on, x, y, h) => {
+                        root.hover-tip(root.row-tip-owner(c), on && root.rebind-hint != "", "", root.rebind-hint, x, y, h);
+                    }
+                    row-clicked(row) => { root.choose(row, self.title); }
                 }
 
                 st := BindingBox {
@@ -767,8 +1207,13 @@ export component ControlsView inherits Rectangle {
                     y: 0px;
                     width: root.centre-box-width;
                     title: "Start";
+                    editable: root.custom;
                     rows: [{ control: PadControl.start, glyph: @image-url("../../../third_party/sc-controller/images/button-images/START.svg") }];
                     binding(c) => { return root.pad-binding(c); }
+                    row-hovered(c, on, x, y, h) => {
+                        root.hover-tip(root.row-tip-owner(c), on && root.rebind-hint != "", "", root.rebind-hint, x, y, h);
+                    }
+                    row-clicked(row) => { root.choose(row, self.title); }
                 }
             }
 
@@ -986,17 +1431,231 @@ export component ControlsView inherits Rectangle {
             }
         }
 
-        Text {
+        HorizontalLayout {
             vertical-stretch: 0;
-            text: root.page == 0
-                ? root.notes()
-                : root.game == 1
-                ? @tr("The digit keys 8, 2, 4 and 6 and the keypad steer too; keypad . rolls right, + and − change speed and Enter fires a missile. Two inputs at most per action; the menus' shortcuts and the in-flight computer's keys cannot be changed.")
-                : @tr("The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, 5 stops turning, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Two inputs at most per action; Escape cannot be changed.");
-            wrap: word-wrap;
-            font-size: 12px;
-            color: Palette.foreground;
-            opacity: 0.75;
+            spacing: 8px;
+
+            Text {
+                horizontal-stretch: 1;
+                text: root.page == 0
+                    ? root.notes()
+                    : root.game == 1
+                    ? @tr("The digit keys 8, 2, 4 and 6 and the keypad steer too; keypad . rolls right, + and − change speed and Enter fires a missile. Two inputs at most per action; the menus' shortcuts and the in-flight computer's keys cannot be changed.")
+                    : @tr("The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, 5 stops turning, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Two inputs at most per action; Escape cannot be changed.");
+                wrap: word-wrap;
+                font-size: 12px;
+                color: Palette.foreground;
+                opacity: 0.75;
+            }
+
+            // The Custom mode's bindings start over from the WCAT four-axis
+            // layout's, with the axis layout chosen last.
+            if root.page == 0 && root.custom: VerticalLayout {
+                alignment: center;
+
+                Button {
+                    text: @tr("Restore defaults");
+                    clicked => {
+                        root.pad-reset();
+                    }
+                }
+            }
+        }
+    }
+
+    // Chooses one of the Custom mode's bindings: an action for a button, an
+    // axis function for a stick's axis, and either for a trigger. Escape,
+    // Cancel or a click outside the panel leaves it as it was.
+    if root.page == 0 && root.choose-control >= 0: Rectangle {
+        x: 0px;
+        y: 0px;
+        width: 100%;
+        height: 100%;
+        background: #00000060;
+
+        TouchArea {
+            clicked => {
+                root.choose-control = -1;
+            }
+        }
+
+        FocusScope {
+            x: (parent.width - self.width) / 2;
+            y: 8px;
+            width: min(440px, parent.width - 16px);
+            height: parent.height - 16px;
+            init => {
+                self.focus();
+            }
+
+            key-pressed(event) => {
+                if event.text == Key.Escape {
+                    root.choose-control = -1;
+                    return accept;
+                }
+                reject
+            }
+
+            Rectangle {
+                background: Palette.background;
+                border-color: Palette.border;
+                border-width: 1px;
+                border-radius: 8px;
+
+                // Swallow clicks on the panel so they do not cancel.
+                TouchArea { }
+
+                VerticalLayout {
+                    padding: 14px;
+                    spacing: 8px;
+
+                    HorizontalLayout {
+                        vertical-stretch: 0;
+                        spacing: 8px;
+
+                        Image {
+                            width: 22px;
+                            height: 22px;
+                            source: root.choose-glyph;
+                            image-fit: contain;
+                        }
+
+                        Text {
+                            horizontal-stretch: 1;
+                            vertical-alignment: center;
+                            text: root.choose-title;
+                            font-size: 15px;
+                            font-weight: 700;
+                            color: Palette.foreground;
+                            overflow: elide;
+                        }
+                    }
+
+                    // Reversing an axis applies at once to its function.
+                    if root.choose-stick: CheckBox {
+                        text: @tr("Reversed");
+                        checked <=> root.choose-reversed;
+                        toggled => {
+                            if root.choose-current <= -10 {
+                                root.pad-code-changed(root.choose-control,
+                                    root.axis-base(root.choose-current) - (self.checked ? 1 : 0));
+                            }
+                        }
+                    }
+
+                    list := ScrollView {
+                        vertical-stretch: 1;
+                        content-width: self.visible-width;
+                        content-height: max(self.visible-height, choices.preferred-height);
+
+                        choices := VerticalLayout {
+                            x: 0px;
+                            y: 0px;
+                            width: list.content-width;
+                            height: list.content-height;
+                            alignment: start;
+
+                            ChoiceRow {
+                                label: @tr("None");
+                                help: root.choice-help(-1, root.choose-control);
+                                selected: root.choose-current == -1;
+                                hovered(on, x, y, h) => {
+                                    root.hover-tip(100, on, "", self.help, x, y, h);
+                                }
+                                clicked => {
+                                    root.pick(-1);
+                                }
+                            }
+
+                            for code in [-10, -12, -14, -16, -18]: ChoiceRow {
+                                visible: root.choose-stick;
+                                height: root.choose-stick ? 26px : 0px;
+                                label: root.axis-choice-label(code, false);
+                                help: root.choice-help(code - (root.choose-reversed ? 1 : 0), root.choose-control);
+                                hovered(on, x, y, h) => {
+                                    root.hover-tip(110 - code, on, "", self.help, x, y, h);
+                                }
+                                selected: root.choose-current <= -10 && root.axis-base(root.choose-current) == code;
+                                clicked => {
+                                    root.pick(code - (root.choose-reversed ? 1 : 0));
+                                }
+                            }
+
+                            if !root.choose-stick: ChoiceRow {
+                                label: @tr("Cycle views");
+                                help: root.choice-help(-2, root.choose-control);
+                                hovered(on, x, y, h) => {
+                                    root.hover-tip(102, on, "", self.help, x, y, h);
+                                }
+                                selected: root.choose-current == -2;
+                                clicked => {
+                                    root.pick(-2);
+                                }
+                            }
+
+                            if !root.choose-stick: ChoiceRow {
+                                label: @tr("Hold to roll and change speed");
+                                help: root.choice-help(-3, root.choose-control);
+                                hovered(on, x, y, h) => {
+                                    root.hover-tip(103, on, "", self.help, x, y, h);
+                                }
+                                selected: root.choose-current == -3;
+                                clicked => {
+                                    root.pick(-3);
+                                }
+                            }
+
+                            if root.choose-trigger: ChoiceHeading {
+                                text: @tr("Analog");
+                            }
+
+                            for code in [-10, -11, -12, -13, -14, -15, -16, -17]: ChoiceRow {
+                                visible: root.choose-trigger;
+                                height: root.choose-trigger ? 26px : 0px;
+                                label: root.axis-choice-label(code, true);
+                                help: root.choice-help(code, root.choose-control);
+                                hovered(on, x, y, h) => {
+                                    root.hover-tip(130 - code, on, "", self.help, x, y, h);
+                                }
+                                selected: root.choose-current == code;
+                                clicked => {
+                                    root.pick(code);
+                                }
+                            }
+
+                            for row[index] in root.keyboard-rows: VerticalLayout {
+                                if !root.choose-stick && root.heading-choosable(index): ChoiceHeading {
+                                    text: row.section;
+                                }
+
+                                if !root.choose-stick && root.choosable(row): ChoiceRow {
+                                    label: row.action;
+                                    help: root.choice-help(index, root.choose-control);
+                                    hovered(on, x, y, h) => {
+                                        root.hover-tip(200 + index, on, "", self.help, x, y, h);
+                                    }
+                                    selected: root.choose-current == index;
+                                    clicked => {
+                                        root.pick(index);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    HorizontalLayout {
+                        vertical-stretch: 0;
+                        alignment: end;
+
+                        Button {
+                            text: @tr("Cancel");
+                            clicked => {
+                                root.choose-control = -1;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -1157,5 +1816,14 @@ export component ControlsView inherits Rectangle {
                 }
             }
         }
+    }
+
+    // Over everything else, below the element it explains or above it.
+    if root.tip-shown: Hint {
+        x: max(4px, min(root.tip-left + 16px, root.width - self.width - 4px));
+        y: root.tip-bottom + 4px + self.height <= root.height ? root.tip-bottom + 4px
+            : max(4px, root.tip-top - 4px - self.height);
+        title: root.tip-title;
+        text: root.tip-text;
     }
 }

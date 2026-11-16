@@ -4,6 +4,7 @@
 #include "launcher_joystick.h"
 #include "launcher_paths.h"
 #include "wc1_logo.h"
+#include "../pad_bindings.h"
 
 #include <SDL.h>
 #include <nfd.h>
@@ -500,6 +501,126 @@ void prepare_controls(const slint::ComponentHandle<LauncherWindow> &window,
         });
 }
 
+/* The Custom joystick mode's bindings (src/sdl/pad_bindings.h) as the
+   Joystick tab codes them (controls.slint): the index of a keyboard and mouse
+   row for a flight key's action, -1 for none, -2 to cycle the views, -3 to
+   roll and change speed, and -10 less twice an axis function's number, less
+   one more when reversed. Nothing when the control cannot take the function. */
+std::optional<int> pad_code(const LauncherWindow &window, int control, std::string_view function)
+{
+    if (function.empty())
+        return -1;
+    if (SdlPadControlTakesAxis(control)) {
+        const bool reversed = function.front() == '-';
+        const auto axis = reversed ? function.substr(1) : function;
+        for (int index = 0; index < SDL_PAD_AXIS_FUNCTIONS; ++index) {
+            if (axis == g_apszSdlPadAxisFunctions[index])
+                return -10 - 2 * index - (reversed ? 1 : 0);
+        }
+    }
+    if (control >= SDL_PAD_BUTTONS)
+        return std::nullopt;
+    if (function == "cycle-views")
+        return -2;
+    if (function == "roll-and-speed")
+        return -3;
+    const auto rows = window.get_keyboard_rows();
+    for (size_t row = 0; row < rows->row_count(); ++row) {
+        const auto data = rows->row_data(row);
+        if (data && std::string_view(data->id) == function && !data->fixed && !data->mouse_only &&
+            data->id != "full-screen")
+            return static_cast<int>(row);
+    }
+    return std::nullopt;
+}
+
+std::string pad_function(const LauncherWindow &window, int control, int code)
+{
+    if (code == -2 && control < SDL_PAD_BUTTONS)
+        return "cycle-views";
+    if (code == -3 && control < SDL_PAD_BUTTONS)
+        return "roll-and-speed";
+    if (code <= -10 && code > -10 - 2 * SDL_PAD_AXIS_FUNCTIONS && SdlPadControlTakesAxis(control)) {
+        const int offset = -10 - code;
+        return std::string(offset % 2 != 0 ? "-" : "") + g_apszSdlPadAxisFunctions[offset / 2];
+    }
+    const auto rows = window.get_keyboard_rows();
+    if (code >= 0 && control < SDL_PAD_BUTTONS && static_cast<size_t>(code) < rows->row_count()) {
+        if (const auto data = rows->row_data(code))
+            return std::string(std::string_view(data->id));
+    }
+    return {};
+}
+
+/* The defaults for an axis layout, with the saved "control=function" lines
+   over them. */
+std::shared_ptr<slint::VectorModel<int>> pad_codes(const LauncherWindow &window, int axes,
+                                                   std::string_view saved)
+{
+    std::vector<int> codes(SDL_PAD_CONTROLS);
+    for (int control = 0; control < SDL_PAD_CONTROLS; ++control)
+        codes[control] = pad_code(window, control, SdlDefaultPadFunction(control, axes)).value_or(-1);
+    while (!saved.empty()) {
+        const auto end = saved.find('\n');
+        const auto line = saved.substr(0, end);
+        saved = end == std::string_view::npos ? std::string_view() : saved.substr(end + 1);
+        const auto separator = line.find('=');
+        if (separator == std::string_view::npos)
+            continue;
+        for (int control = 0; control < SDL_PAD_CONTROLS; ++control) {
+            if (line.substr(0, separator) != g_apszSdlPadControls[control])
+                continue;
+            if (const auto code = pad_code(window, control, line.substr(separator + 1)))
+                codes[control] = *code;
+            break;
+        }
+    }
+    return std::make_shared<slint::VectorModel<int>>(std::move(codes));
+}
+
+/* The Joystick tab's Custom bindings start from the saved ones, or from when
+   the mode is first chosen, from the defaults for the axis layout then; kept
+   says whether the settings keep them. Restore defaults takes the axis layout
+   chosen last. */
+void prepare_pad(const slint::ComponentHandle<LauncherWindow> &window, std::string_view saved, bool &kept)
+{
+    window->set_pad_codes(pad_codes(*window, window->get_joystick_axes_index(), saved));
+    window->on_custom_pad_requested([self = slint::ComponentWeakHandle<LauncherWindow>(window), &kept]() {
+        const auto launcher = self.lock();
+        if (!launcher || kept)
+            return;
+        (*launcher)->set_pad_codes(pad_codes(**launcher, (*launcher)->get_joystick_axes_index(), {}));
+        kept = true;
+    });
+    window->on_pad_code_changed([self = slint::ComponentWeakHandle<LauncherWindow>(window)](int control, int code) {
+        const auto launcher = self.lock();
+        if (!launcher)
+            return;
+        const auto codes = std::dynamic_pointer_cast<slint::VectorModel<int>>((*launcher)->get_pad_codes());
+        if (codes && control >= 0 && static_cast<size_t>(control) < codes->row_count())
+            codes->set_row_data(control, code);
+    });
+    window->on_pad_reset([self = slint::ComponentWeakHandle<LauncherWindow>(window)]() {
+        if (const auto launcher = self.lock())
+            (*launcher)->set_pad_codes(pad_codes(**launcher, (*launcher)->get_joystick_axes_index(), {}));
+    });
+}
+
+/* The Joystick tab's Custom bindings as the launcher settings' [pad] lines. */
+std::string pad_bindings(const LauncherWindow &window)
+{
+    const auto codes = window.get_pad_codes();
+    std::string text;
+    for (int control = 0; control < SDL_PAD_CONTROLS && static_cast<size_t>(control) < codes->row_count();
+         ++control) {
+        text += g_apszSdlPadControls[control];
+        text += '=';
+        text += pad_function(window, control, codes->row_data(control).value_or(-1));
+        text += '\n';
+    }
+    return text;
+}
+
 #ifdef __linux__
 /* Gamescope, the compositor of Steam's Game Mode and other gaming sessions,
    shows one window at a time, scaled to fit its output. A launcher larger
@@ -824,6 +945,9 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_joystick_mode_index(options->joystickMode);
     window->set_joystick_axes_index(options->joystickAxes);
     window->set_joystick_dead_zone(static_cast<float>(options->joystickDeadZone));
+    bool padBindingsKept = options->padBindings[0] != '\0' ||
+        options->joystickMode == SDL_LAUNCHER_JOYSTICK_CUSTOM;
+    prepare_pad(window, options->padBindings, padBindingsKept);
     refresh_window(*window, installations);
     set_language(*window, installations, options->language);
     window->set_music_device(std::clamp(options->musicDevice, 0, 2));
@@ -982,6 +1106,11 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->joystickRumble = window->get_joystick_rumble();
     options->joystickMode = std::max(0, window->get_joystick_mode_index());
     options->joystickAxes = std::max(0, window->get_joystick_axes_index());
+    if (padBindingsKept) {
+        const auto padBindings = pad_bindings(*window);
+        if (padBindings.size() < sizeof(options->padBindings))
+            std::memcpy(options->padBindings, padBindings.c_str(), padBindings.size() + 1);
+    }
     options->joystickDeadZone = dead_zone_percent(window->get_joystick_dead_zone());
     options->musicDevice = std::clamp(window->get_music_device(), 0, 2);
     if (mt32Roms.size() < sizeof(options->mt32Roms))

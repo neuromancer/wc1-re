@@ -274,6 +274,13 @@ BOOL SdlReadJoystickAxisRange(unsigned int device,
                                  unsigned int *yMaximum);
 int SdlSetJoystickMode(const char *name);
 int SdlSetJoystickAxesMode(const char *name);
+/* The Custom joystick mode's "control=function" lines (src/sdl/pad_bindings.h),
+ * after the axis layout, whose bindings are the defaults. */
+void SdlSetPadBindings(const char *bindings);
+/* get_player_input: the Custom mode takes the left stick's steps in flight. */
+void SdlTakeFlightStickSample(void);
+/* The keys the Custom mode's held buttons hold in flight, given the keys that are. */
+const Uint8 *SdlPadKeyboardState(const Uint8 *keys);
 struct InputDeviceSample;
 /* The joystick dead zone, a percentage of travel (src/sdl/joystick_calibration.h). */
 int SdlSetJoystickDeadZone(int percent);

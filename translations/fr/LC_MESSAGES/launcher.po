@@ -1330,3 +1330,208 @@ msgstr "Choisissez le dossier de vos ROM MT-32 ou CM-32L ; d’ici là, le jeu j
 msgctxt "LauncherWindow"
 msgid "The game plays AdLib music: {}"
 msgstr "Le jeu joue la musique AdLib : {}"
+
+#: src/sdl/slint/launcher.slint:462
+msgctxt "LauncherWindow"
+msgid "Custom — your own bindings"
+msgstr "Personnalisé — vos propres affectations"
+
+#: src/sdl/slint/controls.slint:639
+msgctxt "ControlsView"
+msgid "Pitch"
+msgstr "Tangage"
+
+#: src/sdl/slint/controls.slint:640
+msgctxt "ControlsView"
+msgid "Yaw"
+msgstr "Lacet"
+
+#: src/sdl/slint/controls.slint:641
+msgctxt "ControlsView"
+msgid "Roll"
+msgstr "Roulis"
+
+#: src/sdl/slint/controls.slint:642
+msgctxt "ControlsView"
+msgid "Speed"
+msgstr "Vitesse"
+
+#: src/sdl/slint/controls.slint:643
+msgctxt "ControlsView"
+msgid "Throttle position"
+msgstr "Position des gaz"
+
+#: src/sdl/slint/controls.slint:662
+msgctxt "ControlsView"
+msgid "{} (analog)"
+msgstr "{} (analogique)"
+
+#: src/sdl/slint/controls.slint:665
+msgctxt "ControlsView"
+msgid "{}, reversed"
+msgstr "{}, inversé"
+
+#: src/sdl/slint/controls.slint:1327
+msgctxt "ControlsView"
+msgid "None"
+msgstr "Aucune"
+
+#: src/sdl/slint/controls.slint:1345
+msgctxt "ControlsView"
+msgid "Cycle views"
+msgstr "Changer de vue"
+
+#: src/sdl/slint/controls.slint:1353
+msgctxt "ControlsView"
+msgid "Hold to roll and change speed"
+msgstr "Maintenir : roulis et vitesse"
+
+#: src/sdl/slint/controls.slint:1361
+msgctxt "ControlsView"
+msgid "Analog"
+msgstr "Analogique"
+
+#: src/sdl/slint/controls.slint:1304
+msgctxt "ControlsView"
+msgid "Reversed"
+msgstr "Inversé"
+
+#: src/sdl/slint/controls.slint:878 src/sdl/slint/controls.slint:954
+msgctxt "ControlsView"
+msgid "left and right"
+msgstr "gauche et droite"
+
+#: src/sdl/slint/controls.slint:879 src/sdl/slint/controls.slint:955
+msgctxt "ControlsView"
+msgid "up and down"
+msgstr "haut et bas"
+
+#: src/sdl/slint/controls.slint:768
+msgctxt "ControlsView"
+msgid "SWC keeps the WCAT four-axis layout in the Custom mode."
+msgstr "SWC garde l’affectation WCAT à quatre axes en mode personnalisé."
+
+#: src/sdl/slint/controls.slint:745
+msgctxt "ControlsView"
+msgid "Fires while held."
+msgstr "Tire tant que vous le maintenez."
+
+#: src/sdl/slint/controls.slint:746
+msgctxt "ControlsView"
+msgid "Burns while held."
+msgstr "Allume la postcombustion tant que vous le maintenez."
+
+#: src/sdl/slint/controls.slint:747
+msgctxt "ControlsView"
+msgid "Turns at the full rate while held, with a turn button or key."
+msgstr "Virage maximal tant que vous le maintenez, avec un bouton ou une touche de virage."
+
+#: src/sdl/slint/controls.slint:748
+msgctxt "ControlsView"
+msgid "Changes speed while held."
+msgstr "Change la vitesse tant que vous le maintenez."
+
+#: src/sdl/slint/controls.slint:749
+msgctxt "ControlsView"
+msgid "Steers while held."
+msgstr "Dirige le vaisseau tant que vous le maintenez."
+
+#: src/sdl/slint/controls.slint:750
+msgctxt "ControlsView"
+msgid "Once per press."
+msgstr "Une fois par appui."
+
+#: src/sdl/slint/controls.slint:756
+msgctxt "ControlsView"
+msgid "Right dives and left climbs."
+msgstr "Vers la droite, pique ; vers la gauche, cabre."
+
+#: src/sdl/slint/controls.slint:756
+msgctxt "ControlsView"
+msgid "Up dives and down climbs, as with the original joystick."
+msgstr "Vers le haut, pique ; vers le bas, cabre, comme avec le joystick d’origine."
+
+#: src/sdl/slint/controls.slint:759
+msgctxt "ControlsView"
+msgid "Right turns right and left turns left."
+msgstr "Vers la droite, tourne à droite ; vers la gauche, à gauche."
+
+#: src/sdl/slint/controls.slint:759
+msgctxt "ControlsView"
+msgid "Up turns right and down turns left."
+msgstr "Vers le haut, tourne à droite ; vers le bas, à gauche."
+
+#: src/sdl/slint/controls.slint:762
+msgctxt "ControlsView"
+msgid "Right rolls right and left rolls left."
+msgstr "Vers la droite, roule à droite ; vers la gauche, à gauche."
+
+#: src/sdl/slint/controls.slint:762
+msgctxt "ControlsView"
+msgid "Up rolls right and down rolls left."
+msgstr "Vers le haut, roule à droite ; vers le bas, à gauche."
+
+#: src/sdl/slint/controls.slint:765
+msgctxt "ControlsView"
+msgid "Right speeds up and left slows down, faster the further it goes."
+msgstr "Vers la droite, accélère ; vers la gauche, ralentit, d’autant plus qu’il va loin."
+
+#: src/sdl/slint/controls.slint:766
+msgctxt "ControlsView"
+msgid "Up speeds up and down slows down, faster the further it goes."
+msgstr "Vers le haut, accélère ; vers le bas, ralentit, d’autant plus qu’il va loin."
+
+#: src/sdl/slint/controls.slint:768
+msgctxt "ControlsView"
+msgid "Sets the speed like a throttle lever: fully right is full speed and fully left stops."
+msgstr "Règle la vitesse comme une manette des gaz : tout à droite, pleine vitesse ; tout à gauche, arrêt."
+
+#: src/sdl/slint/controls.slint:769
+msgctxt "ControlsView"
+msgid "Sets the speed like a throttle lever: fully up is full speed and fully down stops."
+msgstr "Règle la vitesse comme une manette des gaz : tout en haut, pleine vitesse ; tout en bas, arrêt."
+
+#: src/sdl/slint/controls.slint:776
+msgctxt "ControlsView"
+msgid "Keyboard and mouse: {}."
+msgstr "Clavier et souris : {}."
+
+#: src/sdl/slint/controls.slint:778
+msgctxt "ControlsView"
+msgid "The input does nothing in flight."
+msgstr "La commande ne fait rien en vol."
+
+#: src/sdl/slint/controls.slint:779
+msgctxt "ControlsView"
+msgid "Steps through the front, left, right, rear and chase views."
+msgstr "Passe par les vues avant, gauche, droite, arrière et de poursuite."
+
+#: src/sdl/slint/controls.slint:781
+msgctxt "ControlsView"
+msgid "While held, what yaws rolls instead and what pitches changes speed, as the original joystick's second button does."
+msgstr "Tant que vous le maintenez, ce qui donne du lacet donne du roulis et ce qui donne du tangage change la vitesse, comme le second bouton du joystick d’origine."
+
+#: src/sdl/slint/controls.slint:784
+msgctxt "ControlsView"
+msgid "{}, faster the further the trigger is pressed."
+msgstr "{}, d’autant plus que la gâchette est enfoncée."
+
+#: src/sdl/slint/controls.slint:785
+msgctxt "ControlsView"
+msgid "Sets the speed like a throttle lever: fully pressed is full speed and released stops."
+msgstr "Règle la vitesse comme une manette des gaz : enfoncée, pleine vitesse ; relâchée, arrêt."
+
+#: src/sdl/slint/controls.slint:786 src/sdl/slint/controls.slint:789
+msgctxt "ControlsView"
+msgid "Reversed: the other way round."
+msgstr "Inversé : dans l’autre sens."
+
+#: src/sdl/slint/controls.slint:972
+msgctxt "ControlsView"
+msgid "Click an input to change it; changes apply when the game starts."
+msgstr "Cliquez sur une commande pour la changer ; les changements s’appliquent au lancement du jeu."
+
+#: src/sdl/slint/controls.slint:798
+msgctxt "ControlsView"
+msgid "To rebind it, choose Custom in Control mode."
+msgstr "Pour la réaffecter, choisissez Personnalisé dans Mode de contrôle."
