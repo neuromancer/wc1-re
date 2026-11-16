@@ -18,6 +18,8 @@
 #ifndef WC1_SDL_JOYSTICK_CALIBRATION_H
 #define WC1_SDL_JOYSTICK_CALIBRATION_H
 
+#include <SDL.h>
+
 #define SDL_JOYSTICK_CALIBRATION_FILE "j.cal"
 #define SDL_JOYSTICK_CALIBRATION_WORDS 7
 /* LoadJoystickCalibrationFile's range: the steps on each side. */
@@ -38,6 +40,29 @@ typedef struct SdlJoystickAxis {
     int minimum;
     int maximum;
 } SdlJoystickAxis;
+
+/* The order in which devices take the game's two joystick slots, best first.
+ * A gamepad or a flight stick steers. A throttle, a wheel or rudder pedals
+ * can rest with axis 0 at one end of its travel, which would turn the ship
+ * if it were the first joystick, and with a stick, throttle and pedals the
+ * stick might get no slot at all. SDL knows flight sticks such as the
+ * Thrustmaster T.16000M by their USB IDs; devices it does not know come
+ * between. Each group keeps SDL's order. */
+#define SDL_JOYSTICK_PREFERENCES 3
+
+static inline int SdlJoystickPreference(int deviceIndex)
+{
+    switch (SDL_JoystickGetDeviceType(deviceIndex)) {
+    case SDL_JOYSTICK_TYPE_GAMECONTROLLER:
+    case SDL_JOYSTICK_TYPE_FLIGHT_STICK:
+    case SDL_JOYSTICK_TYPE_ARCADE_STICK:
+        return 0;
+    case SDL_JOYSTICK_TYPE_UNKNOWN:
+        return SDL_IsGameController(deviceIndex) ? 0 : 1;
+    default:
+        return 2;
+    }
+}
 
 /* LoadJoystickCalibrationFile without j.cal: the centre of SDL's range and
  * nine steps of (centre - 10) / 9 on both sides. */

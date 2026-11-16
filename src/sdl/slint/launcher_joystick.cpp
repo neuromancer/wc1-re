@@ -59,27 +59,33 @@ void JoystickReader::update()
         if (device.joystick != nullptr && !SDL_JoystickGetAttached(device.joystick))
             close(device);
     }
-    // As SdlRefreshJoysticks: free slots take devices in SDL's order.
-    for (int index = 0; index < SDL_NumJoysticks(); ++index) {
-        const auto slot = std::find_if(devices.begin(), devices.end(),
-                                       [](const Device &device) { return device.joystick == nullptr; });
-        if (slot == devices.end())
-            break;
-        const SDL_JoystickID instance = SDL_JoystickGetDeviceInstanceID(index);
-        if (instance < 0 || std::any_of(devices.begin(), devices.end(), [instance](const Device &device) {
-                return device.joystick != nullptr && device.instance == instance;
-            }))
-            continue;
-        SDL_GameController *controller = SDL_IsGameController(index) ? SDL_GameControllerOpen(index) : nullptr;
-        SDL_Joystick *joystick = controller != nullptr ? SDL_GameControllerGetJoystick(controller) : nullptr;
-        if (joystick == nullptr) {
-            if (controller != nullptr)
-                SDL_GameControllerClose(controller);
-            controller = nullptr;
-            joystick = SDL_JoystickOpen(index);
+    // As SdlRefreshJoysticks: free slots take sticks and gamepads first, then
+    // the other devices, each group in SDL's order.
+    const int count = SDL_NumJoysticks();
+    for (int preference = 0; preference < SDL_JOYSTICK_PREFERENCES; ++preference) {
+        for (int index = 0; index < count; ++index) {
+            if (SdlJoystickPreference(index) != preference)
+                continue;
+            const auto slot = std::find_if(devices.begin(), devices.end(),
+                                           [](const Device &device) { return device.joystick == nullptr; });
+            if (slot == devices.end())
+                break;
+            const SDL_JoystickID instance = SDL_JoystickGetDeviceInstanceID(index);
+            if (instance < 0 || std::any_of(devices.begin(), devices.end(), [instance](const Device &device) {
+                    return device.joystick != nullptr && device.instance == instance;
+                }))
+                continue;
+            SDL_GameController *controller = SDL_IsGameController(index) ? SDL_GameControllerOpen(index) : nullptr;
+            SDL_Joystick *joystick = controller != nullptr ? SDL_GameControllerGetJoystick(controller) : nullptr;
+            if (joystick == nullptr) {
+                if (controller != nullptr)
+                    SDL_GameControllerClose(controller);
+                controller = nullptr;
+                joystick = SDL_JoystickOpen(index);
+            }
+            if (joystick != nullptr)
+                *slot = {controller, joystick, SDL_JoystickInstanceID(joystick)};
         }
-        if (joystick != nullptr)
-            *slot = {controller, joystick, SDL_JoystickInstanceID(joystick)};
     }
     // Nothing else in the launcher reads SDL's events.
     SDL_FlushEvents(SDL_JOYAXISMOTION, SDL_FINGERDOWN - 1);

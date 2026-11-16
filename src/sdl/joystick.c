@@ -529,10 +529,11 @@ static void SdlOpenJoystick(int deviceIndex)
         const char *name = SDL_JoystickName(joystick);
 
         printf("SDL joystick slot %d opened: %s, instance %d, %s, "
-               "%d axes, %d buttons, %d hats\n",
+               "SDL type %d (preference %d), %d axes, %d buttons, %d hats\n",
                slot, name != 0 ? name : "unknown",
                device->instanceId,
                controller != 0 ? "mapped controller" : "raw joystick",
+               (int)SDL_JoystickGetType(joystick), SdlJoystickPreference(deviceIndex),
                SDL_JoystickNumAxes(joystick),
                SDL_JoystickNumButtons(joystick),
                SDL_JoystickNumHats(joystick));
@@ -544,6 +545,7 @@ static void SdlRefreshJoysticks(void)
 {
     SdlJoystickDevice *device;
     int deviceIndex;
+    int preference;
     int slot;
 
     slot = 0;
@@ -555,11 +557,15 @@ static void SdlRefreshJoysticks(void)
         slot++;
     }
 
-    deviceIndex = 0;
-    while (deviceIndex < SDL_NumJoysticks() &&
-           SdlFindFreeJoystickSlot() != -1) {
-        SdlOpenJoystick(deviceIndex);
-        deviceIndex++;
+    /* Sticks and gamepads before throttles, wheels and pedals. */
+    for (preference = 0; preference < SDL_JOYSTICK_PREFERENCES; preference++) {
+        deviceIndex = 0;
+        while (deviceIndex < SDL_NumJoysticks() &&
+               SdlFindFreeJoystickSlot() != -1) {
+            if (SdlJoystickPreference(deviceIndex) == preference)
+                SdlOpenJoystick(deviceIndex);
+            deviceIndex++;
+        }
     }
 }
 
