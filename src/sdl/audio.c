@@ -157,13 +157,34 @@ short SdlVoiceMouthFrame(const short *commands, short fallback)
     return frame;
 }
 
+/* WingLoader's Sega CD recordings keep 8 bytes of the extracted files' header
+ * in their sound data, as 89 CF 89 CF 7F xx 83 7F or 87 DB 87 DB 7F xx 83 7F.
+ * Played, its CF and DB bytes are spikes of 62% of full scale, a click at the
+ * start of every line (#33). Two 16-bit files carry the same bytes widened.
+ * Returns how many bytes of sound data the header takes, or 0. */
+static Uint32 SdlVoiceHeaderBytes(const Uint8 *data, Uint32 length, const SDL_AudioSpec *format)
+{
+    const int wide = format->format != AUDIO_U8;
+    int value[8];
+    int i;
+
+    if (format->channels != 1 || length < (wide ? 32U : 16U))
+        return 0;
+    for (i = 0; i < 8; i++)
+        value[i] = wide ? ((Sint16)(data[i * 2] | data[i * 2 + 1] << 8) + 128) >> 8 : data[i] - 128;
+    if (value[0] != value[2] || value[1] != value[3] || (value[0] != 7 && value[0] != 9) ||
+        value[1] < 79 || value[1] > 91 || value[7] != -1)
+        return 0;
+    return wide ? 16 : 8;
+}
+
 int SdlPlayVoiceWav(const char *path)
 {
     SDL_AudioSpec format;
     SDL_AudioCVT conversion;
     SDL_RWops *file;
     Uint8 *source;
-    Uint32 length;
+    Uint32 length, header;
     Uint32 *mouthTimes, windows, i, threshold, voiced = 0;
     Uint64 power = 0;
     Sint64 size;
@@ -190,17 +211,33 @@ int SdlPlayVoiceWav(const char *path)
         SDL_FreeWAV(source);
         return 0;
     }
-    conversion.len = (int)length;
+    header = SdlVoiceHeaderBytes(source, length, &format);
+    conversion.len = (int)(length - header);
     conversion.buf = SDL_malloc(length * conversion.len_mult);
     if (!conversion.buf) {
         SDL_FreeWAV(source);
         return 0;
     }
-    SDL_memcpy(conversion.buf, source, length);
+    SDL_memcpy(conversion.buf, source + header, length - header);
     SDL_FreeWAV(source);
     if (SDL_ConvertAudio(&conversion) < 0) {
         SDL_free(conversion.buf);
         return 0;
+    }
+    {
+        /* Fade each end in or out over about 3 ms: some recordings were cut
+         * from longer ones and start or stop mid-waveform, a click too. */
+        Sint16 *samples = (Sint16 *)conversion.buf;
+        Uint32 frames = (Uint32)conversion.len_cvt / 4;
+        Uint32 ramp = SDL_min(64U, frames / 2), k;
+
+        for (k = 0; k < ramp; k++) {
+            samples[k * 2] = (Sint16)(samples[k * 2] * (Sint32)k / (Sint32)ramp);
+            samples[k * 2 + 1] = (Sint16)(samples[k * 2 + 1] * (Sint32)k / (Sint32)ramp);
+            samples[(frames - 1 - k) * 2] = (Sint16)(samples[(frames - 1 - k) * 2] * (Sint32)k / (Sint32)ramp);
+            samples[(frames - 1 - k) * 2 + 1] =
+                (Sint16)(samples[(frames - 1 - k) * 2 + 1] * (Sint32)k / (Sint32)ramp);
+        }
     }
     windows = ((Uint32)conversion.len_cvt / 4 + 440) / 441;
     mouthTimes = SDL_calloc(windows + 1, sizeof(*mouthTimes));
