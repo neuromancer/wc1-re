@@ -783,6 +783,27 @@ const Uint8 *SdlKeymapKeyboardState(const Uint8 *keys)
     return g_abSdlVirtualKeys;
 }
 
+int SdlKeymapBindsChord(SDL_Scancode key, Uint16 modifiers)
+{
+    int action;
+    int index;
+
+    if (!SdlKeymapActive())
+        return 0;
+    for (action = 0; action < SDL_KEYMAP_ACTIONS; action++) {
+        const SdlChangedAction *changed = &g_aSdlChangedActions[action];
+
+        for (index = 0; changed->changed && index < changed->count; index++) {
+            const SdlKeyBinding *binding = &changed->bindings[index];
+
+            if ((binding->modifier & (KMOD_ALT | KMOD_GUI)) != 0 &&
+                SdlKeymapMatches(binding, key, modifiers))
+                return 1;
+        }
+    }
+    return 0;
+}
+
 int SdlKeymapFullscreenShortcut(SDL_Scancode key, Uint16 modifiers)
 {
     int index;

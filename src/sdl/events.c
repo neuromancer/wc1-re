@@ -527,6 +527,14 @@ static void SdlRepeatMouseKeys(void)
     }
 }
 
+/* The frame rate shortcut's modifier: Alt, and on a Mac also Command, as
+   for Command-Return. */
+#ifdef __APPLE__
+#define SDL_FRAME_RATE_SHORTCUT (KMOD_GUI | KMOD_ALT)
+#else
+#define SDL_FRAME_RATE_SHORTCUT KMOD_ALT
+#endif
+
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
     int pressed;
@@ -542,6 +550,20 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     if (SdlIsFullscreenShortcut(event)) {
         if (pressed && event->repeat == 0)
             SdlToggleFullscreen(event->windowID);
+        return 0;
+    }
+    /* Alt+N and Alt+M lower and raise spaceflight's frame rate cap by half a
+       frame a second, within 8 to 32, as the Kilrathi Saga's window procedure
+       does, and the game's speed follows it; on a Mac, Command or Option.
+       As there, holding them repeats and the game never sees the key, unless
+       the player bound an action to it with that modifier. */
+    if ((event->keysym.sym == SDLK_n || event->keysym.sym == SDLK_m) &&
+        (event->keysym.mod & SDL_FRAME_RATE_SHORTCUT) != 0 &&
+        (event->keysym.mod & (KMOD_CTRL | KMOD_MODE |
+                              (KMOD_GUI & ~SDL_FRAME_RATE_SHORTCUT))) == 0 &&
+        !SdlKeymapBindsChord(event->keysym.scancode, event->keysym.mod)) {
+        if (pressed)
+            ReportSpaceFlightMaxFps(event->keysym.sym == SDLK_n ? -0.5f : 0.5f);
         return 0;
     }
     /* In flight, rebound keys stand in for the keys the game reads. */

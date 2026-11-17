@@ -322,6 +322,9 @@ SDL_Scancode SdlKeymapTranslateKey(SDL_Scancode key, Uint16 modifiers, int press
 const Uint8 *SdlKeymapKeyboardState(const Uint8 *keys);
 /* 1 or 0 when the full-screen keys were changed, -1 when they were not. */
 int SdlKeymapFullscreenShortcut(SDL_Scancode key, Uint16 modifiers);
+/* In flight, whether the player bound an action to the key with Alt or
+ * Command held. */
+int SdlKeymapBindsChord(SDL_Scancode key, Uint16 modifiers);
 /* In flight with changed mouse bindings: which of SDL's buttons hold the
  * game's guns (primary) and afterburner (secondary) buttons, and the key a
  * bound mouse button or wheel step presses (SDL_SCANCODE_UNKNOWN for none). */
