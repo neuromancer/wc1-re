@@ -144,6 +144,10 @@ msgid "EGA 16-colour dithering"
 msgstr "Tramage EGA 16 couleurs"
 
 msgctxt "LauncherWindow"
+msgid "Hi-res HUD fonts"
+msgstr "Polices du HUD haute résolution"
+
+msgctxt "LauncherWindow"
 msgid "Gameplay"
 msgstr "Jeu"
 

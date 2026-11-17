@@ -71,6 +71,7 @@ export component LauncherWindow inherits Window {
     in property <string> mt32-detail;
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
+    in-out property <bool> hires-hud-fonts;
     in-out property <bool> cockpitless-view;
     in-out property <bool> cheat-mode;
     in-out property <bool> joystick-rumble;
@@ -414,6 +415,13 @@ export component LauncherWindow inherits Window {
                                         text: root.swc-demo ? @tr("EGA dithering (WC1 only)") : @tr("EGA 16-colour dithering");
                                         enabled: !root.swc-demo;
                                         checked <=> root.ega-dither;
+                                    }
+
+                                    CheckBox {
+                                        height: 26px;
+                                        text: @tr("Hi-res HUD fonts");
+                                        enabled: root.enhanced-renderer && !root.swc-demo;
+                                        checked <=> root.hires-hud-fonts;
                                     }
                                 }
                             }

@@ -172,6 +172,10 @@ msgctxt "LauncherWindow"
 msgid "EGA 16-colour dithering"
 msgstr "Tramado EGA de 16 colores"
 
+msgctxt "LauncherWindow"
+msgid "Hi-res HUD fonts"
+msgstr "Fuentes del HUD de alta resolución"
+
 #: src/sdl/slint/launcher.slint:205
 msgctxt "LauncherWindow"
 msgid "Gameplay"

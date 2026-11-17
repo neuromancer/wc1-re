@@ -33,6 +33,8 @@ constexpr IntegerSetting integerSettings[] = {
      SDL_LAUNCHER_EXPLICIT_ENHANCED, 1},
     {"ega_dither", &SdlLauncherOptions::egaDither,
      SDL_LAUNCHER_EXPLICIT_EGA, 1},
+    {"hires_hud_fonts", &SdlLauncherOptions::hiResHudFonts,
+     SDL_LAUNCHER_EXPLICIT_HIRES_HUD, 1},
     {"cockpitless_view", &SdlLauncherOptions::cockpitlessView,
      SDL_LAUNCHER_EXPLICIT_COCKPITLESS, 1},
     {"cheat_mode", &SdlLauncherOptions::cheatMode,

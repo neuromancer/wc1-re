@@ -102,8 +102,10 @@ remembers your folder and options.
 - Sound effects balanced against the music and panned with the camera, and
   mouse wheel throttle control.
 - Optional extras: an enhanced renderer that draws ships at full resolution
-  while keeping the original artwork, cockpit, and HUD; EGA colours; the
-  restored startup intro; a cockpitless view; and a cheat mode.
+  while keeping the original artwork, cockpit, and HUD, and can also show the
+  flight HUD's text in the game's larger 11-pixel font (launcher checkbox or
+  `--hires-hud`); EGA colours; the restored startup intro; a cockpitless view;
+  and a cheat mode.
 
 | Enhanced renderer | Enhanced cockpit combat |
 | --- | --- |

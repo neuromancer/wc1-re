@@ -587,6 +587,9 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     int column;
     unsigned char translated;
     short characterIndex;
+#ifdef SDL_PORT
+    int hiResGlyph;
+#endif
 
     row = y;
     viewport = context->viewport;
@@ -612,6 +615,15 @@ void DrawFontGlyph(char character, TextContext *context, int height,
         source = context->font +
                  (((unsigned int)characterData[0x204] << 8) +
                   characterData[0x104]);
+#ifdef SDL_PORT
+        /* The enhanced renderer can show the cockpit and HUD fonts' text
+         * in the larger conversation font. */
+        hiResGlyph = (context->font == apTextFonts[1] ||
+                      context->font == apTextFonts[2]) &&
+            SdlBeginHiResGlyph(viewport, context->cursorX, y, width, height,
+                               (unsigned char)character, colour, background,
+                               context->alignment == 2);
+#endif
         if (fontColour == colour && fontBackground == background) {
             for (; height-- != 0; row++) {
 #ifdef SDL_PORT
@@ -674,6 +686,10 @@ void DrawFontGlyph(char character, TextContext *context, int height,
             }
             context->cursorX += context->font[4 + characterIndex];
         }
+#ifdef SDL_PORT
+        if (hiResGlyph)
+            SdlEndHiResGlyph();
+#endif
         abPaletteTranslation[fontColour] = fontColour;
         abPaletteTranslation[fontBackground] = fontBackground;
 #ifndef SDL_PORT
@@ -1051,6 +1067,11 @@ void CopyViewportContents(Viewport *source, Viewport *destination)
         &sourceClip, 0, 0, &destinationClip, 0, 0, 0xffffffff);
     if (blitResult != 0)
         abs(blitResult);
+#ifdef SDL_PORT
+    /* Hi-res HUD text drawn off screen, such as the nav map's labels,
+     * follows the copy to the screen. */
+    SdlCopyHiResGlyphs(source, destination);
+#endif
 }
 
 /* Function start: 0x441AE0 */
@@ -1407,6 +1428,11 @@ void BlitViewportScanlineRuns(Viewport *source, Viewport *destination,
                 destination->rowOffsets[sourceY] + destinationX;
             memcpy(destinationPixels, sourcePixels, width);
         }
+#ifdef SDL_PORT
+        /* Hi-res HUD messages drawn in the space buffer follow its view. */
+        SdlCopyHiResGlyphRuns(source, destination, geometry->originX,
+                              geometry->originY);
+#endif
         if (destination->pixels == stScreenView.pixels)
             DIBslam();
     }

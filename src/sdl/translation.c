@@ -87,6 +87,7 @@ void SdlShutdownTranslations(void)
     artworkCount = 0;
     introFontUnavailable = 0;
     memset(fonts, 0, sizeof(fonts));
+    SdlResetHiResHudFont();
 }
 
 int SdlLoadTranslationCatalog(const char *path)

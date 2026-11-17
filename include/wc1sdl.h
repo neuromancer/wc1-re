@@ -258,6 +258,21 @@ void SdlBeginSpaceFrame(
     int fullViewportCopy, unsigned char clearColour);
 void SdlCompleteSpaceFrame(void);
 void SdlCancelSpaceFrame(void);
+/* The enhanced renderer's hi-res HUD text: RunSpaceFlight marks the flight,
+   DrawFontGlyph records HUD-font glyphs, and the viewport copies move the
+   ones drawn off screen. */
+void SdlSetHiResHudFlight(int active);
+void SdlResetHiResHudFont(void);
+int SdlBeginHiResGlyph(const struct Viewport *view, int cursorX, int y,
+                       int width, int height, unsigned char character,
+                       unsigned char colour, unsigned char background,
+                       int centered);
+void SdlEndHiResGlyph(void);
+void SdlCopyHiResGlyphs(const struct Viewport *source,
+                        const struct Viewport *destination);
+void SdlCopyHiResGlyphRuns(const struct Viewport *source,
+                           const struct Viewport *destination, int originX,
+                           int originY);
 void SdlSetThrusterScreenPosition(short object, float x, float y);
 void SdlGetThrusterScreenPosition(short object, float *x, float *y);
 struct Shape;

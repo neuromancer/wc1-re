@@ -199,6 +199,16 @@ def build_catalog(directory, encoding="cp1252"):
                           for glyph in font["glyphs"]
                           if glyph["character"] in destinations and
                           destinations[glyph["character"]] not in present)
+        if font["font"] == 0 and encoding == "cp1252":
+            # The enhanced renderer's hi-res HUD draws font 1 and 2 text in
+            # font 0, so it needs font 1's alternate slots too. The original
+            # font 0 has a blank and two bars there.
+            sources = {0xf1: 0xe0, 0xf3: 0xeb, 0xfa: 0xef}
+            present = {glyph["character"] for glyph in glyphs}
+            glyphs.extend(dict(glyph, character=sources[glyph["character"]])
+                          for glyph in font["glyphs"]
+                          if glyph["character"] in sources and
+                          sources[glyph["character"]] not in present)
         output.extend(struct.pack("<4BIH", font["font"], font["height"], font["ink"],
                                   font["background"], font["source_crc32"], len(glyphs)))
         seen = set()

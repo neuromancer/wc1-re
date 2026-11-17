@@ -47,7 +47,8 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE = 1 << 11,
     SDL_LAUNCHER_EXPLICIT_MUSIC = 1 << 12,
     SDL_LAUNCHER_EXPLICIT_MT32_ROMS = 1 << 13,
-    SDL_LAUNCHER_EXPLICIT_MT32_MODEL = 1 << 14
+    SDL_LAUNCHER_EXPLICIT_MT32_MODEL = 1 << 14,
+    SDL_LAUNCHER_EXPLICIT_HIRES_HUD = 1 << 15
 };
 
 /* The music the game plays (SDL_PORT_MUSIC_* in wc1sdl.h). */
@@ -67,6 +68,9 @@ typedef struct SdlLauncherOptions {
     int language; /* 0: English, 1: Spanish, 2: Japanese (FM Towns), 3: French */
     int enhancedRenderer;
     int egaDither;
+    /* Flight HUD text in the larger conversation font, with the enhanced
+     * renderer. */
+    int hiResHudFonts;
     int cockpitlessView;
     int cheatMode;
     int joystickRumble;

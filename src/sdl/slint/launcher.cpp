@@ -1135,6 +1135,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_autosave(options->autosave != 0);
     window->set_enhanced_renderer(options->enhancedRenderer != 0);
     window->set_ega_dither(options->egaDither != 0);
+    window->set_hires_hud_fonts(options->hiResHudFonts != 0);
     window->set_cockpitless_view(options->cockpitlessView != 0);
     window->set_cheat_mode(options->cheatMode != 0);
     window->set_joystick_rumble(options->joystickRumble != 0);
@@ -1297,6 +1298,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->language = std::clamp(window->get_language_index(), 0, 3);
     options->enhancedRenderer = window->get_enhanced_renderer();
     options->egaDither = window->get_ega_dither();
+    options->hiResHudFonts = window->get_hires_hud_fonts();
     options->cockpitlessView = window->get_cockpitless_view();
     options->cheatMode = window->get_cheat_mode();
     options->joystickRumble = window->get_joystick_rumble();

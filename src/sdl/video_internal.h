@@ -39,5 +39,7 @@ int SdlGlRendererRecordSpaceSprite(const struct Viewport *viewport, float x,
                                       float y, struct Shape *shape,
                                       short frame, short angle, short scale,
                                       short flip);
+/* The launcher's hi-res HUD fonts option (issue 29). */
+void SdlSetHiResHudFonts(int enabled);
 
 #endif

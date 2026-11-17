@@ -2170,6 +2170,7 @@ int RunSpaceFlight(short entryNavPoint)
     bInputModeState = 1;
 #ifdef SDL_PORT
     SdlSetMouseGrab(1);
+    SdlSetHiResHudFlight(1);
 #endif
     SetEventManagerPump(get_player_input);
     savedViewport = stMouseCursorState.viewport;
@@ -2269,6 +2270,7 @@ int RunSpaceFlight(short entryNavPoint)
 
 #ifdef SDL_PORT
     SdlSetMouseGrab(0);
+    SdlSetHiResHudFlight(0);
     SdlCancelSpaceFrame();
     if (SdlUsingOriginFxSoundEffects() || SdlUsingTownsData())
         SdlStopDosSoundEffects();
