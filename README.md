@@ -87,7 +87,8 @@ remembers your folder and options.
 - Resizable window, fullscreen, and aspect-correct 4:3 presentation.
 - Gamepad support, rumble, and alternative joystick layouts, including
   WCAT-style four-button controls and, for WC1, a Custom mode that rebinds
-  every gamepad button, trigger and stick axis.
+  every gamepad button, trigger and stick axis, and a flight stick's buttons,
+  hats and axes.
 - An adjustable joystick dead zone (22% by default, as in the original) and a
   launcher page that calibrates WC1's joystick. It writes `GAMEDAT/j.cal` as
   the game's own calibration does, and the game now reads all of that file,
@@ -128,14 +129,23 @@ binding. Click a key or mouse input to change it, or **+** to add a second one;
 changes apply when the game starts. `Esc`, and Super Wing Commander's menu
 shortcuts and in-flight computer keys, cannot be changed.
 
-In the Joystick tab's **Custom** control mode, click any input on the gamepad
-drawing to rebind it for WC1's spaceflight, and point at a choice to see what
-it does. A button or trigger can take any
-flight key's action, cycle the views, or turn yaw into roll and pitch into
-speed while held. A stick axis or trigger can pitch, yaw, roll or change speed,
-and a stick axis can also set the throttle; any of these can be reversed.
+In the Joystick tab's **Custom** control mode, press an input on the
+controller, or click it on the gamepad drawing, to rebind it for WC1's
+spaceflight, and point at a choice to see what it does. A button or trigger can
+take any flight key's action, cycle the views, or turn yaw into roll and pitch
+into speed while held. A stick axis or trigger can pitch, yaw, roll or change
+speed, and a stick axis can also set the throttle; any of these can be reversed.
 Custom starts from the WCAT four-button, four-axis layout. Menus keep their
 fixed buttons, and Super Wing Commander keeps the WCAT four-axis layout.
+
+A joystick that SDL does not know as a gamepad, such as a flight stick, is
+shown as its axes, hats and buttons by number, each lit while held, with the
+axes named where the system describes them (X axis, Z rotation, slider, rudder
+and so on). Custom rebinds its first 32 buttons, two hats and eight axes, and
+starts with the stick steering, a twist or rudder taking the other turn and its
+throttle lever setting the speed. Elsewhere its buttons stand in for the
+gamepad's: 1 for A, 2 for B, 3 for X, 4 for Y and 9 for Back, with its first
+hat as the D-pad.
 
 As in the original, a mission ends only by landing on the *Tiger's Claw*,
 ejecting, or dying; quit from the barracks menu.

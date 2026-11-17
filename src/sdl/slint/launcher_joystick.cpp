@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <system_error>
@@ -83,8 +84,11 @@ void JoystickReader::update()
                 controller = nullptr;
                 joystick = SDL_JoystickOpen(index);
             }
-            if (joystick != nullptr)
-                *slot = {controller, joystick, SDL_JoystickInstanceID(joystick)};
+            if (joystick != nullptr) {
+                *slot = {controller, joystick, SDL_JoystickInstanceID(joystick), {}};
+                if (controller == nullptr)
+                    slot->description = describe_joystick(index, SDL_JoystickNumAxes(joystick));
+            }
         }
     }
     // Nothing else in the launcher reads SDL's events.
@@ -124,6 +128,66 @@ JoystickPosition JoystickReader::read(int slot) const
     for (int button = 0; button < SDL_JoystickNumButtons(device.joystick); ++button)
         position.button = position.button || SDL_JoystickGetButton(device.joystick, button) != 0;
     return position;
+}
+
+PadSnapshot JoystickReader::snapshot(int slot) const
+{
+    static const SDL_GameControllerButton buttons[SDL_PAD_BUTTONS] = {
+        SDL_CONTROLLER_BUTTON_A, SDL_CONTROLLER_BUTTON_B,
+        SDL_CONTROLLER_BUTTON_X, SDL_CONTROLLER_BUTTON_Y,
+        SDL_CONTROLLER_BUTTON_LEFTSHOULDER, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER,
+        SDL_CONTROLLER_BUTTON_INVALID, SDL_CONTROLLER_BUTTON_INVALID,
+        SDL_CONTROLLER_BUTTON_BACK, SDL_CONTROLLER_BUTTON_START,
+        SDL_CONTROLLER_BUTTON_LEFTSTICK, SDL_CONTROLLER_BUTTON_RIGHTSTICK,
+        SDL_CONTROLLER_BUTTON_DPAD_UP, SDL_CONTROLLER_BUTTON_DPAD_DOWN,
+        SDL_CONTROLLER_BUTTON_DPAD_LEFT, SDL_CONTROLLER_BUTTON_DPAD_RIGHT
+    };
+    static const SDL_GameControllerAxis sticks[4] = {
+        SDL_CONTROLLER_AXIS_LEFTX, SDL_CONTROLLER_AXIS_LEFTY,
+        SDL_CONTROLLER_AXIS_RIGHTX, SDL_CONTROLLER_AXIS_RIGHTY
+    };
+    static const Uint8 hatDirections[4] = {SDL_HAT_UP, SDL_HAT_DOWN, SDL_HAT_LEFT, SDL_HAT_RIGHT};
+    PadSnapshot snapshot;
+
+    if (slot < 0 || static_cast<size_t>(slot) >= devices.size() || devices[slot].joystick == nullptr)
+        return snapshot;
+    const auto &device = devices[slot];
+    snapshot.connected = true;
+    snapshot.mapped = device.controller != nullptr;
+    snapshot.name = names()[slot];
+    snapshot.buttons = SDL_JoystickNumButtons(device.joystick);
+    snapshot.hats = SDL_JoystickNumHats(device.joystick);
+    snapshot.axes = SDL_JoystickNumAxes(device.joystick);
+    const SDL_JoystickType type = SDL_JoystickGetType(device.joystick);
+    snapshot.joystick = device.description.joystick || type == SDL_JOYSTICK_TYPE_FLIGHT_STICK ||
+                        type == SDL_JOYSTICK_TYPE_THROTTLE;
+    snapshot.axisKinds = device.description.axes;
+    if (snapshot.mapped) {
+        // A trigger presses past half its travel, as the game latches it.
+        for (int control = 0; control < SDL_PAD_BUTTONS; ++control) {
+            if (control == SDL_PAD_LEFT_TRIGGER || control == SDL_PAD_RIGHT_TRIGGER)
+                snapshot.held[control] = SDL_GameControllerGetAxis(device.controller,
+                    control == SDL_PAD_LEFT_TRIGGER ? SDL_CONTROLLER_AXIS_TRIGGERLEFT
+                                                    : SDL_CONTROLLER_AXIS_TRIGGERRIGHT) >= 16384;
+            else
+                snapshot.held[control] = SDL_GameControllerGetButton(device.controller, buttons[control]) != 0;
+        }
+        for (int axis = 0; axis < 4; ++axis)
+            snapshot.held[SDL_PAD_LEFT_STICK_X + axis] =
+                std::abs(static_cast<int>(SDL_GameControllerGetAxis(device.controller, sticks[axis]))) >= 16384;
+        return snapshot;
+    }
+    for (int button = 0; button < std::min(snapshot.buttons, SDL_PAD_STICK_BUTTONS); ++button)
+        snapshot.held[SDL_PAD_STICK_BUTTON + button] = SDL_JoystickGetButton(device.joystick, button) != 0;
+    for (int hat = 0; hat < std::min(snapshot.hats, SDL_PAD_STICK_HATS); ++hat) {
+        const Uint8 value = SDL_JoystickGetHat(device.joystick, hat);
+        for (int direction = 0; direction < 4; ++direction)
+            snapshot.held[SDL_PAD_STICK_HAT + hat * 4 + direction] = (value & hatDirections[direction]) != 0;
+    }
+    for (int axis = 0; axis < std::min(snapshot.axes, SDL_PAD_STICK_AXES); ++axis)
+        snapshot.axisValues[axis] =
+            std::clamp(SDL_JoystickGetAxis(device.joystick, axis) / 32767.0f, -1.0f, 1.0f);
+    return snapshot;
 }
 
 fs::path joystick_calibration_path(const fs::path &gameDirectory)

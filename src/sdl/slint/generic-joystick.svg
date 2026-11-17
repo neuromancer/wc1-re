@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <!-- A generic flight stick: base, shaft, grip, hat and trigger. -->
+  <rect x="8" y="50" width="48" height="10" rx="4"/>
+  <path d="M32 50v-7"/>
+  <path d="M24 43h16l-2-28c0-6-12-6-12 0z"/>
+  <circle cx="32" cy="15" r="2.5"/>
+  <path d="M25.5 25c-4.5 0-5.5 4-3.5 7"/>
+</svg>

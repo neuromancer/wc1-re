@@ -9,7 +9,7 @@ import {
     TabWidget,
     VerticalBox
 } from "std-widgets.slint";
-import { ControlsView, InputBinding, InputRow, PadControl } from "controls.slint";
+import { ControlsView, InputBinding, InputRow, PadControl, PadDevice } from "controls.slint";
 import { CalibrationView, CalibrationStep, CalibrationMessage, StickView, DeadZoneText } from "calibration.slint";
 export { DeadZoneText, PadControl, CalibrationStep, CalibrationMessage, StickView }
 
@@ -169,6 +169,26 @@ export component LauncherWindow inherits Window {
         if root.joystick-mode-index == 3 {
             root.custom-pad-requested();
         }
+    }
+
+    // The Joystick tab reads the joysticks while it shows (launcher.cpp's
+    // PadSession) and shows the one in pad-slot; a press there opens the
+    // Custom mode's chooser for it.
+    in property <PadDevice> pad-device;
+    in property <[bool]> pad-held;
+    in property <[float]> pad-axis-values;
+    in property <[int]> pad-axis-kinds;
+    in property <[string]> pad-devices: ["", ""];
+    in-out property <int> pad-slot <=> pad-view.pad-slot;
+    callback pad-slot-chosen <=> pad-view.pad-slot-chosen;
+    callback pad-live-changed(bool);
+    callback pad-pressed(int);
+    pad-pressed(control) => {
+        pad-view.press-control(control);
+    }
+    property <bool> pad-live: root.page == 0 && root.settings-tab == 2;
+    changed pad-live => {
+        root.pad-live-changed(root.pad-live);
     }
 
     // The calibration page (calibration.slint); it shares the dead zone.
@@ -550,6 +570,11 @@ export component LauncherWindow inherits Window {
                                 joystick-mode: root.joystick-mode-index;
                                 joystick-axes: root.joystick-axes-index;
                                 pad-codes: root.pad-codes;
+                                pad-device: root.pad-device;
+                                pad-held: root.pad-held;
+                                pad-axis-values: root.pad-axis-values;
+                                pad-axis-kinds: root.pad-axis-kinds;
+                                pad-devices: root.pad-devices;
                                 // Its tooltips name the keys of the keyboard tab.
                                 keyboard-bindings: keys-view.keyboard-bindings;
                             }

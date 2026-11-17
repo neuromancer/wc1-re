@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <!-- A generic gamepad: body, D-pad and four buttons. -->
+  <path d="M15 20h34c7 0 10 8 11 17s-2 13-6 13-7-6-11-8H21c-4 2-7 8-11 8s-7-4-6-13 4-17 11-17z"/>
+  <path d="M17 27v10M12 32h10"/>
+  <circle cx="47" cy="27.5" r="1.5"/>
+  <circle cx="51.5" cy="32" r="1.5"/>
+  <circle cx="47" cy="36.5" r="1.5"/>
+  <circle cx="42.5" cy="32" r="1.5"/>
+</svg>

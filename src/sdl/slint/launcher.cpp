@@ -518,7 +518,7 @@ std::optional<int> pad_code(const LauncherWindow &window, int control, std::stri
                 return -10 - 2 * index - (reversed ? 1 : 0);
         }
     }
-    if (control >= SDL_PAD_BUTTONS)
+    if (!SdlPadControlTakesButton(control))
         return std::nullopt;
     if (function == "cycle-views")
         return -2;
@@ -536,16 +536,16 @@ std::optional<int> pad_code(const LauncherWindow &window, int control, std::stri
 
 std::string pad_function(const LauncherWindow &window, int control, int code)
 {
-    if (code == -2 && control < SDL_PAD_BUTTONS)
+    if (code == -2 && SdlPadControlTakesButton(control))
         return "cycle-views";
-    if (code == -3 && control < SDL_PAD_BUTTONS)
+    if (code == -3 && SdlPadControlTakesButton(control))
         return "roll-and-speed";
     if (code <= -10 && code > -10 - 2 * SDL_PAD_AXIS_FUNCTIONS && SdlPadControlTakesAxis(control)) {
         const int offset = -10 - code;
         return std::string(offset % 2 != 0 ? "-" : "") + g_apszSdlPadAxisFunctions[offset / 2];
     }
     const auto rows = window.get_keyboard_rows();
-    if (code >= 0 && control < SDL_PAD_BUTTONS && static_cast<size_t>(code) < rows->row_count()) {
+    if (code >= 0 && SdlPadControlTakesButton(control) && static_cast<size_t>(code) < rows->row_count()) {
         if (const auto data = rows->row_data(code))
             return std::string(std::string_view(data->id));
     }
@@ -554,12 +554,74 @@ std::string pad_function(const LauncherWindow &window, int control, int code)
 
 /* The defaults for an axis layout, with the saved "control=function" lines
    over them. */
+/* A raw joystick's axes by what they are: the stick's X turns as the axis
+   layout's left stick does and its Y pitches, a twist or rudder takes the
+   other turn, and the first throttle lever, or else Z, the throttle. Each is
+   reversed where its pair reads it the other way: the first of a pair grows
+   to the right, the second upwards (src/sdl/pad_bindings.h), and a lever is
+   taken to be forward at SDL's negative end. */
+std::vector<std::string> named_axis_functions(const std::vector<AxisKind> &kinds, int axes)
+{
+    const bool leftRolls = axes == 1 || axes == 2 || axes == 5;
+    const auto lever = [](AxisKind kind) {
+        return kind == AxisKind::Throttle || kind == AxisKind::Slider || kind == AxisKind::Dial ||
+               kind == AxisKind::Accelerator;
+    };
+    const bool hasLever = std::any_of(kinds.begin(), kinds.end(), lever);
+    std::vector<std::string> functions(kinds.size());
+    bool stickX = false;
+    bool stickY = false;
+    bool twist = false;
+    bool throttle = false;
+
+    for (size_t axis = 0; axis < kinds.size(); ++axis) {
+        const AxisKind kind = kinds[axis];
+        std::string function;
+        bool upwards = false;
+        if (kind == AxisKind::X && !stickX) {
+            function = leftRolls ? "roll" : "yaw";
+            stickX = true;
+        } else if (kind == AxisKind::Y && !stickY) {
+            function = "pitch";
+            upwards = true;
+            stickY = true;
+        } else if ((kind == AxisKind::RotationZ || kind == AxisKind::Rudder || kind == AxisKind::Wheel) && !twist) {
+            function = leftRolls ? "yaw" : "roll";
+            twist = true;
+        } else if ((lever(kind) || (kind == AxisKind::Z && !hasLever)) && !throttle) {
+            function = "throttle";
+            upwards = true;
+            throttle = true;
+        }
+        if (!function.empty() && upwards != ((axis & 1) != 0))
+            function = "-" + function;
+        functions[axis] = function;
+    }
+    return functions;
+}
+
 std::shared_ptr<slint::VectorModel<int>> pad_codes(const LauncherWindow &window, int axes,
                                                    std::string_view saved)
 {
     std::vector<int> codes(SDL_PAD_CONTROLS);
-    for (int control = 0; control < SDL_PAD_CONTROLS; ++control)
-        codes[control] = pad_code(window, control, SdlDefaultPadFunction(control, axes)).value_or(-1);
+    std::vector<std::string> named;
+    /* A raw joystick on the tab whose axes the platform names starts with
+       them by what they are. */
+    const auto device = window.get_pad_device();
+    const auto kinds = window.get_pad_axis_kinds();
+    if (device.connected && !device.mapped && kinds && kinds->row_count() > 0) {
+        std::vector<AxisKind> list;
+        for (size_t axis = 0; axis < kinds->row_count(); ++axis)
+            list.push_back(static_cast<AxisKind>(kinds->row_data(axis).value_or(0)));
+        named = named_axis_functions(list, axes);
+    }
+    for (int control = 0; control < SDL_PAD_CONTROLS; ++control) {
+        const size_t axis = static_cast<size_t>(control - SDL_PAD_STICK_AXIS);
+        const std::string function = control >= SDL_PAD_STICK_AXIS && !named.empty()
+            ? (axis < named.size() ? named[axis] : std::string())
+            : SdlDefaultPadFunction(control, axes);
+        codes[control] = pad_code(window, control, function).value_or(-1);
+    }
     while (!saved.empty()) {
         const auto end = saved.find('\n');
         const auto line = saved.substr(0, end);
@@ -886,6 +948,128 @@ private:
     }
 };
 
+/* The Joystick tab's live view. While the tab shows, the joysticks are read
+   about thirty times a second, and the tab shows the one in pad-slot, or the
+   other when only that is connected. A button, trigger or hat direction
+   pressed since the last reading goes to the Custom mode's chooser. */
+class PadSession {
+public:
+    explicit PadSession(const slint::ComponentHandle<LauncherWindow> &launcher)
+        : window(launcher)
+    {
+        window->on_pad_slot_chosen([this](int) {
+            if (shown)
+                tick();
+        });
+    }
+
+    void show()
+    {
+        if (shown)
+            return;
+        shown = true;
+        joysticks.start();
+        previous = {};
+        tick();
+        timer.start(slint::TimerMode::Repeated, std::chrono::milliseconds(33), [this]() { tick(); });
+    }
+
+    void hide()
+    {
+        if (!shown)
+            return;
+        shown = false;
+        timer.stop();
+        joysticks.stop();
+        previous = {};
+        shownNames = {};
+        publish({});
+        window->set_pad_devices(std::make_shared<slint::VectorModel<slint::SharedString>>(
+            std::vector<slint::SharedString> {"", ""}));
+    }
+
+private:
+    void tick()
+    {
+        joysticks.update();
+        const auto names = joysticks.names();
+        if (names != shownNames) {
+            shownNames = names;
+            window->set_pad_devices(std::make_shared<slint::VectorModel<slint::SharedString>>(
+                std::vector<slint::SharedString> {slint::SharedString(names[0]), slint::SharedString(names[1])}));
+        }
+        int slot = std::clamp(window->get_pad_slot(), 0, 1);
+        if (names[slot].empty() && !names[1 - slot].empty()) {
+            slot = 1 - slot;
+            window->set_pad_slot(slot);
+        }
+        const PadSnapshot next = joysticks.snapshot(slot);
+        const bool sameDevice = next.connected && previous.connected && slot == previousSlot &&
+                                next.mapped == previous.mapped && next.name == previous.name;
+        publish(next);
+        const PadSnapshot earlier = previous;
+        previous = next;
+        previousSlot = slot;
+        if (!sameDevice)
+            return;
+        for (int control = 0; control < SDL_PAD_CONTROLS; ++control) {
+            if (SdlPadControlTakesButton(control) && next.held[control] && !earlier.held[control]) {
+                window->invoke_pad_pressed(control);
+                break;
+            }
+        }
+    }
+
+    // Hands the tab what changed.
+    void publish(const PadSnapshot &next)
+    {
+        PadDevice device;
+        device.connected = next.connected;
+        device.mapped = next.mapped;
+        device.joystick = next.joystick;
+        device.name = slint::SharedString(next.name);
+        device.buttons = next.buttons;
+        device.hats = next.hats;
+        device.axes = next.axes;
+        if (!(device == shownDevice)) {
+            shownDevice = device;
+            std::vector<int> kinds;
+            for (const auto kind : next.axisKinds)
+                kinds.push_back(static_cast<int>(kind));
+            window->set_pad_axis_kinds(std::make_shared<slint::VectorModel<int>>(std::move(kinds)));
+            window->set_pad_device(device);
+        }
+        if (next.held != shownHeld || !heldModel) {
+            shownHeld = next.held;
+            heldModel = std::make_shared<slint::VectorModel<bool>>(
+                std::vector<bool>(shownHeld.begin(), shownHeld.end()));
+            window->set_pad_held(heldModel);
+        }
+        bool moved = !valuesModel;
+        for (size_t axis = 0; axis < next.axisValues.size(); ++axis)
+            moved = moved || std::fabs(next.axisValues[axis] - shownValues[axis]) >= 0.01f;
+        if (moved) {
+            shownValues = next.axisValues;
+            valuesModel = std::make_shared<slint::VectorModel<float>>(
+                std::vector<float>(shownValues.begin(), shownValues.end()));
+            window->set_pad_axis_values(valuesModel);
+        }
+    }
+
+    slint::ComponentHandle<LauncherWindow> window;
+    JoystickReader joysticks;
+    slint::Timer timer;
+    bool shown = false;
+    PadSnapshot previous;
+    int previousSlot = 0;
+    std::array<std::string, 2> shownNames;
+    PadDevice shownDevice;
+    std::array<bool, SDL_PAD_CONTROLS> shownHeld {};
+    std::array<float, SDL_PAD_STICK_AXES> shownValues {};
+    std::shared_ptr<slint::VectorModel<bool>> heldModel;
+    std::shared_ptr<slint::VectorModel<float>> valuesModel;
+};
+
 } // namespace
 
 int SdlRunLauncherGui(SdlLauncherOptions *options)
@@ -924,11 +1108,23 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
 #endif
     // The keyboard and mouse tab takes the saved bindings when it first opens.
     bool controlsReady = false;
-    // The calibration page reads joysticks only while it shows.
+    // The calibration page and the Joystick tab read joysticks only while
+    // they show; the game opens its own.
     std::unique_ptr<CalibrationSession> calibration;
     const auto stop_calibration = [&calibration]() {
         if (calibration)
             calibration->hide();
+    };
+    PadSession pad(window);
+    window->on_pad_live_changed([&pad](bool live) {
+        if (live)
+            pad.show();
+        else
+            pad.hide();
+    });
+    const auto stop_joysticks = [&pad, stop_calibration]() {
+        stop_calibration();
+        pad.hide();
     };
     accepted = false;
     pickerInitialized = false;
@@ -990,11 +1186,11 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         calibration->show(path_from_utf8(std::string(window->get_game_directory())));
     });
     window->on_calibration_closed(stop_calibration);
-    window->window().on_close_requested([stop_calibration]() {
-        stop_calibration();
+    window->window().on_close_requested([stop_joysticks]() {
+        stop_joysticks();
         return slint::CloseRequestResponse::HideWindow;
     });
-    const auto launch = [&window, &accepted, &installations, &controlsReady, options, stop_calibration](
+    const auto launch = [&window, &accepted, &installations, &controlsReady, options, stop_joysticks](
                             int campaign, bool transfer, bool credits) {
         refresh_window(*window, installations);
         if (!window->get_path_valid() || campaign < 0 || campaign > 2 || (transfer && !campaign) ||
@@ -1036,7 +1232,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         /* Hide while the event loop still runs: on Linux the request takes
            effect only when the loop processes it, so hiding after the loop
            left the launcher on screen during the game. */
-        stop_calibration();
+        stop_joysticks();
         window->hide();
         slint::quit_event_loop();
     };
@@ -1046,8 +1242,8 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->on_credits_requested([launch]() {
         launch(0, false, true);
     });
-    window->on_cancel_requested([stop_calibration]() {
-        stop_calibration();
+    window->on_cancel_requested([stop_joysticks]() {
+        stop_joysticks();
         slint::quit_event_loop();
     });
 
@@ -1086,7 +1282,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     slint::run_event_loop();
     if (pickerInitialized)
         NFD_Quit();
-    stop_calibration();
+    stop_joysticks();
     window->hide();
     if (!accepted)
         return SDL_LAUNCHER_CANCELLED;

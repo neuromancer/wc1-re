@@ -1526,12 +1526,148 @@ msgctxt "ControlsView"
 msgid "Reversed: the other way round."
 msgstr "Inversé : dans l’autre sens."
 
-#: src/sdl/slint/controls.slint:972
+#: src/sdl/slint/controls.slint:1330
 msgctxt "ControlsView"
-msgid "Click an input to change it; changes apply when the game starts."
-msgstr "Cliquez sur une commande pour la changer ; les changements s’appliquent au lancement du jeu."
+msgid "Press an input on the controller, or click it, to change it; changes apply when the game starts."
+msgstr "Appuyez sur une commande de la manette, ou cliquez dessus, pour la changer ; les changements s’appliquent au lancement du jeu."
 
 #: src/sdl/slint/controls.slint:798
 msgctxt "ControlsView"
 msgid "To rebind it, choose Custom in Control mode."
 msgstr "Pour la réaffecter, choisissez Personnalisé dans Mode de contrôle."
+
+#: src/sdl/slint/controls.slint:1042
+msgctxt "ControlsView"
+msgid "X axis"
+msgstr "Axe X"
+
+#: src/sdl/slint/controls.slint:1043
+msgctxt "ControlsView"
+msgid "Y axis"
+msgstr "Axe Y"
+
+#: src/sdl/slint/controls.slint:1044
+msgctxt "ControlsView"
+msgid "Z axis"
+msgstr "Axe Z"
+
+#: src/sdl/slint/controls.slint:1045
+msgctxt "ControlsView"
+msgid "X rotation"
+msgstr "Rotation X"
+
+#: src/sdl/slint/controls.slint:1046
+msgctxt "ControlsView"
+msgid "Y rotation"
+msgstr "Rotation Y"
+
+#: src/sdl/slint/controls.slint:1047
+msgctxt "ControlsView"
+msgid "Z rotation"
+msgstr "Rotation Z"
+
+#: src/sdl/slint/controls.slint:1048
+msgctxt "ControlsView"
+msgid "Slider"
+msgstr "Curseur"
+
+#: src/sdl/slint/controls.slint:1049
+msgctxt "ControlsView"
+msgid "Dial"
+msgstr "Cadran"
+
+#: src/sdl/slint/controls.slint:1050
+msgctxt "ControlsView"
+msgid "Wheel"
+msgstr "Molette"
+
+#: src/sdl/slint/controls.slint:1051
+msgctxt "ControlsView"
+msgid "Rudder"
+msgstr "Palonnier"
+
+#: src/sdl/slint/controls.slint:881 src/sdl/slint/controls.slint:1052
+msgctxt "ControlsView"
+msgid "Throttle"
+msgstr "Gaz"
+
+#: src/sdl/slint/controls.slint:1053
+msgctxt "ControlsView"
+msgid "Accelerator"
+msgstr "Accélérateur"
+
+#: src/sdl/slint/controls.slint:1054
+msgctxt "ControlsView"
+msgid "Brake"
+msgstr "Frein"
+
+#: src/sdl/slint/controls.slint:1084 src/sdl/slint/controls.slint:1085
+msgctxt "ControlsView"
+msgid "Axis {}"
+msgstr "Axe {}"
+
+#: src/sdl/slint/controls.slint:1087 src/sdl/slint/controls.slint:1715
+msgctxt "ControlsView"
+msgid "Hat {}"
+msgstr "Chapeau {}"
+
+#: src/sdl/slint/controls.slint:1088
+msgctxt "ControlsView"
+msgid "Button {}"
+msgstr "Bouton {}"
+
+#: src/sdl/slint/controls.slint:1321 src/sdl/slint/controls.slint:1333
+msgctxt "ControlsView"
+msgid "Original joystick: buttons 1 and 2 together fire a missile; double-click button 2 and hold it for the afterburner."
+msgstr "Joystick d’origine : les boutons 1 et 2 ensemble tirent un missile ; double-cliquez sur le bouton 2 et maintenez-le pour la postcombustion."
+
+#: src/sdl/slint/controls.slint:1323
+msgctxt "ControlsView"
+msgid "SWC has no keys for button 11 or for hat 1's up, down and right."
+msgstr "SWC n’a pas de touche pour le bouton 11 ni pour le haut, le bas et la droite du chapeau 1."
+
+#: src/sdl/slint/controls.slint:1326
+msgctxt "ControlsView"
+msgid "In menus, button 1 selects, buttons 2 and 9 go back, button 3 presses Space and hat 1 moves."
+msgstr "Dans les menus, le bouton 1 sélectionne, les boutons 2 et 9 reviennent, le bouton 3 appuie sur Espace et le chapeau 1 déplace."
+
+#: src/sdl/slint/controls.slint:1335
+msgctxt "ControlsView"
+msgid "In the communications display, hat 1's up and down choose, right sends and left closes."
+msgstr "Sur l’écran des communications, le haut et le bas du chapeau 1 choisissent, la droite envoie et la gauche ferme."
+
+#: src/sdl/slint/controls.slint:1337
+msgctxt "ControlsView"
+msgid "Button 4 answers Yes in prompts; button 9 is Escape outside flight."
+msgstr "Le bouton 4 répond Oui aux questions ; le bouton 9 est Échap hors du vol."
+
+#: src/sdl/slint/controls.slint:1665
+msgctxt "ControlsView"
+msgid "Joystick"
+msgstr "Joystick"
+
+#: src/sdl/slint/controls.slint:1666
+msgctxt "ControlsView"
+msgid "{n} button"
+msgid_plural "{n} buttons"
+msgstr[0] "{n} bouton"
+msgstr[1] "{n} boutons"
+
+#: src/sdl/slint/controls.slint:1667
+msgctxt "ControlsView"
+msgid "{n} hat"
+msgid_plural "{n} hats"
+msgstr[0] "{n} chapeau"
+msgstr[1] "{n} chapeaux"
+
+#: src/sdl/slint/controls.slint:1668
+msgctxt "ControlsView"
+msgid "{n} axis"
+msgid_plural "{n} axes"
+msgstr[0] "{n} axe"
+msgstr[1] "{n} axes"
+
+#: src/sdl/slint/controls.slint:1695
+msgctxt "ControlsView"
+msgid "Axes"
+msgstr "Axes"

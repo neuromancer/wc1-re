@@ -8,6 +8,8 @@ typedef struct SdlJoystickDevice {
     SDL_Joystick *joystick;
     SDL_JoystickID instanceId;
     Uint8 hatState;
+    /* A raw joystick's second hat, which only the Custom mode reads. */
+    Uint8 secondHatState;
     /* Mapped controllers' analog triggers, as pressed buttons: bit 0 LT,
        bit 1 RT. Polling and events latch them separately. */
     Uint8 triggersHeld;
@@ -125,8 +127,8 @@ static int g_nSdlPadFireGuns = -1;
 static int g_nSdlPadAfterburner = -1;
 /* Frames for which a pressed button's key stays held even if it was let go
  * at once, so that the game reads the key's modifier with the press. */
-static Uint8 g_abSdlPadLatches[SDL_PAD_BUTTONS];
-static Uint32 g_adwSdlPadRepeats[SDL_PAD_BUTTONS];
+static Uint8 g_abSdlPadLatches[SDL_PAD_CONTROLS];
+static Uint32 g_adwSdlPadRepeats[SDL_PAD_CONTROLS];
 /* The left stick's steps, which the bindings take over from the game. */
 static int g_nSdlPadStickX;
 static int g_nSdlPadStickY;
@@ -286,7 +288,7 @@ static int SdlParsePadFunction(int control, const char *name, size_t length,
             }
         }
     }
-    if (control >= SDL_PAD_BUTTONS)
+    if (!SdlPadControlTakesButton(control))
         return 0;
     if (SdlPadNameIs(name, length, "cycle-views")) {
         binding->kind = SDL_PAD_CYCLE_VIEWS;
@@ -619,6 +621,7 @@ static void SdlCloseJoystick(SdlJoystickDevice *device)
     device->joystick = 0;
     device->instanceId = -1;
     device->hatState = SDL_HAT_CENTERED;
+    device->secondHatState = SDL_HAT_CENTERED;
     device->triggersHeld = 0;
     device->triggersPressed = 0;
     device->rumbleSupport = 0;
@@ -687,6 +690,7 @@ static void SdlOpenJoystick(int deviceIndex)
     device->joystick = joystick;
     device->instanceId = SDL_JoystickInstanceID(joystick);
     device->hatState = SDL_HAT_CENTERED;
+    device->secondHatState = SDL_HAT_CENTERED;
     device->triggersHeld = 0;
     device->triggersPressed = 0;
     device->rumbleSupport = 0;
@@ -864,9 +868,17 @@ static int SdlReadJoystickTrigger(SdlJoystickDevice *device, int button)
     return (device->triggersHeld & bit) != 0;
 }
 
+/* The Custom mode's controls a device takes (pad_bindings.h): a mapped
+ * controller the gamepad's, any other joystick its own buttons, hats and
+ * axes. */
+static int SdlPadDeviceControl(const SdlJoystickDevice *device, int control)
+{
+    return device->controller != 0 ? control < SDL_PAD_GAMEPAD_CONTROLS
+                                    : control >= SDL_PAD_GAMEPAD_CONTROLS;
+}
+
 /* Whether one of the Custom mode's buttons is held: a mapped controller's
- * button or trigger, or a raw joystick's button in SdlJoystickButton's
- * order, its first hat standing for the D-pad. */
+ * button or trigger, or another joystick's button or hat direction. */
 static int SdlPadControlHeld(SdlJoystickDevice *device, int control)
 {
     static const SDL_GameControllerButton buttons[SDL_PAD_BUTTONS] = {
@@ -883,20 +895,25 @@ static int SdlPadControlHeld(SdlJoystickDevice *device, int control)
         SDL_HAT_UP, SDL_HAT_DOWN, SDL_HAT_LEFT, SDL_HAT_RIGHT
     };
 
-    if (device->joystick == 0 || control < 0 || control >= SDL_PAD_BUTTONS)
+    int index;
+
+    if (device->joystick == 0 || !SdlPadControlTakesButton(control) ||
+        !SdlPadDeviceControl(device, control))
         return 0;
     if (device->controller != 0) {
         if (control == SDL_PAD_LEFT_TRIGGER || control == SDL_PAD_RIGHT_TRIGGER)
             return SdlReadJoystickTrigger(device, control == SDL_PAD_RIGHT_TRIGGER ? 0 : 1);
         return SDL_GameControllerGetButton(device->controller, buttons[control]) != 0;
     }
-    if (control >= SDL_PORT_JOYSTICK_BUTTON_DPAD_UP &&
-        SDL_JoystickNumHats(device->joystick) > 0 &&
-        (SDL_JoystickGetHat(device->joystick, 0) &
-         hatDirections[control - SDL_PORT_JOYSTICK_BUTTON_DPAD_UP]) != 0)
-        return 1;
-    return control < SDL_JoystickNumButtons(device->joystick) &&
-        SDL_JoystickGetButton(device->joystick, control) != 0;
+    if (control >= SDL_PAD_STICK_HAT) {
+        index = (control - SDL_PAD_STICK_HAT) / 4;
+        return index < SDL_JoystickNumHats(device->joystick) &&
+            (SDL_JoystickGetHat(device->joystick, index) &
+             hatDirections[(control - SDL_PAD_STICK_HAT) % 4]) != 0;
+    }
+    index = control - SDL_PAD_STICK_BUTTON;
+    return index < SDL_JoystickNumButtons(device->joystick) &&
+        SDL_JoystickGetButton(device->joystick, index) != 0;
 }
 
 /* Whether a button bound to a function (for a key, the action) is held. */
@@ -905,7 +922,7 @@ static int SdlPadFunctionHeld(SdlJoystickDevice *device, SdlPadFunctionKind kind
 {
     int control;
 
-    for (control = 0; control < SDL_PAD_BUTTONS; control++) {
+    for (control = 0; control < SDL_PAD_CONTROLS; control++) {
         if (g_aSdlPadBindings[control].kind == kind &&
             (kind != SDL_PAD_KEY || g_aSdlPadBindings[control].value == action) &&
             SdlPadControlHeld(device, control))
@@ -1097,7 +1114,26 @@ static int SdlReadPadAxis(const SdlJoystickDevice *device, int control,
                           int *step, int *position)
 {
     Sint16 raw;
+    int axis;
 
+    if (!SdlPadDeviceControl(device, control))
+        return 0;
+    /* Another joystick's axes by number, in pairs read as a stick's; its
+       first two are the stick the game calibrates. */
+    if (control >= SDL_PAD_STICK_AXIS) {
+        axis = control - SDL_PAD_STICK_AXIS;
+        if (axis >= SDL_JoystickNumAxes(device->joystick))
+            return 0;
+        raw = SdlReadJoystickAxis(device, axis);
+        *step = axis == 0 ? g_nSdlPadStickX : axis == 1 ? g_nSdlPadStickY
+                                                        : SdlNormalizeFlightAxis(raw);
+        *position = raw + 32768;
+        if ((axis & 1) != 0) {
+            *step = -*step;
+            *position = 65535 - *position;
+        }
+        return 1;
+    }
     switch (control) {
     case SDL_PAD_LEFT_STICK_X:
         *step = g_nSdlPadStickX;
@@ -1203,7 +1239,7 @@ static void SdlApplyPadFlightControls(SdlJoystickDevice *device)
         SdlApplyThrottlePosition((unsigned int)throttle);
 
     now = SDL_GetTicks();
-    for (control = 0; control < SDL_PAD_BUTTONS; control++) {
+    for (control = 0; control < SDL_PAD_CONTROLS; control++) {
         const SdlPadBinding *binding = &g_aSdlPadBindings[control];
 
         if (binding->kind == SDL_PAD_KEY &&
@@ -1222,6 +1258,13 @@ static void SdlApplyPadFlightControls(SdlJoystickDevice *device)
     g_nSdlPadStickY = 0;
 }
 
+/* The gamepad's D-pad, or another joystick's first hat. */
+static int SdlPadControlIsDpad(int control)
+{
+    return (control >= SDL_PAD_DPAD_UP && control < SDL_PAD_BUTTONS) ||
+        (control >= SDL_PAD_STICK_HAT && control < SDL_PAD_STICK_HAT + 4);
+}
+
 /* The keys that the Custom mode's held buttons hold in flight, for the
  * game's GetAsyncKeyState: steering, the full turn rate and a key's
  * modifier. The D-pad leaves the communications display's choices alone. */
@@ -1237,13 +1280,13 @@ const Uint8 *SdlPadKeyboardState(const Uint8 *keys)
         slot < 0 || slot >= 2 || g_aSdlJoystickDevices[slot].joystick == 0)
         return keys;
     device = &g_aSdlJoystickDevices[slot];
-    for (control = 0; control < SDL_PAD_BUTTONS; control++) {
+    for (control = 0; control < SDL_PAD_CONTROLS; control++) {
         const SdlPadBinding *binding = &g_aSdlPadBindings[control];
         const SdlPadAction *action;
 
         if (binding->kind != SDL_PAD_KEY || binding->value == g_nSdlPadFireGuns ||
             binding->value == g_nSdlPadAfterburner ||
-            (control >= SDL_PORT_JOYSTICK_BUTTON_DPAD_UP && get_mode(1) == 4) ||
+            (SdlPadControlIsDpad(control) && get_mode(1) == 4) ||
             (g_abSdlPadLatches[control] == 0 && !SdlPadControlHeld(device, control)))
             continue;
         if (!copied) {
@@ -1552,7 +1595,7 @@ static void SdlPressPadControl(int button)
     const SdlPadBinding *binding;
     int scanCode;
 
-    if (button < 0 || button >= SDL_PAD_BUTTONS)
+    if (!SdlPadControlTakesButton(button))
         return;
     binding = &g_aSdlPadBindings[button];
     if (binding->kind == SDL_PAD_CYCLE_VIEWS) {
@@ -1797,6 +1840,13 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
 
     spaceflightActive = SdlJoystickSpaceflightActive();
     custom = spaceflightActive && g_eSdlJoystickMode == SDL_PORT_JOYSTICK_CUSTOM;
+    /* There another joystick's buttons are its own, by number, and
+       SdlHandleJoystickHatEvent binds its hats. */
+    if (custom && device->controller == 0 && !controllerEvent) {
+        if (pressed && button < SDL_PAD_STICK_BUTTONS)
+            SdlPressPadControl(SDL_PAD_STICK_BUTTON + button);
+        return;
+    }
     eventType = pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP;
     if (button == SDL_PORT_JOYSTICK_BUTTON_BACK) {
         /* View cycles the views in flight; elsewhere it is Escape. */
@@ -1884,20 +1934,40 @@ void SdlHandleJoystickTriggerEvent(SDL_JoystickID instanceId, Uint8 axis,
 void SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,
                                   Uint8 hat, Uint8 value)
 {
+    static const Uint8 directions[4] = {
+        SDL_HAT_UP, SDL_HAT_DOWN, SDL_HAT_LEFT, SDL_HAT_RIGHT
+    };
     SdlJoystickDevice *device;
+    Uint8 *state;
     Uint8 pressed;
+    int direction;
     int slot;
 
     slot = SdlFindJoystick(instanceId);
     if (slot == -1 || slot != nCurrentActiveInputDevice ||
-        hat != 0)
+        hat >= SDL_PAD_STICK_HATS)
         return;
     device = &g_aSdlJoystickDevices[slot];
     if (device->controller != 0)
         return;
 
-    pressed = (value & ~device->hatState);
-    device->hatState = value;
+    state = hat == 0 ? &device->hatState : &device->secondHatState;
+    pressed = (value & ~*state);
+    *state = value;
+    /* The Custom mode's flight binds both hats' directions; the first hat
+       still chooses in the communications display. */
+    if (g_eSdlJoystickMode == SDL_PORT_JOYSTICK_CUSTOM && SdlJoystickSpaceflightActive() &&
+        !joystickRetryMode) {
+        for (direction = 0; direction < 4; direction++) {
+            if ((pressed & directions[direction]) == 0 ||
+                (hat == 0 && SdlHandleCommunicationDpad(SDL_PORT_JOYSTICK_BUTTON_DPAD_UP + direction)))
+                continue;
+            SdlPressPadControl(SDL_PAD_STICK_HAT + hat * 4 + direction);
+        }
+        return;
+    }
+    if (hat != 0)
+        return;
     if ((pressed & SDL_HAT_UP) != 0)
         SdlHandleJoystickButtonEvent(
             instanceId, SDL_PORT_JOYSTICK_BUTTON_DPAD_UP, 1, 0);

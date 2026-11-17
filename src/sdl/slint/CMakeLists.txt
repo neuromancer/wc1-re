@@ -52,6 +52,8 @@ pkg_check_modules(WC1_SDL2 REQUIRED IMPORTED_TARGET sdl2)
 
 add_library(wc1-slint-gui STATIC
     launcher.cpp
+    launcher_axes.cpp
+    launcher_axes.h
     launcher_config.cpp
     launcher_config.h
     launcher_joystick.cpp
@@ -91,7 +93,10 @@ if(WIN32)
             -include "${CMAKE_CURRENT_SOURCE_DIR}/slint_static.h"
         )
     endif()
+    # DirectInput describes joysticks' axes (launcher_axes.cpp).
     target_link_libraries(wc1-slint-gui PRIVATE
+        dinput8
+        dxguid
         imm32
         ole32
         shell32
@@ -111,6 +116,8 @@ if(APPLE)
     find_library(CORETEXT_FRAMEWORK CoreText REQUIRED)
     find_library(COREVIDEO_FRAMEWORK CoreVideo REQUIRED)
     find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+    # IOKit describes joysticks' axes (launcher_axes.cpp).
+    find_library(IOKIT_FRAMEWORK IOKit REQUIRED)
     find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
     target_link_libraries(wc1-slint-gui PRIVATE
         ${APPKIT_FRAMEWORK}
@@ -121,6 +128,7 @@ if(APPLE)
         ${CORETEXT_FRAMEWORK}
         ${COREVIDEO_FRAMEWORK}
         ${FOUNDATION_FRAMEWORK}
+        ${IOKIT_FRAMEWORK}
         ${QUARTZCORE_FRAMEWORK}
     )
 endif()
