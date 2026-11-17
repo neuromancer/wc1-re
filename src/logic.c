@@ -1699,6 +1699,16 @@ unsigned int InitializeConstellationObject(
     asObjScreenAngles[object] = 0;
     asObjectViewFrames[object] = 0;
     aeObjectTypeList[object] = OBJECT_TYPE_HORNET;
+#ifdef SDL_PORT
+    /* SM2's backdrops number PLANETS1.VGA's shapes from 12, which the DOS
+       SM2.EXE loads by name (CreateBackdrop 156:04ea), as wcdx's SM2 does.
+       The Kilrathi Saga SM2.EXE kept WC1's PLANETS.VGA alone, whose twelve
+       shapes end before them, so its skies were empty. */
+    if (definition->shapePacket >= 12)
+        apObjShapeArray[object] =
+            PacketLoad("PLANETS1.VGA", (definition->shapePacket - 12), 0, 0, 0);
+    else
+#endif
     apObjShapeArray[object] =
         FetchDiskPacketRetrying(
             12, (definition->shapePacket + 1), 0);

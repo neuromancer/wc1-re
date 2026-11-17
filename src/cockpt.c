@@ -79,12 +79,18 @@ static ShortRect stPreviousTargetBracketBounds = {-0x7fff, 0, 0, 0}; /* 0x004692
 short nNavPointerObject = -1; /* 0x00469208 */
 static Viewport stTrainSimVduSource = {0}; /* 0x00469210 */
 /* 0x00469228 */
-static ShortPoint aaCockpitDamagePositions[5][4] = {
+static ShortPoint aaCockpitDamagePositions[COCKPIT_VIEW_COUNT][4] = {
     {{224, 5}, {132, 96}, {233, 107}, {149, 161}},
     {{177, 6}, {153, 142}, {103, 140}, {55, 183}},
     {{107, 25}, {211, 32}, {21, 178}, {300, 178}},
     {{74, 10}, {294, 19}, {197, 105}, {105, 134}},
     {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
+#ifdef SDL_PORT
+    /* The Dralthi's scars, from the DOS SM2.EXE's sixth row (131:07b8).
+       The Kilrathi Saga SM2.EXE has no such row and draws no scars at all
+       (explosion_draw 0x424213 returns at once); they are restored. */
+    , [OBJECT_TYPE_DRALTHI] = {{35, 20}, {90, 146}, {209, 151}, {229, 180}}
+#endif
 };
 struct Shape *pConfedCommBackground = 0; /* 0x00469278 */
 struct Shape *pCommStaticShape = 0; /* 0x0046927c */
@@ -716,6 +722,15 @@ void draw_cockpit_lights(void)
                 else
                     frame = aacCockpitLightOffFrame[
                         cCurrentCockpitView][light];
+#ifdef SDL_PORT
+                /* SM2.EXE 0x41fede: the Dralthi cockpit's autopilot lamp,
+                   frames 98 (off) and 99 (on), is a filled square, black
+                   or red, rather than a frame of the lamp shapes. */
+                if (frame == 98 || frame == 99)
+                    DrawFilledViewportRect(&stScreenView, x, y, x + 2, y + 2,
+                                           frame == 99 ? cRedColour : 0);
+                else
+#endif
                 DrawSpriteDefault(&stScreenView, x, y,
                                   pCockpitDamageShape, frame);
                 abCockpitIndicatorStatesArray[light] =
@@ -736,6 +751,13 @@ void draw_cockpit_lights(void)
             else
                 frame = aacCockpitLightOffFrame[
                     cCurrentCockpitView][light];
+#ifdef SDL_PORT
+            if (frame == 98 || frame == 99)
+                DrawFilledViewportRect(&stScreenView, x, cockpitlessY, x + 2,
+                                       cockpitlessY + 2,
+                                       frame == 99 ? cRedColour : 0);
+            else
+#endif
             DrawSpriteDefault(&stScreenView, x, cockpitlessY,
                               pCockpitDamageShape, frame);
             abCockpitIndicatorStatesArray[light] =
@@ -2785,11 +2807,6 @@ void explosion_draw(void)
 {
     short damage;
 
-#ifdef SDL_PORT
-    /* SM2 has no Dralthi row in its cockpit-scar coordinate table. */
-    if (cCurrentCockpitView == OBJECT_TYPE_DRALTHI)
-        return;
-#endif
     if (pCockpitPilotShape == 0)
         pCockpitPilotShape =
             FetchDiskPacketRetrying(
@@ -2902,8 +2919,6 @@ void place_damage_on_cockpit(short damage)
         SdlSwcCockpitDamage(damage);
         return;
     }
-    if (cCurrentCockpitView == OBJECT_TYPE_DRALTHI)
-        return;
 #endif
     if (nCameraViewMode == 0 && nTrainSimActive == 0 &&
         *(state = &anCockpitDamageState[damage]) == 0) {

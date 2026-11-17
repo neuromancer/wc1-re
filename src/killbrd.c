@@ -893,8 +893,26 @@ void ShowChalkBoard(void)
     short pilot;
     short rowY;
     short swap;
+#ifdef SDL_PORT
+    PilotRecord jazzAndDoomsday[2];
+    short deathEntry;
+    int sm2;
+#endif
 
     done = 0;
+#ifdef SDL_PORT
+    /* SM2.EXE 0x43a8a1: SM2's chalkboard lists Bossman and Paladin, its
+       roster entries 10 and 9, where Jazz and Doomsday took over WC1's
+       entries 2 and 5 (SdlSetSm2Pilots); those two veterans keep their
+       WC1 records. While it shows, entries 2 and 5 hold them. */
+    sm2 = SdlPlayingSm2();
+    if (sm2) {
+        jazzAndDoomsday[0] = aPilotEntriesList[2];
+        jazzAndDoomsday[1] = aPilotEntriesList[5];
+        aPilotEntriesList[2] = aInitialPilotRecords[2];
+        aPilotEntriesList[5] = aInitialPilotRecords[5];
+    }
+#endif
     for (index = 0; index < 9; index++) {
         for (other = index; other < 9; other++) {
             if (aPilotEntriesList[asChalkBoardPilotOrder[index]].kills * 1000 -
@@ -951,9 +969,23 @@ void ShowChalkBoard(void)
                               10, rowY,
                               _(apszPilotRankNames[aPilotEntriesList[pilot].rank]),
                               pilotName);
+#ifdef SDL_PORT
+            /* There the two veterans' deaths are entries 10 and 9, and
+               Bossman is KIA from series 3. */
+            deathEntry = sm2 && pilot == 2 ? 10 : sm2 && pilot == 5 ? 9 : pilot;
+            if (sm2 && pilot == 2 && stCampaignState.currentSeries >= 3 &&
+                stCampaignState.currentMission >= 0) {
+                DrawFormattedText("%X%Y     %s",
+                                  230, rowY,
+                                  C_("font3", "KIA"));
+            } else if (pilot == 8 ||
+                stCampaignState
+                    .personalityDeathMission[deathEntry] == 0) {
+#else
             if (pilot == 8 ||
                 stCampaignState
                     .personalityDeathMission[pilot] == 0) {
+#endif
                 DrawFormattedText("%X%Y%d%X%d",
                                   230, rowY,
                                   aPilotEntriesList[pilot].missions,
@@ -975,6 +1007,12 @@ void ShowChalkBoard(void)
     ClearInputKeyStatePreservingModifiers();
     bInputModeState = savedInputMode;
     FlushInputEvents();
+#ifdef SDL_PORT
+    if (sm2) {
+        aPilotEntriesList[2] = jazzAndDoomsday[0];
+        aPilotEntriesList[5] = jazzAndDoomsday[1];
+    }
+#endif
 }
 
 /* Function start: 0x440800 */
