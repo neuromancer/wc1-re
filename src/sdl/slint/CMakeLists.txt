@@ -96,7 +96,6 @@ if(WIN32)
     # DirectInput describes joysticks' axes (launcher_axes.cpp).
     target_link_libraries(wc1-slint-gui PRIVATE
         dinput8
-        dxguid
         imm32
         ole32
         shell32

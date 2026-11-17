@@ -149,6 +149,9 @@ JoystickDescription describe_joystick(int deviceIndex, int axisCount)
 #define NOMINMAX
 #endif
 #include <windows.h>
+/* Define DirectInput's GUIDs here rather than linking dxguid, whose single
+   object also defines the DirectDraw GUIDs that the game's dib.c does. */
+#include <initguid.h>
 #include <dinput.h>
 
 namespace wc1_launcher {
