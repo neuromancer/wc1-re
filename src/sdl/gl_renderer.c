@@ -320,6 +320,8 @@ static const GLchar g_spriteFragmentShaderSource[] =
 #define GL_HIRES_CELL_WIDTH 16
 #define GL_HIRES_CELL_HEIGHT 8
 #define GL_HIRES_TEXT_FONT 0
+/* How many presents a hidden glyph whose whole line is gone is kept. */
+#define GL_HIRES_HIDDEN_FRAME_LIMIT 15
 
 typedef struct GlHiResGlyph {
     const unsigned char *buffer;
@@ -334,6 +336,10 @@ typedef struct GlHiResGlyph {
     unsigned char centered;
     /* 1 when the game drew the cell's first row elsewhere. */
     unsigned char skipped;
+    /* Presents in a row that have not shown the letter. */
+    unsigned char misses;
+    /* The present when this letter first appeared at this place. */
+    unsigned int stamp;
     unsigned char before[GL_HIRES_CELL_WIDTH * GL_HIRES_CELL_HEIGHT];
     unsigned char after[GL_HIRES_CELL_WIDTH * GL_HIRES_CELL_HEIGHT];
 } GlHiResGlyph;
@@ -419,6 +425,7 @@ static GlHiResGlyph g_aHiResOffscreenGlyphs[GL_HIRES_OFFSCREEN_GLYPH_CAPACITY];
 static unsigned int g_nHiResOffscreenGlyphCount;
 static GlHiResGlyph g_stPendingHiResGlyph;
 static int g_bHiResGlyphPending;
+static unsigned int g_nHiResPresentCount;
 
 static void ResetRecordedSprites(void)
 {
@@ -662,6 +669,7 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
     glyph->background = background;
     glyph->centered = centered != 0;
     glyph->skipped = (unsigned char)skipped;
+    glyph->misses = 0;
     for (row = 0; row < height; row++)
         memcpy(glyph->before + row * width,
                view->pixels + offset + (long)row * stride, (size_t)width);
@@ -701,9 +709,11 @@ static void StoreHiResGlyph(GlHiResGlyph *glyphs, unsigned int *count,
     unsigned int index;
     unsigned int kept;
     unsigned int slot;
+    unsigned int stamp;
     int removed;
 
     slot = *count;
+    stamp = g_nHiResPresentCount;
     removed = 0;
     for (index = 0; index < *count; index++) {
         if (glyphs[index].buffer != glyph->buffer ||
@@ -714,6 +724,12 @@ static void StoreHiResGlyph(GlHiResGlyph *glyphs, unsigned int *count,
             continue;
         if (slot == *count) {
             slot = index;
+            /* The same letter drawn again keeps its age. */
+            if (glyphs[index].x == glyph->x && glyphs[index].y == glyph->y &&
+                glyphs[index].width == glyph->width &&
+                glyphs[index].height == glyph->height &&
+                glyphs[index].character == glyph->character)
+                stamp = glyphs[index].stamp;
         } else {
             glyphs[index].width = 0;
             removed = 1;
@@ -725,6 +741,7 @@ static void StoreHiResGlyph(GlHiResGlyph *glyphs, unsigned int *count,
         (*count)++;
     }
     glyphs[slot] = *glyph;
+    glyphs[slot].stamp = stamp;
     if (!removed)
         return;
     kept = 0;
@@ -917,6 +934,7 @@ static void CopyHiResGlyphsToScreen(const Viewport *source, int left, int top,
         copied.stride = SDL_PORT_FRAME_WIDTH;
         copied.x = (short)x;
         copied.y = (short)y;
+        copied.misses = 0;
         StoreHiResGlyph(g_aHiResGlyphs, &g_nHiResGlyphCount,
                         GL_HIRES_GLYPH_CAPACITY, &copied);
     }
@@ -1022,9 +1040,53 @@ static void CompositeHiResMouseCursor(const unsigned char *pixels)
     }
 }
 
-/* Drops the glyphs the frame no longer shows. The others' letters are erased
-   from the presented frame, so recorded sprites still show between
-   transparent HUD letters, and the layer gets the hi-res glyphs. A
+/* A letter something is drawn over, as the weapon display's missile crosses
+   its text, is hidden but keeps its place in its line: the game restores
+   what it covered without drawing the letter again. It is forgotten once
+   newer text is drawn in its line, or once the whole line has been gone
+   for a while. */
+static void DropHiddenHiResGlyphs(void)
+{
+    const GlHiResGlyph *glyph;
+    unsigned int first;
+    unsigned int last;
+    unsigned int index;
+    unsigned int kept;
+    unsigned int newest;
+    int shown;
+
+    kept = 0;
+    for (first = 0; first < g_nHiResGlyphCount; first = last) {
+        shown = 0;
+        newest = 0;
+        for (last = first; last < g_nHiResGlyphCount &&
+             (last == first || HiResGlyphsAdjacent(&g_aHiResGlyphs[last - 1],
+                                                   &g_aHiResGlyphs[last]));
+             last++) {
+            if (g_aHiResGlyphs[last].misses == 0) {
+                shown = 1;
+                if (g_aHiResGlyphs[last].stamp > newest)
+                    newest = g_aHiResGlyphs[last].stamp;
+            }
+        }
+        for (index = first; index < last; index++) {
+            glyph = &g_aHiResGlyphs[index];
+            if (glyph->misses != 0 &&
+                (shown ? glyph->stamp < newest
+                       : glyph->misses > GL_HIRES_HIDDEN_FRAME_LIMIT))
+                continue;
+            if (kept != index)
+                g_aHiResGlyphs[kept] = *glyph;
+            kept++;
+        }
+    }
+    g_nHiResGlyphCount = kept;
+}
+
+/* Forgets the glyphs the frame has stopped showing and hides those it does
+   not show now. The shown glyphs' letters are erased from the presented
+   frame, so recorded sprites still show between transparent HUD letters,
+   and the layer gets the hi-res glyphs. A
    run of adjacent cells is set with the hi-res font's own spacing, centred
    when the game centred it and otherwise from its left edge. A run a few
    pixels wider than its cells, as digits are, starts in its first glyph's
@@ -1057,24 +1119,25 @@ static void BuildHiResLayer(const unsigned char *pixels, unsigned char *frame)
         g_nHiResOffscreenGlyphCount = 0;
         return;
     }
+    g_nHiResPresentCount++;
     CopyBaseWithoutMouse(g_renderer.hiResCheckFrame, pixels);
-    kept = 0;
     for (index = 0; index < g_nHiResGlyphCount; index++) {
-        if (!HiResGlyphStillShown(&g_aHiResGlyphs[index],
-                                  g_renderer.hiResCheckFrame))
-            continue;
-        if (kept != index)
-            g_aHiResGlyphs[kept] = g_aHiResGlyphs[index];
-        kept++;
+        if (HiResGlyphStillShown(&g_aHiResGlyphs[index],
+                                 g_renderer.hiResCheckFrame))
+            g_aHiResGlyphs[index].misses = 0;
+        else if (g_aHiResGlyphs[index].misses < 0xff)
+            g_aHiResGlyphs[index].misses++;
     }
-    g_nHiResGlyphCount = kept;
     DropHiResSpaceRuns(g_aHiResGlyphs, &g_nHiResGlyphCount);
+    DropHiddenHiResGlyphs();
     kept = g_nHiResGlyphCount;
     if (kept == 0 || g_pHiResFont == 0)
         return;
     memset(g_renderer.hiResLayer, 0, sizeof(g_renderer.hiResLayer));
     for (index = 0; index < kept; index++) {
         glyph = &g_aHiResGlyphs[index];
+        if (glyph->misses != 0)
+            continue;
         for (row = 0; row < glyph->height; row++) {
             for (column = 0; column < glyph->width; column++) {
                 if (!HiResGlyphInk(glyph, row * glyph->width + column))
@@ -1129,7 +1192,7 @@ static void BuildHiResLayer(const unsigned char *pixels, unsigned char *frame)
             top = glyph->y * GL_HIRES_SCALE;
             if (height < glyph->height * GL_HIRES_SCALE)
                 top += (glyph->height * GL_HIRES_SCALE - height) / 2;
-            for (row = 0; row < height; row++) {
+            for (row = 0; row < height && glyph->misses == 0; row++) {
                 for (column = 0; column < width; column++) {
                     value = bitmap[row * width + column];
                     if (value == 0xff || value == fontBackground)
