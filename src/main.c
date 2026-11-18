@@ -1015,6 +1015,20 @@ unsigned int player_input(void)
             stRotationInput.x = 0;
             stRotationInput.y = 0;
         } else {
+#ifdef SDL_PORT
+            /* Retail lets go of the steering only once every key is up, so
+             * releasing one of two held directions kept turning that way
+             * (issue #36, DOS too). Release each axis whose keys are up. */
+            if (!nUpArrowKeyState && !nDownArrowKeyState && !nHomeState &&
+                !nPageUpKeyState && !nEndKeyDown && !nPageDownKeyHeld)
+                stRotationInput.x = 0;
+            if (!nLeftArrowKeyState && !nRightArrowKeyHeld && !nHomeState &&
+                !nPageUpKeyState && !nEndKeyDown && !nPageDownKeyHeld)
+                stRotationInput.y = 0;
+            if (!nInsertKeyDown && !nOemCommaKeyPressed && !nDeleteKeyDown &&
+                !nOemPeriodKeyStatus)
+                stRotationInput.z = 0;
+#endif
             bMouseAfterburnerControl = 0;
             process_player_input();
             switch (bCurrentKey) {
