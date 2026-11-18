@@ -722,15 +722,6 @@ void draw_cockpit_lights(void)
                 else
                     frame = aacCockpitLightOffFrame[
                         cCurrentCockpitView][light];
-#ifdef SDL_PORT
-                /* SM2.EXE 0x41fede: the Dralthi cockpit's autopilot lamp,
-                   frames 98 (off) and 99 (on), is a filled square, black
-                   or red, rather than a frame of the lamp shapes. */
-                if (frame == 98 || frame == 99)
-                    DrawFilledViewportRect(&stScreenView, x, y, x + 2, y + 2,
-                                           frame == 99 ? cRedColour : 0);
-                else
-#endif
                 DrawSpriteDefault(&stScreenView, x, y,
                                   pCockpitDamageShape, frame);
                 abCockpitIndicatorStatesArray[light] =
@@ -751,13 +742,6 @@ void draw_cockpit_lights(void)
             else
                 frame = aacCockpitLightOffFrame[
                     cCurrentCockpitView][light];
-#ifdef SDL_PORT
-            if (frame == 98 || frame == 99)
-                DrawFilledViewportRect(&stScreenView, x, cockpitlessY, x + 2,
-                                       cockpitlessY + 2,
-                                       frame == 99 ? cRedColour : 0);
-            else
-#endif
             DrawSpriteDefault(&stScreenView, x, cockpitlessY,
                               pCockpitDamageShape, frame);
             abCockpitIndicatorStatesArray[light] =

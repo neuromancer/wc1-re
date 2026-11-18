@@ -107,7 +107,11 @@ short aasCockpitLightX[COCKPIT_VIEW_COUNT][7] = {
     {194, 194, 96, 137, 96, 96, -99},
     {-99, -99, 179, 133, -99, -99, -99}
 #ifdef SDL_PORT
-    , [OBJECT_TYPE_DRALTHI] = {-99, -99, -99, -99, 113, -99, -99}
+    /* The Dralthi's lamps are DOS SM2.EXE's sixth row: the missile warning
+       and the autopilot lamp glow, PCSHIP.V05 lamp frames 3/12 and 8/17.
+       The Kilrathi Saga's SM2.EXE dropped the first and drew the second
+       as a red square (frames 98/99, which the packet lacks). */
+    , [OBJECT_TYPE_DRALTHI] = {-99, -99, 117, -99, 112, -99, -99}
 #endif
 };
 
@@ -119,7 +123,7 @@ short aasCockpitLightY[COCKPIT_VIEW_COUNT][7] = {
     {119, 142, 136, 15, 126, 116, -99},
     {-99, -99, 115, 114, -99, -99, -99}
 #ifdef SDL_PORT
-    , [OBJECT_TYPE_DRALTHI] = {-99, -99, -99, -99, 136, -99, -99}
+    , [OBJECT_TYPE_DRALTHI] = {-99, -99, 13, -99, 134, -99, -99}
 #endif
 };
 
@@ -131,7 +135,7 @@ signed char aacCockpitLightOffFrame[COCKPIT_VIEW_COUNT][7] = {
     {15, 15, 13, 11, 13, 13, 13},
     {5, 5, 5, 5, 5, 5, 5}
 #ifdef SDL_PORT
-    , [OBJECT_TYPE_DRALTHI] = {14, 14, 14, 11, 98, 14, 14}
+    , [OBJECT_TYPE_DRALTHI] = {1, 1, 12, 1, 17, 1, 1}
 #endif
 };
 
@@ -143,7 +147,7 @@ signed char aacCockpitLightOnFrame[COCKPIT_VIEW_COUNT][7] = {
     {4, 4, 2, 0, 2, 2, 2},
     {1, 1, 1, 1, 1, 1, 1}
 #ifdef SDL_PORT
-    , [OBJECT_TYPE_DRALTHI] = {3, 3, 3, 0, 99, 3, 3}
+    , [OBJECT_TYPE_DRALTHI] = {1, 1, 3, 1, 8, 1, 1}
 #endif
 };
 
