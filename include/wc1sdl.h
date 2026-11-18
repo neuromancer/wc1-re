@@ -258,10 +258,11 @@ void SdlBeginSpaceFrame(
     int fullViewportCopy, unsigned char clearColour);
 void SdlCompleteSpaceFrame(void);
 void SdlCancelSpaceFrame(void);
-/* The enhanced renderer's hi-res HUD text: RunSpaceFlight marks the flight,
-   DrawFontGlyph records HUD-font glyphs, and the viewport copies move the
-   ones drawn off screen. */
-void SdlSetHiResHudFlight(int active);
+/* The enhanced renderer's hi-res HUD text: RunSpaceFlight, and the
+   simulator around it, marks the flight, DrawFontGlyph records HUD-font
+   glyphs, and the viewport copies move the ones drawn off screen. */
+void SdlBeginHiResHudFlight(void);
+void SdlEndHiResHudFlight(void);
 void SdlResetHiResHudFont(void);
 int SdlBeginHiResGlyph(const struct Viewport *view, int cursorX, int y,
                        int width, int height, unsigned char character,

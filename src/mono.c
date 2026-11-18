@@ -140,6 +140,12 @@ int DrawCenteredScaledIntroText(const char *text, short centreX,
         if (c >= 'A' && c <= 'z') {
             c -= 'A';
 
+#ifdef SDL_PORT
+            /* The simulator's zooming titles, at the enhanced renderer's
+             * output resolution as ships and the title logo are. */
+            if (!SdlRecordSpaceSprite(&stSpaceBufferViewport, x, y,
+                                      pIntroFont, c, 0, scale, 0))
+#endif
             DrawSpriteScaled(&stSpaceBufferViewport, x, y,
                              pIntroFont, c, 0,
                              scale, 0);

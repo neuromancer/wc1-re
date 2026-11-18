@@ -895,6 +895,11 @@ void RunTrainSim(void)
             nTrainSimActive = 1;
             FigureArcadeTime();
             init_mission(0, nTrainSimMission);
+#ifdef SDL_PORT
+            /* The cockpit is on screen from Get Ready to the end of the
+             * Victory or Game Over screen, not only in RunSpaceFlight. */
+            SdlBeginHiResHudFlight();
+#endif
             ShowGetReadyScreen();
 
             if (bCampaignStartupMode != 0) {
@@ -930,6 +935,9 @@ void RunTrainSim(void)
                     ShowVictoryScreen();
                 nTrainSimMission++;
             }
+#ifdef SDL_PORT
+            SdlEndHiResHudFlight();
+#endif
             bKeyEventQueueEnabled = savedFrameState;
         }
 

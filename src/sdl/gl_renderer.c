@@ -196,8 +196,9 @@ typedef enum GlFrameState {
 } GlFrameState;
 
 /* A full world-object list may be followed by four three-part launch doors.
-   The title logo uses only three additional entries. */
-#define GL_RENDERER_RECORDED_SPRITE_CAPACITY (SPACE_OBJECT_COUNT + 12)
+   The title logo uses only three additional entries, and the simulator's
+   Victory screen up to 30 fireworks and its title's letters. */
+#define GL_RENDERER_RECORDED_SPRITE_CAPACITY (SPACE_OBJECT_COUNT + 12 + 30 + 16)
 #define GL_RENDERER_SPRITE_VERTEX_COUNT (GL_RENDERER_RECORDED_SPRITE_CAPACITY * 6)
 #define GL_RENDERER_SPRITE_ATLAS_MAX_SIZE 2048
 #define GL_RENDERER_SPRITE_ATLAS_LAYER_CAPACITY 4
@@ -415,7 +416,7 @@ typedef struct GlRenderer {
 
 static GlRenderer g_renderer;
 static int g_bHiResHudFonts;
-static int g_bHiResHudFlight;
+static int g_nHiResHudFlightDepth;
 static unsigned char *g_pHiResFont;
 static size_t g_nHiResFontSize;
 static int g_bHiResFontUnavailable;
@@ -561,12 +562,19 @@ void SdlSetHiResHudFonts(int enabled)
     }
 }
 
-/* RunSpaceFlight marks the flight session: screens outside it keep the
-   game's own fonts. */
-void SdlSetHiResHudFlight(int active)
+/* RunSpaceFlight marks the flight session, and the training simulator
+   widens it to its Get Ready, Victory and Game Over screens around it:
+   screens outside keep the game's own fonts. Sessions nest. */
+void SdlBeginHiResHudFlight(void)
 {
-    g_bHiResHudFlight = active != 0;
-    if (!g_bHiResHudFlight) {
+    g_nHiResHudFlightDepth++;
+}
+
+void SdlEndHiResHudFlight(void)
+{
+    if (g_nHiResHudFlightDepth > 0)
+        g_nHiResHudFlightDepth--;
+    if (g_nHiResHudFlightDepth == 0) {
         g_nHiResGlyphCount = 0;
         g_nHiResOffscreenGlyphCount = 0;
         g_bHiResGlyphPending = 0;
@@ -576,7 +584,8 @@ void SdlSetHiResHudFlight(int active)
 static int SdlHiResHudFontsActive(void)
 {
     /* The FM Towns release draws its own Japanese text. */
-    return g_bHiResHudFonts && g_bHiResHudFlight && g_renderer.context != 0 &&
+    return g_bHiResHudFonts && g_nHiResHudFlightDepth > 0 &&
+        g_renderer.context != 0 &&
         g_renderer.overlayProgram != 0 && !SdlUsingTownsData();
 }
 
@@ -615,21 +624,26 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
     if (height != 6) {
         /* print_message_text copies the HUD message context, which draws
            into the space buffer, and clips it to the cockpit's 60-row
-           message area. Other users of the 8-pixel font, such as nav
+           message area. The simulator's score and bonus lines use the
+           context itself. Other users of the 8-pixel font, such as nav
            descriptions and modal panels, keep the game's own text. */
-        if (height != 8 || !centered || background != 0xff ||
+        if (height != 8 || background != 0xff ||
             view->pixels != stSpaceBufferViewport.pixels ||
-            view->bottom - view->top != 60 ||
-            view->left + view->right != 319)
+            (view != &stSpaceBufferViewport &&
+             (!centered || view->bottom - view->top != 60 ||
+              view->left + view->right != 319)))
             return 0;
         /* SetHudTextColour erases a message by drawing it again in the
            space clear colour. Those glyphs are not text. */
         if (colour == cPrimaryViewBufferColour) {
             kept = 0;
             for (index = 0; index < g_nHiResOffscreenGlyphCount; index++) {
-                if (g_aHiResOffscreenGlyphs[index].height != 8)
-                    g_aHiResOffscreenGlyphs[kept++] =
+                if (g_aHiResOffscreenGlyphs[index].height == 8)
+                    continue;
+                if (kept != index)
+                    g_aHiResOffscreenGlyphs[kept] =
                         g_aHiResOffscreenGlyphs[index];
+                kept++;
             }
             g_nHiResOffscreenGlyphCount = kept;
             return 0;
