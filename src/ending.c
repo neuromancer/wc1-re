@@ -234,6 +234,20 @@ unsigned int ShowCampaignVictorySequence(void)
                         if (projectile->scale < 16) {
                             projectile->scale = -1;
                         } else {
+#ifdef SDL_PORT
+                            /* The ending's scaled shapes are drawn at the
+                             * enhanced renderer's output resolution, as
+                             * the space objects around them are. */
+                            if (!SdlRecordSpaceSprite(
+                                    &stSpaceBufferViewport,
+                                    (short)(projectile->screenX +
+                                            nCurrentViewCenterPosX),
+                                    (short)(projectile->screenY +
+                                            nCurrentViewCenterPosY),
+                                    projectileShape, 1, 0,
+                                    (short)projectile->scale,
+                                    (short)projectile->flip))
+#endif
                             DrawSpriteScaled(
                                 &stSpaceBufferViewport,
                                 (projectile->screenX +
@@ -298,6 +312,12 @@ unsigned int ShowCampaignVictorySequence(void)
 
                 planetScale = 0x40000L / planetDepth;
                 projectedY = verticalOffset / planetDepth;
+#ifdef SDL_PORT
+                if (!SdlRecordSpaceSprite(
+                        &stSpaceBufferViewport, nCurrentViewCenterPosX,
+                        (short)(nCurrentViewCenterPosY + projectedY),
+                        projectileShape, 0, 0, (short)planetScale, 0))
+#endif
                 DrawSpriteScaled(
                     &stSpaceBufferViewport, nCurrentViewCenterPosX,
                     (nCurrentViewCenterPosY + projectedY),
@@ -422,6 +442,14 @@ unsigned int ShowTigerClawEscapeScene(void)
                 frame < 198) {
                 scale = 0x40000L / depth;
                 projectedY = verticalOffset / depth;
+#ifdef SDL_PORT
+                /* At the enhanced renderer's output resolution, as the
+                 * space objects around it are. */
+                if (!SdlRecordSpaceSprite(
+                        &stSpaceBufferViewport, nCurrentViewCenterPosX,
+                        (short)(nCurrentViewCenterPosY + projectedY),
+                        escapeShape, 0, 0, (short)scale, 0))
+#endif
                 DrawSpriteScaled(
                     &stSpaceBufferViewport, nCurrentViewCenterPosX,
                     (nCurrentViewCenterPosY + projectedY),
