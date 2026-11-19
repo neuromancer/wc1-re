@@ -14,6 +14,10 @@ static const char *const g_apszSdlLauncherMusic[] = {
     "default", "adlib", "mt32"
 };
 
+static const char *const g_apszSdlLauncherSound[] = {
+    "default", "adlib", "mt32"
+};
+
 static const char *const g_apszSdlLauncherJoystickAxes[] = {
     "twin-stick-roll", "twin-stick-yaw", "hotas-yaw", "hotas-roll",
     "linear-throttle", "rudder-yaw", "rudder-roll"
@@ -58,6 +62,7 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
     outputArgumentIndex = 1;
     memset(options, 0, sizeof(*options));
     options->joystickDeadZone = SDL_JOYSTICK_DEAD_ZONE_ORIGINAL;
+    options->soundDevice = SDL_LAUNCHER_SOUND_UNSET;
 #ifdef WC1_STATIC_GUI
     *useLauncherGui = *argumentCount == 1;
 #else
@@ -168,6 +173,16 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                 return 0;
             }
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_MUSIC;
+        } else if (strncmp(argument, "--sound=", 8) == 0) {
+            options->soundDevice = SdlFindLauncherChoice(
+                argument + 8, g_apszSdlLauncherSound,
+                SDL_arraysize(g_apszSdlLauncherSound));
+            if (options->soundDevice < 0) {
+                fprintf(stderr, "Unknown sound: %s (use default, adlib or mt32)\n",
+                        argument + 8);
+                return 0;
+            }
+            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_SOUND;
         } else if (strncmp(argument, "--mt32-roms=", 12) == 0) {
             if (!SdlSetMt32RomArgument(argument + 12, options)) {
                 fprintf(stderr, "Invalid MT-32 ROM folder: %s\n", argument + 12);
@@ -298,6 +313,12 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
         return 0;
     }
     SdlSetMusicDevice(options->musicDevice);
+    if (options->soundDevice < SDL_LAUNCHER_SOUND_DEFAULT ||
+        options->soundDevice > SDL_LAUNCHER_SOUND_MT32) {
+        fprintf(stderr, "Invalid sound selection.\n");
+        return 0;
+    }
+    SdlSetSoundDevice(options->soundDevice);
     SdlSetMt32Roms(options->mt32Roms, options->mt32Model);
     if (*options->voiceCatalog && !options->swcDemo && !SdlLoadVoiceCatalog(options->voiceCatalog)) {
         fprintf(stderr, "Cannot load voices: %s\n", SDL_GetError());
@@ -421,6 +442,7 @@ int main(int argumentCount, char **arguments)
         launcherOptions.swcDemo = SdlFindSwcMissionData(swcPath, sizeof(swcPath)) &&
                                   !SdlHasWc1GameData();
     }
+    SdlResolveLauncherSound(&launcherOptions);
     if (!SdlApplyLauncherOptions(&launcherOptions))
         return 1;
     useEnhancedRenderer = launcherOptions.enhancedRenderer;
@@ -498,10 +520,12 @@ int main(int argumentCount, char **arguments)
     if (SdlUsingTownsData() && !SdlInitializeTownsAudio())
         fprintf(stderr, "FM Towns audio unavailable: %s\n", SDL_GetError());
     /* Kilrathi Saga data plays the intro with OriginFX in the enhanced
-     * renderer, and all its music with OriginFX on an AdLib or MT-32. */
+     * renderer, and its music or its sound effects with OriginFX on an
+     * AdLib or MT-32 when the player chose them. */
     if (usingDosData || (!SdlUsingTownsData() &&
                          (useEnhancedRenderer ||
-                          launcherOptions.musicDevice != SDL_LAUNCHER_MUSIC_DEFAULT))) {
+                          launcherOptions.musicDevice != SDL_LAUNCHER_MUSIC_DEFAULT ||
+                          launcherOptions.soundDevice != SDL_LAUNCHER_SOUND_DEFAULT))) {
         if (!SdlInitializeOriginFxAudio(usingDosData)) {
             if (usingDosData) {
                 fprintf(stderr,
@@ -509,7 +533,9 @@ int main(int argumentCount, char **arguments)
             } else {
                 fprintf(stderr, "%s is unavailable.\n",
                         launcherOptions.musicDevice != SDL_LAUNCHER_MUSIC_DEFAULT
-                            ? "DOS music" : "OriginFX intro music");
+                            ? "DOS music"
+                            : launcherOptions.soundDevice != SDL_LAUNCHER_SOUND_DEFAULT
+                            ? "DOS sound effects" : "OriginFX intro music");
             }
         }
     }

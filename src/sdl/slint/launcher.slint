@@ -55,16 +55,20 @@ export component LauncherWindow inherits Window {
         : root.towns-data
         ? ["English", "Español", "Japanese (FM Towns)", "Français"]
         : ["English", "Español", "Français"];
-    // The music the game plays (SdlLauncherMusic): a DOS install offers the
-    // AdLib and the MT-32, a Kilrathi Saga install also its digital music.
+    // The music and the sound effects the game plays (SdlLauncherMusic,
+    // SdlLauncherSound), each on its own device: a DOS install offers the
+    // AdLib and the MT-32, a Kilrathi Saga install also its digital ones.
     in property <bool> dos-data: false;
     in property <bool> music-available: false;
     in-out property <int> music-device;
-    // The choice shown for music-device, which depends on the installation.
+    in-out property <int> sound-device;
+    // The choices shown for the devices, which depend on the installation.
     in-out property <int> music-index;
+    in-out property <int> sound-index;
     out property <[string]> music-choices: root.dos-data
         ? [@tr("AdLib"), @tr("Roland MT-32")]
         : [@tr("Digital"), @tr("AdLib"), @tr("Roland MT-32")];
+    out property <bool> mt32-chosen: root.music-device == 2 || root.sound-device == 2;
     in property <bool> mt32-roms-set: false;
     in property <bool> mt32-ready: false;
     // libmt32emu's description of the ROMs, or why they cannot play.
@@ -136,6 +140,7 @@ export component LauncherWindow inherits Window {
     callback installation-selected(int);
     callback language-selected(int);
     callback music-selected(int);
+    callback sound-selected(int);
     callback mt32-browse-requested();
     callback launch-requested(int, bool);
     callback credits-requested();
@@ -321,6 +326,7 @@ export component LauncherWindow inherits Window {
                                             vertical-alignment: center;
                                         }
                                         ComboBox {
+                                            colspan: 2;
                                             horizontal-stretch: 1;
                                             enabled: root.music-available;
                                             model: root.music-choices;
@@ -329,17 +335,29 @@ export component LauncherWindow inherits Window {
                                                 root.music-selected(self.current-index);
                                             }
                                         }
-                                        Button {
-                                            text: @tr("MT-32 ROMs…");
+                                    }
+
+                                    Row {
+                                        Text {
+                                            text: @tr("Sound");
+                                            vertical-alignment: center;
+                                        }
+                                        // The same devices play the effects.
+                                        ComboBox {
+                                            colspan: 2;
+                                            horizontal-stretch: 1;
                                             enabled: root.music-available;
-                                            clicked => {
-                                                root.mt32-browse-requested();
+                                            model: root.music-choices;
+                                            current-index <=> root.sound-index;
+                                            selected(_) => {
+                                                root.sound-selected(self.current-index);
                                             }
                                         }
                                     }
                                 }
 
-                                if root.music-available && root.music-device == 2 : HorizontalLayout {
+                                // The MT-32's ROMs, once the music or the sound effects use it.
+                                if root.music-available && root.mt32-chosen : HorizontalLayout {
                                     spacing: 8px;
                                     vertical-stretch: 0;
 
@@ -347,6 +365,7 @@ export component LauncherWindow inherits Window {
                                         text: root.mt32-ready ? "●" : "!";
                                         color: root.mt32-ready ? #2e7d32 : #b45f06;
                                         font-size: 14px;
+                                        vertical-alignment: center;
                                     }
 
                                     Text {
@@ -354,10 +373,18 @@ export component LauncherWindow inherits Window {
                                         text: root.mt32-ready
                                             ? @tr("MT-32: {}", root.mt32-detail)
                                             : !root.mt32-roms-set
-                                            ? @tr("Choose the folder with your MT-32 or CM-32L ROMs; until then the game plays AdLib music.")
-                                            : @tr("The game plays AdLib music: {}", root.mt32-detail);
+                                            ? @tr("Choose the folder with your MT-32 or CM-32L ROMs; until then the AdLib plays instead.")
+                                            : @tr("The AdLib plays instead: {}", root.mt32-detail);
                                         color: root.mt32-ready ? Palette.foreground : #b45f06;
                                         wrap: word-wrap;
+                                        vertical-alignment: center;
+                                    }
+
+                                    Button {
+                                        text: @tr("MT-32 ROMs…");
+                                        clicked => {
+                                            root.mt32-browse-requested();
+                                        }
                                     }
                                 }
 

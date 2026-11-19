@@ -51,7 +51,9 @@ constexpr IntegerSetting integerSettings[] = {
     {"joystick_dead_zone", &SdlLauncherOptions::joystickDeadZone,
      SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE, SDL_JOYSTICK_DEAD_ZONE_MAXIMUM},
     {"music_device", &SdlLauncherOptions::musicDevice,
-     SDL_LAUNCHER_EXPLICIT_MUSIC, SDL_LAUNCHER_MUSIC_MT32}
+     SDL_LAUNCHER_EXPLICIT_MUSIC, SDL_LAUNCHER_MUSIC_MT32},
+    {"sound_device", &SdlLauncherOptions::soundDevice,
+     SDL_LAUNCHER_EXPLICIT_SOUND, SDL_LAUNCHER_SOUND_MT32}
 };
 
 std::string_view trim_setting(std::string_view text)

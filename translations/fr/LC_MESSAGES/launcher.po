@@ -1319,6 +1319,10 @@ msgctxt "LauncherWindow"
 msgid "Music"
 msgstr "Musique"
 
+msgctxt "LauncherWindow"
+msgid "Sound"
+msgstr "Effets sonores"
+
 #: src/sdl/slint/launcher.slint:233
 msgctxt "LauncherWindow"
 msgid "MT-32 ROMs…"
@@ -1331,13 +1335,13 @@ msgstr "MT-32 : {}"
 
 #: src/sdl/slint/launcher.slint:257
 msgctxt "LauncherWindow"
-msgid "Choose the folder with your MT-32 or CM-32L ROMs; until then the game plays AdLib music."
-msgstr "Choisissez le dossier de vos ROM MT-32 ou CM-32L ; d’ici là, le jeu joue la musique AdLib."
+msgid "Choose the folder with your MT-32 or CM-32L ROMs; until then the AdLib plays instead."
+msgstr "Choisissez le dossier de vos ROM MT-32 ou CM-32L ; d’ici là, la carte AdLib est utilisée."
 
 #: src/sdl/slint/launcher.slint:258
 msgctxt "LauncherWindow"
-msgid "The game plays AdLib music: {}"
-msgstr "Le jeu joue la musique AdLib : {}"
+msgid "The AdLib plays instead: {}"
+msgstr "La carte AdLib est utilisée : {}"
 
 #: src/sdl/slint/launcher.slint:462
 msgctxt "LauncherWindow"

@@ -51,7 +51,8 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_MT32_ROMS = 1 << 13,
     SDL_LAUNCHER_EXPLICIT_MT32_MODEL = 1 << 14,
     SDL_LAUNCHER_EXPLICIT_HIRES_HUD = 1 << 15,
-    SDL_LAUNCHER_EXPLICIT_INTERPOLATION = 1 << 16
+    SDL_LAUNCHER_EXPLICIT_INTERPOLATION = 1 << 16,
+    SDL_LAUNCHER_EXPLICIT_SOUND = 1 << 17
 };
 
 /* The music the game plays (SDL_PORT_MUSIC_* in wc1sdl.h). */
@@ -59,6 +60,16 @@ enum SdlLauncherMusic {
     SDL_LAUNCHER_MUSIC_DEFAULT = 0, /* Kilrathi Saga streams, DOS AdLib */
     SDL_LAUNCHER_MUSIC_ADLIB = 1,
     SDL_LAUNCHER_MUSIC_MT32 = 2
+};
+
+/* The sound effects the game plays (SDL_PORT_SOUND_* in wc1sdl.h). Unset,
+ * as in settings saved before the choice existed, they follow MT-32 music
+ * onto the MT-32 and otherwise are the installation's own. */
+enum SdlLauncherSound {
+    SDL_LAUNCHER_SOUND_UNSET = -1,
+    SDL_LAUNCHER_SOUND_DEFAULT = 0, /* Kilrathi Saga digital, DOS AdLib */
+    SDL_LAUNCHER_SOUND_ADLIB = 1,
+    SDL_LAUNCHER_SOUND_MT32 = 2
 };
 
 #define SDL_LAUNCHER_MT32_MODEL_CAPACITY 32
@@ -87,6 +98,7 @@ typedef struct SdlLauncherOptions {
      * is SDL_JOYSTICK_DEAD_ZONE_ORIGINAL. */
     int joystickDeadZone;
     int musicDevice;
+    int soundDevice;
     /* The player's MT-32 or CM-32L ROMs, and optionally the libmt32emu
      * machine to use (empty: the best one the folder has). */
     char mt32Roms[SDL_LAUNCHER_DIRECTORY_CAPACITY];
@@ -104,6 +116,15 @@ typedef struct SdlLauncherOptions {
     /* Command-line values take precedence over saved GUI settings. */
     unsigned int explicitOptions;
 } SdlLauncherOptions;
+
+/* Without a Sound choice, as in settings saved before it existed, the
+ * sound effects follow MT-32 music onto the MT-32. */
+static inline void SdlResolveLauncherSound(SdlLauncherOptions *options)
+{
+    if (options->soundDevice == SDL_LAUNCHER_SOUND_UNSET)
+        options->soundDevice = options->musicDevice == SDL_LAUNCHER_MUSIC_MT32
+            ? SDL_LAUNCHER_SOUND_MT32 : SDL_LAUNCHER_SOUND_DEFAULT;
+}
 
 #ifdef __cplusplus
 extern "C" {

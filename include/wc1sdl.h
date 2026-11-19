@@ -566,6 +566,15 @@ enum {
 };
 void SdlSetMusicDevice(int device);
 int SdlGetMusicDevice(void);
+/* The sound effects the player chose, apart from the music: the
+ * installation's own (Kilrathi Saga's digital effects, or DOS AdLib), or
+ * the DOS effects on an AdLib or an MT-32. */
+enum {
+    SDL_PORT_SOUND_INSTALLED = 0,
+    SDL_PORT_SOUND_ADLIB = 1,
+    SDL_PORT_SOUND_MT32 = 2
+};
+void SdlSetSoundDevice(int device);
 int SdlUsingOriginFxMusic(void);
 int SdlUsingOriginFxSoundEffects(void);
 int SdlOriginFxMusicCommand(int track, int command);
