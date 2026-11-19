@@ -5,6 +5,8 @@
 // whose keys and mouse can be rebound, and its game controller too in the
 // Custom mode, and the SWC Mac data.
 import { Button, CheckBox, ComboBox, ListView, Palette, ScrollView } from "std-widgets.slint";
+import { SteamDeckView } from "steamdeck.slint";
+import { Connector } from "control_connector.slint";
 
 export enum PadControl {
     left-trigger, left-shoulder, left-stick, left-stick-click,
@@ -345,45 +347,6 @@ component ChoiceHeading inherits Text {
     opacity: 0.7;
 }
 
-// A connector made of one horizontal and one vertical rule, in the
-// coordinates of the page it covers.
-component Connector inherits Rectangle {
-    x: 0px;
-    y: 0px;
-    width: 100%;
-    height: 100%;
-    in property <length> from-x;
-    in property <length> from-y;
-    in property <length> to-x;
-    in property <length> to-y;
-    in property <brush> ink: Palette.foreground;
-
-    Rectangle {
-        x: min(root.from-x, root.to-x);
-        y: root.from-y - 0.5px;
-        width: abs(root.to-x - root.from-x);
-        height: 1px;
-        background: root.ink;
-    }
-
-    Rectangle {
-        x: root.to-x - 0.5px;
-        y: min(root.from-y, root.to-y);
-        width: 1px;
-        height: abs(root.to-y - root.from-y);
-        background: root.ink;
-    }
-
-    Rectangle {
-        x: root.to-x - 3px;
-        y: root.to-y - 3px;
-        width: 6px;
-        height: 6px;
-        border-radius: 3px;
-        background: root.ink;
-    }
-}
-
 // One way to give a game input: inputs used together (joiner "+"), a range
 // of keys (joiner "–") or a single input, with a hint on how to use it.
 // Inputs are names, not pictures, so any key can be shown: a typed character
@@ -454,15 +417,22 @@ component KeyCap inherits Rectangle {
 // pad's scale.
 export component ControlsView inherits Rectangle {
     min-width: root.page == 0 ? 640px : 560px;
-    min-height: root.page == 0 ? 360px : 300px;
+    min-height: root.page == 0
+        ? (root.deck-view ? max(360px, deck-diagram.min-height + notes-text.preferred-height + 8px) : 360px)
+        : 300px;
 
     // The launcher's joystick settings: 0 original, 1 WCAT four buttons and
-    // two axes, 2 WCAT four buttons and four axes, 3 custom; axis layouts 0-6.
+    // two axes, 2 WCAT four buttons and four axes, 3 custom, 4 Steam Deck;
+    // axis layouts 0-6.
     in property <int> joystick-mode;
     in property <int> joystick-axes;
-    // The Custom mode applies to WC1; SWC keeps the four-axis layout.
+    in property <int> joystick-source;
+    // The Custom and Steam Deck modes apply to WC1; SWC keeps the four-axis
+    // layout in both.
     property <bool> custom: root.joystick-mode == 3 && root.game == 0;
-    property <int> layout-mode: root.joystick-mode == 3 ? 2 : root.joystick-mode;
+    property <bool> deck-view: root.game == 0 &&
+        (root.joystick-mode == 4 || (root.custom && root.joystick-source == 2));
+    property <int> layout-mode: root.joystick-mode >= 3 ? 2 : root.joystick-mode;
     // The Custom mode's bindings, one code per control in the order of
     // src/sdl/pad_bindings.h (A, B, X, Y, LB, RB, LT, RT, Back, Start, the
     // stick clicks, the D-pad and the sticks' axes, then another joystick's
@@ -486,10 +456,13 @@ export component ControlsView inherits Rectangle {
     in property <[string]> pad-devices;
     in-out property <int> pad-slot;
     callback pad-slot-chosen(int);
-    property <bool> raw-view: root.pad-device.connected && !root.pad-device.mapped;
+    property <bool> raw-view: root.custom && root.joystick-source != 0
+        ? root.joystick-source == 3 : root.pad-device.connected && !root.pad-device.mapped;
     // The raw joystick's buttons, numbered down two columns, or three past
     // sixteen.
-    property <int> shown-buttons: min(root.pad-device.buttons, 32);
+    property <int> shown-buttons: root.pad-device.connected ? min(root.pad-device.buttons, 32) : 32;
+    property <int> shown-hats: root.pad-device.connected ? min(root.pad-device.hats, 2) : 2;
+    property <int> shown-axes: root.pad-device.connected ? min(root.pad-device.axes, 8) : 8;
     property <int> button-columns: root.shown-buttons > 16 ? 3 : 2;
     property <int> button-rows: Math.ceil(root.shown-buttons / root.button-columns);
     property <int> pad-device-count: (root.pad-devices.length > 0 && root.pad-devices[0] != "" ? 1 : 0)
@@ -500,6 +473,7 @@ export component ControlsView inherits Rectangle {
     // chooser shows it.
     out property <int> choose-control: -1;
     property <string> choose-title;
+    changed joystick-source => { root.choose-control = -1; root.hide-tip(); }
     property <image> choose-glyph;
     property <bool> choose-reversed;
     // 0 shows the game controller, 1 the keyboard and mouse.
@@ -1027,7 +1001,8 @@ export component ControlsView inherits Rectangle {
     // A control pressed on the joystick: in the Custom mode it opens its
     // chooser, unless one is open.
     public function press-control(control: int) {
-        if root.custom && root.choose-control < 0 && root.page == 0 {
+        if root.custom && root.choose-control < 0 && root.page == 0
+            && (root.raw-view ? control >= 20 : control < 20) {
             root.choose-index(control);
         }
     }
@@ -1098,12 +1073,12 @@ export component ControlsView inherits Rectangle {
         if control == 1 { return "B"; }
         if control == 2 { return "X"; }
         if control == 3 { return "Y"; }
-        if control == 4 { return "LB"; }
-        if control == 5 { return "RB"; }
-        if control == 6 { return "LT"; }
-        if control == 7 { return "RT"; }
-        if control == 8 { return "Back"; }
-        return "Start";
+        if control == 4 { return root.deck-view ? "L1" : "LB"; }
+        if control == 5 { return root.deck-view ? "R1" : "RB"; }
+        if control == 6 { return root.deck-view ? "L2" : "LT"; }
+        if control == 7 { return root.deck-view ? "R2" : "RT"; }
+        if control == 8 { return root.deck-view ? @tr("View") : "Back"; }
+        return root.deck-view ? @tr("Menu") : "Start";
     }
 
     pure function control-glyph(control: int) -> image {
@@ -1241,6 +1216,7 @@ export component ControlsView inherits Rectangle {
         root.hide-tip();
     }
     changed joystick-mode => {
+        root.choose-control = -1;
         root.hide-tip();
     }
     changed joystick-axes => {
@@ -1326,9 +1302,18 @@ export component ControlsView inherits Rectangle {
                 + " " + (root.raw-view
                     ? @tr("In menus, button 1 selects, buttons 2 and 9 go back, button 3 presses Space and hat 1 moves.")
                     : @tr("In menus, A selects, B and Back go back, X presses Space and the D-pad moves."))
-                + (root.joystick-mode == 3 ? " " + @tr("SWC keeps the WCAT four-axis layout in the Custom mode.") : "");
+                + (root.joystick-mode == 3 ? " " + @tr("SWC keeps the WCAT four-axis layout in the Custom mode.")
+                    : root.joystick-mode == 4 ? " " + @tr("SWC keeps the WCAT four-axis layout in the Steam Deck mode.") : "");
         }
-        return (root.custom ? @tr("Press an input on the controller, or click it, to change it; changes apply when the game starts.") + " " : "")
+        if root.deck-view {
+            return (root.custom && root.pad-device.connected && !root.pad-device.mapped
+                    ? @tr("This device has no gamepad mapping. Choose Joystick to bind its numbered inputs.") + " " : "")
+                + (root.custom ? @tr("Click a binding or press its control to change it. Rear buttons mirror the D-pad.") + " " : "")
+                + @tr("Steam Input: assign L4 to ↑, L5 to ↓, R4 to ← and R5 to →. In communications, ↑/↓ choose, → sends and ← closes. L3/R3 are stick clicks. Y answers Yes; View is Escape outside flight.");
+        }
+        return (root.custom && !root.raw-view && root.pad-device.connected && !root.pad-device.mapped
+                ? @tr("This device has no gamepad mapping. Choose Joystick to bind its numbered inputs.") + " " : "")
+            + (root.custom ? @tr("Press an input on the controller, or click it, to change it; changes apply when the game starts.") + " " : "")
             + (root.joystick-mode == 0
                 ? (root.raw-view
                     ? @tr("Original joystick: buttons 1 and 2 together fire a missile; double-click button 2 and hold it for the afterburner.")
@@ -1367,7 +1352,22 @@ export component ControlsView inherits Rectangle {
         area := Rectangle {
             vertical-stretch: 1;
 
-            if root.page == 0 && !root.raw-view: Rectangle {
+            deck-diagram := SteamDeckView {
+                visible: root.page == 0 && root.deck-view;
+                width: 100%;
+                height: 100%;
+                held: root.pad-held;
+                editable: root.custom;
+                control-clicked(control, title) => {
+                    if root.custom {
+                        root.choose-index(control);
+                        root.choose-title = title;
+                    }
+                }
+                binding(control) => { return root.code-label(root.pad-codes[control], control); }
+            }
+
+            if root.page == 0 && !root.raw-view && !root.deck-view: Rectangle {
                 x: 0px;
                 y: 0px;
                 width: 100%;
@@ -1389,7 +1389,7 @@ export component ControlsView inherits Rectangle {
                     x: 2px;
                     y: 6px;
                     width: max(120px, min(200px, area.width / 2 - root.centre-box-width - 18px));
-                    text: root.pad-device.name;
+                    text: root.pad-device.connected ? root.pad-device.name : @tr("Joystick — not connected");
                     font-size: 11px;
                     color: Palette.foreground;
                     opacity: 0.7;
@@ -1615,7 +1615,7 @@ export component ControlsView inherits Rectangle {
 
             // Another joystick's axes, hats and buttons by number, each lit
             // while held and each axis with its position.
-            if root.page == 0 && root.raw-view: VerticalLayout {
+            if root.page == 0 && root.raw-view && !root.deck-view: VerticalLayout {
                 x: 0px;
                 y: 0px;
                 width: 100%;
@@ -1629,7 +1629,7 @@ export component ControlsView inherits Rectangle {
                     Image {
                         width: 40px;
                         height: 40px;
-                        source: root.pad-device.joystick ? @image-url("generic-joystick.svg")
+                        source: root.pad-device.joystick || root.joystick-source == 3 ? @image-url("generic-joystick.svg")
                             : @image-url("generic-gamepad.svg");
                         colorize: Palette.foreground;
                         image-fit: contain;
@@ -1655,7 +1655,7 @@ export component ControlsView inherits Rectangle {
                         }
 
                         if root.pad-device-count <= 1: Text {
-                            text: root.pad-device.name;
+                            text: root.pad-device.connected ? root.pad-device.name : @tr("Joystick — not connected");
                             font-size: 14px;
                             font-weight: 700;
                             color: Palette.foreground;
@@ -1663,7 +1663,8 @@ export component ControlsView inherits Rectangle {
                         }
 
                         Text {
-                            text: (root.pad-device.joystick ? @tr("Joystick") : @tr("Game controller"))
+                            text: !root.pad-device.connected ? @tr("Connect a joystick to see its inputs, or edit bindings offline.")
+                                : (root.pad-device.joystick ? @tr("Joystick") : @tr("Game controller"))
                                 + " · " + @tr("{n} button" | "{n} buttons" % root.pad-device.buttons)
                                 + " · " + @tr("{n} hat" | "{n} hats" % root.pad-device.hats)
                                 + " · " + @tr("{n} axis" | "{n} axes" % root.pad-device.axes);
@@ -1692,10 +1693,10 @@ export component ControlsView inherits Rectangle {
                             spacing: 8px;
                             alignment: start;
 
-                            if root.pad-device.axes > 0: PadPanel {
+                            if root.shown-axes > 0: PadPanel {
                                 title: @tr("Axes");
 
-                                for axis-index in min(root.pad-device.axes, 8): PadInputRow {
+                                for axis-index in root.shown-axes: PadInputRow {
                                     label: "" + (axis-index + 1);
                                     name: root.axis-kind-name(root.pad-axis-kinds[axis-index]);
                                     bar: true;
@@ -1712,7 +1713,7 @@ export component ControlsView inherits Rectangle {
                                 }
                             }
 
-                            for hat in min(root.pad-device.hats, 2): PadPanel {
+                            for hat in root.shown-hats: PadPanel {
                                 title: @tr("Hat {}", hat + 1);
 
                                 for direction in 4: PadInputRow {
@@ -1735,7 +1736,7 @@ export component ControlsView inherits Rectangle {
 
                         // Numbered down each column, so that a column's
                         // rows line up.
-                        if root.pad-device.buttons > 0: VerticalLayout {
+                        if root.shown-buttons > 0: VerticalLayout {
                             horizontal-stretch: 1;
                             alignment: start;
 
@@ -1991,7 +1992,7 @@ export component ControlsView inherits Rectangle {
             vertical-stretch: 0;
             spacing: 8px;
 
-            Text {
+            notes-text := Text {
                 horizontal-stretch: 1;
                 text: root.page == 0
                     ? root.notes()

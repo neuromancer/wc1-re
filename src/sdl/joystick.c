@@ -68,6 +68,8 @@ static Uint16 g_wSdlRumbleLow;
 static Uint16 g_wSdlRumbleHigh;
 static Uint32 g_dwSdlRumbleDeadline;
 static SdlJoystickMode g_eSdlJoystickMode;
+static int g_bSdlSteamDeckPreset;
+static int g_nSdlJoystickSource;
 static SdlJoystickAxesMode g_eSdlJoystickAxesMode;
 static int g_nSdlJoystickDeadZone = SDL_JOYSTICK_DEAD_ZONE_ORIGINAL;
 
@@ -134,6 +136,8 @@ static int g_nSdlPadStickX;
 static int g_nSdlPadStickY;
 /* The pitch, yaw and roll that the axes gave in the last frame. */
 static int g_anSdlPadTurns[3];
+
+static void SdlCloseJoystick(SdlJoystickDevice *device);
 
 int SdlSetJoystickDeadZone(int percent)
 {
@@ -205,16 +209,46 @@ void SdlShapeJoystickDeadZone(InputDeviceSample *sample)
 
 int SdlSetJoystickMode(const char *name)
 {
+    int wasRaw = !g_bSdlSteamDeckPreset && g_eSdlJoystickMode == SDL_PORT_JOYSTICK_CUSTOM &&
+        g_nSdlJoystickSource == SDL_PAD_SOURCE_JOYSTICK;
+    int slot;
+
     if (strcmp(name, "original") == 0)
         g_eSdlJoystickMode = SDL_PORT_JOYSTICK_ORIGINAL;
     else if (strcmp(name, "4button-2axis") == 0)
         g_eSdlJoystickMode = SDL_PORT_JOYSTICK_FOUR_BUTTON_TWO_AXIS;
     else if (strcmp(name, "4button-4axis") == 0)
         g_eSdlJoystickMode = SDL_PORT_JOYSTICK_FOUR_BUTTON_FOUR_AXIS;
-    else if (strcmp(name, "custom") == 0)
+    else if (strcmp(name, "custom") == 0 || strcmp(name, "steam-deck") == 0)
         g_eSdlJoystickMode = SDL_PORT_JOYSTICK_CUSTOM;
     else
         return 0;
+    g_bSdlSteamDeckPreset = strcmp(name, "steam-deck") == 0;
+    if (wasRaw != (!g_bSdlSteamDeckPreset && g_eSdlJoystickMode == SDL_PORT_JOYSTICK_CUSTOM &&
+                    g_nSdlJoystickSource == SDL_PAD_SOURCE_JOYSTICK)) {
+        for (slot = 0; slot < 2; slot++)
+            SdlCloseJoystick(&g_aSdlJoystickDevices[slot]);
+        if (g_bSdlJoystickInputStarted)
+            SdlRefreshJoysticks();
+    }
+    return 1;
+}
+
+int SdlSetJoystickSource(int source)
+{
+    int wasRaw = g_nSdlJoystickSource == SDL_PAD_SOURCE_JOYSTICK;
+    int slot;
+
+    if (source < SDL_PAD_SOURCE_AUTO || source > SDL_PAD_SOURCE_JOYSTICK)
+        return 0;
+    g_nSdlJoystickSource = source;
+    if (!g_bSdlSteamDeckPreset && g_eSdlJoystickMode == SDL_PORT_JOYSTICK_CUSTOM &&
+        wasRaw != (source == SDL_PAD_SOURCE_JOYSTICK)) {
+        for (slot = 0; slot < 2; slot++)
+            SdlCloseJoystick(&g_aSdlJoystickDevices[slot]);
+        if (g_bSdlJoystickInputStarted)
+            SdlRefreshJoysticks();
+    }
     return 1;
 }
 
@@ -310,11 +344,15 @@ static int SdlParsePadFunction(int control, const char *name, size_t length,
  * layout, so the axis layout must be set first. */
 void SdlSetPadBindings(const char *text)
 {
-    const char *line = text;
+    const char *line = g_bSdlSteamDeckPreset ? NULL : text;
     int control;
 
     for (control = 0; control < SDL_PAD_CONTROLS; control++) {
-        const char *name = SdlDefaultPadFunction(control, g_eSdlJoystickAxesMode);
+        const char *name = (g_bSdlSteamDeckPreset ||
+            (g_eSdlJoystickMode == SDL_PORT_JOYSTICK_CUSTOM && g_nSdlJoystickSource == SDL_PAD_SOURCE_STEAM_DECK &&
+             control < SDL_PAD_GAMEPAD_CONTROLS))
+            ? SdlSteamDeckPadFunction(control)
+            : SdlDefaultPadFunction(control, g_eSdlJoystickAxesMode);
 
         SdlParsePadFunction(control, name, strlen(name), &g_aSdlPadBindings[control]);
     }
@@ -671,7 +709,9 @@ static void SdlOpenJoystick(int deviceIndex)
 
     controller = 0;
     joystick = 0;
-    if (SDL_IsGameController(deviceIndex)) {
+    if (SDL_IsGameController(deviceIndex) &&
+        !(!g_bSdlSteamDeckPreset && g_eSdlJoystickMode == SDL_PORT_JOYSTICK_CUSTOM &&
+          g_nSdlJoystickSource == SDL_PAD_SOURCE_JOYSTICK)) {
         controller = SDL_GameControllerOpen(deviceIndex);
         if (controller != 0)
             joystick = SDL_GameControllerGetJoystick(controller);
@@ -873,6 +913,10 @@ static int SdlReadJoystickTrigger(SdlJoystickDevice *device, int button)
  * axes. */
 static int SdlPadDeviceControl(const SdlJoystickDevice *device, int control)
 {
+    if (!g_bSdlSteamDeckPreset && device->controller == 0 &&
+        (g_nSdlJoystickSource == SDL_PAD_SOURCE_GAMEPAD ||
+         g_nSdlJoystickSource == SDL_PAD_SOURCE_STEAM_DECK))
+        return 0;
     return device->controller != 0 ? control < SDL_PAD_GAMEPAD_CONTROLS
                                     : control >= SDL_PAD_GAMEPAD_CONTROLS;
 }
@@ -903,6 +947,15 @@ static int SdlPadControlHeld(SdlJoystickDevice *device, int control)
     if (device->controller != 0) {
         if (control == SDL_PAD_LEFT_TRIGGER || control == SDL_PAD_RIGHT_TRIGGER)
             return SdlReadJoystickTrigger(device, control == SDL_PAD_RIGHT_TRIGGER ? 0 : 1);
+        if ((g_bSdlSteamDeckPreset || g_nSdlJoystickSource == SDL_PAD_SOURCE_STEAM_DECK) &&
+            control >= SDL_PAD_DPAD_UP) {
+            for (index = 0; index < 4; index++) {
+                if (SdlSteamDeckPaddleControl(index) == control &&
+                    SDL_GameControllerGetButton(device->controller,
+                        (SDL_GameControllerButton)(SDL_CONTROLLER_BUTTON_PADDLE1 + index)))
+                    return 1;
+            }
+        }
         return SDL_GameControllerGetButton(device->controller, buttons[control]) != 0;
     }
     if (control >= SDL_PAD_STICK_HAT) {
@@ -1422,6 +1475,10 @@ void SdlEndJoystickSpaceflight(void)
 
 static int SdlControllerButtonIndex(int button)
 {
+    if ((g_bSdlSteamDeckPreset || (g_eSdlJoystickMode == SDL_PORT_JOYSTICK_CUSTOM &&
+         g_nSdlJoystickSource == SDL_PAD_SOURCE_STEAM_DECK)) && button >= SDL_CONTROLLER_BUTTON_PADDLE1 &&
+        button <= SDL_CONTROLLER_BUTTON_PADDLE4)
+        return SdlSteamDeckPaddleControl(button - SDL_CONTROLLER_BUTTON_PADDLE1);
     switch ((SDL_GameControllerButton)button) {
     case SDL_CONTROLLER_BUTTON_A:
         return SDL_PORT_JOYSTICK_BUTTON_A;
@@ -1840,6 +1897,9 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
 
     spaceflightActive = SdlJoystickSpaceflightActive();
     custom = spaceflightActive && g_eSdlJoystickMode == SDL_PORT_JOYSTICK_CUSTOM;
+    if (custom && !SdlPadDeviceControl(device,
+            device->controller != 0 ? 0 : SDL_PAD_STICK_BUTTON))
+        return;
     /* There another joystick's buttons are its own, by number, and
        SdlHandleJoystickHatEvent binds its hats. */
     if (custom && device->controller == 0 && !controllerEvent) {
@@ -1958,6 +2018,8 @@ void SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,
        still chooses in the communications display. */
     if (g_eSdlJoystickMode == SDL_PORT_JOYSTICK_CUSTOM && SdlJoystickSpaceflightActive() &&
         !joystickRetryMode) {
+        if (!SdlPadDeviceControl(device, SDL_PAD_STICK_HAT))
+            return;
         for (direction = 0; direction < 4; direction++) {
             if ((pressed & directions[direction]) == 0 ||
                 (hat == 0 && SdlHandleCommunicationDpad(SDL_PORT_JOYSTICK_BUTTON_DPAD_UP + direction)))

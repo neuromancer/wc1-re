@@ -22,6 +22,14 @@
 #ifndef WC1_SDL_PAD_BINDINGS_H
 #define WC1_SDL_PAD_BINDINGS_H
 
+/* Custom's input source; Automatic keeps SDL's mapped/raw device choice. */
+enum SdlPadSource {
+    SDL_PAD_SOURCE_AUTO,
+    SDL_PAD_SOURCE_GAMEPAD,
+    SDL_PAD_SOURCE_STEAM_DECK,
+    SDL_PAD_SOURCE_JOYSTICK
+};
+
 #define SDL_PAD_CONTROLS 68
 /* The gamepad's controls. */
 #define SDL_PAD_GAMEPAD_CONTROLS 20
@@ -75,6 +83,33 @@ static inline int SdlPadControlTakesButton(int control)
 {
     return (control >= 0 && control < SDL_PAD_BUTTONS) ||
         (control >= SDL_PAD_STICK_BUTTON && control < SDL_PAD_STICK_AXIS);
+}
+
+/* Steam Deck preset, after the player's layout in wc1-re#32 and wc2-re#66.
+ * Speed changes while the left stick is held forward/back; it is not a
+ * throttle position. WC1 has no jump drive, so A, which jumps in WC2, is
+ * left for the player to bind. Keep it separate from [pad] so selecting a
+ * preset preserves Custom. */
+static inline const char *SdlSteamDeckPadFunction(int control)
+{
+    static const char *const functions[SDL_PAD_GAMEPAD_CONTROLS] = {
+        "", "", "", "cycle-views", "next-missile", "next-gun",
+        "fire-missile", "fire-guns", "autopilot", "pause",
+        "afterburner", "next-target", "navigation", "damage-display",
+        "communications", "lock-target", "roll", "speed", "yaw", "pitch"
+    };
+
+    return control >= 0 && control < SDL_PAD_GAMEPAD_CONTROLS ? functions[control] : "";
+}
+
+/* SDL's Steam Deck driver numbers PADDLE1..4 as R4, L4, R5, L5. Rear
+ * buttons mirror the D-pad, including its communications-menu behavior.
+ * Steam Input can expose the same directions on its virtual controller. */
+static inline int SdlSteamDeckPaddleControl(int paddle)
+{
+    static const int controls[4] = {14, 12, 15, 13};
+
+    return paddle >= 0 && paddle < 4 ? controls[paddle] : -1;
 }
 
 /* The Custom mode's bindings until the player changes them: the WCAT

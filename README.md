@@ -88,7 +88,7 @@ remembers your folder and options.
 - Gamepad support, rumble, and alternative joystick layouts, including
   WCAT-style four-button controls and, for WC1, a Custom mode that rebinds
   every gamepad button, trigger and stick axis, and a flight stick's buttons,
-  hats and axes.
+  hats and axes, and a Steam Deck preset.
 - An adjustable joystick dead zone (22% by default, as in the original) and a
   launcher page that calibrates WC1's joystick. It writes `GAMEDAT/j.cal` as
   the game's own calibration does, and the game now reads all of that file,
@@ -139,6 +139,20 @@ into speed while held. A stick axis or trigger can pitch, yaw, roll or change
 speed, and a stick axis can also set the throttle; any of these can be reversed.
 Custom starts from the WCAT four-button, four-axis layout. Menus keep their
 fixed buttons, and Super Wing Commander keeps the WCAT four-axis layout.
+
+The **Steam Deck** control mode (`--joystick-mode=steam-deck`) follows the
+layout shared in [#32](https://github.com/neuromancer/wc1-re/issues/32): roll
+and speed on the left stick, yaw and pitch on the right, and the D-pad on the
+navigation map, damage display, communications and target lock. The Deck's
+rear buttons mirror the D-pad: L4 up, L5 down, R4 left and R5 right; with
+Steam Input, give those directions to the rear buttons in Steam's controller
+layout. A is left free, as WC1 has no jump drive. Super Wing Commander keeps
+the WCAT four-axis layout in this mode too. In Custom, **Source** picks
+**Automatic**, **Gamepad**, **Steam Deck** or **Joystick**: Automatic follows
+the connected device, Gamepad and Steam Deck show editable drawings (the Deck's
+rear buttons share the D-pad's bindings), and Joystick lists numbered inputs
+even for a device SDL knows as a gamepad. Choosing the preset keeps the Custom
+bindings.
 
 A joystick that SDL does not know as a gamepad, such as a flight stick, is
 shown as its axes, hats and buttons by number, each lit while held, with the

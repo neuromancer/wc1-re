@@ -300,6 +300,7 @@ BOOL SdlReadJoystickAxisRange(unsigned int device,
                                  unsigned int *yMinimum,
                                  unsigned int *yMaximum);
 int SdlSetJoystickMode(const char *name);
+int SdlSetJoystickSource(int source);
 int SdlSetJoystickAxesMode(const char *name);
 /* The Custom joystick mode's "control=function" lines (src/sdl/pad_bindings.h),
  * after the axis layout, whose bindings are the defaults. */

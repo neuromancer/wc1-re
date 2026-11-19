@@ -7,7 +7,7 @@
 #include <string.h>
 
 static const char *const g_apszSdlLauncherJoystickModes[] = {
-    "original", "4button-2axis", "4button-4axis", "custom"
+    "original", "4button-2axis", "4button-4axis", "custom", "steam-deck"
 };
 
 static const char *const g_apszSdlLauncherMusic[] = {
@@ -273,13 +273,17 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     nLaunchCampaign = options->campaign;
     nPilotTransferState = options->transferPilot != 0;
     if (options->joystickMode < SDL_LAUNCHER_JOYSTICK_ORIGINAL ||
-        options->joystickMode > SDL_LAUNCHER_JOYSTICK_CUSTOM ||
+        options->joystickMode > SDL_LAUNCHER_JOYSTICK_STEAM_DECK ||
         options->joystickAxes < SDL_LAUNCHER_AXES_TWIN_STICK_ROLL ||
         options->joystickAxes > SDL_LAUNCHER_AXES_RUDDER_ROLL) {
         fprintf(stderr, "Invalid launcher joystick options.\n");
         return 0;
     }
     SdlSetJoystickMode(g_apszSdlLauncherJoystickModes[options->joystickMode]);
+    if (!SdlSetJoystickSource(options->joystickSource)) {
+        fprintf(stderr, "The GUI returned an invalid joystick source.\n");
+        return 0;
+    }
     SdlSetJoystickAxesMode(g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
     SdlSetPadBindings(options->padBindings);
     if (!SdlSetJoystickDeadZone(options->joystickDeadZone)) {

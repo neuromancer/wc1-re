@@ -1,0 +1,40 @@
+import { Palette } from "std-widgets.slint";
+
+// A connector made of one horizontal and one vertical rule, in the
+// coordinates of the page it covers.
+export component Connector inherits Rectangle {
+    x: 0px;
+    y: 0px;
+    width: 100%;
+    height: 100%;
+    in property <length> from-x;
+    in property <length> from-y;
+    in property <length> to-x;
+    in property <length> to-y;
+    in property <brush> ink: Palette.foreground;
+
+    Rectangle {
+        x: min(root.from-x, root.to-x);
+        y: root.from-y - 0.5px;
+        width: abs(root.to-x - root.from-x);
+        height: 1px;
+        background: root.ink;
+    }
+
+    Rectangle {
+        x: root.to-x - 0.5px;
+        y: min(root.from-y, root.to-y);
+        width: 1px;
+        height: abs(root.to-y - root.from-y);
+        background: root.ink;
+    }
+
+    Rectangle {
+        x: root.to-x - 3px;
+        y: root.to-y - 3px;
+        width: 6px;
+        height: 6px;
+        border-radius: 3px;
+        background: root.ink;
+    }
+}

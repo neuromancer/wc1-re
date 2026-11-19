@@ -148,7 +148,8 @@ MODERN_GUI_BUILD_DIR = $(MODERN_OUT_DIR)/slint-gui
 MODERN_GUI_BUILD_TYPE ?= Release
 MODERN_GUI_CMAKE_ARGS ?=
 MODERN_GUI_SRCS = $(wildcard $(MODERN_GUI_SOURCE_DIR)/* translations/*/LC_MESSAGES/*.po \
-	third_party/sc-controller/images/*.svg third_party/sc-controller/images/*/*.svg)
+	third_party/sc-controller/images/*.svg third_party/sc-controller/images/*/*.svg \
+	third_party/steam-deck/*.svg)
 MODERN_EMPTY :=
 MODERN_SPACE := $(MODERN_EMPTY) $(MODERN_EMPTY)
 MODERN_RUN_DIR ?= data/full

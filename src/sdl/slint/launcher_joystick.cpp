@@ -51,6 +51,15 @@ void JoystickReader::close(Device &device)
     device = {};
 }
 
+void JoystickReader::use_raw(bool enabled)
+{
+    if (raw == enabled)
+        return;
+    for (auto &device : devices)
+        close(device);
+    raw = enabled;
+}
+
 void JoystickReader::update()
 {
     if (!active)
@@ -76,7 +85,7 @@ void JoystickReader::update()
                     return device.joystick != nullptr && device.instance == instance;
                 }))
                 continue;
-            SDL_GameController *controller = SDL_IsGameController(index) ? SDL_GameControllerOpen(index) : nullptr;
+            SDL_GameController *controller = !raw && SDL_IsGameController(index) ? SDL_GameControllerOpen(index) : nullptr;
             SDL_Joystick *joystick = controller != nullptr ? SDL_GameControllerGetJoystick(controller) : nullptr;
             if (joystick == nullptr) {
                 if (controller != nullptr)
@@ -130,7 +139,7 @@ JoystickPosition JoystickReader::read(int slot) const
     return position;
 }
 
-PadSnapshot JoystickReader::snapshot(int slot) const
+PadSnapshot JoystickReader::snapshot(int slot, bool steamDeck) const
 {
     static const SDL_GameControllerButton buttons[SDL_PAD_BUTTONS] = {
         SDL_CONTROLLER_BUTTON_A, SDL_CONTROLLER_BUTTON_B,
@@ -175,6 +184,13 @@ PadSnapshot JoystickReader::snapshot(int slot) const
         for (int axis = 0; axis < 4; ++axis)
             snapshot.held[SDL_PAD_LEFT_STICK_X + axis] =
                 std::abs(static_cast<int>(SDL_GameControllerGetAxis(device.controller, sticks[axis]))) >= 16384;
+        if (steamDeck) {
+            for (int paddle = 0; paddle < 4; ++paddle)
+                snapshot.held[SdlSteamDeckPaddleControl(paddle)] =
+                    snapshot.held[SdlSteamDeckPaddleControl(paddle)] ||
+                    SDL_GameControllerGetButton(device.controller,
+                        static_cast<SDL_GameControllerButton>(SDL_CONTROLLER_BUTTON_PADDLE1 + paddle)) != 0;
+        }
         return snapshot;
     }
     for (int button = 0; button < std::min(snapshot.buttons, SDL_PAD_STICK_BUTTONS); ++button)

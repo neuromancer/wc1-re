@@ -617,7 +617,10 @@ std::shared_ptr<slint::VectorModel<int>> pad_codes(const LauncherWindow &window,
     }
     for (int control = 0; control < SDL_PAD_CONTROLS; ++control) {
         const size_t axis = static_cast<size_t>(control - SDL_PAD_STICK_AXIS);
-        const std::string function = control >= SDL_PAD_STICK_AXIS && !named.empty()
+        const std::string function = control < SDL_PAD_GAMEPAD_CONTROLS &&
+                window.get_joystick_source_index() == SDL_PAD_SOURCE_STEAM_DECK
+            ? SdlSteamDeckPadFunction(control)
+            : control >= SDL_PAD_STICK_AXIS && !named.empty()
             ? (axis < named.size() ? named[axis] : std::string())
             : SdlDefaultPadFunction(control, axes);
         codes[control] = pad_code(window, control, function).value_or(-1);
@@ -647,6 +650,10 @@ std::shared_ptr<slint::VectorModel<int>> pad_codes(const LauncherWindow &window,
 void prepare_pad(const slint::ComponentHandle<LauncherWindow> &window, std::string_view saved, bool &kept)
 {
     window->set_pad_codes(pad_codes(*window, window->get_joystick_axes_index(), saved));
+    std::vector<int> deck(SDL_PAD_GAMEPAD_CONTROLS);
+    for (int control = 0; control < SDL_PAD_GAMEPAD_CONTROLS; ++control)
+        deck[control] = pad_code(*window, control, SdlSteamDeckPadFunction(control)).value_or(-1);
+    window->set_steam_deck_codes(std::make_shared<slint::VectorModel<int>>(std::move(deck)));
     window->on_custom_pad_requested([self = slint::ComponentWeakHandle<LauncherWindow>(window), &kept]() {
         const auto launcher = self.lock();
         if (!launcher || kept)
@@ -663,8 +670,19 @@ void prepare_pad(const slint::ComponentHandle<LauncherWindow> &window, std::stri
             codes->set_row_data(control, code);
     });
     window->on_pad_reset([self = slint::ComponentWeakHandle<LauncherWindow>(window)]() {
-        if (const auto launcher = self.lock())
-            (*launcher)->set_pad_codes(pad_codes(**launcher, (*launcher)->get_joystick_axes_index(), {}));
+        if (const auto launcher = self.lock()) {
+            const auto defaults = pad_codes(**launcher, (*launcher)->get_joystick_axes_index(), {});
+            const auto codes = std::dynamic_pointer_cast<slint::VectorModel<int>>((*launcher)->get_pad_codes());
+            const int source = (*launcher)->get_joystick_source_index();
+            const auto device = (*launcher)->get_pad_device();
+            const bool raw = source == SDL_PAD_SOURCE_JOYSTICK ||
+                (source == SDL_PAD_SOURCE_AUTO && device.connected && !device.mapped);
+            if (codes) {
+                for (int control = raw ? SDL_PAD_GAMEPAD_CONTROLS : 0;
+                     control < (raw ? SDL_PAD_CONTROLS : SDL_PAD_GAMEPAD_CONTROLS); ++control)
+                    codes->set_row_data(control, defaults->row_data(control).value_or(-1));
+            }
+        }
     });
 }
 
@@ -766,6 +784,8 @@ public:
         stored = path.empty() ? std::nullopt : read_joystick_calibration(path);
         window->set_calibration_step(CalibrationStep::Idle);
         window->set_calibration_message(CalibrationMessage::None);
+        joysticks.use_raw(window->get_joystick_mode_index() == SDL_LAUNCHER_JOYSTICK_CUSTOM &&
+            window->get_joystick_source_index() == SDL_PAD_SOURCE_JOYSTICK);
         if (stored && (*stored)[0] < 2)
             window->set_calibration_device((*stored)[0]);
         if (!joysticks.start()) {
@@ -991,6 +1011,8 @@ public:
 private:
     void tick()
     {
+        joysticks.use_raw(window->get_joystick_mode_index() == SDL_LAUNCHER_JOYSTICK_CUSTOM &&
+            window->get_joystick_source_index() == SDL_PAD_SOURCE_JOYSTICK);
         joysticks.update();
         const auto names = joysticks.names();
         if (names != shownNames) {
@@ -1003,7 +1025,10 @@ private:
             slot = 1 - slot;
             window->set_pad_slot(slot);
         }
-        const PadSnapshot next = joysticks.snapshot(slot);
+        const PadSnapshot next = joysticks.snapshot(slot,
+            window->get_joystick_mode_index() == SDL_LAUNCHER_JOYSTICK_STEAM_DECK ||
+            (window->get_joystick_mode_index() == SDL_LAUNCHER_JOYSTICK_CUSTOM &&
+             window->get_joystick_source_index() == SDL_PAD_SOURCE_STEAM_DECK));
         const bool sameDevice = next.connected && previous.connected && slot == previousSlot &&
                                 next.mapped == previous.mapped && next.name == previous.name;
         publish(next);
@@ -1141,6 +1166,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_cheat_mode(options->cheatMode != 0);
     window->set_joystick_rumble(options->joystickRumble != 0);
     window->set_joystick_mode_index(options->joystickMode);
+    window->set_joystick_source_index(options->joystickSource);
     window->set_joystick_axes_index(options->joystickAxes);
     window->set_joystick_dead_zone(static_cast<float>(options->joystickDeadZone));
     bool padBindingsKept = options->padBindings[0] != '\0' ||
@@ -1305,6 +1331,8 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->cheatMode = window->get_cheat_mode();
     options->joystickRumble = window->get_joystick_rumble();
     options->joystickMode = std::max(0, window->get_joystick_mode_index());
+    options->joystickSource = std::clamp(window->get_joystick_source_index(),
+        static_cast<int>(SDL_PAD_SOURCE_AUTO), static_cast<int>(SDL_PAD_SOURCE_JOYSTICK));
     options->joystickAxes = std::max(0, window->get_joystick_axes_index());
     if (padBindingsKept) {
         const auto padBindings = pad_bindings(*window);

@@ -1,0 +1,384 @@
+// Valve's wireframes, with the preset's labels supplied by the same bindings
+// as the game. See third_party/steam-deck/README.md for the artwork's source.
+import { Palette } from "std-widgets.slint";
+import { Connector } from "control_connector.slint";
+
+struct DeckRow {
+    control: int,
+    name: string,
+}
+
+component DeckBindings inherits Rectangle {
+    in property <string> title;
+    in property <[DeckRow]> rows;
+    in property <length> name-width: 24px;
+    in property <[bool]> held;
+    in property <bool> editable;
+    callback control-clicked(int, string);
+    in property <bool> exit-right;
+    in property <bool> exit-bottom;
+    in property <length> line-y: root.height / 2;
+    // One leader per physical region, shared by every row in the box.
+    in property <length> target-x;
+    in property <length> target-y;
+    pure callback binding(int) -> string;
+    background: Palette.alternate-background;
+    border-color: Palette.border;
+    border-width: 1px;
+    border-radius: 6px;
+
+    Connector {
+        from-x: root.exit-bottom ? root.target-x - root.x : root.exit-right ? root.width : 0px;
+        from-y: root.exit-bottom ? root.height : root.line-y;
+        to-x: root.target-x - root.x;
+        to-y: root.target-y - root.y;
+        ink: Palette.foreground.with-alpha(0.55);
+    }
+
+    VerticalLayout {
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-top: 4px;
+        padding-bottom: 4px;
+        spacing: 2px;
+        if root.title != "": Text {
+            text: root.title;
+            color: Palette.alternate-foreground;
+            opacity: 0.65;
+            font-size: 11px;
+            font-weight: 700;
+            wrap: word-wrap;
+        }
+        for row in root.rows: Rectangle {
+            height: max(18px, action.preferred-height + 4px);
+            border-radius: 3px;
+            background: root.held[row.control] ? Palette.accent-background.with-alpha(0.25)
+                : root.editable && touch.has-hover ? Palette.accent-background.with-alpha(0.12) : transparent;
+            Text {
+                x: 0px;
+                y: 0px;
+                width: root.name-width;
+                height: 100%;
+                text: row.name;
+                vertical-alignment: center;
+                color: Palette.alternate-foreground;
+                font-size: 11px;
+                font-weight: 700;
+            }
+            action := Text {
+                x: root.name-width + 5px;
+                y: 2px;
+                width: parent.width - self.x;
+                height: self.preferred-height;
+                text: root.binding(row.control) == "" ? "—" : root.binding(row.control);
+                wrap: word-wrap;
+                color: Palette.alternate-foreground;
+                font-size: 12px;
+            }
+            touch := TouchArea {
+                enabled: root.editable;
+                mouse-cursor: root.editable ? MouseCursor.pointer : MouseCursor.default;
+                clicked => {
+                    root.control-clicked(row.control, (root.title == "" ? "" : root.title + ", ") + row.name);
+                }
+            }
+        }
+    }
+}
+
+export component SteamDeckView inherits Rectangle {
+    min-height: max(front.y + front.height + 8px + rear.height,
+        dpad.y + dpad.height + 6px + rear-right.height,
+        face.y + face.height + 6px + rear-left.height);
+    in property <[bool]> held;
+    in property <bool> editable;
+    callback control-clicked(int, string);
+    pure callback binding(int) -> string;
+    property <length> centre-width: min(390px, root.width * 0.43);
+    property <length> side-width: (root.width - root.centre-width - 24px) / 2;
+
+    top := Image {
+        x: (root.width - self.width) / 2;
+        y: 0px;
+        width: min(root.centre-width - 48px, 216px);
+        height: self.width * 271 / 1060;
+        // Rotated from Valve's rear-facing top view, so left/right agree
+        // with the front view. The software renderer ignores item rotation.
+        source: @image-url("steamdeck-top.svg");
+        colorize: Palette.foreground;
+    }
+
+    Text {
+        x: top.x;
+        y: top.y;
+        width: top.width;
+        text: @tr("Top view");
+        horizontal-alignment: center;
+        color: Palette.foreground;
+        opacity: 0.65;
+        font-size: 11px;
+    }
+
+    left-shoulder := DeckBindings {
+        x: 0px;
+        y: 0px;
+        width: root.side-width;
+        height: self.preferred-height;
+        title: @tr("Left shoulder buttons");
+        exit-right: true;
+        target-x: top.x + top.width * 0.076;
+        target-y: top.y + top.height * 0.45;
+        rows: [ { control: 6, name: "L2" }, { control: 4, name: "L1" } ];
+        held: root.held;
+        editable: root.editable;
+        control-clicked(control, title) => { root.control-clicked(control, title); }
+        binding(control) => { return root.binding(control); }
+    }
+
+    left-stick := DeckBindings {
+        x: 0px;
+        y: left-shoulder.y + left-shoulder.height + 6px;
+        width: root.side-width;
+        height: self.preferred-height;
+        title: @tr("Left stick");
+        exit-right: true;
+        line-y: self.height - 4px;
+        target-x: front.x + front.width * 0.1595;
+        target-y: front.y + front.height * 0.219;
+        rows: [
+            { control: 16, name: "↔" },
+            { control: 17, name: "↑↓" },
+            { control: 10, name: "L3" },
+        ];
+        held: root.held;
+        editable: root.editable;
+        control-clicked(control, title) => { root.control-clicked(control, title); }
+        binding(control) => { return root.binding(control); }
+    }
+
+    dpad := DeckBindings {
+        x: 0px;
+        y: left-stick.y + left-stick.height + 6px;
+        width: root.side-width;
+        height: self.preferred-height;
+        title: @tr("D-pad");
+        exit-right: true;
+        target-x: front.x + front.width * 0.03;
+        target-y: front.y + front.height * 0.178;
+        rows: [
+            { control: 12, name: "↑" }, { control: 13, name: "↓" },
+            { control: 14, name: "←" }, { control: 15, name: "→" },
+        ];
+        held: root.held;
+        editable: root.editable;
+        control-clicked(control, title) => { root.control-clicked(control, title); }
+        binding(control) => { return root.binding(control); }
+    }
+
+    right-shoulder := DeckBindings {
+        x: root.width - self.width;
+        y: 0px;
+        width: root.side-width;
+        height: self.preferred-height;
+        title: @tr("Right shoulder buttons");
+        target-x: top.x + top.width * 0.924;
+        target-y: top.y + top.height * 0.45;
+        rows: [ { control: 7, name: "R2" }, { control: 5, name: "R1" } ];
+        held: root.held;
+        editable: root.editable;
+        control-clicked(control, title) => { root.control-clicked(control, title); }
+        binding(control) => { return root.binding(control); }
+    }
+
+    right-stick := DeckBindings {
+        x: root.width - self.width;
+        y: right-shoulder.y + right-shoulder.height + 6px;
+        width: root.side-width;
+        height: self.preferred-height;
+        title: @tr("Right stick");
+        line-y: self.height - 4px;
+        target-x: front.x + front.width * 0.8398;
+        target-y: front.y + front.height * 0.219;
+        rows: [
+            { control: 18, name: "↔" },
+            { control: 19, name: "↑↓" },
+            { control: 11, name: "R3" },
+        ];
+        held: root.held;
+        editable: root.editable;
+        control-clicked(control, title) => { root.control-clicked(control, title); }
+        binding(control) => { return root.binding(control); }
+    }
+
+    face := DeckBindings {
+        x: root.width - self.width;
+        y: right-stick.y + right-stick.height + 6px;
+        width: root.side-width;
+        height: self.preferred-height;
+        title: @tr("Buttons");
+        target-x: front.x + front.width * 0.982;
+        target-y: front.y + front.height * 0.1793;
+        rows: [
+            { control: 3, name: "Y" }, { control: 2, name: "X" },
+            { control: 1, name: "B" }, { control: 0, name: "A" },
+        ];
+        held: root.held;
+        editable: root.editable;
+        control-clicked(control, title) => { root.control-clicked(control, title); }
+        binding(control) => { return root.binding(control); }
+    }
+
+    view := DeckBindings {
+        x: front.x;
+        y: top.y + top.height + 4px;
+        width: (root.centre-width - 8px) / 2;
+        height: self.preferred-height;
+        exit-bottom: true;
+        name-width: 42px;
+        target-x: front.x + front.width * 0.127;
+        target-y: front.y + front.height * 0.069;
+        rows: [ { control: 8, name: @tr("View") } ];
+        held: root.held;
+        editable: root.editable;
+        control-clicked(control, title) => { root.control-clicked(control, title); }
+        binding(control) => { return root.binding(control); }
+    }
+    menu := DeckBindings {
+        x: front.x + front.width - self.width;
+        y: view.y;
+        width: view.width;
+        height: self.preferred-height;
+        exit-bottom: true;
+        name-width: 42px;
+        target-x: front.x + front.width * 0.873;
+        target-y: front.y + front.height * 0.069;
+        rows: [ { control: 9, name: @tr("Menu") } ];
+        held: root.held;
+        editable: root.editable;
+        control-clicked(control, title) => { root.control-clicked(control, title); }
+        binding(control) => { return root.binding(control); }
+    }
+
+    front := Rectangle {
+        x: (root.width - self.width) / 2;
+        y: max(view.y + view.height, menu.y + menu.height) + 8px;
+        width: root.centre-width;
+        height: self.width * 414 / 1024;
+        Image {
+            width: 100%;
+            height: 100%;
+            source: @image-url("../../../third_party/steam-deck/steamdeckFront.svg");
+            colorize: Palette.foreground;
+        }
+        for button in [
+            { x: 0.937, y: 0.1065, name: "Y", control: 3 },
+            { x: 0.937, y: 0.251, name: "A", control: 0 },
+            { x: 0.9076, y: 0.1793, name: "X", control: 2 },
+            { x: 0.966, y: 0.1793, name: "B", control: 1 },
+        ]: Rectangle {
+            x: parent.width * (button.x - 0.015);
+            y: parent.height * button.y - self.height / 2;
+            width: parent.width * 0.03;
+            height: self.width;
+            border-radius: self.width / 2;
+            background: root.held[button.control] ? Palette.accent-background.with-alpha(0.4) : transparent;
+            Text {
+                text: button.name;
+                font-size: 7px;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                color: Palette.foreground;
+            }
+        }
+        // The sticks light when either of their axes moves, or on a click.
+        for stick in [
+            { x: 0.1595, axis: 16, click: 10 },
+            { x: 0.8398, axis: 18, click: 11 },
+        ]: Rectangle {
+            x: parent.width * (stick.x - 0.038);
+            y: parent.height * 0.125;
+            width: parent.width * 0.076;
+            height: self.width;
+            border-radius: self.width / 2;
+            background: root.held[stick.axis] || root.held[stick.axis + 1] || root.held[stick.click]
+                ? Palette.accent-background.with-alpha(0.4) : transparent;
+        }
+    }
+
+    rear := Rectangle {
+        x: (root.width - self.width) / 2;
+        y: max(front.y + front.height + 8px, root.height - self.height);
+        width: min(root.centre-width - 40px, 248px);
+        height: self.width * 429 / 1060;
+        Image {
+            width: 100%;
+            height: 100%;
+            source: @image-url("../../../third_party/steam-deck/steamdeckBack.svg");
+            colorize: Palette.foreground;
+        }
+        Text {
+            x: parent.width * 0.3;
+            y: parent.height * 0.25;
+            width: parent.width * 0.4;
+            text: @tr("Rear buttons");
+            font-size: 11px;
+            horizontal-alignment: center;
+            color: Palette.foreground;
+            opacity: 0.65;
+        }
+        // Viewing the back swaps left and right on the drawing.
+        for paddle in [
+            { x: 0.135, y: 0.515, name: "R4", control: 14 },
+            { x: 0.135, y: 0.708, name: "R5", control: 15 },
+            { x: 0.865, y: 0.515, name: "L4", control: 12 },
+            { x: 0.865, y: 0.708, name: "L5", control: 13 },
+        ]: Rectangle {
+            x: parent.width * (paddle.x - 0.033);
+            y: parent.height * (paddle.y - 0.08);
+            width: parent.width * 0.066;
+            height: parent.height * 0.16;
+            border-radius: 3px;
+            background: root.held[paddle.control] ? Palette.accent-background.with-alpha(0.4) : transparent;
+            Text {
+                text: paddle.name;
+                horizontal-alignment: center;
+                vertical-alignment: center;
+                color: Palette.foreground;
+                font-size: 8px;
+                font-weight: 700;
+            }
+        }
+    }
+
+    rear-right := DeckBindings {
+        x: 0px;
+        y: max(dpad.y + dpad.height + 6px, rear.y + (rear.height - self.height) / 2);
+        width: root.side-width;
+        height: self.preferred-height;
+        title: @tr("Right rear / D-pad");
+        name-width: 42px;
+        exit-right: true;
+        target-x: rear.x + rear.width * 0.102;
+        target-y: rear.y + rear.height * 0.6115;
+        rows: [ { control: 14, name: "R4 / ←" }, { control: 15, name: "R5 / →" } ];
+        held: root.held;
+        editable: root.editable;
+        control-clicked(control, title) => { root.control-clicked(control, title); }
+        binding(control) => { return root.binding(control); }
+    }
+    rear-left := DeckBindings {
+        x: root.width - self.width;
+        y: max(face.y + face.height + 6px, rear.y + (rear.height - self.height) / 2);
+        width: root.side-width;
+        height: self.preferred-height;
+        title: @tr("Left rear / D-pad");
+        name-width: 42px;
+        target-x: rear.x + rear.width * 0.898;
+        target-y: rear.y + rear.height * 0.6115;
+        rows: [ { control: 12, name: "L4 / ↑" }, { control: 13, name: "L5 / ↓" } ];
+        held: root.held;
+        editable: root.editable;
+        control-clicked(control, title) => { root.control-clicked(control, title); }
+        binding(control) => { return root.binding(control); }
+    }
+}

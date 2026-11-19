@@ -44,6 +44,21 @@ The SDL2 release packages may include these components:
 The exact set is platform-dependent. System libraries supplied by Windows,
 macOS, or the Linux distribution are not copied into these packages.
 
+Steam Deck artwork
+==================
+
+The launcher's Steam Deck control diagram uses Valve's steamdeckFront.svg,
+steamdeckBack.svg and steamdeckTop.svg, supplied for in-game input callouts at:
+https://partner.steamgames.com/doc/steamhardware/steamdeck/svg
+https://shared.akamai.steamstatic.com/community_assets/images/steamworks_docs/english/steamdeckSVG.zip
+
+Downloaded on 2026-11-18; the original vectors are preserved in the source
+tree under third_party/steam-deck. The source page and archive do not specify
+a named open-source license. These images are not licensed under the code's
+GPL terms or the SC Controller artwork's CC0 terms. Steam Deck is a trademark
+of Valve Corporation. WC1-specific labels and highlights are added by this
+project's launcher.
+
 WCAT contributor notice
 =======================
 

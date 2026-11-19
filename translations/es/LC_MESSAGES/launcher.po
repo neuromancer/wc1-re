@@ -1472,6 +1472,10 @@ msgctxt "ControlsView"
 msgid "SWC keeps the WCAT four-axis layout in the Custom mode."
 msgstr "SWC mantiene la asignación WCAT de cuatro ejes en el modo personalizado."
 
+msgctxt "ControlsView"
+msgid "SWC keeps the WCAT four-axis layout in the Steam Deck mode."
+msgstr "SWC mantiene la asignación WCAT de cuatro ejes en el modo Steam Deck."
+
 #: src/sdl/slint/controls.slint:745
 msgctxt "ControlsView"
 msgid "Fires while held."
@@ -1732,3 +1736,99 @@ msgstr[1] "{n} ejes"
 msgctxt "ControlsView"
 msgid "Axes"
 msgstr "Ejes"
+
+msgctxt "LauncherWindow"
+msgid "Steam Deck"
+msgstr "Steam Deck"
+
+msgctxt "LauncherWindow"
+msgid "Left: roll + speed · Right: yaw + pitch"
+msgstr "Izq.: alabeo + velocidad · Der.: guiñada + cabeceo"
+
+msgctxt "SteamDeckView"
+msgid "Left shoulder buttons"
+msgstr "Botones L1 / L2"
+
+msgctxt "SteamDeckView"
+msgid "Right shoulder buttons"
+msgstr "Botones R1 / R2"
+
+msgctxt "SteamDeckView"
+msgid "View"
+msgstr "Vista"
+
+msgctxt "SteamDeckView"
+msgid "Menu"
+msgstr "Menú"
+
+msgctxt "SteamDeckView"
+msgid "Top view"
+msgstr "Vista superior"
+
+msgctxt "SteamDeckView"
+msgid "Rear buttons"
+msgstr "Botones traseros"
+
+msgctxt "SteamDeckView"
+msgid "Right rear / D-pad"
+msgstr "Traseros derechos / cruceta"
+
+msgctxt "SteamDeckView"
+msgid "Left rear / D-pad"
+msgstr "Traseros izquierdos / cruceta"
+
+msgctxt "ControlsView"
+msgid "Steam Input: assign L4 to ↑, L5 to ↓, R4 to ← and R5 to →. In communications, ↑/↓ choose, → sends and ← closes. L3/R3 are stick clicks. Y answers Yes; View is Escape outside flight."
+msgstr "Steam Input: asigna L4 a ↑, L5 a ↓, R4 a ← y R5 a →. En comunicaciones, ↑/↓ eligen, → envía y ← cierra. L3/R3 pulsan los sticks. Y responde Sí; Vista es Escape fuera del vuelo."
+
+msgctxt "SteamDeckView"
+msgid "Left stick"
+msgstr "Palanca izquierda"
+
+msgctxt "SteamDeckView"
+msgid "Right stick"
+msgstr "Palanca derecha"
+
+msgctxt "SteamDeckView"
+msgid "D-pad"
+msgstr "Cruceta"
+
+msgctxt "SteamDeckView"
+msgid "Buttons"
+msgstr "Botones"
+
+msgctxt "LauncherWindow"
+msgid "Source"
+msgstr "Origen"
+
+msgctxt "LauncherWindow"
+msgid "Gamepad"
+msgstr "Gamepad"
+
+msgctxt "ControlSource"
+msgid "Joystick"
+msgstr "Joystick"
+
+msgctxt "ControlsView"
+msgid "View"
+msgstr "Vista"
+
+msgctxt "ControlsView"
+msgid "Click a binding or press its control to change it. Rear buttons mirror the D-pad."
+msgstr "Haz clic en una asignación o pulsa su control para cambiarla. Los botones traseros comparten las asignaciones de la cruceta."
+
+msgctxt "ControlsView"
+msgid "This device has no gamepad mapping. Choose Joystick to bind its numbered inputs."
+msgstr "Este dispositivo no tiene un mapa de gamepad. Elige Joystick para asignar sus entradas numeradas."
+
+msgctxt "ControlsView"
+msgid "Joystick — not connected"
+msgstr "Joystick — no conectado"
+
+msgctxt "ControlsView"
+msgid "Connect a joystick to see its inputs, or edit bindings offline."
+msgstr "Conecta un joystick para ver sus entradas, o edita las asignaciones sin conectarlo."
+
+msgctxt "LauncherWindow"
+msgid "Automatic"
+msgstr "Automático"

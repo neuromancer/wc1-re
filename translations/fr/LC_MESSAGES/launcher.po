@@ -1419,6 +1419,10 @@ msgctxt "ControlsView"
 msgid "SWC keeps the WCAT four-axis layout in the Custom mode."
 msgstr "SWC garde l’affectation WCAT à quatre axes en mode personnalisé."
 
+msgctxt "ControlsView"
+msgid "SWC keeps the WCAT four-axis layout in the Steam Deck mode."
+msgstr "SWC garde l’affectation WCAT à quatre axes en mode Steam Deck."
+
 #: src/sdl/slint/controls.slint:745
 msgctxt "ControlsView"
 msgid "Fires while held."
@@ -1679,3 +1683,99 @@ msgstr[1] "{n} axes"
 msgctxt "ControlsView"
 msgid "Axes"
 msgstr "Axes"
+
+msgctxt "LauncherWindow"
+msgid "Steam Deck"
+msgstr "Steam Deck"
+
+msgctxt "LauncherWindow"
+msgid "Left: roll + speed · Right: yaw + pitch"
+msgstr "Gauche : roulis + vitesse · Droite : lacet + tangage"
+
+msgctxt "SteamDeckView"
+msgid "Left shoulder buttons"
+msgstr "Boutons L1 / L2"
+
+msgctxt "SteamDeckView"
+msgid "Right shoulder buttons"
+msgstr "Boutons R1 / R2"
+
+msgctxt "SteamDeckView"
+msgid "View"
+msgstr "Vue"
+
+msgctxt "SteamDeckView"
+msgid "Menu"
+msgstr "Menu"
+
+msgctxt "SteamDeckView"
+msgid "Top view"
+msgstr "Vue de dessus"
+
+msgctxt "SteamDeckView"
+msgid "Rear buttons"
+msgstr "Boutons arrière"
+
+msgctxt "SteamDeckView"
+msgid "Right rear / D-pad"
+msgstr "Arrière droits / croix"
+
+msgctxt "SteamDeckView"
+msgid "Left rear / D-pad"
+msgstr "Arrière gauches / croix"
+
+msgctxt "ControlsView"
+msgid "Steam Input: assign L4 to ↑, L5 to ↓, R4 to ← and R5 to →. In communications, ↑/↓ choose, → sends and ← closes. L3/R3 are stick clicks. Y answers Yes; View is Escape outside flight."
+msgstr "Steam Input : affectez L4 à ↑, L5 à ↓, R4 à ← et R5 à →. Sur l’écran des communications, ↑/↓ choisissent, → envoie et ← ferme. L3/R3 sont les clics des manches. Y répond Oui ; Vue fait Échap hors du vol."
+
+msgctxt "SteamDeckView"
+msgid "Left stick"
+msgstr "Manche gauche"
+
+msgctxt "SteamDeckView"
+msgid "Right stick"
+msgstr "Manche droit"
+
+msgctxt "SteamDeckView"
+msgid "D-pad"
+msgstr "Croix directionnelle"
+
+msgctxt "SteamDeckView"
+msgid "Buttons"
+msgstr "Boutons"
+
+msgctxt "LauncherWindow"
+msgid "Source"
+msgstr "Source"
+
+msgctxt "LauncherWindow"
+msgid "Gamepad"
+msgstr "Manette"
+
+msgctxt "ControlSource"
+msgid "Joystick"
+msgstr "Joystick"
+
+msgctxt "ControlsView"
+msgid "View"
+msgstr "Vue"
+
+msgctxt "ControlsView"
+msgid "Click a binding or press its control to change it. Rear buttons mirror the D-pad."
+msgstr "Cliquez sur une affectation ou appuyez sur sa commande pour la changer. Les boutons arrière reprennent la croix."
+
+msgctxt "ControlsView"
+msgid "This device has no gamepad mapping. Choose Joystick to bind its numbered inputs."
+msgstr "Ce périphérique n’a pas de configuration de manette. Choisissez Joystick pour affecter ses entrées numérotées."
+
+msgctxt "ControlsView"
+msgid "Joystick — not connected"
+msgstr "Joystick — non connecté"
+
+msgctxt "ControlsView"
+msgid "Connect a joystick to see its inputs, or edit bindings offline."
+msgstr "Branchez un joystick pour voir ses entrées, ou modifiez les affectations sans lui."
+
+msgctxt "LauncherWindow"
+msgid "Automatic"
+msgstr "Automatique"
