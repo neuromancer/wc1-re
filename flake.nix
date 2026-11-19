@@ -104,11 +104,9 @@
             sed 's|@vendor@|${guiDeps}/vendor|' ${guiDeps}/cargo-config.toml > $CARGO_HOME/config.toml
           '';
 
-          # The Makefile sets CC to MSVC (via wibo) for the Win32 build;
-          # override it for the native port.
           buildPhase = ''
             runHook preBuild
-            make -j$NIX_BUILD_CORES ${if withGui then "modern-gui" else "modern"} CC=cc CXX=c++
+            make -j$NIX_BUILD_CORES ${if withGui then "modern-gui" else "modern"}
             runHook postBuild
           '';
 
@@ -141,7 +139,7 @@
       });
 
       # Full environment for hacking on the port, including the Slint GUI.
-      # Build the GUI with: make -j modern-gui CC=gcc CXX=g++
+      # Build the GUI with: make -j modern-gui
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
           packages = with pkgs; [

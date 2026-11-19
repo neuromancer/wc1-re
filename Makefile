@@ -24,6 +24,10 @@
 
 WIBO = ./wibo
 CC = $(WIBO) compilers/msvc420/bin/CL.EXE
+# The MSVC rules expand $(CC) themselves. When the shell exports CC, as
+# nix-shell does, make would hand this value to every recipe's environment,
+# where CMake and cargo take it for the host compiler (issue #39).
+unexport CC
 LINK = $(WIBO) compilers/msvc420/bin/LINK.EXE
 LIBRARIAN = $(WIBO) compilers/msvc420/bin/LIB.EXE
 
