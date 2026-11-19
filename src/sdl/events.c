@@ -453,6 +453,41 @@ int SdlHandleSwcEvent(SDL_Window *window, SDL_Event *event, int flight)
     return 0;
 }
 
+/* Windows folds a key's repeats into the WM_KEYDOWN still waiting in the
+ * message queue, raising its repeat count instead of posting another, and
+ * the Kilrathi Saga reads its messages once a game frame, in
+ * PumpWindowMessages. A held arrow thus moved the menus' pointer once a
+ * frame and stopped when released. The port also reads SDL's events while
+ * the game waits out a frame, and queued every repeat: at the menus' 16
+ * frames a second, the backlog kept the pointer moving long after the key
+ * came up (issue #44). So a repeat is queued only as the first since the
+ * game last pumped its messages, or once the key's last key-down was read. */
+static unsigned int g_nSdlGamePumpCount = 1;
+static unsigned int g_anSdlKeyRepeatPump[256];
+static int g_bSdlWaitingPump;
+
+static int SdlKeyDownQueued(int scanCode)
+{
+    const InputEvent *event;
+
+    for (event = pInputEventHead; event != 0; event = event->next) {
+        if (event->type == INPUT_EVENT_KEY_DOWN && event->value == scanCode)
+            return 1;
+    }
+    return 0;
+}
+
+static int SdlFoldKeyRepeat(int scanCode)
+{
+    if (scanCode < 0 || scanCode >= (int)SDL_arraysize(g_anSdlKeyRepeatPump))
+        return 0;
+    if (g_anSdlKeyRepeatPump[scanCode] == g_nSdlGamePumpCount &&
+        SdlKeyDownQueued(scanCode))
+        return 1;
+    g_anSdlKeyRepeatPump[scanCode] = g_nSdlGamePumpCount;
+    return 0;
+}
+
 /* Hands the game one key transition, as WC1's keyboard reads it. */
 static void SdlQueueGameKey(SDL_Scancode key, SDL_Keycode symbol, Uint16 modifiers,
                             int pressed, int repeat)
@@ -471,14 +506,16 @@ static void SdlQueueGameKey(SDL_Scancode key, SDL_Keycode symbol, Uint16 modifie
     if (pressed && scanCode == SCAN_ESCAPE)
         bEscapePressedFlag = 1;
     if (scanCode != SCAN_NONE) {
-        if (bKeyEventQueueEnabled != 0) {
+        if (!pressed || !repeat || !SdlFoldKeyRepeat(scanCode)) {
+            if (bKeyEventQueueEnabled != 0) {
+                QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
+                                0, 0,
+                                (unsigned short)virtualKey, 0, 0, 0);
+            }
             QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
                             0, 0,
-                            (unsigned short)virtualKey, 0, 0, 0);
+                            (unsigned short)scanCode, 0, 0, 0);
         }
-        QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
-                        0, 0,
-                        (unsigned short)scanCode, 0, 0, 0);
         SetInputKeyState(scanCode, pressed);
     }
     if (!pressed) {
@@ -686,6 +723,9 @@ void SdlPumpEvents(void)
 {
     SDL_Event event;
 
+    if (!g_bSdlWaitingPump)
+        g_nSdlGamePumpCount++;
+
     /* The SWC host owns its SDL window and event loop. Its calls into WC1's
        player_input consume only the flight events it has already queued. */
     if (SdlSwcFlightActive())
@@ -756,4 +796,14 @@ void SdlPumpEvents(void)
             break;
         }
     }
+}
+
+/* ThrottleFrameAndDrawFps reads the host's events while the game waits out
+ * a frame, where the Kilrathi Saga read none; key repeats then fold as
+ * between the game's own pumps. */
+void SdlPumpEventsWhileWaiting(void)
+{
+    g_bSdlWaitingPump = 1;
+    SdlPumpEvents();
+    g_bSdlWaitingPump = 0;
 }

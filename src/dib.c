@@ -137,7 +137,7 @@ void ThrottleFrameAndDrawFps(HDC dc)
              * once per game frame, and clicks remain queued for the menu. */
             if (nMouseCursorShowCount != 0 &&
                 stMouseCursorState.shape != 0) {
-                SdlPumpEvents();
+                SdlPumpEventsWhileWaiting();
                 RefreshMouseCursorDisplay();
             }
             Sleep(1);

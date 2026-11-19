@@ -203,6 +203,7 @@ void SdlStopRadioVoice(void);
  * diagnostic build defines SDL_PORT_LEGACY_DEBUG_OUTPUT. */
 void SdlOutputDebugString(const char *text);
 void SdlPumpEvents(void);
+void SdlPumpEventsWhileWaiting(void);
 /* Slot 8 is always reserved in the SDL barracks, even with autosave off. */
 #define SDL_AUTOSAVE_SLOT 7
 void SdlConfigureAutosave(int enabled);
