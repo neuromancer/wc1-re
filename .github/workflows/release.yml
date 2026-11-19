@@ -252,8 +252,27 @@ jobs:
       - name: Install NSIS packaging tools
         shell: pwsh
         run: |
-          choco install nsis --version=3.13.0 --yes --no-progress
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Chocolatey's community feed has outages (HTTP 503 for v0.9.18).
+          # Retry it, then install the same release from SourceForge, checked
+          # against the SHA-256 in winget's NSIS.NSIS 3.13 manifest.
+          $installed = $false
+          foreach ($delay in 0, 30, 90) {
+            if ($delay) { Start-Sleep -Seconds $delay }
+            choco install nsis --version=3.13.0 --yes --no-progress
+            if ($LASTEXITCODE -eq 0) { $installed = $true; break }
+          }
+          if (!$installed) {
+            $installer = Join-Path $env:RUNNER_TEMP 'nsis-3.13-setup.exe'
+            curl.exe -fsSL --retry 5 --retry-delay 15 -o $installer `
+              'https://downloads.sourceforge.net/project/nsis/NSIS%203/3.13/nsis-3.13-setup.exe'
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $installer).Hash
+            if ($hash -ne 'DB9A1038BBC0E53FEF24F423FD609979BD578E942F1BE1198DB186D1C42652A3') {
+              throw "Unexpected NSIS installer SHA-256: $hash"
+            }
+            $setup = Start-Process -FilePath $installer -ArgumentList '/S' -Wait -PassThru
+            if ($setup.ExitCode -ne 0) { throw "NSIS setup failed with exit code $($setup.ExitCode)" }
+          }
           $compiler = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
           if (!(Test-Path $compiler)) { throw "NSIS compiler not found: $compiler" }
           "MAKENSIS=$compiler" >> $env:GITHUB_ENV
