@@ -419,11 +419,16 @@ int main(short argc, char **argv)
     init_mission(series, mission);
 #endif
 #ifdef SDL_PORT
-    /* Use the normal campaign setup unless cockpitless mode was requested. */
+    /* Use the normal campaign setup unless cockpitless mode was requested.
+     * As in GameFlow, the hi-res HUD session covers the launch. */
+    SdlBeginHiResHudFlight();
     if (bCockpitEnabled != 0)
         LaunchPlayerShip();
 #endif
     RunSpaceFlight(nStartNavPointOverride);
+#ifdef SDL_PORT
+    SdlEndHiResHudFlight();
+#endif
     exit_squadron("Bye!");
     return 0;
 }

@@ -562,9 +562,10 @@ void SdlSetHiResHudFonts(int enabled)
     }
 }
 
-/* RunSpaceFlight marks the flight session, and the training simulator
-   widens it to its Get Ready, Victory and Game Over screens around it:
-   screens outside keep the game's own fonts. Sessions nest. */
+/* RunSpaceFlight marks the flight session. GameFlow widens it to the launch
+   before it, which draws the cockpit's displays, and the training simulator
+   to its Get Ready, Victory and Game Over screens around it: screens outside
+   keep the game's own fonts. Sessions nest. */
 void SdlBeginHiResHudFlight(void)
 {
     g_nHiResHudFlightDepth++;

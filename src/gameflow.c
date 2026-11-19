@@ -346,8 +346,16 @@ short GameFlow(void)
 retry_mission:
 #endif
     init_mission(flownSeries, flownMission);
+#ifdef SDL_PORT
+    /* The launch draws the cockpit's displays, and RunSpaceFlight redraws
+     * one only when it changes: the hi-res HUD session starts here. */
+    SdlBeginHiResHudFlight();
+#endif
     LaunchPlayerShip();
     flightResult = RunSpaceFlight(-1);
+#ifdef SDL_PORT
+    SdlEndHiResHudFlight();
+#endif
 
     switch (flightResult) {
     case 1:
