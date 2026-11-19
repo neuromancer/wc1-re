@@ -1902,6 +1902,12 @@ void target_locking(signed char target)
     short countdown;
     int radiusSquared;
 
+#ifdef SDL_PORT
+    /* An interpolated frame shows the lock; only the game's steps advance
+       it and sound its tones. */
+    if (SdlDrawingInterpolatedFrame())
+        return;
+#endif
     if (target != -1 &&
         aeShipSide[(short)target] != aeShipSide[0] &&
         acPlayerComponentDamageList[5] < 4) {
@@ -2316,6 +2322,10 @@ unsigned int overlay_head_up_display(void)
                         &stPreviousTargetBracketBounds);
     }
     if (nTargetLockCountdown == 0) {
+#ifdef SDL_PORT
+        if (SdlDrawingInterpolatedFrame()) {
+        } else
+#endif
         if ((short)(nRenderedSpaceFrame % 2) == 0)
             bTargetBracketVisible ^= 1;
         if (bTargetBracketVisible == 1) {

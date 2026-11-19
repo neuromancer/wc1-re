@@ -2013,6 +2013,9 @@ unsigned int Draw_3Space_Frame(void)
     transform_objects_to_your_view();
     update_star_field();
     place_exhaust_on_ships();
+#ifdef SDL_PORT
+    SdlSnapshotFlightChildren();
+#endif
     reposition_fixed_child_objects();
     sort_object_depth();
 #ifdef SDL_PORT
@@ -2185,6 +2188,7 @@ int RunSpaceFlight(short entryNavPoint)
 #ifdef SDL_PORT
     SdlSetMouseGrab(1);
     SdlBeginHiResHudFlight();
+    SdlResetFrameInterpolation();
 #endif
     SetEventManagerPump(get_player_input);
     savedViewport = stMouseCursorState.viewport;
@@ -2242,6 +2246,9 @@ int RunSpaceFlight(short entryNavPoint)
         }
         ReadPerformanceCounter(&liFlightAfterInputCounter);
         if (nArcadeState == 0) {
+#ifdef SDL_PORT
+            SdlCaptureFlightPoses();
+#endif
             Update_3Space();
             ReadPerformanceCounter(&liSimulationDone);
             frameReady = RenderSpaceViewFrame();
@@ -2255,6 +2262,10 @@ int RunSpaceFlight(short entryNavPoint)
         ReadPerformanceCounter(&liFlightAfterCockpitCounter);
         if (frameReady != 0) {
             frameReady = 0;
+#ifdef SDL_PORT
+            /* Interpolated frames lead up to this one while waiting. */
+            SdlDeferFlightFrame();
+#endif
             DIBslam();
             DIBslamReal();
         }
@@ -2285,6 +2296,7 @@ int RunSpaceFlight(short entryNavPoint)
 #ifdef SDL_PORT
     SdlSetMouseGrab(0);
     SdlEndHiResHudFlight();
+    SdlResetFrameInterpolation();
     SdlCancelSpaceFrame();
     if (SdlUsingOriginFxSoundEffects() || SdlUsingTownsData())
         SdlStopDosSoundEffects();

@@ -263,6 +263,17 @@ void SdlCancelSpaceFrame(void);
    glyphs, and the viewport copies move the ones drawn off screen. */
 void SdlBeginHiResHudFlight(void);
 void SdlEndHiResHudFlight(void);
+/* Spaceflight frame interpolation (src/sdl/interpolation.c). */
+void SdlSetFrameInterpolation(int enabled);
+void SdlResetFrameInterpolation(void);
+void SdlCaptureFlightPoses(void);
+void SdlSnapshotFlightChildren(void);
+void SdlDeferFlightFrame(void);
+int SdlFlightFrameDeferred(void);
+int SdlDrawingInterpolatedFrame(void);
+void SdlDrawInterpolatedFlightFrame(int alpha);
+void SdlPresentInterpolatedFlightFrames(long deadline, long interval);
+int SdlPresentCurrentFrame(const unsigned char *pixels);
 void SdlResetHiResHudFont(void);
 int SdlBeginHiResGlyph(const struct Viewport *view, int cursorX, int y,
                        int width, int height, unsigned char character,

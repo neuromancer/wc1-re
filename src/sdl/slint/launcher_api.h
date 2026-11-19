@@ -48,7 +48,8 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_MUSIC = 1 << 12,
     SDL_LAUNCHER_EXPLICIT_MT32_ROMS = 1 << 13,
     SDL_LAUNCHER_EXPLICIT_MT32_MODEL = 1 << 14,
-    SDL_LAUNCHER_EXPLICIT_HIRES_HUD = 1 << 15
+    SDL_LAUNCHER_EXPLICIT_HIRES_HUD = 1 << 15,
+    SDL_LAUNCHER_EXPLICIT_INTERPOLATION = 1 << 16
 };
 
 /* The music the game plays (SDL_PORT_MUSIC_* in wc1sdl.h). */
@@ -71,6 +72,9 @@ typedef struct SdlLauncherOptions {
     /* Flight HUD text in the larger conversation font, with the enhanced
      * renderer. */
     int hiResHudFonts;
+    /* Spaceflight drawn at the display's refresh rate between the game's
+     * steps (src/sdl/interpolation.c). */
+    int frameInterpolation;
     int cockpitlessView;
     int cheatMode;
     int joystickRumble;

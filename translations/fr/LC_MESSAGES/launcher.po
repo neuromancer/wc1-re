@@ -148,6 +148,10 @@ msgid "Hi-res HUD fonts"
 msgstr "Polices du HUD haute résolution"
 
 msgctxt "LauncherWindow"
+msgid "Smooth spaceflight"
+msgstr "Vol spatial fluide"
+
+msgctxt "LauncherWindow"
 msgid "Gameplay"
 msgstr "Jeu"
 

@@ -129,9 +129,12 @@ void SdlShutdownVideo(void)
     }
 }
 
+static const unsigned char *g_pSdlPresentedPalette;
+
 int SdlPresentIndexedFrame(const unsigned char *pixels,
                               const unsigned char *palette)
 {
+    g_pSdlPresentedPalette = palette;
     SDL_Rect dest;
     int pixel;
 
@@ -178,6 +181,15 @@ int SdlPresentIndexedFrame(const unsigned char *pixels,
         return 0;
     SDL_RenderPresent(g_pSdlRenderer);
     return 1;
+}
+
+/* Interpolated spaceflight frames present the screen with the game's
+   palette as last presented. */
+int SdlPresentCurrentFrame(const unsigned char *pixels)
+{
+    if (g_pSdlPresentedPalette == 0)
+        return 0;
+    return SdlPresentIndexedFrame(pixels, g_pSdlPresentedPalette);
 }
 
 void SdlWaitForVerticalBlank(void)

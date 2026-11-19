@@ -176,6 +176,10 @@ msgctxt "LauncherWindow"
 msgid "Hi-res HUD fonts"
 msgstr "Fuentes del HUD de alta resolución"
 
+msgctxt "LauncherWindow"
+msgid "Smooth spaceflight"
+msgstr "Vuelo espacial fluido"
+
 #: src/sdl/slint/launcher.slint:205
 msgctxt "LauncherWindow"
 msgid "Gameplay"

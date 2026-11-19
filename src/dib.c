@@ -127,6 +127,7 @@ void ThrottleFrameAndDrawFps(HDC dc)
     }
 
 #ifdef SDL_PORT
+    SdlPresentInterpolatedFlightFrames(nFrameDeadlineMs, nFrameIntervalMs);
     if (stMouseCursorState.viewport != 0 &&
         stMouseCursorState.viewport->pixels == pDIBImage) {
         while (timeGetTime() < (DWORD)nFrameDeadlineMs) {
@@ -707,7 +708,9 @@ void DIBslamReal(void)
                 pPrimarySurface, surface.lpSurface);
         }
 #else
-        if (!SdlPresentIndexedFrame(pDIBImage,
+        /* An interpolated spaceflight frame is presented by the throttle. */
+        if (!SdlFlightFrameDeferred() &&
+            !SdlPresentIndexedFrame(pDIBImage,
                                        abDIBPaletteQuads))
             DIBerror("DIBslamReal", -1);
 #endif

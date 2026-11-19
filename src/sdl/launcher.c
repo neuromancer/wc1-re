@@ -199,6 +199,9 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--hires-hud") == 0) {
             options->hiResHudFonts = 1;
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_HIRES_HUD;
+        } else if (strcmp(argument, "--interpolate") == 0) {
+            options->frameInterpolation = 1;
+            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_INTERPOLATION;
         } else {
             if ((argument[0] == '-' ? argument[1] : argument[0]) == 'c') {
                 options->cockpitlessView = 1;
@@ -322,6 +325,7 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
     if (options->egaDither && !options->swcDemo)
         SdlEnableEgaDither();
     SdlSetHiResHudFonts(options->hiResHudFonts && !options->swcDemo);
+    SdlSetFrameInterpolation(options->frameInterpolation && !options->swcDemo);
     if (options->cheatMode) {
         /* CheckLauncherAndConfig (0x401d10) applies this same combination
          * for Saga's Cheater registry setting. Both SDL data paths share it. */
