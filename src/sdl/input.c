@@ -1,4 +1,4 @@
-#include "wc1sdl.h"
+#include "wc1.h"
 
 #include "video_internal.h"
 
@@ -153,16 +153,24 @@ int SdlGetAsyncKeyState(int virtualKey)
             return 0;
         /* The SDL2 port balances audio itself and retains only Ctrl+S and
            Ctrl+M as audio controls.  Let Ctrl+direction keys continue to
-           behave as flight directions instead of changing stored levels. */
-        if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_RIGHT] ||
-            keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_DOWN] ||
-            keys[SDL_SCANCODE_HOME] || keys[SDL_SCANCODE_PAGEUP] ||
-            keys[SDL_SCANCODE_END] || keys[SDL_SCANCODE_PAGEDOWN] ||
-            keys[SDL_SCANCODE_KP_1] || keys[SDL_SCANCODE_KP_2] ||
-            keys[SDL_SCANCODE_KP_3] || keys[SDL_SCANCODE_KP_4] ||
-            keys[SDL_SCANCODE_KP_6] || keys[SDL_SCANCODE_KP_7] ||
-            keys[SDL_SCANCODE_KP_8] || keys[SDL_SCANCODE_KP_9])
+           behave as flight directions instead of changing stored levels.
+           Ctrl gives way only while the game handles a direction key, not
+           whenever one is held, so Ctrl+M, Ctrl+S and Ctrl+E still work
+           while steering.  That also covers a tap released before the game
+           reads it, and a letter's Windows key code, which the game queues
+           beside its scan code in missions: M's is the Right arrow's scan
+           code, read as one when it shares a frame with another event. */
+        switch (bCurrentKey) {
+        case SCAN_UP:
+        case SCAN_DOWN:
+        case SCAN_LEFT:
+        case SCAN_RIGHT:
+        case SCAN_HOME:
+        case SCAN_PAGEUP:
+        case SCAN_END:
+        case SCAN_PAGEDOWN:
             return 0;
+        }
         return KEY_STATE_DOWN;
     case VK_CLEAR:
         scanCode = SDL_SCANCODE_KP_5;
