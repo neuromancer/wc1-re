@@ -381,6 +381,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     short frame;
 #ifdef SDL_PORT
     int voiced = SdlVoicePlaying();
+    int voiceOver = 0;
 #endif
 
     countdown = 0;
@@ -398,9 +399,10 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
 #endif
            *animation != -1) {
 #ifdef SDL_PORT
-        if (voiced)
-            frame = SdlVoiceMouthFrame(start, 9);
-        else
+        if (voiced) {
+            voiceOver = !SdlVoicePlaying();
+            frame = SdlVoiceMouthFrame(start, -1);
+        } else
 #endif
         if (countdown-- == 0) {
             if (*animation != -1)
@@ -435,7 +437,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
         DIBslam();
         DIBslamReal();
 #ifdef SDL_PORT
-        if (voiced && frame == 9 && !SdlVoicePlaying())
+        if (voiceOver != 0)
             break;
 #endif
     }
@@ -446,10 +448,6 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     RefreshMemoryStatusOverlay();
     DIBslam();
     DIBslamReal();
-#ifdef SDL_PORT
-    if (voiced)
-        return 0;
-#endif
     WaitForSceneAdvance(duration, 0);
     return 0;
 }

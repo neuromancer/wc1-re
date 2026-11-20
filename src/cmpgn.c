@@ -317,6 +317,9 @@ unsigned int LongTalk(struct Shape *talker, char *text,
      * such as Spirit's while Halcyon introduces her, keeps its own script as
      * without voices; the line still lasts as long as the recording. */
     int lipSync = voiced && !SdlListeningCloseup();
+    /* Once the recording is over, the line waits out its duration, as the
+     * original does once its script is (#45). */
+    int voiceOver = 0;
 #endif
 
     waiting = 0;
@@ -351,8 +354,13 @@ unsigned int LongTalk(struct Shape *talker, char *text,
             return 0;
         }
 #ifdef SDL_PORT
+        if (voiced && voiceOver == 0 && !SdlVoicePlaying()) {
+            voiceOver = 1;
+            waiting = 1;
+            SetFrameTimerPeriodDirect(duration);
+        }
         if (lipSync) {
-            mouthFrame = SdlVoiceMouthFrame(mouthStart, 9);
+            mouthFrame = SdlVoiceMouthFrame(mouthStart, -1);
             nFrameSkipCounter = 1;
         } else
 #endif
@@ -401,10 +409,6 @@ unsigned int LongTalk(struct Shape *talker, char *text,
         }
         if (CheckEscaped() != 0)
             break;
-#ifdef SDL_PORT
-        if (voiced && (mouthFrame == 9 || !lipSync) && !SdlVoicePlaying())
-            return 0;
-#endif
         if (waiting != 0 && (short)IsFrameTickElapsed() != 0)
             return 0;
     }
@@ -820,6 +824,7 @@ unsigned int CloseLook(struct Shape *shape, short shot,
     short *start;
 #ifdef SDL_PORT
     int voiced = SdlVoicePlaying();
+    int voiceOver = 0;
 #endif
 
     frameDelay = 0;
@@ -841,7 +846,8 @@ unsigned int CloseLook(struct Shape *shape, short shot,
                *animation != -1) {
 #ifdef SDL_PORT
             if (voiced) {
-                frame = SdlVoiceMouthFrame(start, 9);
+                voiceOver = !SdlVoicePlaying();
+                frame = SdlVoiceMouthFrame(start, -1);
                 nFrameSkipCounter = 1;
             } else
 #endif
@@ -893,8 +899,10 @@ unsigned int CloseLook(struct Shape *shape, short shot,
             if (finished != 0 && (short)IsFrameTickElapsed() != 0)
                 return 0;
 #ifdef SDL_PORT
-            if (voiced && frame == 9 && !SdlVoicePlaying())
-                return 0;
+            /* The recording is over and the mouth at rest: the line waits
+             * out its duration below, as after the original's script. */
+            if (voiceOver != 0)
+                break;
 #endif
             DIBslam();
             DIBslamReal();

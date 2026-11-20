@@ -121,36 +121,75 @@ int SdlVoicePlaying(void)
     return playing;
 }
 
+/* Mouth scripts hold at most 79 commands. Their '$', frame 9, is a smile:
+ * friendly lines end on one ("Yes, sir! You won't be sorry!"), a few smile
+ * at a pause, and listening faces smile with it. */
+#define SDL_VOICE_SCRIPT_LIMIT 158
+#define SDL_VOICE_SMILE 9
+
+/* The mouth at a pause, at phoneme tick `at` of the script's `total`: the
+ * smile where the script puts one, at its start, at its end (a closing
+ * phoneme or two may follow it) or near the pause, and otherwise no mouth
+ * (-1), which leaves the face's own, as when the original's script is
+ * done. */
+static short SdlVoiceRestFrame(const short *commands, Uint32 at, Uint32 total)
+{
+    Uint32 elapsed = 0;
+    Uint32 i;
+
+    for (i = 0; i < SDL_VOICE_SCRIPT_LIMIT && commands[i] >= 0; i += 2) {
+        if (commands[i] < SDL_VOICE_SMILE) {
+            elapsed += SDL_max(1, commands[i + 1]);
+        } else if (commands[i] == SDL_VOICE_SMILE &&
+                   (at == 0 ? elapsed == 0
+                    : at >= total ? elapsed + 2 >= total
+                    : elapsed + 3 >= at && elapsed <= at + 3)) {
+            return SDL_VOICE_SMILE;
+        }
+    }
+    return -1;
+}
+
+/* The speaker's mouth while the recording plays: the original phoneme
+ * shapes, retimed over its audible stretches, and the script's own rest at
+ * its pauses and once it is over (#45). Silence comes from the recording,
+ * not the old PC pause lengths. */
 short SdlVoiceMouthFrame(const short *commands, short fallback)
 {
-    Uint32 position, window, total = 0, target, i;
-    short frame = 9; /* '$' in the original mouth script: closed/resting. */
+    Uint32 position, window, total = 0, target, spoken, said, i;
+    short frame;
+
     if (!g_wAudioDevice)
         return fallback;
+    for (i = 0; i < SDL_VOICE_SCRIPT_LIMIT && commands[i] >= 0; i += 2)
+        if (commands[i] < SDL_VOICE_SMILE)
+            total += SDL_max(1, commands[i + 1]);
     SDL_LockAudioDevice(g_wAudioDevice);
+    position = SdlVoicePlaybackPosition() / 4;
+    window = position / 441;
+    said = voiceMouthTimes != 0 ? voiceMouthTimes[voiceMouthCount] : 0;
     if (!voiceBytes) {
         frame = fallback;
+    } else if (!voicePosition) {
+        frame = SdlVoiceRestFrame(commands, 0, total);
+    } else if (position >= voiceBytes / 4 || window >= voiceMouthCount || said == 0) {
+        frame = SdlVoiceRestFrame(commands, total, total);
+    } else if (voiceMouthTimes[window + 1] == voiceMouthTimes[window]) {
+        spoken = voiceMouthTimes[window];
+        frame = SdlVoiceRestFrame(commands,
+                                  spoken >= said ? total : (Uint32)((Uint64)spoken * total / said),
+                                  total);
     } else {
-        position = SdlVoicePlaybackPosition() / 4;
-        window = position / 441;
-        if (voicePosition && position < voiceBytes / 4 && window < voiceMouthCount &&
-            voiceMouthTimes[window + 1] > voiceMouthTimes[window]) {
-            /* Keep the original phoneme shapes, retimed over audible speech.
-             * Silence comes from the recording, not the old PC pause lengths. */
-            for (i = 0; i < 158 && commands[i] >= 0; i += 2)
-                if (commands[i] < 9)
-                    total += SDL_max(1, commands[i + 1]);
-            target = (Uint64)(voiceMouthTimes[window] * 441 + position % 441) * total /
-                     (voiceMouthTimes[voiceMouthCount] * 441);
-            frame = 0;
-            for (i = 0; i < 158 && commands[i] >= 0; i += 2) {
-                if (commands[i] >= 9)
-                    continue;
-                frame = commands[i];
-                if (target < (Uint32)SDL_max(1, commands[i + 1]))
-                    break;
-                target -= SDL_max(1, commands[i + 1]);
-            }
+        target = (Uint64)(voiceMouthTimes[window] * 441 + position % 441) * total /
+                 (said * 441);
+        frame = 0;
+        for (i = 0; i < SDL_VOICE_SCRIPT_LIMIT && commands[i] >= 0; i += 2) {
+            if (commands[i] >= SDL_VOICE_SMILE)
+                continue;
+            frame = commands[i];
+            if (target < (Uint32)SDL_max(1, commands[i + 1]))
+                break;
+            target -= SDL_max(1, commands[i + 1]);
         }
     }
     SDL_UnlockAudioDevice(g_wAudioDevice);
