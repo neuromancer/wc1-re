@@ -564,13 +564,12 @@ static void SdlRepeatMouseKeys(void)
     }
 }
 
-/* The frame rate shortcut's modifier: Alt, and on a Mac also Command, as
-   for Command-Return. */
-#ifdef __APPLE__
-#define SDL_FRAME_RATE_SHORTCUT (KMOD_GUI | KMOD_ALT)
-#else
-#define SDL_FRAME_RATE_SHORTCUT KMOD_ALT
-#endif
+static void (*g_pfnSdlFlightFpsSaver)(int halves);
+
+void SdlSetFlightFpsSaver(void (*saver)(int halves))
+{
+    g_pfnSdlFlightFpsSaver = saver;
+}
 
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
@@ -589,18 +588,22 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
             SdlToggleFullscreen(event->windowID);
         return 0;
     }
-    /* Alt+N and Alt+M lower and raise spaceflight's frame rate cap by half a
-       frame a second, within 8 to 32, as the Kilrathi Saga's window procedure
-       does, and the game's speed follows it; on a Mac, Command or Option.
-       As there, holding them repeats and the game never sees the key, unless
-       the player bound an action to it with that modifier. */
-    if ((event->keysym.sym == SDLK_n || event->keysym.sym == SDLK_m) &&
-        (event->keysym.mod & SDL_FRAME_RATE_SHORTCUT) != 0 &&
-        (event->keysym.mod & (KMOD_CTRL | KMOD_MODE |
-                              (KMOD_GUI & ~SDL_FRAME_RATE_SHORTCUT))) == 0 &&
-        !SdlKeymapBindsChord(event->keysym.scancode, event->keysym.mod)) {
+    /* In flight, [ and ] (the two keys right of P) lower and raise the frame
+       rate cap by half a frame a second, within 8 to 32, as the Kilrathi
+       Saga's Alt+N and Alt+M do, and the game's speed follows it. Holding
+       them repeats, and the game never sees the key, unless the player bound
+       an action to it. On release the launcher keeps the rate, as its
+       Speed choice. */
+    if ((event->keysym.scancode == SDL_SCANCODE_LEFTBRACKET ||
+         event->keysym.scancode == SDL_SCANCODE_RIGHTBRACKET) &&
+        (event->keysym.mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI | KMOD_MODE)) == 0 &&
+        SdlSpaceflightInputActive() &&
+        !SdlKeymapBindsKey(event->keysym.scancode, event->keysym.mod)) {
         if (pressed)
-            ReportSpaceFlightMaxFps(event->keysym.sym == SDLK_n ? -0.5f : 0.5f);
+            ReportSpaceFlightMaxFps(event->keysym.scancode == SDL_SCANCODE_LEFTBRACKET
+                                        ? -0.5f : 0.5f);
+        else if (g_pfnSdlFlightFpsSaver != 0)
+            g_pfnSdlFlightFpsSaver((int)(fSpaceFlightFrameRate * 2.0f + 0.5f));
         return 0;
     }
     /* In flight, rebound keys stand in for the keys the game reads. */

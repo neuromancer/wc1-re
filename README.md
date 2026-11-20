@@ -104,6 +104,12 @@ remembers your folder and options.
   direction, and `Esc` pausing spaceflight.
 - Sound effects balanced against the music and panned with the camera, and
   mouse wheel throttle control.
+- A game speed choice: spaceflight runs as fast as its frame rate, so the
+  launcher's **Speed** offers **Normal** (the *Kilrathi Saga*'s 20 FPS) and
+  **Slow** (16 FPS). In flight, `[` and `]` (the two keys right of `P`) lower
+  and raise the rate in half steps from 8 to 32 FPS, as the *Kilrathi Saga*'s
+  `Alt+N` and `Alt+M` did; the launcher keeps that rate and offers it as
+  **Custom**. The command line takes `--flight-fps=N`.
 - Optional extras: an enhanced renderer that draws ships at full resolution
   while keeping the original artwork, cockpit, and HUD, and can also show the
   flight HUD's text in the game's larger 11-pixel font (launcher checkbox or
@@ -122,6 +128,7 @@ remembers your folder and options.
 | `Cmd+Q` (macOS) | Quit the game |
 | `Ctrl+S` / `Ctrl+M` (spaceflight) | Toggle sound effects / music |
 | `Esc` (spaceflight) | Pause; press any key to resume |
+| `[` / `]` (spaceflight) | Slow the game down / speed it up (the frame rate, 8 to 32 FPS) |
 | Mouse wheel (spaceflight) | Increase or decrease speed |
 | Gamepad RT / LT (spaceflight) | Same as A / B: fire guns / roll and speed (missiles in the WCAT layouts) |
 | Gamepad Start (spaceflight) | Pause or resume |

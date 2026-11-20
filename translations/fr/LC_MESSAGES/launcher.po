@@ -176,6 +176,26 @@ msgid "Invulnerability and no collisions"
 msgstr "Invulnérabilité et aucune collision"
 
 msgctxt "LauncherWindow"
+msgid "Speed"
+msgstr "Vitesse"
+
+msgctxt "LauncherWindow"
+msgid "Normal (20 FPS)"
+msgstr "Normale (20 FPS)"
+
+msgctxt "LauncherWindow"
+msgid "Slow (16 FPS)"
+msgstr "Lente (16 FPS)"
+
+msgctxt "LauncherWindow"
+msgid "Custom ({} FPS)"
+msgstr "Personnalisée ({} FPS)"
+
+msgctxt "LauncherWindow"
+msgid "In flight, [ and ] (the two keys right of P) slow the game down or speed it up."
+msgstr "En vol, [ et ] (les deux touches à droite du P) ralentissent ou accélèrent le jeu."
+
+msgctxt "LauncherWindow"
 msgid "Joystick"
 msgstr "Joystick"
 

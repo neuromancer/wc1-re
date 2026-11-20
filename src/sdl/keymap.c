@@ -783,7 +783,9 @@ const Uint8 *SdlKeymapKeyboardState(const Uint8 *keys)
     return g_abSdlVirtualKeys;
 }
 
-int SdlKeymapBindsChord(SDL_Scancode key, Uint16 modifiers)
+/* Whether a flight action the player bound takes this key press, so the
+ * port's own use of the key gives way. */
+int SdlKeymapBindsKey(SDL_Scancode key, Uint16 modifiers)
 {
     int action;
     int index;
@@ -794,10 +796,7 @@ int SdlKeymapBindsChord(SDL_Scancode key, Uint16 modifiers)
         const SdlChangedAction *changed = &g_aSdlChangedActions[action];
 
         for (index = 0; changed->changed && index < changed->count; index++) {
-            const SdlKeyBinding *binding = &changed->bindings[index];
-
-            if ((binding->modifier & (KMOD_ALT | KMOD_GUI)) != 0 &&
-                SdlKeymapMatches(binding, key, modifiers))
+            if (SdlKeymapMatches(&changed->bindings[index], key, modifiers))
                 return 1;
         }
     }

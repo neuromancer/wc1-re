@@ -79,6 +79,15 @@ export component LauncherWindow inherits Window {
     in-out property <bool> frame-interpolation;
     in-out property <bool> cockpitless-view;
     in-out property <bool> cheat-mode;
+    // Spaceflight's frame rate, which the game's speed follows, in half frames
+    // a second (SdlLauncherFlightFps): Normal 40, the Kilrathi Saga's 20 FPS,
+    // or Slow 32. A rate set in flight with [ and ] is offered as Custom.
+    in-out property <int> flight-fps-halves: 40;
+    in property <int> custom-flight-fps-halves: 0;
+    in property <string> custom-flight-fps;
+    out property <[string]> speed-choices: root.custom-flight-fps-halves > 0
+        ? [@tr("Normal (20 FPS)"), @tr("Slow (16 FPS)"), @tr("Custom ({} FPS)", root.custom-flight-fps)]
+        : [@tr("Normal (20 FPS)"), @tr("Slow (16 FPS)")];
     in-out property <bool> joystick-rumble;
     in-out property <int> joystick-mode-index;
     in-out property <int> joystick-source-index;
@@ -491,6 +500,36 @@ export component LauncherWindow inherits Window {
 
                                     Text {
                                         text: @tr("Invulnerability and no collisions");
+                                        color: Palette.foreground;
+                                        opacity: 0.65;
+                                        font-size: 12px;
+                                        wrap: word-wrap;
+                                        vertical-stretch: 0;
+                                    }
+
+                                    HorizontalLayout {
+                                        spacing: 8px;
+
+                                        Text {
+                                            text: @tr("Speed");
+                                            vertical-alignment: center;
+                                        }
+
+                                        ComboBox {
+                                            horizontal-stretch: 1;
+                                            model: root.speed-choices;
+                                            current-index: root.flight-fps-halves == 40 ? 0
+                                                : root.flight-fps-halves == 32 ? 1 : 2;
+                                            selected(_) => {
+                                                root.flight-fps-halves = self.current-index == 0 ? 40
+                                                    : self.current-index == 1 ? 32
+                                                    : root.custom-flight-fps-halves;
+                                            }
+                                        }
+                                    }
+
+                                    Text {
+                                        text: @tr("In flight, [ and ] (the two keys right of P) slow the game down or speed it up.");
                                         color: Palette.foreground;
                                         opacity: 0.65;
                                         font-size: 12px;

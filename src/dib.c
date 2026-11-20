@@ -25,7 +25,10 @@ static int nFrameDeadlineMs = 0; /* 0x0046b1bc */
 static int DAT_0046b1c0 = 0; /* 0x0046b1c0 */
 static int nPreviousFrameTimeMs = 0; /* 0x0046b1c4 */
 static int bSpaceFlightFrameTiming = 0; /* 0x0046b1c8 */
-static float fSpaceFlightFrameRate = 20.0f; /* 0x0046b1cc */
+#ifndef SDL_PORT
+static
+#endif
+float fSpaceFlightFrameRate = 20.0f; /* 0x0046b1cc */
 static float fCinematicFrameRate = 16.0f; /* 0x0046b1d0 */
 /* Nothing in the shipped executable references this zero word either. */
 static int DAT_0046b1d4 = 0; /* 0x0046b1d4 */

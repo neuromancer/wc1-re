@@ -1116,6 +1116,14 @@ private:
 
 } // namespace
 
+void SdlSaveLauncherFlightFps(int halves)
+{
+    const auto configPath = launcher_config_path();
+
+    if (!configPath.empty())
+        save_launcher_flight_fps(configPath, halves);
+}
+
 int SdlRunLauncherGui(SdlLauncherOptions *options)
 {
     bool accepted;
@@ -1196,6 +1204,15 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     set_language(*window, installations, options->language);
     window->set_music_device(std::clamp(options->musicDevice, 0, 2));
     window->set_sound_device(std::clamp(options->soundDevice, 0, 2));
+    /* A rate set in flight with [ and ] that is neither choice shows as
+       Custom. */
+    window->set_flight_fps_halves(options->flightFpsHalves);
+    if (options->flightFpsHalves != SDL_LAUNCHER_FLIGHT_FPS_NORMAL &&
+        options->flightFpsHalves != SDL_LAUNCHER_FLIGHT_FPS_SLOW) {
+        window->set_custom_flight_fps_halves(options->flightFpsHalves);
+        window->set_custom_flight_fps(
+            slint::SharedString(flight_fps_text(options->flightFpsHalves)));
+    }
     show_audio_devices(*window);
     std::string mt32Roms(options->mt32Roms);
     const std::string mt32Model(options->mt32Model);
@@ -1356,6 +1373,9 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->joystickDeadZone = dead_zone_percent(window->get_joystick_dead_zone());
     options->musicDevice = std::clamp(window->get_music_device(), 0, 2);
     options->soundDevice = std::clamp(window->get_sound_device(), 0, 2);
+    options->flightFpsHalves = std::clamp(window->get_flight_fps_halves(),
+                                          static_cast<int>(SDL_LAUNCHER_FLIGHT_FPS_MINIMUM),
+                                          static_cast<int>(SDL_LAUNCHER_FLIGHT_FPS_MAXIMUM));
     if (mt32Roms.size() < sizeof(options->mt32Roms))
         std::memcpy(options->mt32Roms, mt32Roms.c_str(), mt32Roms.size() + 1);
     options->swcDemo = window->get_swc_demo();

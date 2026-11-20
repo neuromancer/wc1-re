@@ -204,6 +204,12 @@ void SdlStopRadioVoice(void);
 void SdlOutputDebugString(const char *text);
 void SdlPumpEvents(void);
 void SdlPumpEventsWhileWaiting(void);
+/* Spaceflight's frame rate cap (src/dib.c), which the game's speed follows:
+ * 20 in the Kilrathi Saga, 8 to 32 in half steps. */
+extern float fSpaceFlightFrameRate;
+/* Keeps the rate the player sets in flight with [ and ], as half frames a
+ * second; the GUI launcher saves it with its settings. */
+void SdlSetFlightFpsSaver(void (*saver)(int halves));
 /* Slot 8 is always reserved in the SDL barracks, even with autosave off. */
 #define SDL_AUTOSAVE_SLOT 7
 void SdlConfigureAutosave(int enabled);
@@ -353,9 +359,8 @@ SDL_Scancode SdlKeymapTranslateKey(SDL_Scancode key, Uint16 modifiers, int press
 const Uint8 *SdlKeymapKeyboardState(const Uint8 *keys);
 /* 1 or 0 when the full-screen keys were changed, -1 when they were not. */
 int SdlKeymapFullscreenShortcut(SDL_Scancode key, Uint16 modifiers);
-/* In flight, whether the player bound an action to the key with Alt or
- * Command held. */
-int SdlKeymapBindsChord(SDL_Scancode key, Uint16 modifiers);
+/* In flight, whether an action the player bound takes this key press. */
+int SdlKeymapBindsKey(SDL_Scancode key, Uint16 modifiers);
 /* In flight with changed mouse bindings: which of SDL's buttons hold the
  * game's guns (primary) and afterburner (secondary) buttons, and the key a
  * bound mouse button or wheel step presses (SDL_SCANCODE_UNKNOWN for none). */

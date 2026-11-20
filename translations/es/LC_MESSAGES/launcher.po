@@ -210,6 +210,26 @@ msgctxt "LauncherWindow"
 msgid "Invulnerability and no collisions"
 msgstr "Invulnerabilidad y sin colisiones"
 
+msgctxt "LauncherWindow"
+msgid "Speed"
+msgstr "Velocidad"
+
+msgctxt "LauncherWindow"
+msgid "Normal (20 FPS)"
+msgstr "Normal (20 FPS)"
+
+msgctxt "LauncherWindow"
+msgid "Slow (16 FPS)"
+msgstr "Lenta (16 FPS)"
+
+msgctxt "LauncherWindow"
+msgid "Custom ({} FPS)"
+msgstr "Personalizada ({} FPS)"
+
+msgctxt "LauncherWindow"
+msgid "In flight, [ and ] (the two keys right of P) slow the game down or speed it up."
+msgstr "En vuelo, [ y ] (las dos teclas a la derecha de la P) ralentizan o aceleran el juego."
+
 #: src/sdl/slint/launcher.slint:244
 msgctxt "LauncherWindow"
 msgid "Joystick"

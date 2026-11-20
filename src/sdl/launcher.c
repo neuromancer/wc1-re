@@ -63,6 +63,7 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
     memset(options, 0, sizeof(*options));
     options->joystickDeadZone = SDL_JOYSTICK_DEAD_ZONE_ORIGINAL;
     options->soundDevice = SDL_LAUNCHER_SOUND_UNSET;
+    options->flightFpsHalves = SDL_LAUNCHER_FLIGHT_FPS_NORMAL;
 #ifdef WC1_STATIC_GUI
     *useLauncherGui = *argumentCount == 1;
 #else
@@ -183,6 +184,14 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                 return 0;
             }
             options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_SOUND;
+        } else if (strncmp(argument, "--flight-fps=", 13) == 0) {
+            options->flightFpsHalves = SdlParseFlightFps(argument + 13);
+            if (options->flightFpsHalves < 0) {
+                fprintf(stderr, "Invalid spaceflight frame rate: %s "
+                        "(8 to 32, in half steps)\n", argument + 13);
+                return 0;
+            }
+            options->explicitOptions |= SDL_LAUNCHER_EXPLICIT_FLIGHT_FPS;
         } else if (strncmp(argument, "--mt32-roms=", 12) == 0) {
             if (!SdlSetMt32RomArgument(argument + 12, options)) {
                 fprintf(stderr, "Invalid MT-32 ROM folder: %s\n", argument + 12);
@@ -319,6 +328,16 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
         return 0;
     }
     SdlSetSoundDevice(options->soundDevice);
+    if (options->flightFpsHalves < SDL_LAUNCHER_FLIGHT_FPS_MINIMUM ||
+        options->flightFpsHalves > SDL_LAUNCHER_FLIGHT_FPS_MAXIMUM) {
+        fprintf(stderr, "Invalid spaceflight frame rate.\n");
+        return 0;
+    }
+    fSpaceFlightFrameRate = options->flightFpsHalves / 2.0f;
+#ifdef WC1_STATIC_GUI
+    /* A rate set in flight is kept for the launcher's Speed choice. */
+    SdlSetFlightFpsSaver(SdlSaveLauncherFlightFps);
+#endif
     SdlSetMt32Roms(options->mt32Roms, options->mt32Model);
     if (*options->voiceCatalog && !options->swcDemo && !SdlLoadVoiceCatalog(options->voiceCatalog)) {
         fprintf(stderr, "Cannot load voices: %s\n", SDL_GetError());

@@ -214,6 +214,16 @@ void load_launcher_config(const std::filesystem::path &path,
                 read_path_setting(value, options.mt32Roms, sizeof(options.mt32Roms));
             continue;
         }
+        if (key == "flight_fps") {
+            if (!(options.explicitOptions & SDL_LAUNCHER_EXPLICIT_FLIGHT_FPS) &&
+                value.size() < 8) {
+                const std::string text(value);
+                const int halves = SdlParseFlightFps(text.c_str());
+                if (halves > 0)
+                    options.flightFpsHalves = halves;
+            }
+            continue;
+        }
         if (key == "mt32_model") {
             if (!(options.explicitOptions & SDL_LAUNCHER_EXPLICIT_MT32_MODEL) &&
                 valid_machine_id(value)) {
@@ -257,6 +267,7 @@ bool save_launcher_config(const std::filesystem::path &path,
         output << "mt32_model=" << options.mt32Model << '\n';
     for (const auto &setting : integerSettings)
         output << setting.name << '=' << options.*setting.member << '\n';
+    output << "flight_fps=" << flight_fps_text(options.flightFpsHalves) << '\n';
     const std::string_view keyBindings(options.keyBindings,
                                        strnlen(options.keyBindings, sizeof(options.keyBindings)));
     if (!keyBindings.empty()) {
@@ -273,6 +284,67 @@ bool save_launcher_config(const std::filesystem::path &path,
     }
     output.close();
 
+    std::error_code error;
+    if (output) {
+        std::filesystem::rename(temporaryPath, path, error);
+        if (!error)
+            return true;
+    }
+    std::filesystem::remove(temporaryPath, error);
+    return false;
+}
+
+std::string flight_fps_text(int halves)
+{
+    return std::to_string(halves / 2) + (halves % 2 != 0 ? ".5" : "");
+}
+
+bool save_launcher_flight_fps(const std::filesystem::path &path, int halves)
+{
+    if (path.empty() || halves < SDL_LAUNCHER_FLIGHT_FPS_MINIMUM ||
+        halves > SDL_LAUNCHER_FLIGHT_FPS_MAXIMUM)
+        return false;
+    std::ifstream input(path, std::ios::binary);
+    if (!input)
+        return false;
+    std::string lines;
+    std::string line;
+    const std::string setting = "flight_fps=" + flight_fps_text(halves);
+    bool inLauncherSection = false;
+    bool written = false;
+    while (std::getline(input, line)) {
+        const auto text = trim_setting(line);
+        if (!text.empty() && text.front() == '[') {
+            /* The [launcher] section ends here: add the rate if it had none. */
+            if (inLauncherSection && !written) {
+                lines += setting + '\n';
+                written = true;
+            }
+            inLauncherSection = text == "[launcher]";
+        } else if (inLauncherSection && !written) {
+            const auto separator = text.find('=');
+            if (separator != std::string_view::npos &&
+                trim_setting(text.substr(0, separator)) == "flight_fps") {
+                lines += setting + '\n';
+                written = true;
+                continue;
+            }
+        }
+        lines += line + '\n';
+    }
+    input.close();
+    if (!written) {
+        if (!inLauncherSection)
+            return false;
+        lines += setting + '\n';
+    }
+    auto temporaryPath = path;
+    temporaryPath += ".tmp";
+    std::ofstream output(temporaryPath, std::ios::binary | std::ios::trunc);
+    if (!output)
+        return false;
+    output << lines;
+    output.close();
     std::error_code error;
     if (output) {
         std::filesystem::rename(temporaryPath, path, error);
