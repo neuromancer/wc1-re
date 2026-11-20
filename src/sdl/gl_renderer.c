@@ -427,6 +427,15 @@ static unsigned int g_nHiResOffscreenGlyphCount;
 static GlHiResGlyph g_stPendingHiResGlyph;
 static int g_bHiResGlyphPending;
 static unsigned int g_nHiResPresentCount;
+static unsigned char g_abHiResPointerMask[SDL_PORT_FRAME_WIDTH *
+                                          SDL_PORT_FRAME_HEIGHT];
+static unsigned char g_abHiResPointerColours[SDL_PORT_FRAME_WIDTH *
+                                             SDL_PORT_FRAME_HEIGHT];
+static const unsigned char *g_pHiResPointerBuffer;
+static int g_nHiResPointerOffsetX;
+static int g_nHiResPointerOffsetY;
+static int g_bHiResPointerDrawn;
+static int g_bHiResPointerShown;
 
 static void ResetRecordedSprites(void)
 {
@@ -579,6 +588,8 @@ void SdlEndHiResHudFlight(void)
         g_nHiResGlyphCount = 0;
         g_nHiResOffscreenGlyphCount = 0;
         g_bHiResGlyphPending = 0;
+        g_bHiResPointerDrawn = 0;
+        g_bHiResPointerShown = 0;
     }
 }
 
@@ -790,29 +801,77 @@ static int HiResGlyphHasInk(const GlHiResGlyph *glyph)
     return 0;
 }
 
+/* The flight pointer, which overlay_head_up_display draws into the space
+   buffer after the radio messages: the buffer's pixels it covers and their
+   colours, as that buffer was last copied to the screen with this offset,
+   before the HUD restores what it covered. The letters it
+   covers keep matching, and BuildHiResLayer draws it back above the text,
+   as CopyBaseWithoutMouse and CompositeHiResMouseCursor do for the menus'
+   cursor (#37). */
+
+void SdlNoteHiResFlightPointer(void)
+{
+    g_bHiResPointerDrawn = 1;
+}
+
+/* Whether the flight pointer covers pixel (x, y) of the space buffer, or of
+   the screen. */
+static int HiResPointerCovers(int x, int y, int screen)
+{
+    if (!g_bHiResPointerShown)
+        return 0;
+    if (screen) {
+        x -= g_nHiResPointerOffsetX;
+        y -= g_nHiResPointerOffsetY;
+    }
+    if (x < 0 || y < 0 || x >= SDL_PORT_FRAME_WIDTH ||
+        y >= SDL_PORT_FRAME_HEIGHT)
+        return 0;
+    return g_abHiResPointerMask[y * SDL_PORT_FRAME_WIDTH + x] != 0;
+}
+
 /* Whether a cell still shows the game's letter. Only the letter's own pixels
    count, so a heading's underline, a sprite's edge or a target bracket drawn
-   over the cell's background keeps it. A space has nothing to compare: it
-   stays with the letters next to it (DropHiResSpaceRuns). */
+   over the cell's background keeps it. A few of them may also have turned
+   back into that background: the damage report's first erase draws its
+   black leader line from the top corner of the display, through the
+   heading's G (#37). Erased text loses all of them, and a letter crossed
+   by anything else changes colour. Pixels under the flight pointer do not
+   count; pointer is 1 when pixels is the space buffer it was drawn into, 2
+   when it is the screen. A space has nothing to compare: it stays with the
+   letters next to it (DropHiResSpaceRuns). */
 static int HiResGlyphMatches(const GlHiResGlyph *glyph,
                              const unsigned char *pixels, long stride,
-                             int x, int y)
+                             int x, int y, int pointer)
 {
     const unsigned char *cell;
     int column;
+    int erased;
+    int ink;
     int pixel;
     int row;
 
+    erased = 0;
+    ink = 0;
     for (row = glyph->skipped; row < glyph->height; row++) {
         cell = pixels + (long)(y + row) * stride + x;
         for (column = 0; column < glyph->width; column++) {
             pixel = row * glyph->width + column;
-            if (HiResGlyphInk(glyph, pixel) &&
-                cell[column] != glyph->after[pixel])
+            if (!HiResGlyphInk(glyph, pixel) ||
+                (pointer != 0 &&
+                 HiResPointerCovers(x + column, y + row, pointer == 2)))
+                continue;
+            ink++;
+            if (cell[column] == glyph->after[pixel])
+                continue;
+            if (cell[column] != (glyph->background != 0xff
+                                     ? glyph->background
+                                     : glyph->before[pixel]))
                 return 0;
+            erased++;
         }
     }
-    return 1;
+    return erased * 3 <= ink;
 }
 
 /* Buffers, then rows top to bottom and left to right, so a line's glyphs
@@ -890,9 +949,14 @@ void SdlEndHiResGlyph(void)
                         GL_HIRES_OFFSCREEN_GLYPH_CAPACITY, glyph);
 }
 
-/* After an off-screen buffer was copied to the screen: the glyphs it still
-   shows within the copied area follow it, moved by the copy's offset. The
-   ones it no longer shows there are forgotten. */
+/* After an off-screen buffer was copied to the screen: the glyphs it shows
+   within the copied area follow it, moved by the copy's offset. One it no
+   longer shows there, such as a radio message's letter under the flight
+   pointer, which is drawn into the space buffer after the text, follows it
+   hidden, keeping its place and age, until it has been gone for
+   GL_HIRES_HIDDEN_FRAME_LIMIT copies (#37). Forgotten sooner, it came back
+   as new text and the stale-run rule dropped its line's other hidden
+   letters, so the line split and slid. */
 static void CopyHiResGlyphsToScreen(const Viewport *source, int left, int top,
                                     int right, int bottom, int offsetX,
                                     int offsetY)
@@ -921,10 +985,16 @@ static void CopyHiResGlyphsToScreen(const Viewport *source, int left, int top,
         if (glyph->buffer == source->pixels && glyph->stride == stride &&
             glyph->x >= left && glyph->y >= top &&
             glyph->x + glyph->width - 1 <= right &&
-            glyph->y + glyph->height - 1 <= bottom &&
-            !HiResGlyphMatches(glyph, source->pixels, stride, glyph->x,
-                               glyph->y))
-            continue;
+            glyph->y + glyph->height - 1 <= bottom) {
+            if (HiResGlyphMatches(glyph, source->pixels, stride, glyph->x,
+                                  glyph->y,
+                                  g_bHiResPointerShown &&
+                                  source->pixels == g_pHiResPointerBuffer))
+                g_aHiResOffscreenGlyphs[index].misses = 0;
+            else if (++g_aHiResOffscreenGlyphs[index].misses >
+                     GL_HIRES_HIDDEN_FRAME_LIMIT)
+                continue;
+        }
         if (kept != index)
             g_aHiResOffscreenGlyphs[kept] = *glyph;
         kept++;
@@ -949,7 +1019,6 @@ static void CopyHiResGlyphsToScreen(const Viewport *source, int left, int top,
         copied.stride = SDL_PORT_FRAME_WIDTH;
         copied.x = (short)x;
         copied.y = (short)y;
-        copied.misses = 0;
         StoreHiResGlyph(g_aHiResGlyphs, &g_nHiResGlyphCount,
                         GL_HIRES_GLYPH_CAPACITY, &copied);
     }
@@ -966,6 +1035,49 @@ void SdlCopyHiResGlyphs(const Viewport *source, const Viewport *destination)
                             destination->top - source->top);
 }
 
+/* Where the flight pointer the HUD drew this frame covers the space buffer
+   being copied: the pointer's own pixels, as RestoreSpriteBackground puts a
+   save area back. Only for a buffer laid out as the screen is. */
+static void NoteHiResFlightPointer(const Viewport *source, int originX,
+                                   int originY)
+{
+    unsigned char coverage[sizeof(abCursorSaveArea)];
+    Viewport viewport;
+
+    g_bHiResPointerShown = 0;
+    if (!g_bHiResPointerDrawn)
+        return;
+    g_bHiResPointerDrawn = 0;
+    if (!SdlHiResHudFontsActive() || stMouseCursorState.viewport == 0 ||
+        stMouseCursorState.shape == 0 ||
+        stMouseCursorState.viewport->pixels != source->pixels ||
+        source->rowOffsets == 0 || source->top < 0 ||
+        source->top >= source->bottom ||
+        source->bottom >= SDL_PORT_FRAME_HEIGHT ||
+        source->rowOffsets[source->top] !=
+            (long)source->top * SDL_PORT_FRAME_WIDTH ||
+        source->rowOffsets[source->top + 1] !=
+            (long)(source->top + 1) * SDL_PORT_FRAME_WIDTH ||
+        source->rowOffsets[source->bottom] !=
+            (long)source->bottom * SDL_PORT_FRAME_WIDTH)
+        return;
+    memset(g_abHiResPointerMask, 0, sizeof(g_abHiResPointerMask));
+    memset(coverage, 0xff, sizeof(coverage));
+    viewport = *source;
+    viewport.pixels = g_abHiResPointerMask;
+    viewport.allocation = g_abHiResPointerMask;
+    RestoreSpriteBackground(&viewport, coverage, (short)nStoredMouseCursorPosX,
+                            (short)nSavedMouseCursorY,
+                            stMouseCursorState.shape,
+                            stMouseCursorState.frame);
+    memcpy(g_abHiResPointerColours, source->pixels,
+           (size_t)(source->bottom + 1) * SDL_PORT_FRAME_WIDTH);
+    g_pHiResPointerBuffer = source->pixels;
+    g_nHiResPointerOffsetX = originX;
+    g_nHiResPointerOffsetY = originY;
+    g_bHiResPointerShown = 1;
+}
+
 /* BlitViewportScanlineRuns copies the space buffer's view window, shifted
    by the geometry's origin. Text it leaves under the cockpit no longer
    matches the presented frame and is dropped there. */
@@ -975,6 +1087,7 @@ void SdlCopyHiResGlyphRuns(const Viewport *source, const Viewport *destination,
     if (source == 0 || destination == 0 ||
         destination->pixels != stScreenView.pixels)
         return;
+    NoteHiResFlightPointer(source, originX, originY);
     CopyHiResGlyphsToScreen(source, 0, 0, 0x7fff, 0x7fff, originX, originY);
 }
 
@@ -982,8 +1095,9 @@ static int HiResGlyphStillShown(const GlHiResGlyph *glyph,
                                 const unsigned char *frame)
 {
     return HiResGlyphMatches(glyph, frame, SDL_PORT_FRAME_WIDTH, glyph->x,
-                             glyph->y);
+                             glyph->y, 2);
 }
+
 
 /* The hi-res font keeps its letter spacing in each glyph's leading columns. */
 static int HiResLeadingBlank(const unsigned char *bitmap, int width,
@@ -1050,6 +1164,43 @@ static void CompositeHiResMouseCursor(const unsigned char *pixels)
                     SetHiResPixel(x * GL_HIRES_SCALE + column,
                                   y * GL_HIRES_SCALE + row,
                                   pixels[y * SDL_PORT_FRAME_WIDTH + x]);
+            }
+        }
+    }
+}
+
+/* The flight pointer back above the text, where the screen still shows it:
+   the window shows the space buffer, the cockpit around it does not. */
+static void CompositeHiResFlightPointer(const unsigned char *pixels)
+{
+    int column;
+    int row;
+    int x;
+    int y;
+    int screenX;
+    int screenY;
+
+    if (!g_bHiResPointerShown)
+        return;
+    g_bHiResPointerShown = 0;
+    for (y = 0; y < SDL_PORT_FRAME_HEIGHT; y++) {
+        for (x = 0; x < SDL_PORT_FRAME_WIDTH; x++) {
+            if (g_abHiResPointerMask[y * SDL_PORT_FRAME_WIDTH + x] == 0)
+                continue;
+            screenX = x + g_nHiResPointerOffsetX;
+            screenY = y + g_nHiResPointerOffsetY;
+            if (screenX < 0 || screenY < 0 ||
+                screenX >= SDL_PORT_FRAME_WIDTH ||
+                screenY >= SDL_PORT_FRAME_HEIGHT ||
+                pixels[screenY * SDL_PORT_FRAME_WIDTH + screenX] !=
+                    g_abHiResPointerColours[y * SDL_PORT_FRAME_WIDTH + x])
+                continue;
+            for (row = 0; row < GL_HIRES_SCALE; row++) {
+                for (column = 0; column < GL_HIRES_SCALE; column++)
+                    SetHiResPixel(screenX * GL_HIRES_SCALE + column,
+                                  screenY * GL_HIRES_SCALE + row,
+                                  pixels[screenY * SDL_PORT_FRAME_WIDTH +
+                                         screenX]);
             }
         }
     }
@@ -1132,6 +1283,7 @@ static void BuildHiResLayer(const unsigned char *pixels, unsigned char *frame)
     if (!SdlHiResHudFontsActive()) {
         g_nHiResGlyphCount = 0;
         g_nHiResOffscreenGlyphCount = 0;
+        g_bHiResPointerShown = 0;
         return;
     }
     g_nHiResPresentCount++;
@@ -1146,8 +1298,10 @@ static void BuildHiResLayer(const unsigned char *pixels, unsigned char *frame)
     DropHiResSpaceRuns(g_aHiResGlyphs, &g_nHiResGlyphCount);
     DropHiddenHiResGlyphs();
     kept = g_nHiResGlyphCount;
-    if (kept == 0 || g_pHiResFont == 0)
+    if (kept == 0 || g_pHiResFont == 0) {
+        g_bHiResPointerShown = 0;
         return;
+    }
     memset(g_renderer.hiResLayer, 0, sizeof(g_renderer.hiResLayer));
     for (index = 0; index < kept; index++) {
         glyph = &g_aHiResGlyphs[index];
@@ -1220,6 +1374,7 @@ static void BuildHiResLayer(const unsigned char *pixels, unsigned char *frame)
         }
     }
     CompositeHiResMouseCursor(pixels);
+    CompositeHiResFlightPointer(pixels);
     g_renderer.hiResLayerVisible = 1;
     g_renderer.hiResLayerDirty = 1;
 }

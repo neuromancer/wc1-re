@@ -283,6 +283,8 @@ int SdlBeginHiResGlyph(const struct Viewport *view, int cursorX, int y,
 void SdlEndHiResGlyph(void);
 void SdlCopyHiResGlyphs(const struct Viewport *source,
                         const struct Viewport *destination);
+/* The HUD drew the flight pointer into the space buffer. */
+void SdlNoteHiResFlightPointer(void);
 void SdlCopyHiResGlyphRuns(const struct Viewport *source,
                            const struct Viewport *destination, int originX,
                            int originY);

@@ -2390,6 +2390,9 @@ unsigned int overlay_head_up_display(void)
                           stMouseCursorState.y,
                           stMouseCursorState.shape,
                           stMouseCursorState.frame);
+#ifdef SDL_PORT
+        SdlNoteHiResFlightPointer();
+#endif
     }
     return 0;
 }
