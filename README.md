@@ -50,9 +50,10 @@ remembers your folder and options.
   transfer a pilot from an existing save with their statistics and awards. Both
   releases play the expansions the same way, following the Kilrathi Saga, but
   SM2's captured Dralthi keeps its DOS disguise: in the stealth missions the
-  Kilrathi ignore it until it fires on them. With DOS data, SM2 keeps its
-  saved games in `GAMEDAT/CRUSADE.WLD`, as the DOS release does, so your DOS
-  SM2 saves carry over.
+  Kilrathi ignore it until it fires on them. SM2's barracks poster can again
+  be clicked for a closer look, as in the DOS release. With DOS data, SM2
+  keeps its saved games in `GAMEDAT/CRUSADE.WLD`, as the DOS release does, so
+  your DOS SM2 saves carry over.
 - **Languages:** choose **Español**, **Français**, or **Japanese (FM Towns)**
   in the launcher's **Language** menu.
 - **German fan translation:** a DOS installation you have patched yourself

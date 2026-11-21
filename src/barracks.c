@@ -13,7 +13,12 @@
 #endif
 #include <sys/stat.h>
 
+#ifdef SDL_PORT
+/* BarracksScreen ends the table at the poster outside SM2. */
+TitleMenuRegion aBarracksMenuRegions[22] = {
+#else
 const TitleMenuRegion aBarracksMenuRegions[21] = {
+#endif
     { 1, 137, 88, 149, 94 },
     { 1, 110, 88, 136, 94 },
     { 1, 172, 88, 184, 94 },
@@ -34,6 +39,11 @@ const TitleMenuRegion aBarracksMenuRegions[21] = {
     { 1, 9, 33, 39, 95 },
     { 1, 218, 37, 248, 78 },
     { 1, 86, 44, 181, 78 },
+#ifdef SDL_PORT
+    /* SM2's poster: the DOS SM2.EXE barracks (147:1039) has this hot spot,
+       which the Kilrathi Saga's SM2.EXE dropped and wcdx put back. */
+    { 1, 70, 44, 85, 68 },
+#endif
     { -1, 0, 0, 0, 0 }
 }; /* 0x00463008 */
 
@@ -45,13 +55,20 @@ const char *apszSaveCampaignMenuLabels[2] = {
     NC_("font0", "Save this campaign  "),
     NC_("font0", "Save this campaign  ")
 }; /* 0x004693e8 */
+#ifdef SDL_PORT
+char *apszBarracksMenuLabels[21] = {
+#else
 char *apszBarracksMenuLabels[20] = {
+#endif
     0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
     NC_("font0", "Mission Hangar"),
     NC_("font0", "Return to the Bar"),
     NC_("font0", "Quit Wing Commander"),
-    NC_("font0", "View your medals")
+    NC_("font0", "View your medals"),
+#ifdef SDL_PORT
+    NC_("font0", "Check poster out")
+#endif
 }; /* 0x004693f0 */
 ShortRect stModalTextBounds = { 24, 40, 296, 60 }; /* 0x00469440 */
 ModalTextPanel *pModalTextPanel = 0; /* 0x00469448 */
@@ -1140,7 +1157,12 @@ short BarracksScreen(void)
     short region;
 #ifdef SDL_PORT
     char *savedLabels[4];
+    struct Shape *poster;
 
+    /* The poster is SM2.EXE's; the other campaigns and the transfer
+       barracks end the table before it. */
+    aBarracksMenuRegions[20].frame =
+        nLaunchCampaign == 2 && !nPilotTransferState ? 1 : -1;
     if (nPilotTransferState) {
         memcpy(savedLabels, apszBarracksMenuLabels + 16, sizeof(savedLabels));
         for (region = 16; region < 20; region++)
@@ -1279,6 +1301,33 @@ short BarracksScreen(void)
                         }
                     }
                     break;
+#ifdef SDL_PORT
+                case 20:
+                    /* As DOS SM2.EXE shows it: TITLE1.VGA's second image
+                       fills the screen in the room's palette until a key
+                       or a click. It shares the medal case's click guard. */
+                    FlushInputEvents();
+                    if ((nTickCount60Hz - lastMedalsTick) >
+                        nInputTickScale) {
+                        poster = FetchDiskPacketRetrying(75, 1, 0);
+                        LeaveAllocationScope();
+                        ClearViewport(&stRoomScreenViewport, cBlackColour);
+                        DrawSpriteDefault(&stRoomScreenViewport, 0, 0,
+                                          poster, 0);
+                        ReleasePacketHandle(poster);
+                        DIBslam();
+                        DIBslamReal();
+                        WaitForInputKey();
+                        ClearViewport(&stRoomScreenViewport, cBlackColour);
+                        DrawBarracksBunks(&stSceneBuffer, background,
+                                          &animation);
+                        EnterAllocationScope();
+                        UpdateBarracksScreen(&stRoomScreenViewport,
+                                             background, &animation);
+                        lastMedalsTick = nTickCount60Hz;
+                    }
+                    break;
+#endif
                 }
             }
             break;

@@ -572,7 +572,7 @@ msgctxt "font0"
 msgid "wc1:04d8327dd2ad0392"
 msgstr ""
 
-#: src/killbrd.c:189
+#: src/barracks.c:70
 msgctxt "font0"
 msgid "wc1:83f42060a593f638"
 msgstr ""

@@ -2405,7 +2405,13 @@ void UpdateRoomMenuCursor(void)
         state = IsPointInRect(mouseX, mouseY, &region->left);
         if (state != 0) {
             frame = region->frame;
+#ifdef SDL_PORT
+            /* SM2's barracks poster is hot spot 20; wcdx's SM2 raises this
+               bound to 21 for it as well (0x447844). */
+            if (index >= 21)
+#else
             if (index >= 20)
+#endif
                 return;
             if (index < 0)
                 return;
