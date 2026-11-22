@@ -14,6 +14,6 @@
   <url type="homepage">https://github.com/neuromancer/wc1-re</url>
   <url type="bugtracker">https://github.com/neuromancer/wc1-re/issues</url>
   <releases>
-    <release version="@VERSION@" date="@DATE@" type="stable"/>
+    <release version="@VERSION@" date="@DATE@" type="@RELEASE_TYPE@"/>
   </releases>
 </component>

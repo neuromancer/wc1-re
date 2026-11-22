@@ -6,6 +6,11 @@ portable=${2:?usage: package-flatpak.sh VERSION PORTABLE_DIRECTORY}
 case "$version" in
     *[!A-Za-z0-9._-]*) echo "Invalid release version: $version" >&2; exit 1 ;;
 esac
+# Release candidates (vX.Y.Z-rcN) and CI artifacts are development builds.
+case "$version" in
+    v[0-9]*.[0-9]*.[0-9]*-*|ci-*) release_type=development ;;
+    *) release_type=stable ;;
+esac
 test "$(uname -m)" = x86_64
 test -x "$portable/wc1-modern"
 
@@ -43,6 +48,7 @@ for size in 64 128; do
 done
 mkdir -p "$files/share/metainfo"
 sed -e "s/@VERSION@/${version#v}/g" -e "s/@DATE@/$(date -u +%F)/g" \
+    -e "s/@RELEASE_TYPE@/$release_type/g" \
     packaging/flatpak/metainfo.xml > "$files/share/metainfo/$app_id.metainfo.xml"
 
 # Check the prebuilt executable against the end-user runtime in CI, not the SDK.
