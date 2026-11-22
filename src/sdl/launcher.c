@@ -85,8 +85,11 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                 options->campaign = 1;
             else if (strcmp(argument + 11, "sm2") == 0)
                 options->campaign = 2;
+            else if (strcmp(argument + 11, "sm15") == 0)
+                options->campaign = SDL_LAUNCHER_CAMPAIGN_SM15;
             else {
-                fprintf(stderr, "Unknown campaign: %s (use wc1, sm1 or sm2).\n", argument + 11);
+                fprintf(stderr, "Unknown campaign: %s (use wc1, sm1, sm2 or sm15).\n",
+                        argument + 11);
                 return 0;
             }
         } else if (strncmp(argument, "--voices=", 9) == 0) {
@@ -284,7 +287,7 @@ static int SdlOpenLauncherGui(SdlLauncherOptions *options)
 static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
 {
     char directory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
-    if (options->campaign < 0 || options->campaign > 2 ||
+    if (options->campaign < 0 || options->campaign > SDL_LAUNCHER_CAMPAIGN_SM15 ||
         (options->swcDemo && options->campaign != 0) ||
         (options->transferPilot && !options->campaign)) {
         fprintf(stderr, "Invalid campaign for the selected game.\n");
@@ -294,7 +297,9 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options)
         fprintf(stderr, "Credits are available only for Super Wing Commander.\n");
         return 0;
     }
-    nLaunchCampaign = options->campaign;
+    /* SM1.5 is SM2 with its own files (SdlSelectSm2Files). */
+    bLaunchSm15 = options->campaign == SDL_LAUNCHER_CAMPAIGN_SM15;
+    nLaunchCampaign = bLaunchSm15 ? 2 : options->campaign;
     nPilotTransferState = options->transferPilot != 0;
     if (options->joystickMode < SDL_LAUNCHER_JOYSTICK_ORIGINAL ||
         options->joystickMode > SDL_LAUNCHER_JOYSTICK_STEAM_DECK ||

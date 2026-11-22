@@ -66,6 +66,15 @@ enum SdlLauncherFlightFps {
     SDL_LAUNCHER_FLIGHT_FPS_MAXIMUM = 64
 };
 
+/* The campaign a launch plays. SM1.5, the fan port of Super Wing
+ * Commander's Covert Missions, is SM2 with four files of its own. */
+enum SdlLauncherCampaign {
+    SDL_LAUNCHER_CAMPAIGN_WC1 = 0,
+    SDL_LAUNCHER_CAMPAIGN_SM1 = 1,
+    SDL_LAUNCHER_CAMPAIGN_SM2 = 2,
+    SDL_LAUNCHER_CAMPAIGN_SM15 = 3
+};
+
 /* The music the game plays (SDL_PORT_MUSIC_* in wc1sdl.h). */
 enum SdlLauncherMusic {
     SDL_LAUNCHER_MUSIC_DEFAULT = 0, /* Kilrathi Saga streams, DOS AdLib */
@@ -116,7 +125,7 @@ typedef struct SdlLauncherOptions {
     char mt32Roms[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     char mt32Model[SDL_LAUNCHER_MT32_MODEL_CAPACITY];
     int swcDemo;
-    int campaign; /* This launch: 0 WC1, 1 SM1, 2 SM2. Not a saved preference. */
+    int campaign; /* This launch's SdlLauncherCampaign. Not a saved preference. */
     int transferPilot; /* Open the transfer barracks for this launch only. */
     int swcCredits; /* Show only the SWC credits for this launch. */
     /* WC1 flight keys changed in the controls window, one "action=bindings"

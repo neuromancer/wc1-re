@@ -18,6 +18,8 @@ struct DirectoryStatus {
     std::string detail = {};
     bool sm1 = false;
     bool sm2 = false;
+    // SM1.5, the fan port of Super Wing Commander's Covert Missions.
+    bool sm15 = false;
     bool swcCredits = false;
     // A DOS WC.EXE the player patched with the German fan translation.
     bool germanText = false;

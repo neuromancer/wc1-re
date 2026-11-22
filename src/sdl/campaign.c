@@ -4,6 +4,7 @@
 int nPilotTransferState;
 int nPilotTransferCampaign = 1;
 int nLaunchCampaign;
+int bLaunchSm15;
 
 /* SM2 plays the same whichever release supplied its files; DOS installs
  * take its Kilrathi Saga logical files 80-84 from SdlCompleteDosInstallTable. */

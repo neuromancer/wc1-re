@@ -353,7 +353,11 @@ int main(short argc, char **argv)
 
 #ifdef SDL_PORT
     if (nLaunchCampaign && !SdlHasSecretMissions(nLaunchCampaign)) {
-        fprintf(stderr, "Secret Missions %d data is missing or unsupported.\n", nLaunchCampaign);
+        if (bLaunchSm15)
+            fprintf(stderr, "Secret Missions 1.5 data is missing or unsupported.\n");
+        else
+            fprintf(stderr, "Secret Missions %d data is missing or unsupported.\n",
+                    nLaunchCampaign);
         return 1;
     }
 #endif

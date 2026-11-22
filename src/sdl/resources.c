@@ -364,3 +364,27 @@ void SdlCompleteDosInstallTable(DiskFileRecord *records)
     for (index = 0; index < SDL_arraysize(sagaRecords); index++)
         records[sagaRecords[index].logicalFile - 1] = sagaRecords[index];
 }
+
+/* SM1.5, the fan port of Super Wing Commander's Covert Missions, plays on
+ * SM2.EXE with four files of its own in logical files 73-76: its DOS
+ * CM15.EXE has the names hex-edited, and its Kilrathi Saga package replaces
+ * INSTALL.DAT. SM2's other files and saves stay shared. The launch picks
+ * SM2's set or SM1.5's, so either INSTALL.DAT plays both. */
+void SdlSelectSm2Files(DiskFileRecord *records)
+{
+    static const char *const sm2Files[4] = {
+        "MODULE.002", "BRIEFING.002", "CAMP.002", "TITLE1.VGA"
+    };
+    static const char *const sm15Files[4] = {
+        "MODULE.015", "BRIEFING.015", "CAMP.015", "TITL15.VGA"
+    };
+    int index;
+
+    for (index = 0; index < 4; index++) {
+        DiskFileRecord *record = &records[72 + index];
+
+        if (record->logicalFile == 73 + index)
+            SDL_strlcpy(record->name, bLaunchSm15 ? sm15Files[index] : sm2Files[index],
+                        sizeof(record->name));
+    }
+}

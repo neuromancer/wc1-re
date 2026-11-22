@@ -100,6 +100,8 @@ export component LauncherWindow inherits Window {
     in property <bool> swc-demo: false;
     in property <bool> sm1-data: false;
     in property <bool> sm2-data: false;
+    // SM1.5, the fan port of Super Wing Commander's Covert Missions.
+    in property <bool> sm15-data: false;
     in property <bool> swc-credits: false;
     in property <LauncherMessage> status;
     in property <string> status-detail;
@@ -775,6 +777,13 @@ export component LauncherWindow inherits Window {
                     text: @tr("Start SM2");
                     clicked => {
                         root.launch-requested(2, false);
+                    }
+                }
+
+                if root.path-valid && root.sm15-data: Button {
+                    text: @tr("Start SM1.5");
+                    clicked => {
+                        root.launch-requested(3, false);
                     }
                 }
 

@@ -91,6 +91,7 @@ void refresh_window(LauncherWindow &window,
     window.set_swc_demo(status.swcDemo);
     window.set_sm1_data(status.sm1);
     window.set_sm2_data(status.sm2);
+    window.set_sm15_data(status.sm15);
     window.set_swc_credits(status.swcCredits);
     window.set_towns_data(status.valid && status.message == LauncherMessage::FmTowns);
     // FM Towns data has its own CD and FM audio, the SWC demo its own music.
@@ -1255,9 +1256,11 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     const auto launch = [&window, &accepted, &installations, &controlsReady, options, stop_joysticks](
                             int campaign, bool transfer, bool credits) {
         refresh_window(*window, installations);
-        if (!window->get_path_valid() || campaign < 0 || campaign > 2 || (transfer && !campaign) ||
-            (campaign == 1 && !window->get_sm1_data()) ||
-            (campaign == 2 && !window->get_sm2_data()) ||
+        if (!window->get_path_valid() || campaign < SDL_LAUNCHER_CAMPAIGN_WC1 ||
+            campaign > SDL_LAUNCHER_CAMPAIGN_SM15 || (transfer && !campaign) ||
+            (campaign == SDL_LAUNCHER_CAMPAIGN_SM1 && !window->get_sm1_data()) ||
+            (campaign == SDL_LAUNCHER_CAMPAIGN_SM2 && !window->get_sm2_data()) ||
+            (campaign == SDL_LAUNCHER_CAMPAIGN_SM15 && !window->get_sm15_data()) ||
             (credits && !window->get_swc_credits()))
             return;
         std::error_code error;

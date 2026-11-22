@@ -280,6 +280,10 @@ msgid "Start SM2"
 msgstr "Lancer SM2"
 
 msgctxt "LauncherWindow"
+msgid "Start SM1.5"
+msgstr "Lancer SM1.5"
+
+msgctxt "LauncherWindow"
 msgid "Start SWC"
 msgstr "Lancer SWC"
 
@@ -289,11 +293,11 @@ msgstr "Crédits"
 
 msgctxt "LauncherWindow"
 msgid "Transfer pilot to SM1…"
-msgstr "Transférer le pilote vers SM1…"
+msgstr "Pilote vers SM1…"
 
 msgctxt "LauncherWindow"
 msgid "Transfer pilot to SM2…"
-msgstr "Transférer le pilote vers SM2…"
+msgstr "Pilote vers SM2…"
 
 #: src/sdl/slint/launcher.slint:337
 msgctxt "LauncherWindow"

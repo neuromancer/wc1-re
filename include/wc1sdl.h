@@ -406,6 +406,9 @@ void SdlSetCampaignShips(void);
 extern int nPilotTransferState;
 extern int nPilotTransferCampaign;
 extern int nLaunchCampaign;
+/* SM1.5, the fan port of Super Wing Commander's Covert Missions, launches
+ * as SM2 with four files of its own (SdlSelectSm2Files). */
+extern int bLaunchSm15;
 int SdlTransferPilot(short slot, short campaign);
 struct CampaignState;
 int SdlValidateExpansionSave(const struct CampaignState *campaign);
@@ -591,6 +594,7 @@ void SdlStopOriginFxMusic(void);
 void SdlStopDosSoundEffects(void);
 void SdlShutdownOriginFxAudio(void);
 void SdlCompleteDosInstallTable(struct DiskFileRecord *records);
+void SdlSelectSm2Files(struct DiskFileRecord *records);
 
 #define GetTickCount SdlGetTicks
 #define GetAsyncKeyState SdlGetAsyncKeyState

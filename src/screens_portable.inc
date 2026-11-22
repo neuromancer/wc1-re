@@ -824,6 +824,12 @@ unsigned int DrawRasterEllipse(RasterClip *clip, int x, int y,
     int offsetX;
     int offsetY;
 
+    /* As raster.asm (0x43CE80): a flat ellipse is a line, or a point when
+       both radii are 0, which the loops below would never finish (SM1.5's
+       briefing maps draw one, issue #47). */
+    if (horizontalRadius == 0 || verticalRadius == 0)
+        return DrawClippedLine(clip, x - horizontalRadius, y - verticalRadius,
+                               x + horizontalRadius, y + verticalRadius, 0, colour);
     if (horizontalRadius < 0 || verticalRadius < 0)
         return (unsigned int)-3;
     radiusX2 = (long long)horizontalRadius * horizontalRadius;

@@ -229,6 +229,7 @@ unsigned short LoadInstallDat(void)
 #ifdef SDL_PORT
     if (SdlUsingDosData())
         SdlCompleteDosInstallTable(pDiskFileRecords);
+    SdlSelectSm2Files(pDiskFileRecords);
 #endif
     return 0;
 }

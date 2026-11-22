@@ -190,6 +190,11 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
     for (const auto name : {"CAMP.002", "MODULE.002", "BRIEFING.002", "MIDGAME.V06", "MIDGAME.V07",
                             "MIDGAME.V08", "TALKING1.VGA", "WINGMEN1.VGA", "PCSHIP.V05", "COMMSM2.DAT", "TITLE1.VGA"})
         status.sm2 &= has_readable_file(*gameData, name);
+    // SM1.5 brings four files of its own and plays on SM2's others.
+    status.sm15 = true;
+    for (const auto name : {"CAMP.015", "MODULE.015", "BRIEFING.015", "TITL15.VGA", "MIDGAME.V06", "MIDGAME.V07",
+                            "MIDGAME.V08", "TALKING1.VGA", "WINGMEN1.VGA", "PCSHIP.V05", "COMMSM2.DAT"})
+        status.sm15 &= has_readable_file(*gameData, name);
     return status;
 }
 

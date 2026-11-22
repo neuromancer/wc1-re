@@ -663,6 +663,12 @@ char *nav_note(short objective)
 {
     char *note;
 
+#ifdef SDL_PORT
+    /* SM1.5's first briefing points its map at a fifth objective, which the
+       mission data emptied (issue #47); the Kilrathi Saga crashes there. */
+    if (objective < 0 || objective >= cMissionObjectiveCountValue)
+        return "";
+#endif
     note = aMissionObjectivesArray[objective].name;
     if (*note == '?')
         note++;

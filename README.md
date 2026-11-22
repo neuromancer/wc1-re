@@ -54,6 +54,13 @@ remembers your folder and options.
   be clicked for a closer look, as in the DOS release. With DOS data, SM2
   keeps its saved games in `GAMEDAT/CRUSADE.WLD`, as the DOS release does, so
   your DOS SM2 saves carry over.
+- **Secret Missions 1.5:** the fans' port of *Super Wing Commander*'s Covert
+  Missions plays on SM2. Put its four files (`CAMP.015`, `MODULE.015`,
+  `BRIEFING.015` and `TITL15.VGA`, from either its DOS or its Kilrathi Saga
+  package) in `GAMEDAT` beside SM2's, and the launcher offers **Start SM1.5**
+  (`--campaign=sm15` on the command line). It shares SM2's saved games, as its
+  patched executable does. Its first briefing plays without the edited
+  `MODULE.015` the Kilrathi Saga needs.
 - **Languages:** choose **Español**, **Français**, or **Japanese (FM Towns)**
   in the launcher's **Language** menu.
 - **German fan translation:** a DOS installation you have patched yourself
