@@ -868,10 +868,10 @@ void pop_mode(short i)
 /* Function start: 0x414910 */
 void set_new_vdu(short vdu)
 {
-    if (get_mode(vdu) == 0) {
+    if (get_mode(vdu) == VDU_MODE_DEAD) {
         malf_noise(vdu, 1, cDarkGreenColour, 0x17, 0);
     } else {
-        if (vdu == 1)
+        if (vdu == VDU_RIGHT)
             ClearViewport(&stRightVduViewport, cBlackColour);
         else
             ClearViewport(&stLeftVdu, cBlackColour);
@@ -987,7 +987,7 @@ unsigned short vdu_malf(short vdu, short sound)
 #endif
     )
         malf_noise(vdu, 1, cDarkGreenColour, sound, 0);
-    set_mode(vdu, 0);
+    set_mode(vdu, VDU_MODE_DEAD);
     return 0;
 }
 
@@ -995,7 +995,7 @@ unsigned short vdu_malf(short vdu, short sound)
 void ShowComponentHitHudMessage(const char *text, unsigned short colour,
                                 short flashCount)
 {
-    if (nTrainSimActive == 0 && get_mode(0) != 0) {
+    if (nTrainSimActive == 0 && get_mode(VDU_LEFT) != VDU_MODE_DEAD) {
         if (aCockpitHudMessageSlotsTable[0].text != 0)
             ClearHudMessageSlot(&aCockpitHudMessageSlotsTable[0]);
         DosStrcpy(szComponentHitMessage, text);
@@ -1018,10 +1018,10 @@ int damage_your_component(char component, char amount, char maximum)
         (acPlayerComponentDamageList[index] + amount),
         maximum);
     if (malf(component) != 0 && index == 3) {
-        vdu_malf(0, 0x18);
-        vdu_malf(1, 0x18);
+        vdu_malf(VDU_LEFT, 0x18);
+        vdu_malf(VDU_RIGHT, 0x18);
     }
-    if (get_mode(0) == 2 || get_mode(0) == 1) {
+    if (get_mode(VDU_LEFT) == VDU_MODE_DAMAGE || get_mode(VDU_LEFT) == VDU_MODE_WEAPONS) {
         sprintf(text, _("%s HIT"),
                 _(apszComponentNames[index]));
         ShowComponentHitHudMessage(text, cRedColour, 5);
@@ -1071,7 +1071,7 @@ void fire_computer_graphic_missile(void)
 
     if (cReleaseWeaponDisplayFrame == -1)
         return;
-    visible = nCameraViewMode == 0 && get_mode(0) == 1;
+    visible = nCameraViewMode == 0 && get_mode(VDU_LEFT) == VDU_MODE_WEAPONS;
     if (cReleaseWeaponDisplayState != 0) {
         RestoreSpriteBackground(&stLeftVdu, pReleaseWeaponDisplayBackground,
                                 stReleaseWeaponDisplayPosition.x,
@@ -1353,7 +1353,7 @@ void set_next_destination(void)
         set_new_objective(0);
         cycle_next_objective();
     }
-    InvalidateVduMode(1);
+    InvalidateVduMode(VDU_RIGHT);
 }
 
 /* Function start: 0x415470 */
@@ -1541,7 +1541,7 @@ void check_objectives(void)
 {
     if (objective_lost(cCurrentObjective) != 0) {
         cycle_next_objective();
-        InvalidateVduMode(1);
+        InvalidateVduMode(VDU_RIGHT);
     } else {
         update_objective_location(cCurrentObjective);
     }
@@ -1803,7 +1803,7 @@ unsigned int draw_3d_scanner(void)
         }
     }
 
-    if (get_mode(1) == 5) {
+    if (get_mode(VDU_RIGHT) == VDU_MODE_NAVIGATION) {
         set_objective_range(1);
         CaptureSpriteBackground(&stScreenView,
                                 pRadarMarkerBackground,
@@ -2247,7 +2247,7 @@ void draw_nav_pointer(void)
     short active;
     short object;
 
-    if (get_mode(1) == 5 &&
+    if (get_mode(VDU_RIGHT) == VDU_MODE_NAVIGATION &&
         nCannedSceneMode != 4 &&
         (nCameraViewMode == 0 || nCameraViewMode == 4))
         active = 1;
@@ -2624,7 +2624,7 @@ void update_missile_warning(void)
     if (missile_on_tail(0) != 0) {
         SetCockpitLightBlink(2, 1);
         if (nTrainSimActive == 0)
-            spacetrack(3, 1, -1);
+            spacetrack(MUSIC_MISSILE_ON_TAIL, 1, -1);
     } else {
         abCockpitLightGoalArray[2] = 0;
     }
@@ -2996,7 +2996,7 @@ void vid_transmit(void)
 /* Function start: 0x417AC0 */
 void vid_equiv(short obj, short message)
 {
-    if (get_mode(1) != 4 &&
+    if (get_mode(VDU_RIGHT) != VDU_MODE_COMMUNICATIONS &&
         nTrainSimActive == 0 &&
         nCannedSceneMode == 0 && nCameraViewMode == 0 &&
         message_showing() == 0)
@@ -3016,7 +3016,7 @@ void check_stranded(void)
         aMissionShips[
             nCarrierMissionShipIndexValue].state == 3 &&
         any_enemy(0, 30000) == 0)
-        nArcadeState = 3;
+        nArcadeState = ARCADE_STATE_STRANDED;
 }
 
 /* Function start: 0x417B70 */
@@ -3049,33 +3049,33 @@ void update_VDUs(void)
                 cCurrentCockpitView].bottom,
             0);
     }
-    changed = update_vid_disp(0);
+    changed = update_vid_disp(VDU_LEFT);
     if (changed != 0) {
-        switch (get_mode(0)) {
-        case 0:
-            update_dead_disp(0);
+        switch (get_mode(VDU_LEFT)) {
+        case VDU_MODE_DEAD:
+            update_dead_disp(VDU_LEFT);
             break;
-        case 1:
+        case VDU_MODE_WEAPONS:
             show_weapon_disp();
             break;
-        case 2:
+        case VDU_MODE_DAMAGE:
             show_damage_disp();
             break;
-        case 8:
+        case VDU_MODE_INFO:
             show_info_disp();
             break;
         }
     } else {
-        switch (get_mode(0)) {
-        case 0:
-            update_dead_disp(0);
+        switch (get_mode(VDU_LEFT)) {
+        case VDU_MODE_DEAD:
+            update_dead_disp(VDU_LEFT);
             break;
-        case 1:
+        case VDU_MODE_WEAPONS:
             if (bCockpitlessView != 0)
                 show_weapon_disp();
             update_status_text();
             break;
-        case 2:
+        case VDU_MODE_DAMAGE:
             if (bCockpitlessView != 0) {
                 bForceDamageDisplayRedraw = 1;
                 show_damage_disp();
@@ -3083,62 +3083,62 @@ void update_VDUs(void)
             }
             UpdateDamageDisplay();
             break;
-        case 8:
+        case VDU_MODE_INFO:
             show_info_disp();
             break;
         }
     }
-    if (get_mode(0) == 0)
+    if (get_mode(VDU_LEFT) == VDU_MODE_DEAD)
         aCockpitHudMessageSlotsTable[0].text = 0;
     else
         UpdateMessage(&aCockpitHudMessageSlotsTable[0]);
 
     SetTextContext(&stRightVduTxtContext);
-    changed = update_vid_disp(1);
+    changed = update_vid_disp(VDU_RIGHT);
     if (changed != 0) {
-        switch (get_mode(1)) {
-        case 0:
-            update_dead_disp(1);
+        switch (get_mode(VDU_RIGHT)) {
+        case VDU_MODE_DEAD:
+            update_dead_disp(VDU_RIGHT);
             break;
-        case 3:
+        case VDU_MODE_TARGET:
             show_target_disp();
             break;
-        case 4:
+        case VDU_MODE_COMMUNICATIONS:
             show_communications_disp();
             break;
-        case 5:
+        case VDU_MODE_NAVIGATION:
             show_navigation_disp();
             break;
-        case 6:
+        case VDU_MODE_TRANSMISSION:
             vid_transmit();
             break;
         }
     } else {
-        switch (get_mode(1)) {
-        case 0:
-            update_dead_disp(1);
+        switch (get_mode(VDU_RIGHT)) {
+        case VDU_MODE_DEAD:
+            update_dead_disp(VDU_RIGHT);
             break;
-        case 3:
+        case VDU_MODE_TARGET:
             if (bCockpitlessView != 0)
                 show_target_disp();
             DrawTargetRangeReadout();
             break;
-        case 4:
+        case VDU_MODE_COMMUNICATIONS:
             if (bCockpitlessView != 0)
                 show_communications_disp();
             talk_equiv();
             break;
-        case 5:
+        case VDU_MODE_NAVIGATION:
             if (bCockpitlessView != 0)
                 show_navigation_disp();
             check_objectives();
             break;
-        case 6:
+        case VDU_MODE_TRANSMISSION:
             vid_transmit();
             break;
         }
     }
-    if (get_mode(1) == 6 || get_mode(1) == 0)
+    if (get_mode(VDU_RIGHT) == VDU_MODE_TRANSMISSION || get_mode(VDU_RIGHT) == VDU_MODE_DEAD)
         aCockpitHudMessageSlotsTable[1].text = 0;
     else
         UpdateMessage(&aCockpitHudMessageSlotsTable[1]);
@@ -3190,7 +3190,7 @@ void vdu_pop_all(short vdu)
 
     while (GetVduModeStackDepth(vdu) > 0) {
         mode = get_mode(vdu);
-        if (mode != 6)
+        if (mode != VDU_MODE_TRANSMISSION)
             pop_mode(vdu);
         else
             EndCommMenu();
@@ -3211,7 +3211,7 @@ void SelectCockpitVduMode(short vdu, int mode)
     if (nCameraViewMode != 0)
         return;
     if (malf(3) != 0 ||
-        (mode == 4 && malf(4) != 0)) {
+        (mode == VDU_MODE_COMMUNICATIONS && malf(4) != 0)) {
         vdu_malf(vdu, 0x17);
         return;
     }
@@ -3220,7 +3220,7 @@ void SelectCockpitVduMode(short vdu, int mode)
     if (changed != 0) {
         vdu_pop_all(vdu);
         InvalidateVduMode(vdu);
-        if (mode != 4) {
+        if (mode != VDU_MODE_COMMUNICATIONS) {
             set_mode(vdu, mode);
             update_VDUs();
             return;
@@ -3230,22 +3230,22 @@ void SelectCockpitVduMode(short vdu, int mode)
         return;
     }
     switch (mode) {
-    case 1:
+    case VDU_MODE_WEAPONS:
         if (bCurrentKey == SCAN_G)
             select_new_gun();
         else
             select_new_release_weapon((enum ObjectType)-1);
         break;
-    case 2:
+    case VDU_MODE_DAMAGE:
         nCurrentDmgDispTicks = 0;
         break;
-    case 3:
+    case VDU_MODE_TARGET:
         cycle_onscreen_targets();
         break;
-    case 4:
+    case VDU_MODE_COMMUNICATIONS:
         talk_equiv();
         break;
-    case 5:
+    case VDU_MODE_NAVIGATION:
         InflightComputer();
         break;
     }

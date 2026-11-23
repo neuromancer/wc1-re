@@ -119,7 +119,7 @@ void UpdateDamageDisplay(void)
 
     cDamagedComponentCount = componentCount;
     if ((short)componentCount != previousComponentCount) {
-        InvalidateVduMode(0);
+        InvalidateVduMode(VDU_LEFT);
         return;
     }
     cDamagedComponentCount = componentCount;

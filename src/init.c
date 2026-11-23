@@ -102,7 +102,7 @@ unsigned short InitializeEventManagerResources(void)
     nInputTickScale = 20;
     nUnusedInputTimerFlag = 1;
     cursor->shape = pMouseCursorResource =
-        FetchDiskPacketRetrying(14, 0, 0x10);
+        FetchDiskPacketRetrying(DISK_FILE_ARROW_VGA, 0, 0x10);
     cursor->frame = 0;
     cursor->viewport = &stScreenView;
     return 0;

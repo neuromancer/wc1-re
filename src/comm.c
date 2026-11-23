@@ -78,7 +78,7 @@ void LoadCommPortraitShape(short face, signed char alternate)
      * branch leaves Jazz unreachable; the second portrait belongs to him. */
     if (SdlPlayingSm2() && (face == 5 || face == 2)) {
         apCommunicationPortraitShapesTable[face] =
-            FetchDiskPacketRetrying(83, face == 5 ? 0 : 1, alternate);
+            FetchDiskPacketRetrying(DISK_FILE_WINGMEN1_VGA, face == 5 ? 0 : 1, alternate);
         return;
     }
 #endif
@@ -90,7 +90,7 @@ void LoadCommPortraitShape(short face, signed char alternate)
         section = -1;
     if (section != -1)
         apCommunicationPortraitShapesTable[face] =
-            FetchDiskPacketRetrying(11, section,
+            FetchDiskPacketRetrying(DISK_FILE_WINGMEN_VGA, section,
                                                      alternate);
 }
 
@@ -147,7 +147,7 @@ void OpenCommMenuForTarget(const char *heading, const char *message)
 /* Function start: 0x430D80 */
 short IsCommChoiceMenuOpen(void)
 {
-    return get_mode(1) == 4;
+    return get_mode(VDU_RIGHT) == VDU_MODE_COMMUNICATIONS;
 }
 
 /* Function start: 0x430DA0 */
@@ -165,15 +165,15 @@ void SetPendingMenuAction(unsigned char v)
 /* Function start: 0x430DC0 */
 void OpenCommRecipientMenu(void)
 {
-    push_mode(1, 4);
+    push_mode(VDU_RIGHT, VDU_MODE_COMMUNICATIONS);
     SetPendingMenuAction(1);
 }
 
 /* Function start: 0x430DE0 */
 void CloseCommChoiceMenu(void)
 {
-    if (get_mode(1) == 4) {
-        pop_mode(1);
+    if (get_mode(VDU_RIGHT) == VDU_MODE_COMMUNICATIONS) {
+        pop_mode(VDU_RIGHT);
         return;
     }
     ShutdownEventManager();
@@ -329,7 +329,7 @@ void RefreshCommunicationMenu(void)
         if (GetPendingMenuAction() == 2)
             BuildCommunicationCommandMenu();
         if (nCommMenuReuseMode == 0)
-            InvalidateVduMode(1);
+            InvalidateVduMode(VDU_RIGHT);
     }
 }
 
@@ -453,15 +453,15 @@ void EndCommSessionWithWingman(void)
         apCommunicationPortraitShapesTable[nCommPortraitIndex] != 0)
         malf_noise(1, 1, 12, 23, 1);
     FreeCommDisplayResources();
-    if (get_mode(1) == 6)
-        pop_mode(1);
+    if (get_mode(VDU_RIGHT) == VDU_MODE_TRANSMISSION)
+        pop_mode(VDU_RIGHT);
 }
 
 /* Function start: 0x4314C0 */
 void EndCommMenu(void)
 {
     clear_message_time();
-    if (get_mode(1) == 6)
+    if (get_mode(VDU_RIGHT) == VDU_MODE_TRANSMISSION)
         EndCommSessionWithWingman();
     pszPendingHudMessage = 0;
 }
@@ -484,19 +484,19 @@ short LoadCommDisplayResources(short rating, enum Side side)
     case SIDE_IMPERIAL:
         if (pConfedCommBackground == 0)
             pConfedCommBackground =
-                FetchDiskPacketRetrying(11, 0, 0);
+                FetchDiskPacketRetrying(DISK_FILE_WINGMEN_VGA, 0, 0);
         loaded = pConfedCommBackground != 0;
         break;
     case SIDE_KILRATHI:
         if (pKilrathiCommBackground == 0)
             pKilrathiCommBackground =
-                FetchDiskPacketRetrying(11, 9, 0);
+                FetchDiskPacketRetrying(DISK_FILE_WINGMEN_VGA, 9, 0);
         loaded = pKilrathiCommBackground != 0;
         break;
     }
     if (pCommStaticShape == 0)
         pCommStaticShape =
-            FetchDiskPacketRetrying(11, 11, 0);
+            FetchDiskPacketRetrying(DISK_FILE_WINGMEN_VGA, 11, 0);
     if (loaded != 0 && pCommStaticShape != 0)
         return 1;
     return 0;
@@ -580,7 +580,7 @@ void real_vid_transmit(short obj, short message)
             LoadCommDisplayResources(nCommSpeakerRating,
                 aeShipSide[
                     nCommSpeakerObject]) != 0) {
-            push_mode(1, 6);
+            push_mode(VDU_RIGHT, VDU_MODE_TRANSMISSION);
             malf_noise(1, 3, 12, 23, 1);
             if (aeShipSide[nCommSpeakerObject] == SIDE_IMPERIAL)
                 DrawSpriteDefault(&stRightVduViewport, stRightVduViewport.left,
@@ -642,7 +642,7 @@ void real_vid_transmit(short obj, short message)
     ShowCentredPrompt(expandedText, MeasureMessageWidth(text));
 #ifdef SDL_PORT
     if (!bInflightComputerActive)
-        SdlPlayRadioVoice(pDiskFileRecords[13].name, nCommPortraitIndex, message,
+        SdlPlayRadioVoice(pDiskFileRecords[DISK_FILE_COMMUNIC_DAT].name, nCommPortraitIndex, message,
                           stCampaignState.currentPilot->rank, speech);
 #endif
 }

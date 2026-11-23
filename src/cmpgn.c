@@ -262,19 +262,19 @@ unsigned int LoadFace(short face)
 #ifdef SDL_PORT
             FetchDiskPacketRetrying(logicalFile, section, 0);
 #else
-            FetchDiskPacketRetrying(6, face, 0);
+            FetchDiskPacketRetrying(DISK_FILE_TALKING_VGA, face, 0);
 #endif
     } else if (pTalkHeadShape == 0)
         pTalkHeadShape =
 #ifdef SDL_PORT
             FetchDiskPacketRetrying(logicalFile, section, 0);
 #else
-            FetchDiskPacketRetrying(6, face, 0);
+            FetchDiskPacketRetrying(DISK_FILE_TALKING_VGA, face, 0);
 #endif
     nTalkingHeadFace = face;
     if (pConvOverlayShapePtr == 0)
         pConvOverlayShapePtr =
-            FetchDiskPacketRetrying(6, 11, 0);
+            FetchDiskPacketRetrying(DISK_FILE_TALKING_VGA, 11, 0);
 #ifdef SDL_PORT
     if (logicalFile == 80) {
         /* SM2.EXE 0x4a5db8/0x4a5dc0: Doomsday and Jazz origins. */
@@ -481,9 +481,9 @@ unsigned int CloseTalk(struct Shape *talker, short mouthFrame,
 unsigned int Briefing(short series, short mission)
 {
     bEscapePressedFlag = 0;
-    PreloadMusicTrackHook(0x18);
-    PreloadMusicTrackHook(0x19);
-    PreloadMusicTrackHook(0x1a);
+    PreloadMusicTrackHook(MUSIC_BRIEFING);
+    PreloadMusicTrackHook(MUSIC_BRIEFING_ROOM);
+    PreloadMusicTrackHook(MUSIC_SALUTE);
     LoadMissionData(series, mission);
     LoadBriefingData(series, mission);
     if (bEscapePressedFlag == 0) {
@@ -492,9 +492,9 @@ unsigned int Briefing(short series, short mission)
     }
     bEscapePressedFlag = 0;
     ReleasePacketHandle(pBriefingPacket);
-    ReleaseMusicTrackHook(0x18);
-    ReleaseMusicTrackHook(0x19);
-    ReleaseMusicTrackHook(0x1a);
+    ReleaseMusicTrackHook(MUSIC_BRIEFING);
+    ReleaseMusicTrackHook(MUSIC_BRIEFING_ROOM);
+    ReleaseMusicTrackHook(MUSIC_SALUTE);
     return 0;
 }
 
@@ -508,14 +508,14 @@ unsigned int DeBriefing(short series, short mission)
     fullScore = FullMissionScore();
     playerScore = PlayersMissionScore();
     if (fullScore == 0) {
-        PreloadMusicTrackHook(0x21);
-        spacetrack(0x21, 2, 1);
+        PreloadMusicTrackHook(MUSIC_DEBRIEFING_SUCCESS);
+        spacetrack(MUSIC_DEBRIEFING_SUCCESS, 2, 1);
     } else if ((playerScore * 100) / fullScore > 70) {
-        PreloadMusicTrackHook(0x21);
-        spacetrack(0x21, 2, 1);
+        PreloadMusicTrackHook(MUSIC_DEBRIEFING_SUCCESS);
+        spacetrack(MUSIC_DEBRIEFING_SUCCESS, 2, 1);
     } else {
-        PreloadMusicTrackHook(0x22);
-        spacetrack(0x22, 2, 1);
+        PreloadMusicTrackHook(MUSIC_DEBRIEFING_FAILURE);
+        spacetrack(MUSIC_DEBRIEFING_FAILURE, 2, 1);
     }
     LoadMissionData(series, mission);
     InitializeConversationViewport();
@@ -525,7 +525,7 @@ unsigned int DeBriefing(short series, short mission)
     SetTextContext(&stCurrentConvTxtCtx);
     LoadBriefingData(series, mission);
     pCurrentConversationBackdropShapePtr =
-        FetchDiskPacketRetrying(4, 6, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 6, 0);
     SceneDirector(1, pDebriefingSceneDataPtr,
                   pDebriefingTxtInfo);
     DIBslam();
@@ -537,8 +537,8 @@ unsigned int DeBriefing(short series, short mission)
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
     StopMusicUnlessSuppressed();
-    ReleaseMusicTrackHook(0x21);
-    ReleaseMusicTrackHook(0x22);
+    ReleaseMusicTrackHook(MUSIC_DEBRIEFING_SUCCESS);
+    ReleaseMusicTrackHook(MUSIC_DEBRIEFING_FAILURE);
     return 0;
 }
 
@@ -551,8 +551,8 @@ unsigned int Office(void)
     unsigned char *textData;
 
     bEscapePressedFlag = 0;
-    PreloadMusicTrackHook(0x24);
-    spacetrack(0x24, 2, 1);
+    PreloadMusicTrackHook(MUSIC_OFFICE);
+    spacetrack(MUSIC_OFFICE, 2, 1);
     InitializeConversationViewport();
     InitializeConversationText();
     packet = FetchDiskPacketRetrying(
@@ -562,7 +562,7 @@ unsigned int Office(void)
     sceneData = packet + header->briefingScene;
     textData = packet + header->briefingText;
     pCurrentConversationBackdropShapePtr =
-        FetchDiskPacketRetrying(4, 7, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 7, 0);
     SceneDirector(4, sceneData, textData);
     DIBslam();
     DIBslamReal();
@@ -573,7 +573,7 @@ unsigned int Office(void)
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
     StopMusicUnlessSuppressed();
-    ReleaseMusicTrackHook(0x24);
+    ReleaseMusicTrackHook(MUSIC_OFFICE);
     return 0;
 }
 
@@ -838,7 +838,7 @@ unsigned int CloseLook(struct Shape *shape, short shot,
                               szTxtWorkspaceBuffer);
     start = animation;
     nFrameSkipCounter = 1;
-    if (shot == 2 || shot == 11) {
+    if (shot == SCENE_SHOT_PODIUM || shot == SCENE_SHOT_DEBRIEFING_PODIUM) {
         while (
 #ifdef SDL_PORT
                voiced ||
@@ -874,7 +874,7 @@ unsigned int CloseLook(struct Shape *shape, short shot,
             nFrameSkipCounter--;
             if (nFrameSkipCounter < 1) {
                 nFrameSkipCounter = nFrameSkip;
-                if (shot == 11) {
+                if (shot == SCENE_SHOT_DEBRIEFING_PODIUM) {
                     DrawDebriefingLongShot();
                     if (frame > -1)
                         DrawSpriteDefault(
@@ -907,7 +907,7 @@ unsigned int CloseLook(struct Shape *shape, short shot,
             DIBslam();
             DIBslamReal();
         }
-    } else if (shot == 0) {
+    } else if (shot == SCENE_SHOT_ESTABLISHING) {
         short sceneFrame;
 
         for (sceneFrame = 0; sceneFrame < 22; sceneFrame++) {

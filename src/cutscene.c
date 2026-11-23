@@ -288,8 +288,8 @@ unsigned int PlayScrambleHangarScene(void)
     if (nMemoryConfig == 1)
         SceneLeaveHook(0x1b);
     else
-        PreloadMusicTrackHook(0x1b);
-    spacetrack(0x1b, 1, -1);
+        PreloadMusicTrackHook(MUSIC_SCRAMBLE);
+    spacetrack(MUSIC_SCRAMBLE, 1, -1);
 
     InitializeConversationViewport();
     cScrambleLeftWalkerFrame = 7;
@@ -298,7 +298,7 @@ unsigned int PlayScrambleHangarScene(void)
     nScrambleBackgroundX = 0;
     nScrambleRightWalkerX = 170;
     pCurrentScrambleHangarShape =
-        FetchDiskPacketRetrying(1, 0, 0);
+        FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 0, 0);
     cScrambleWalkerPair =
         ((RandomWord() + 3) % 4);
     PlaySfxWaveFileByNumber(14, -1, 0);
@@ -643,13 +643,13 @@ unsigned int scramble(void)
         pScrambleCockpitShapePtr = FetchDiskPacketRetrying(
             cCockpitLogicalFile, 8, 0);
         pSceneScrambleBgShapePtr =
-            FetchDiskPacketRetrying(1, 1, 0);
+            FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 1, 0);
         bScrambleCanopyClosed = 0;
         pScrambleCanopyShape =
-            FetchDiskPacketRetrying(1, 2, 0);
+            FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 2, 0);
         pScrambleShipShape =
-            FetchDiskPacketRetrying(1, 3, 0);
-        actorShape = FetchDiskPacketRetrying(1, 4, 0);
+            FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 3, 0);
+        actorShape = FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 4, 0);
         nScrambleBackdropPositionY = 0;
         pScrambleView = &stSceneBuffer;
         nScrambleBackgroundRightCoordX = 64;
@@ -786,7 +786,7 @@ unsigned int scramble(void)
 
     if (nMemoryConfig == 0) {
         StopMusicUnlessSuppressed();
-        ReleaseMusicTrackHook(0x1b);
+        ReleaseMusicTrackHook(MUSIC_SCRAMBLE);
     }
     return 0;
 }
@@ -811,8 +811,8 @@ unsigned int landing(signed char damageLevel)
     landingSound = 0;
     canopySound = 0;
 #endif
-    PreloadMusicTrackHook(0x1d);
-    spacetrack(0x1d, 2, 1);
+    PreloadMusicTrackHook(MUSIC_LANDING);
+    spacetrack(MUSIC_LANDING, 2, 1);
     SetEventManagerPump(PollJoystickButtonEvents);
     InitializeConversationViewport();
     nSceneScrambleShipDetailCountValue =
@@ -841,17 +841,17 @@ unsigned int landing(signed char damageLevel)
         FetchDiskPacketRetrying(
             cCockpitLogicalFile, 8, 0);
     pSceneScrambleBgShapePtr =
-        FetchDiskPacketRetrying(1, 1, 0);
+        FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 1, 0);
     pScrambleShipShape =
-        FetchDiskPacketRetrying(1, 3, 0);
-    actorShape = FetchDiskPacketRetrying(1, 4, 0);
+        FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 3, 0);
+    actorShape = FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 4, 0);
     pScrambleDetailShape =
-        FetchDiskPacketRetrying(1, 9, 0);
+        FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 9, 0);
     pScrambleOverlayShape =
-        FetchDiskPacketRetrying(1, 5, 0);
+        FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 5, 0);
     bScrambleCanopyClosed = 1;
     pScrambleCanopyShape =
-        FetchDiskPacketRetrying(1, 6, 0);
+        FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 6, 0);
     InitializeConversationText();
     nScrambleBackdropPositionY = 0;
     pScrambleView = &stSceneBuffer;
@@ -990,7 +990,7 @@ unsigned int landing(signed char damageLevel)
     ClearViewport(&stCurrentConvTextViewport,
                   cBlackColour);
     StopMusicUnlessSuppressed();
-    ReleaseMusicTrackHook(0x1d);
+    ReleaseMusicTrackHook(MUSIC_LANDING);
     return 0;
 }
 
@@ -1112,9 +1112,9 @@ unsigned int funeral_sequence(int playerFuneral)
     short particle;
     short scenePair;
 
-    PreloadMusicTrackHook(0x20);
+    PreloadMusicTrackHook(MUSIC_FUNERAL);
     nFuneralSequenceActive = 1;
-    spacetrack(0x20, 1, 0);
+    spacetrack(MUSIC_FUNERAL, 1, 0);
     packet = FetchDiskPacketRetrying(
         asCampaignBriefingFiles[nCampaignDataSet],
         0, 0);
@@ -1137,7 +1137,7 @@ unsigned int funeral_sequence(int playerFuneral)
         sceneData = (unsigned char *)packet + packet[scenePair + 2];
         textData = (unsigned char *)packet + packet[scenePair + 3];
         pIntroFont =
-            FetchDiskPacketRetrying(9, 1, 0);
+            FetchDiskPacketRetrying(DISK_FILE_TITLE_VGA, 1, 0);
     } else {
         followupSceneData = (unsigned char *)packet + packet[10];
         followupTextData = (unsigned char *)packet + packet[11];
@@ -1164,7 +1164,7 @@ unsigned int funeral_sequence(int playerFuneral)
     InitializeConversationText();
     init_constellation(0);
     pCurrentConversationSpecialShape =
-        FetchDiskPacketRetrying(4, 9, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 9, 0);
     ClearViewport(&stSceneBuffer, cPrimaryViewBufferColour);
     InitializeConstellationField(&stSceneBuffer, -1, 16);
     bEscapePressedFlag = 0;
@@ -1391,7 +1391,7 @@ unsigned int funeral_sequence(int playerFuneral)
     nFuneralSequenceActive = 0;
     StopMusicUnlessSuppressed();
     free_inflight_music();
-    ReleaseMusicTrackHook(0x20);
+    ReleaseMusicTrackHook(MUSIC_FUNERAL);
     return 0;
 }
 

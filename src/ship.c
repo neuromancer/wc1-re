@@ -185,8 +185,8 @@ unsigned int remove_weapon(short obj, short weapon)
                 select_new_release_weapon(preferredType);
             }
         }
-        if (get_mode(0) == 1)
-            InvalidateVduMode(0);
+        if (get_mode(VDU_LEFT) == VDU_MODE_WEAPONS)
+            InvalidateVduMode(VDU_LEFT);
     }
     return 0;
 }
@@ -648,7 +648,7 @@ short pilot_hit(short obj)
         if (acPilotHitPointsArray[obj] == 0) {
             if (obj == 0) {
                 if (bPlayerVulnerable != 0)
-                    nArcadeState = 4;
+                    nArcadeState = ARCADE_STATE_DEAD;
                 return -1;
             }
         } else if (skill_check(obj, 9) == 0 && obj != 0) {
@@ -1559,7 +1559,7 @@ int explode(short attacker, short victim)
         if (bPlayerVulnerable == 0)
             return 0;
         bCurrentPlayerDestroyed = 1;
-        nArcadeState = 4;
+        nArcadeState = ARCADE_STATE_DEAD;
         return 1;
     }
 
@@ -2138,7 +2138,7 @@ int fire_missile(short ship)
                 if ((slot->type == OBJECT_TYPE_HEAT_SEEKING_MISSILE ||
                      slot->type == OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE) &&
                     nTargetLockCountdown != 0) {
-                    if (get_mode(0) == 1)
+                    if (get_mode(VDU_LEFT) == VDU_MODE_WEAPONS)
                         ShowComponentHitHudMessage(
                             _("Need Lock"),
                             cYellowColour, 3);

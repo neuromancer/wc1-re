@@ -23,7 +23,7 @@ void DosInterruptHandlerHook(void);
  * retained, without references, before game mode/status in the Win32 image. */
 unsigned int _ovrbuffer = 0x1370; /* 0x00469fa8 */
 int nCannedSceneMode = 0; /* 0x00469fac */
-int nArcadeState = 0; /* 0x00469fb0 */
+int nArcadeState = ARCADE_STATE_FLYING; /* 0x00469fb0 */
 short nFrameSkipCounter = 1; /* 0x00469fb4 */
 short nFrameSkip = 1; /* 0x00469fb8 */
 int nSfxVolumeSetting = 0x14; /* 0x00469fbc */
@@ -562,7 +562,7 @@ unsigned int Update_3Space(void)
     house_keep_objects();
 #ifdef SDL_PORT
     /* Docking ends SWC flight before another movement/collision pass. */
-    if (SdlSwcFlightActive() && nCannedSceneMode == 0 && nArcadeState == 1)
+    if (SdlSwcFlightActive() && nCannedSceneMode == 0 && nArcadeState == ARCADE_STATE_LANDED)
         return 0;
 #endif
     update_objects_in_space();
@@ -927,8 +927,8 @@ unsigned int fire_players_lasers(void)
         asShipWpnEnergyList[0] > 0) {
         fire_fixed_projectile_weapon(0);
         if (acShipTargetTable[0] != -1 &&
-            get_mode(1) == 5)
-            SelectCockpitVduMode(1, 3);
+            get_mode(VDU_RIGHT) == VDU_MODE_NAVIGATION)
+            SelectCockpitVduMode(VDU_RIGHT, VDU_MODE_TARGET);
     }
     return 0;
 }
@@ -1551,12 +1551,12 @@ int HandleSpaceFlightControls(void)
         case SCAN_7:
         case SCAN_8:
         case SCAN_9:
-            if (notRepeated && get_mode(1) == 4 &&
+            if (notRepeated && get_mode(VDU_RIGHT) == VDU_MODE_COMMUNICATIONS &&
                 nCameraViewMode == 0 &&
                 bCurrentKey >= SCAN_1 &&
                 bCurrentKey <=
                     nCommMenuChoiceCount + SCAN_1 &&
-                get_mode(1) == 4) {
+                get_mode(VDU_RIGHT) == VDU_MODE_COMMUNICATIONS) {
                 Chosen_communicate_option(
                     (bCurrentKey - SCAN_1));
             }
@@ -1575,7 +1575,7 @@ int HandleSpaceFlightControls(void)
                 acPlayerComponentDamageList[7] != 4) {
                 if (RandomInRange(
                         0, acPlayerComponentDamageList[7]) == 0)
-                    nArcadeState = 2;
+                    nArcadeState = ARCADE_STATE_EJECTED;
                 else
                     malf_sound();
             }
@@ -1583,8 +1583,8 @@ int HandleSpaceFlightControls(void)
         case SCAN_A:
             if (notRepeated) {
                 bMouseCursorVisible = 0;
-                if (get_mode(1) != 5)
-                    SelectCockpitVduMode(1, 5);
+                if (get_mode(VDU_RIGHT) != VDU_MODE_NAVIGATION)
+                    SelectCockpitVduMode(VDU_RIGHT, VDU_MODE_NAVIGATION);
                 if (bCockpitlessView == 0) {
                     auto_pilot_sequence();
                 } else {
@@ -1627,8 +1627,8 @@ int HandleSpaceFlightControls(void)
                 if (message_showing() != 0) {
                     EndCommMenu();
                 } else {
-                    if (get_mode(1) != 4)
-                        SelectCockpitVduMode(1, 4);
+                    if (get_mode(VDU_RIGHT) != VDU_MODE_COMMUNICATIONS)
+                        SelectCockpitVduMode(VDU_RIGHT, VDU_MODE_COMMUNICATIONS);
                     else
                         CloseCommChoiceMenu();
                 }
@@ -1656,7 +1656,7 @@ int HandleSpaceFlightControls(void)
             break;
         case SCAN_N:
             if (notRepeated)
-                SelectCockpitVduMode(1, 5);
+                SelectCockpitVduMode(VDU_RIGHT, VDU_MODE_NAVIGATION);
             init_player_input();
             break;
         case SCAN_M:
@@ -1864,7 +1864,7 @@ int HandleSpaceFlightControls(void)
         bEscapePressedFlag = 0;
         if (nTrainSimActive != 0)
             return -1;
-        if (get_mode(1) == 4) {
+        if (get_mode(VDU_RIGHT) == VDU_MODE_COMMUNICATIONS) {
             CloseCommChoiceMenu();
             return 0;
         }
@@ -1901,13 +1901,13 @@ int HandleSpaceFlightControls(void)
         return 0;
     case SCAN_W:
         if (notRepeated) {
-            SelectCockpitVduMode(0, 1);
+            SelectCockpitVduMode(VDU_LEFT, VDU_MODE_WEAPONS);
             return 0;
         }
         break;
     case SCAN_T:
         if (notRepeated) {
-            SelectCockpitVduMode(1, 3);
+            SelectCockpitVduMode(VDU_RIGHT, VDU_MODE_TARGET);
             return 0;
         }
         break;
@@ -1964,13 +1964,13 @@ int HandleSpaceFlightControls(void)
         break;
     case SCAN_D:
         if (notRepeated) {
-            SelectCockpitVduMode(0, 2);
+            SelectCockpitVduMode(VDU_LEFT, VDU_MODE_DAMAGE);
             return 0;
         }
         break;
     case SCAN_G:
         if (notRepeated) {
-            SelectCockpitVduMode(0, 1);
+            SelectCockpitVduMode(VDU_LEFT, VDU_MODE_WEAPONS);
             return 0;
         }
         break;
@@ -1985,8 +1985,8 @@ int HandleSpaceFlightControls(void)
             nTargetLockMode =
                 (nTargetLockMode == 0);
             PlaySfxWaveFileByNumber(0x19, -1, 0);
-            if (get_mode(1) == 3) {
-                InvalidateVduMode(1);
+            if (get_mode(VDU_RIGHT) == VDU_MODE_TARGET) {
+                InvalidateVduMode(VDU_RIGHT);
                 return 0;
             }
         } else {
@@ -2080,7 +2080,7 @@ void UpdateArcadeScoreDisplay(void)
             nCurrentArcadeScore++;
             nArcadeTimeRemaining--;
             if (nArcadeTimeRemaining <= 0) {
-                nArcadeState = 4;
+                nArcadeState = ARCADE_STATE_DEAD;
                 return;
             }
         } else {
@@ -2124,7 +2124,7 @@ unsigned int RenderSpaceViewFrame(void)
                     zero_vector(&aShipPositionsArray[0]);
                 nCurrentArcadeScore += nArcadeWaveBonusValue;
                 if (nCurrentWave == -1)
-                    nArcadeState = 1;
+                    nArcadeState = ARCADE_STATE_LANDED;
                 else
                     nArcadeWave++;
                 ClearViewport(&stSpaceBufferViewport,
@@ -2237,7 +2237,7 @@ int RunSpaceFlight(short entryNavPoint)
     FlushInputEvents();
     bMouseAfterburnerControl = 0;
     bMouseCursorVisible = 0;
-    nArcadeState = 0;
+    nArcadeState = ARCADE_STATE_FLYING;
     DIBslam();
     DIBslamReal();
     SetSpaceFlightFrameTiming();
@@ -2247,14 +2247,14 @@ int RunSpaceFlight(short entryNavPoint)
     bPtrMovedByKeyboardState = 1;
     frameReady = 1;
 
-    while (nArcadeState == 0) {
+    while (nArcadeState == ARCADE_STATE_FLYING) {
         ReadPerformanceCounter(&liFrameStart);
         if (HandleSpaceFlightControls() == -1) {
-            nArcadeState = 5;
+            nArcadeState = ARCADE_STATE_QUIT;
             break;
         }
         ReadPerformanceCounter(&liFlightAfterInputCounter);
-        if (nArcadeState == 0) {
+        if (nArcadeState == ARCADE_STATE_FLYING) {
 #ifdef SDL_PORT
             SdlCaptureFlightPoses();
 #endif
@@ -2315,7 +2315,7 @@ int RunSpaceFlight(short entryNavPoint)
                     (nScreenWidth - 1),
                     (nScreenHeight - 1));
     bCockpitlessView = 0;
-    if (nArcadeState == 1)
+    if (nArcadeState == ARCADE_STATE_LANDED)
         flag_objective(find_objective(1, -1), 2);
     bCockpitlessView = 0;
     ResetCockpitPaletteEntries();

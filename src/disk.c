@@ -200,11 +200,11 @@ unsigned int InitializeTextContextFromFont(TextContext *context,
     if (apTextFonts[index] == 0) {
         if (fontIndex == 1) {
             apTextFonts[index] =
-                FetchDiskPacketRetrying(0, fontIndex,
+                FetchDiskPacketRetrying(DISK_FILE_FONTS_FNT, fontIndex,
                                                          0x10);
         } else {
             apTextFonts[index] =
-                FetchDiskPacketRetrying(0, fontIndex,
+                FetchDiskPacketRetrying(DISK_FILE_FONTS_FNT, fontIndex,
                                                          0);
         }
         apFontWorkspaces[index] =

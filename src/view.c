@@ -758,7 +758,7 @@ void DrawTargetRangeReadout(void)
         aeSpecialManeuvers[target] ==
         SPECIAL_MANEUVER_UNKNOWN_9) {
         acShipTargetTable[0] = -1;
-        InvalidateVduMode(1);
+        InvalidateVduMode(VDU_RIGHT);
         return;
     }
     if (target != -1 &&

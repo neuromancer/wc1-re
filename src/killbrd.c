@@ -378,8 +378,8 @@ short RecRoom(void)
     apszRecRoomMenuLabels[2] =
         apszRecRoomBaseLabels[2];
 
-    PreloadMusicTrackHook(30);
-    spacetrack(30, 2, 1);
+    PreloadMusicTrackHook(MUSIC_BAR);
+    spacetrack(MUSIC_BAR, 2, 1);
     FlushInputEvents();
     LoadBriefingData(stCampaignState.currentSeries,
                      stCampaignState.currentMission);
@@ -400,7 +400,7 @@ short RecRoom(void)
         *(ShortRect *)&aRecRoomMenuRegions[0].left;
 
     apRecRoomFigureShapes[0] =
-        FetchDiskPacketRetrying(5, 11, 0);
+        FetchDiskPacketRetrying(DISK_FILE_RECROOM_VGA, 11, 0);
     GetShapeFrameBounds(&aRecRoomMenuRegions[0].left,
                         aRecRoomCharacterOrigins[0].x,
                         aRecRoomCharacterOrigins[0].y,
@@ -452,7 +452,7 @@ short RecRoom(void)
                 .personalityDeathMission[personality] == 0) {
             apRecRoomFigureShapes[1] =
                 FetchDiskPacketRetrying(
-                    5, (personality + 3), 0);
+                    DISK_FILE_RECROOM_VGA, (personality + 3), 0);
             GetShapeFrameBounds(
                 &aRecRoomMenuRegions[1].left,
                 aRecRoomCharacterOrigins[1].x,
@@ -476,7 +476,7 @@ short RecRoom(void)
                 .personalityDeathMission[personality] == 0) {
             apRecRoomFigureShapes[2] =
                 FetchDiskPacketRetrying(
-                    5, (personality + 3), 0);
+                    DISK_FILE_RECROOM_VGA, (personality + 3), 0);
             GetShapeFrameBounds(
                 &aRecRoomMenuRegions[2].left,
                 aRecRoomCharacterOrigins[2].x,
@@ -533,7 +533,7 @@ short RecRoom(void)
     bottomDestination = stRoomScreenViewport;
     SetViewportRect(&bottomDestination, 0, 187, 319, 199);
     pRecRoomBgShape =
-        FetchDiskPacketRetrying(5, 0, 0);
+        FetchDiskPacketRetrying(DISK_FILE_RECROOM_VGA, 0, 0);
     nMenuPointerSpeed = 1;
     bInputModeState = 1;
     stMouseCursorState.viewport = &stRoomDisplayView;
@@ -737,7 +737,7 @@ short RecRoom(void)
                               cBlackColour);
                 pCurrentConversationBackdropShapePtr =
                     FetchDiskPacketRetrying(
-                        5, 1, 0);
+                        DISK_FILE_RECROOM_VGA, 1, 0);
                 SceneDirector(
                     2,
                     apRecRoomSceneDataList[region],
@@ -761,7 +761,7 @@ short RecRoom(void)
                     &stConstellationViewport, -1, 6);
                 pRecRoomBgShape =
                     FetchDiskPacketRetrying(
-                        5, 0, 0);
+                        DISK_FILE_RECROOM_VGA, 0, 0);
                 ClearViewport(&stRoomScreenViewport,
                               cBlackColour);
                 break;
@@ -815,7 +815,7 @@ short RecRoom(void)
     free_viewport(&stSceneBuffer);
     bEscapePressedFlag = 0;
     StopMusicUnlessSuppressed();
-    ReleaseMusicTrackHook(30);
+    ReleaseMusicTrackHook(MUSIC_BAR);
     return result;
 }
 
@@ -892,7 +892,7 @@ void ShowChalkBoard(void)
     context.colour = 0;
     context.backgroundColour = 0;
     stChalkBoardDate = *pCurrentCampaignDate;
-    background = FetchDiskPacketRetrying(5, 2, 0);
+    background = FetchDiskPacketRetrying(DISK_FILE_RECROOM_VGA, 2, 0);
     previousContext = pCurTextContext;
     context.viewport = &stModalSrcViewport;
     InitializeTextContextFromFont(&context, 3,

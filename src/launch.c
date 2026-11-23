@@ -116,7 +116,7 @@ void LaunchPlayerShip(void)
     spacetrack(changetrack(), 1, 0);
     if (bEscapePressedFlag == 0) {
         pLaunchDoorShape =
-            FetchDiskPacketRetrying(1, 7, 0);
+            FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 7, 0);
         nCannedSceneMode = 1;
         force_view(0, 0);
         PlaySfxWaveFileByNumber(20, -1, 0);
@@ -187,12 +187,12 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     free_ship(3);
     remove_nav_point_objects();
     ResetSoundState();
-    PreloadMusicTrackHook(0x1c);
-    spacetrack(0x1c, 2, 1);
+    PreloadMusicTrackHook(MUSIC_LAUNCH);
+    spacetrack(MUSIC_LAUNCH, 2, 1);
     carrierShape =
-        FetchDiskPacketRetrying(1, 8, 0);
+        FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 8, 0);
     actorShape =
-        FetchDiskPacketRetrying(1, 4, 0);
+        FetchDiskPacketRetrying(DISK_FILE_SCRAMBLE_VGA, 4, 0);
     fighterShape = aObjectTypeData[
         stCampaignState.playerShipType].shapeSet;
     pScrambleView = &stSpaceBufferViewport;
@@ -436,7 +436,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     bEscapePressedFlag = 0;
     ResetSoundState();
     StopMusicUnlessSuppressed();
-    ReleaseMusicTrackHook(0x1c);
+    ReleaseMusicTrackHook(MUSIC_LAUNCH);
     free_ship(0);
     ReleasePacketHandle(carrierShape);
     ReleasePacketHandle(actorShape);

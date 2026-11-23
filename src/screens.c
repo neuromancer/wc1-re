@@ -189,17 +189,17 @@ unsigned int LoadBriefingRoom(void)
     InitializeConversationViewport();
     InitializeConversationText();
     SetTextContext(&stCurrentConvTxtCtx);
-    spacetrack(0x19, 2, 1);
+    spacetrack(MUSIC_BRIEFING_ROOM, 2, 1);
     pCurrentConversationBackdropShapePtr =
-        FetchDiskPacketRetrying(4, 0, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 0, 0);
     pCurrentBriefingAnimShape =
-        FetchDiskPacketRetrying(4, 1, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 1, 0);
     pBriefingCloseupShape =
-        FetchDiskPacketRetrying(4, 3, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 3, 0);
     pSceneBriefingBodyShape =
-        FetchDiskPacketRetrying(4, 4, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 4, 0);
     pSceneBriefingPortraitShape =
-        FetchDiskPacketRetrying(4, 5, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 5, 0);
     SceneDirector(0, pBriefingSceneInfo,
                   pCurrentBriefingTextData);
     FreePacketAndClear(&pSceneBriefingPortraitShape, 8);
@@ -225,7 +225,7 @@ unsigned int ViewMedals(void)
 
     clicked = 0;
     pMedalSceneShape =
-        FetchDiskPacketRetrying(4, 8, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 8, 0);
     pCurrentConversationBackdropShapePtr = 0;
     InitializeConversationText();
     ClearViewport(&stSceneBuffer, cBlackColour);
@@ -269,23 +269,23 @@ unsigned int AwardCampaignMedal(short medal)
         (signed char)stCampaignState.medals[3] > 0)
         return 0;
 
-    PreloadMusicTrackHook(0x25);
-    PreloadMusicTrackHook(0x26);
-    PreloadMusicTrackHook(0x27);
-    PreloadMusicTrackHook(0x28);
+    PreloadMusicTrackHook(MUSIC_MEDAL_CEREMONY);
+    PreloadMusicTrackHook(MUSIC_MEDAL_GOLDEN_SUN);
+    PreloadMusicTrackHook(MUSIC_MEDAL_STAR);
+    PreloadMusicTrackHook(MUSIC_MEDAL_GOLD);
 
     medalIndex = medal;
     switch (medalIndex) {
     case 0:
     case 1:
-        spacetrack(0x27, 1, -1);
+        spacetrack(MUSIC_MEDAL_STAR, 1, -1);
         break;
     case 2:
     case 4:
-        spacetrack(0x28, 1, -1);
+        spacetrack(MUSIC_MEDAL_GOLD, 1, -1);
         break;
     case 3:
-        spacetrack(0x26, 1, -1);
+        spacetrack(MUSIC_MEDAL_GOLDEN_SUN, 1, -1);
         break;
     }
 
@@ -297,9 +297,9 @@ unsigned int AwardCampaignMedal(short medal)
     InitializeConversationViewport();
     InitializeConversationText();
     pMedalSceneShape =
-        FetchDiskPacketRetrying(4, 8, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 8, 0);
     pCurrentConversationBackdropShapePtr =
-        FetchDiskPacketRetrying(4, 10, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 10, 0);
     nCurrentConversationMedalIndex = medal;
     stCampaignState.medals[medalIndex]++;
     SceneDirector(5, pMedalSceneData,
@@ -311,10 +311,10 @@ unsigned int AwardCampaignMedal(short medal)
     StopMusicUnlessSuppressed();
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
-    ReleaseMusicTrackHook(0x25);
-    ReleaseMusicTrackHook(0x26);
-    ReleaseMusicTrackHook(0x27);
-    ReleaseMusicTrackHook(0x28);
+    ReleaseMusicTrackHook(MUSIC_MEDAL_CEREMONY);
+    ReleaseMusicTrackHook(MUSIC_MEDAL_GOLDEN_SUN);
+    ReleaseMusicTrackHook(MUSIC_MEDAL_STAR);
+    ReleaseMusicTrackHook(MUSIC_MEDAL_GOLD);
     return 0;
 }
 
@@ -358,14 +358,14 @@ unsigned int DrawMedalChest(char *text, short duration)
     switch (nCurrentConversationMedalIndex) {
     case 0:
     case 1:
-        spacetrack(39, 1, -1);
+        spacetrack(MUSIC_MEDAL_STAR, 1, -1);
         break;
     case 2:
     case 4:
-        spacetrack(40, 1, -1);
+        spacetrack(MUSIC_MEDAL_GOLD, 1, -1);
         break;
     case 3:
-        spacetrack(38, 1, -1);
+        spacetrack(MUSIC_MEDAL_GOLDEN_SUN, 1, -1);
         break;
     }
     return 0;
@@ -608,10 +608,10 @@ unsigned int EstablishingShot(char *text, short duration)
 
     if (pSceneBriefingBodyShape == 0)
         pSceneBriefingBodyShape =
-            FetchDiskPacketRetrying(4, 4, 0);
+            FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 4, 0);
     if (pSceneBriefingPortraitShape == 0)
         pSceneBriefingPortraitShape =
-            FetchDiskPacketRetrying(4, 5, 0);
+            FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 5, 0);
     AddPCName(text);
     ClearViewport(&stCurrentConvTextViewport,
                   cBlackColour);
@@ -647,7 +647,7 @@ unsigned int EstablishingShot(char *text, short duration)
         DIBslamReal();
     } while (frame < 22);
     WaitForSceneAdvance(duration, 0);
-    spacetrack(25, 1, -1);
+    spacetrack(MUSIC_BRIEFING_ROOM, 1, -1);
     return 0;
 }
 
@@ -658,10 +658,10 @@ unsigned int DrawBriefingLongShot(void)
 
     if (pSceneBriefingBodyShape == 0)
         pSceneBriefingBodyShape =
-            FetchDiskPacketRetrying(4, 4, 0);
+            FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 4, 0);
     if (pSceneBriefingPortraitShape == 0)
         pSceneBriefingPortraitShape =
-            FetchDiskPacketRetrying(4, 5, 0);
+            FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 5, 0);
     DrawSpriteDefault(&stSceneBuffer, 0, 0,
                       pCurrentConversationBackdropShapePtr, 0);
     DrawSpriteDefault(&stSceneBuffer, 241, 60,
@@ -685,13 +685,13 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
     short escaped;
     short frame;
 
-    spacetrack(26, 1, -1);
+    spacetrack(MUSIC_SALUTE, 1, -1);
     if (pSceneBriefingBodyShape == 0)
         pSceneBriefingBodyShape =
-            FetchDiskPacketRetrying(4, 4, 0);
+            FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 4, 0);
     if (pSceneBriefingPortraitShape == 0)
         pSceneBriefingPortraitShape =
-            FetchDiskPacketRetrying(4, 5, 0);
+            FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 5, 0);
     AddPCName(text);
     ClearViewport(&stCurrentConvTextViewport,
                   cBlackColour);
@@ -774,7 +774,7 @@ unsigned int Dismissed(char *text, short duration)
                               nConvTextColorValue,
                               szTxtWorkspaceBuffer);
     pTalkHeadShape =
-        FetchDiskPacketRetrying(4, 2, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 2, 0);
     nFrameSkipCounter = 1;
     frame = 0;
     do {
@@ -1253,11 +1253,11 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
     FlushInputEvents();
     SetEventManagerPump(PollJoystickButtonEvents);
     bEscapePressedFlag = 0;
-    while ((shot = record->shot) != -2) {
-        if (shot != -1) {
-            if ((shot & 0x40) != 0) {
+    while ((shot = record->shot) != SCENE_SHOT_END) {
+        if (shot != SCENE_SHOT_UNCHANGED) {
+            if ((shot & SCENE_SHOT_OVERLAY) != 0) {
                 bConversationOverlay = 1;
-                shot &= 0x3f;
+                shot &= SCENE_SHOT_MASK;
             } else {
                 bConversationOverlay = 0;
             }
@@ -1273,44 +1273,44 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         if (record->talker != -2)
             nConversationCharacter = record->talker;
         duration = record->duration;
-        switch (shot & 0x3f) {
-        case 0:
-        case 3:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 16:
-        case 17:
+        switch (shot & SCENE_SHOT_MASK) {
+        case SCENE_SHOT_ESTABLISHING:
+        case SCENE_SHOT_DISMISSED:
+        case SCENE_SHOT_RETURN_TO_BRIEFING_LONG:
+        case SCENE_SHOT_MEDAL_LONG:
+        case SCENE_SHOT_MEDAL_ESTABLISHING:
+        case SCENE_SHOT_PIN_MEDAL:
+        case SCENE_SHOT_FUNERAL_LONG:
+        case SCENE_SHOT_DEBRIEFING_ESTABLISHING:
+        case SCENE_SHOT_DEBRIEFING_PODIUM:
+        case SCENE_SHOT_MEDAL_CHEST:
+        case SCENE_SHOT_FUNERAL_WINGMAN:
             previousShot = shot;
             nTalkingHeadFace = -1;
             break;
-        case 1:
-            if (previousShot != 1) {
-                previousShot = 1;
+        case SCENE_SHOT_BRIEFING_LONG:
+            if (previousShot != SCENE_SHOT_BRIEFING_LONG) {
+                previousShot = SCENE_SHOT_BRIEFING_LONG;
                 DrawBriefingLongShot();
                 nTalkingHeadFace = -1;
             }
             break;
-        case 2:
-            if (previousShot != 2) {
-                previousShot = 2;
+        case SCENE_SHOT_PODIUM:
+            if (previousShot != SCENE_SHOT_PODIUM) {
+                previousShot = SCENE_SHOT_PODIUM;
                 DrawPodiumShot();
                 nTalkingHeadFace = -1;
             }
             break;
-        case 4:
-            previousShot = 4;
+        case SCENE_SHOT_MAP:
+            previousShot = SCENE_SHOT_MAP;
             cCurrentObjective = abs(nConversationCharacter);
             nTalkingHeadFace = -1;
             break;
-        case 12:
-        case 13:
-        case 14:
-        case 15:
+        case SCENE_SHOT_FUNERAL_STARS:
+        case SCENE_SHOT_FUNERAL_STARS + 1:
+        case SCENE_SHOT_FUNERAL_STARS + 2:
+        case SCENE_SHOT_FUNERAL_STARS + 3:
             if (previousShot != shot) {
                 init_constellation(0);
                 stConstellationViewport = stSceneBuffer;
@@ -1321,37 +1321,37 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 previousShot = shot;
             }
             break;
-        case 20:
-        case 21:
-        case 22:
-        case 23:
-        case 24:
-        case 25:
-        case 26:
-        case 27:
-        case 28:
-        case 29:
-        case 30:
+        case SCENE_SHOT_FACE:
+        case SCENE_SHOT_FACE + 1:
+        case SCENE_SHOT_FACE + 2:
+        case SCENE_SHOT_FACE + 3:
+        case SCENE_SHOT_FACE + 4:
+        case SCENE_SHOT_FACE + 5:
+        case SCENE_SHOT_FACE + 6:
+        case SCENE_SHOT_FACE + 7:
+        case SCENE_SHOT_FACE + 8:
+        case SCENE_SHOT_FACE + 9:
+        case SCENE_SHOT_FACE + 10:
 #ifdef SDL_PORT
-        case 31:
-        case 32:
+        case SCENE_SHOT_FACE + 11:
+        case SCENE_SHOT_FACE + 12:
 #endif
             if (previousShot != shot) {
-                LoadFace((shot - 20));
+                LoadFace((shot - SCENE_SHOT_FACE));
                 previousShot = shot;
             }
             break;
-        case 50:
-        case 51:
-        case 52:
-        case 53:
-        case 54:
-        case 55:
-        case 56:
-        case 57:
-        case 58:
-        case 59:
-            previousShot = 50;
+        case SCENE_SHOT_ANIMATION:
+        case SCENE_SHOT_ANIMATION + 1:
+        case SCENE_SHOT_ANIMATION + 2:
+        case SCENE_SHOT_ANIMATION + 3:
+        case SCENE_SHOT_ANIMATION + 4:
+        case SCENE_SHOT_ANIMATION + 5:
+        case SCENE_SHOT_ANIMATION + 6:
+        case SCENE_SHOT_ANIMATION + 7:
+        case SCENE_SHOT_ANIMATION + 8:
+        case SCENE_SHOT_ANIMATION + 9:
+            previousShot = SCENE_SHOT_ANIMATION;
             nTalkingHeadFace = -1;
             break;
         }
@@ -1395,56 +1395,56 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                               previousShot - 20 != previousColour);
 #endif
             switch (previousShot) {
-            case 0:
+            case SCENE_SHOT_ESTABLISHING:
                 EstablishingShot(text, duration);
                 break;
-            case 1:
-            case 2:
-            case 11:
+            case SCENE_SHOT_BRIEFING_LONG:
+            case SCENE_SHOT_PODIUM:
+            case SCENE_SHOT_DEBRIEFING_PODIUM:
                 CloseLook(pBriefingCloseupShape,
                           previousShot,
                           pSceneMouthAnimCmds,
                           text, duration, 0);
                 break;
-            case 3:
-                previousShot = 4;
+            case SCENE_SHOT_DISMISSED:
+                previousShot = SCENE_SHOT_MAP;
                 Dismissed(text, duration);
                 break;
-            case 4:
+            case SCENE_SHOT_MAP:
                 UpdateMap(text, duration);
                 break;
-            case 5:
-                previousShot = 1;
+            case SCENE_SHOT_RETURN_TO_BRIEFING_LONG:
+                previousShot = SCENE_SHOT_BRIEFING_LONG;
                 ReturnToBriefingLongShot(text, duration);
                 break;
-            case 6:
+            case SCENE_SHOT_MEDAL_LONG:
                 DrawMedalLongShot(pSceneMouthAnimCmds,
                                   text, duration);
                 break;
-            case 7:
+            case SCENE_SHOT_MEDAL_ESTABLISHING:
                 MedalEstablish(text, duration);
                 break;
-            case 8:
+            case SCENE_SHOT_PIN_MEDAL:
                 PinMedal(text, duration);
                 break;
-            case 9:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
+            case SCENE_SHOT_FUNERAL_LONG:
+            case SCENE_SHOT_FUNERAL_STARS:
+            case SCENE_SHOT_FUNERAL_STARS + 1:
+            case SCENE_SHOT_FUNERAL_STARS + 2:
+            case SCENE_SHOT_FUNERAL_STARS + 3:
                 DrawFuneralLongShot(previousShot, text, duration);
                 break;
-            case 10:
+            case SCENE_SHOT_DEBRIEFING_ESTABLISHING:
                 DebriefingEstablishingShot(text, duration);
                 break;
-            case 16:
+            case SCENE_SHOT_MEDAL_CHEST:
                 DrawMedalChest(text, duration);
                 break;
-            case 17:
+            case SCENE_SHOT_FUNERAL_WINGMAN:
                 funeral_wingman(text, duration);
                 break;
-            case 50:
-                PlaySceneAnimation(text, (shot - 50), duration);
+            case SCENE_SHOT_ANIMATION:
+                PlaySceneAnimation(text, (shot - SCENE_SHOT_ANIMATION), duration);
                 break;
             default:
                 LongTalk(pTalkHeadShape, text,
@@ -1482,7 +1482,7 @@ unsigned int DrawPodiumShot(void)
     if (pSceneBriefingPortraitShape != 0)
         FreePacketAndClear(&pSceneBriefingPortraitShape, 0);
     pTalkHeadShape =
-        FetchDiskPacketRetrying(4, 2, 0);
+        FetchDiskPacketRetrying(DISK_FILE_BRIEFING_VGA, 2, 0);
     DrawSpriteDefault(&stSceneBuffer, -96, 0,
                       pCurrentConversationBackdropShapePtr, 1);
     DrawSpriteDefault(&stSceneBuffer, 224, 0,
@@ -1542,7 +1542,7 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
                               0, 160,
                               nConvTextColorValue,
                               szTxtWorkspaceBuffer);
-    if (shot == 9) {
+    if (shot == SCENE_SHOT_FUNERAL_LONG) {
         DrawSpriteDefault(&stSceneBuffer, 0, 0,
                           pCurrentConversationBackdropShapePtr, 0);
         RefreshMemoryStatusOverlay();
@@ -1705,9 +1705,9 @@ unsigned int death_sequence(void)
     if (nMemoryConfig == 1)
         SceneLeaveHook(0x20);
 
-    spacetrack(0x20, 2, 1);
+    spacetrack(MUSIC_FUNERAL, 2, 1);
     frame = 0;
-    deathShape = FetchDiskPacketRetrying(2, 0, 0);
+    deathShape = FetchDiskPacketRetrying(DISK_FILE_PILOTANM_VGA, 0, 0);
     cockpitBackground = FetchDiskPacketRetrying(
         cCockpitLogicalFile, 3, 0);
     PlaySfxWaveFileByNumber(4, -1, 0);
@@ -1774,7 +1774,7 @@ unsigned int ShowGetReadyScreen(void)
 
     frame = 0;
     pIntroFont =
-        FetchDiskPacketRetrying(9, 1, 0);
+        FetchDiskPacketRetrying(DISK_FILE_TITLE_VGA, 1, 0);
     nCannedSceneMode = 1;
     force_view(0, 0);
     distance = 400;
@@ -1815,9 +1815,9 @@ unsigned int ShowVictoryScreen(void)
     emptyCount = 0;
     InitializeFireworks();
     pFireworkShape =
-        FetchDiskPacketRetrying(9, 17, 0);
+        FetchDiskPacketRetrying(DISK_FILE_TITLE_VGA, 17, 0);
     pIntroFont =
-        FetchDiskPacketRetrying(9, 1, 0);
+        FetchDiskPacketRetrying(DISK_FILE_TITLE_VGA, 1, 0);
     distance = 500;
     bEscapePressedFlag = 0;
     nFrameSkipCounter = 1;
@@ -1868,7 +1868,7 @@ unsigned int ShowGameOverScreen(void)
 
     frame = 0;
     pIntroFont =
-        FetchDiskPacketRetrying(9, 1, 0);
+        FetchDiskPacketRetrying(DISK_FILE_TITLE_VGA, 1, 0);
     cViewObject = Explosion(0);
     nCameraViewMode = 4;
     asObjectCollisionRadius[EYE_OBJECT] = 100;
@@ -1886,7 +1886,7 @@ unsigned int ShowGameOverScreen(void)
     set_eye_direction_and_position();
     distance = 700;
     generate_stars();
-    spacetrack(22, 2, 1);
+    spacetrack(MUSIC_SIMULATOR_GAME_OVER, 2, 1);
     bEscapePressedFlag = 0;
     nFrameSkipCounter = 1;
     do {

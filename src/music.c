@@ -507,21 +507,21 @@ void new_space_music_changes(short attacker, short victim)
         nTrainSimActive == 0) {
         if (aeShipSide[victim] == SIDE_KILRATHI) {
             if (report_kilrathi_rout(1) == 0) {
-                spacetrack(10, 1, 0);
+                spacetrack(MUSIC_KILRATHI_ROUTED, 1, 0);
                 return;
             }
             if (attacker == 0) {
                 if (acShipRating[victim] == -1 &&
                     RandomInRange(0, 3) != 0) {
-                    spacetrack(6, 3, 0);
+                    spacetrack(MUSIC_ACE_KILLED, 3, 0);
                     return;
                 }
-                spacetrack(9, 3, 0);
+                spacetrack(MUSIC_ENEMY_KILLED, 3, 0);
                 return;
             }
         } else {
             if (nYourWingman == victim) {
-                spacetrack(8, 3, 0);
+                spacetrack(MUSIC_WINGMAN_LOST, 3, 0);
                 return;
             }
             if (aeShipSide[victim] == SIDE_IMPERIAL) {
@@ -531,10 +531,10 @@ void new_space_music_changes(short attacker, short victim)
                          MISSION_TYPE_ESCORT) &&
                     nShipMissionIndices[victim] ==
                         anShipMissionShips[0]) {
-                    spacetrack(11, 3, 0);
+                    spacetrack(MUSIC_PROTECTED_SHIP_LOST, 3, 0);
                     return;
                 }
-                spacetrack(7, 3, 0);
+                spacetrack(MUSIC_FRIENDLY_LOST, 3, 0);
             }
         }
     }
@@ -587,7 +587,7 @@ void gametrack(void)
             streamSet = nMusicStreamSet;
             if (streamSet != 0 ||
                 (currentTrack = nCurrentMusicTrack) != 20) {
-                spacetrack(20, 1, 0);
+                spacetrack(MUSIC_SIMULATOR, 1, 0);
                 currentTrack = nCurrentMusicTrack;
                 streamSet = nMusicStreamSet;
             }

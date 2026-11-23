@@ -156,13 +156,13 @@ int Title_Sequence(void)
     if (bShowKilrathiSagaCredits != 0)
         nIntroCreditCount += 9;
     if (bEscapePressedFlag == 0) {
-        PreloadMusicTrackHook(0x17);
+        PreloadMusicTrackHook(MUSIC_TITLE);
         SetEventManagerPump(PollJoystickButtonEvents);
         bIntroSceneResourcesActive = 0;
         init_3Space_objects(0);
         nCannedSceneMode = 2;
         pIntroFont =
-            FetchDiskPacketRetrying(9, 1, 0);
+            FetchDiskPacketRetrying(DISK_FILE_TITLE_VGA, 1, 0);
         nSceneResourceBudgetValue = 0x3e8000;
         nSceneResourceBudgetValue = LoadPacketResourceList(
             aIntroResourceDescriptors, 0, 0x3e8000);
@@ -183,8 +183,8 @@ int Title_Sequence(void)
             bIntroSecondaryScene = 0;
             set_up_action_sphere(16);
             pTitleShape =
-                FetchDiskPacketRetrying(9, 0, 0);
-            spacetrack(0x17, 2, 1);
+                FetchDiskPacketRetrying(DISK_FILE_TITLE_VGA, 0, 0);
+            spacetrack(MUSIC_TITLE, 2, 1);
             initialize_scripted_view(asIntroCameraSequence);
             nFrameSkipCounter = 1;
 
@@ -313,7 +313,7 @@ int Title_Sequence(void)
         nCannedSceneMode = 0;
         bScriptedView = 0;
         bIntroSceneResourcesActive = 1;
-        ReleaseMusicTrackHook(0x17);
+        ReleaseMusicTrackHook(MUSIC_TITLE);
     }
 
     bEscapePressedFlag = 0;
@@ -323,11 +323,11 @@ int Title_Sequence(void)
     }
 #ifdef SDL_PORT
     alternateMenuShape = 0;
-    menuShape = nLaunchCampaign == 2 ? FetchDiskPacketRetrying(75, 0, 0) :
-                                     FetchDiskPacketRetrying(9, 4, 0);
+    menuShape = nLaunchCampaign == 2 ? FetchDiskPacketRetrying(DISK_FILE_TITLE1_VGA, 0, 0) :
+                                     FetchDiskPacketRetrying(DISK_FILE_TITLE_VGA, 4, 0);
     startFrame = nLaunchCampaign == 1 ? 2 : 0;
 #else
-    menuShape = FetchDiskPacketRetrying(9, 4, 0);
+    menuShape = FetchDiskPacketRetrying(DISK_FILE_TITLE_VGA, 4, 0);
     alternateMenuShape =
         FetchDiskPacketRetrying(0x4b, 0, 0);
 #endif

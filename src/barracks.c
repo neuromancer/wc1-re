@@ -72,9 +72,9 @@ char *apszBarracksMenuLabels[20] = {
 }; /* 0x004693f0 */
 ShortRect stModalTextBounds = { 24, 40, 296, 60 }; /* 0x00469440 */
 ModalTextPanel *pModalTextPanel = 0; /* 0x00469448 */
-short asCampaignPilotFiles[3] = {58, 61, 74}; /* 0x00469450 */
-short asCampaignBriefingFiles[3] = {10, 62, 73}; /* 0x00469458 */
-short asMissionDataFiles[3] = {15, 52, 72}; /* 0x00469460 */
+short asCampaignPilotFiles[3] = {DISK_FILE_CAMP_000, DISK_FILE_CAMP_001, DISK_FILE_CAMP_002}; /* 0x00469450 */
+short asCampaignBriefingFiles[3] = {DISK_FILE_BRIEFING_000, DISK_FILE_BRIEFING_001, DISK_FILE_BRIEFING_002}; /* 0x00469458 */
+short asMissionDataFiles[3] = {DISK_FILE_MODULE_000, DISK_FILE_MODULE_001, DISK_FILE_MODULE_002}; /* 0x00469460 */
 
 /* Linker commons defined here; LINK orders them by identifier hash. */
 int bSavedGameExists; /* 0x005a7d9c */
@@ -1172,10 +1172,10 @@ short BarracksScreen(void)
 
     result = 0;
     lastMedalsTick = 0;
-    PreloadMusicTrackHook(35);
-    spacetrack(35, 2, 1);
+    PreloadMusicTrackHook(MUSIC_BARRACKS);
+    spacetrack(MUSIC_BARRACKS, 2, 1);
     InitializeRoomViewports();
-    background = FetchDiskPacketRetrying(5, 12, 0);
+    background = FetchDiskPacketRetrying(DISK_FILE_RECROOM_VGA, 12, 0);
     InitializeRoomMenu(aBarracksMenuRegions,
                        apszBarracksMenuLabels,
                        &stRoomScreenViewport,
@@ -1309,7 +1309,7 @@ short BarracksScreen(void)
                     FlushInputEvents();
                     if ((nTickCount60Hz - lastMedalsTick) >
                         nInputTickScale) {
-                        poster = FetchDiskPacketRetrying(75, 1, 0);
+                        poster = FetchDiskPacketRetrying(DISK_FILE_TITLE1_VGA, 1, 0);
                         LeaveAllocationScope();
                         ClearViewport(&stRoomScreenViewport, cBlackColour);
                         DrawSpriteDefault(&stRoomScreenViewport, 0, 0,
@@ -1350,7 +1350,7 @@ short BarracksScreen(void)
     ReleaseTextFont(0);
     free_viewport(&stSceneBuffer);
     StopMusicUnlessSuppressed();
-    ReleaseMusicTrackHook(35);
+    ReleaseMusicTrackHook(MUSIC_BARRACKS);
 #ifdef SDL_PORT
     if (nPilotTransferState)
         memcpy(apszBarracksMenuLabels + 16, savedLabels, sizeof(savedLabels));

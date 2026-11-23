@@ -91,8 +91,8 @@ unsigned int select_new_gun(void)
     if (SdlSwcFlightActive())
         anSwcWeaponNoticeTicks[0] = 15;
 #endif
-    if (get_mode(0) == 1)
-        InvalidateVduMode(0);
+    if (get_mode(VDU_LEFT) == VDU_MODE_WEAPONS)
+        InvalidateVduMode(VDU_LEFT);
     return 0;
 }
 
@@ -170,7 +170,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
     if (SdlSwcFlightActive())
         anSwcWeaponNoticeTicks[1] = 15;
 #endif
-    if (get_mode(0) == 1)
-        InvalidateVduMode(0);
+    if (get_mode(VDU_LEFT) == VDU_MODE_WEAPONS)
+        InvalidateVduMode(VDU_LEFT);
     return 0;
 }

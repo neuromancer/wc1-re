@@ -1008,7 +1008,7 @@ unsigned int house_keep_objects(void)
                     nFacingToTargetValue > 75 &&
                     nTargetFacingValue > 70) {
 #endif
-                    nArcadeState = 1;
+                    nArcadeState = ARCADE_STATE_LANDED;
                     nPlayerCollisionObject = obj;
                 }
             }

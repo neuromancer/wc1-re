@@ -5,10 +5,13 @@
  *
  * Address order is link order, so this list doubles as the reconstruction
  * inventory; src/map gives the same list with the original addresses.
+ * Each module's prototypes follow a comment naming its source file. The ix
+ * wrappers and two graphics-private decoders come last, out of address order.
  */
 #ifndef GAME_FUNCS_H
 #define GAME_FUNCS_H
 
+/* winmain.c */
 void SaveGamePalette(void);                                             /* 0x00401000 */
 void RestoreGamePalette(void);                                          /* 0x00401020 */
 short easy2see(short obj);                                            /* 0x00401040 */
@@ -62,6 +65,8 @@ void *AllocateGuardedMemory(unsigned int size);                        /* 0x0040
 void ReportHeapGuardCorruption(void *memory, int count, int overrun);     /* 0x00402CA0 */
 void CheckAllGuardedAllocations(void);                                /* 0x00402D40 */
 void FreeGuardedAllocation(void *memory);                                /* 0x00402DB0 */
+
+/* winsys.c */
 void SetMousePosition(int x, int y);                                    /* 0x00402E80 */
 unsigned int PollKeyboardState(void);                                 /* 0x00402EA0 */
 int GetShiftKeyState(void);                                             /* 0x00403060 */
@@ -79,6 +84,8 @@ char FindCdRomDriveByVolumeLabel(const char *label,
 int SetCurrentDirOnDrive(char drive, const char *directory);          /* 0x004033E0 */
 int PromptInsertCorrectCd(void);                                      /* 0x00403450 */
 short __stdcall OpenDataFileOrDie(const char *path);                           /* 0x004034D0 */
+
+/* mono.c */
 void __stdcall CloseDataFile(unsigned short fd);                           /* 0x00403500 */
 short __stdcall WriteDataFileAtOffset(unsigned short fd, int offset,
                                       unsigned int length,
@@ -103,14 +110,20 @@ void SoundDebugPrintf(const char *fmt, ...);                          /* 0x00403
 void MonoDebug_print(const char *text);                                  /* 0x00403DE0 */
 void ReadPerformanceCounter(LARGE_INTEGER *p);                           /* 0x00403E30 */
 char *__stdcall ResetStringBuilder(TextContext *context);              /* 0x00403E40 */
+
+/* auto.c */
 void visit_the_cinema(int view, int obj, short frames);                  /* 0x00403E50 */
 unsigned int player_wingman(short obj);                                  /* 0x00403EE0 */
 void set_speed(short obj, short speed);                                  /* 0x00403F10 */
 void auto_position(short obj, short *formationSlot);                     /* 0x00403F40 */
 void auto_pilot_sequence(void);                                          /* 0x00404050 */
 unsigned short __stdcall LoadPaletteTripletsFile(const char *path);     /* 0x00404610 */
+
+/* eject.c */
 unsigned int ejection_sequence(void);                                    /* 0x004046A0 */
 void stranded_sequence(void);                                            /* 0x00404BE0 */
+
+/* cmpgn.c */
 unsigned int ParseFaceAnimation(char *text, short *commands);           /* 0x00404CD0 */
 unsigned int ParseMouthAnimation(char *text, short *commands);          /* 0x00404D70 */
 char *AddPCName(const char *text);                                      /* 0x00404E10 */
@@ -129,6 +142,8 @@ unsigned int UpdateMap(char *text, short duration);                     /* 0x004
 unsigned int CloseLook(struct Shape *shape, short shot,
                        short *animation, char *text, short duration,
                        int unused);                                    /* 0x00405DE0 */
+
+/* fl.c */
 void SetManeuverProximityRange(unsigned short v);                                 /* 0x004060A0 */
 void maneuver_complete(short ship);                                     /* 0x004060B0 */
 void Mline_up_drop(short ship, short target);                            /* 0x004060D0 */
@@ -176,6 +191,8 @@ void Mrout_me(short ship);                                              /* 0x004
 void Mnone(void);                                                       /* 0x004075B0 */
 void Mreset(short ship);                                                /* 0x004075C0 */
 void perform_maneuver(short obj);                                       /* 0x004075D0 */
+
+/* cutscene.c */
 short __stdcall GetShapeFrameExtent(short x, short y,
                                     struct Shape *shape, short frame,
                                     short extent);                       /* 0x00407710 */
@@ -194,6 +211,8 @@ unsigned int funeral_player(void);                                     /* 0x0040
 unsigned int funeral_wingman(char *text, short duration);              /* 0x00408D50 */
 unsigned int funeral_sequence(int playerFuneral);                      /* 0x00408DE0 */
 unsigned int RunAnimationDemoLoop(signed char animation);             /* 0x004094E0 */
+
+/* brains.c */
 void cruise_home(short obj);                                            /* 0x00409760 */
 void fail(short obj);                                                   /* 0x004098C0 */
 void coming_home(short obj);                                            /* 0x004098D0 */
@@ -241,6 +260,8 @@ void futurion_intelligence(short obj);                                  /* 0x004
 void mine_intelligence(short obj);                                      /* 0x0040B3A0 */
 void heat_seeking_missile_intelligence(short obj);                      /* 0x0040B430 */
 void FF_missile_intelligence(short obj);                                /* 0x0040B570 */
+
+/* mission.c */
 void set_sphere_point(const MissionShipRecord *record,
                       FixedVector *position);                           /* 0x0040B670 */
 unsigned int is_alive(int pilot);                                       /* 0x0040B6A0 */
@@ -295,6 +316,8 @@ void CheckPoint(short x, short y);                                    /* 0x0040C
 void IncludeNavMapWorldPoint(int worldX, int worldZ);                  /* 0x0040CCF0 */
 void SetScale(void);                                                   /* 0x0040CD30 */
 void Build_objective_list(void);                                       /* 0x0040CED0 */
+
+/* nav.c */
 short NavMapPointInsideReservedArea(short area, short x, short y);    /* 0x0040D090 */
 short NavMapLabelFits(short x, short y, short width, short height);   /* 0x0040D0E0 */
 short NavMapLabelPositionAvailable(short x, short y,
@@ -345,12 +368,16 @@ short SelectNavObjectiveAtPoint(short mouseX, short mouseY);          /* 0x0040E
 void CentreMouseOnCurrentNavObjective(void);                         /* 0x0040E3C0 */
 void ShowConfedNavScan(void);                                        /* 0x0040E430 */
 void InflightComputer(void);                                         /* 0x0040E480 */
+
+/* nearheap.c */
 unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress);   /* 0x0040E890 */
 int ReleaseNearHeapBlock(int descriptorAddress);                     /* 0x0040E900 */
 void PurgeNearHeapBlocks(unsigned short flags);                       /* 0x0040E950 */
 unsigned short InitializeNearHeap(void);                              /* 0x0040E9E0 */
 void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags);   /* 0x0040EB70 */
 void *AllocateNearHeapBlockByFlags(int size, unsigned short flags);   /* 0x0040ED30 */
+
+/* gameflow.c */
 void add_statistics(short pilot, short missions, short kills);         /* 0x0040EFE0 */
 void PostMission(void);                                                 /* 0x0040F010 */
 int FullMissionScore(void);                                             /* 0x0040F190 */
@@ -360,13 +387,19 @@ unsigned int MoveNewCampaign(void);                                     /* 0x004
 unsigned int StartNewCampaign(short campaign);                         /* 0x0040F440 */
 short GameFlow(void);                                                   /* 0x0040F4B0 */
 void __stdcall free_viewport(Viewport *viewport);                      /* 0x0040F940 */
+
+/* title.c */
 unsigned short GetPaletteReadyUnused(void);                                    /* 0x0040FA30 */
 void DrawTitleLogo(short distance, short y);                            /* 0x0040FA40 */
 void UpdateTitleMenuCursor(void);                                      /* 0x0040FB10 */
 int Title_Sequence(void);                                               /* 0x0040FB70 */
+
+/* joystick.c */
 void CalibrateJoystickInteractive();                                  /* 0x004102B0 */
 void WaitForJoystickButtonRelease(void);                               /* 0x004106C0 */
 void WaitForJoystickButtonPress(void);                                 /* 0x00410700 */
+
+/* spc.c */
 void SetFleetOverviewView(int initializeCockpit);                     /* 0x00410740 */
 unsigned int rotate_eye_to_goal(void);                                 /* 0x00410A30 */
 short GetVectorMagnitude(const FixedVector *vector);                   /* 0x00410AD0 */
@@ -388,6 +421,8 @@ unsigned int animate_object(short obj);                                /* 0x0041
 unsigned int hit_asteroid(short asteroid, short destructionChance);    /* 0x00413030 */
 int object_collision(short obj);                                      /* 0x004130D0 */
 unsigned int object_intelligence(short obj);                           /* 0x00413880 */
+
+/* cockpt.c */
 void EmitTextString(void (__stdcall *writer)(int), const char *text);   /* 0x00413A10 */
 #ifdef SDL_PORT
 void FormatTextTokens(void (__stdcall *writer)(int),
@@ -536,6 +571,8 @@ void update_cockpit(void);                                           /* 0x00417E
 void PlayCockpitSelectionSfx(short selectionSound);                  /* 0x00417F00 */
 void vdu_pop_all(short vdu);                                         /* 0x00417F10 */
 void SelectCockpitVduMode(short vdu, int mode);                       /* 0x00417F60 */
+
+/* geom.c */
 short __stdcall MeasureTextPixelWidthClamped(const char *text);         /* 0x00418080 */
 int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
                                 short origin);                         /* 0x004180C0 */
@@ -668,6 +705,8 @@ void transform_objects_to_your_view(void);                             /* 0x0041
 void set_background_objects_rotation(short obj,
                                      FixedVector *direction);    /* 0x0041A530 */
 void get_right_shape(short obj, FixedVector *direction);          /* 0x0041A610 */
+
+/* barracks.c */
 short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
                                ShortRect bounds,
                                short clearColour,
@@ -718,18 +757,26 @@ void HandleBarracksBunkSelection(Viewport *viewport,
 void UpdateBarracksScreen(Viewport *viewport, struct Shape *shape,
                           BarracksAnimationState *state);              /* 0x0041C140 */
 short BarracksScreen(void);                                            /* 0x0041C170 */
+
+/* fade.c */
 unsigned short __stdcall StepPaletteTransition(short *current,
                                                 const short *target,
                                                 short componentCount); /* 0x0041C510 */
 char *__stdcall DosStrcat(char *destination, const char *source);      /* 0x0041C740 */
+
+/* debug.cpp */
 DWORD WINAPI DebugOverlayWorkerProc(void *parameter);                  /* 0x0041C960 */
 LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
                                        LPARAM flags);                  /* 0x0041CA60 */
 void DebugOverlayPrintf(DebugOverlayConsole *console,
                         const char *format, ...);                      /* 0x0041CAB0 */
+
+/* mathutil.c */
 short MinShort(short a, short b);                                       /* 0x0041D0C0 */
 short MaxShort(short a, short b, ...);                                  /* 0x0041D0E0 */
 void FreePacketAndClear(void *slot, unsigned short releaseFlags);      /* 0x0041D100 */
+
+/* disk.c */
 void ReportPacketLoadError(void *packet, short logicalFile,
                            short retry, short section,
                            const char *sourceTag);                      /* 0x0041D120 */
@@ -758,6 +805,8 @@ void WaitForSceneAdvance(short duration, short unused);                /* 0x0041
 void MoveMenuPointerFromKeyboard(InputEventState *event);               /* 0x0041DC70 */
 void EraseLastTextInputCharacter(void);                              /* 0x0041DDF0 */
 short WaitForStreamInputKey(void);                                  /* 0x0041DEB0 */
+
+/* ship.c */
 short initialize_object(short obj, enum ObjectType type,
                         short owner);                                  /* 0x0041DEE0 */
 short borrow_dust(void);                                             /* 0x0041DF40 */
@@ -834,6 +883,8 @@ unsigned int replenish_shields(short ship);                            /* 0x0042
 unsigned int replenish_weapon_energy_bank(short ship);                 /* 0x00421830 */
 void accelerate(short amount);                                         /* 0x004218D0 */
 void your_afterburner(void);                                            /* 0x00421920 */
+
+/* init.c */
 unsigned int LoadGamePaletteFile(void);                                /* 0x004219C0 */
 unsigned int EMShutDown(void);                                         /* 0x00421A40 */
 unsigned short InitializeEventManagerResources(void);                  /* 0x00421A60 */
@@ -847,6 +898,8 @@ unsigned int LoadSpaceflightResources(void);                           /* 0x0042
 unsigned int GetFxDriverInitResult(void);                                      /* 0x00421FE0 */
 unsigned int GetMessagePumpResult(void);                                      /* 0x00421FF0 */
 unsigned int GetFxDriverStatus(void);                                      /* 0x00422000 */
+
+/* logic.c */
 /* Logic omits these prototype parameter names to preserve CL 4.20's
  * measured declaration context; the signatures remain identical. */
 #ifdef WC1_LOGIC_SOURCE
@@ -1030,6 +1083,8 @@ short __stdcall SceneAnimationGoalReached(short delta, short current,
 unsigned short __stdcall UpdateSceneAnimationObject(
     SceneAnimationObject *object, Viewport *viewport);                 /* 0x00424EF0 */
 void PlaySceneAnimation(char *text, short animation, short duration);  /* 0x00425500 */
+
+/* pilot.cpp */
 unsigned int WaitForKeyExceptXOrF12(void);                            /* 0x00425730 */
 void ShowMeanwhileTransition(short scene, short variant);             /* 0x00425770 */
 void ApplyAnswerTextCipher(char *text, signed char direction);        /* 0x004258D0 */
@@ -1048,6 +1103,8 @@ void SetConsoleTextColourHook(void);                                  /* 0x00425
 void SetConsoleBackgroundColourHook(void);                            /* 0x00425C00 */
 void DiskPromptDrawHook(void);                                             /* 0x00425C10 */
 void ClearDebugPauseFlags(void);                                              /* 0x00425C20 */
+
+/* trainsim.c */
 unsigned short EraseTextContextBackground(TextContext *context);      /* 0x00425C30 */
 int DisplayTrainSimHighScoreTable(short phase);                       /* 0x00425C60 */
 int AnimateTrainSimTitle(void);                                       /* 0x00425D00 */
@@ -1080,6 +1137,8 @@ void ShowTrainSimHighScores(void);                                    /* 0x00426
 struct Shape *LoadTrainSimOpponentShape(int opponent);               /* 0x00426C50 */
 short SelectTrainSimMission(short *mission);                           /* 0x00426C70 */
 void RunTrainSim(void);                                                /* 0x00427080 */
+
+/* main.c */
 short LogMemoryUsage(void);                                               /* 0x004272F0 */
 unsigned int ShowMemoryStatusDebug(void);                                 /* 0x004273C0 */
 void exit_squadron(const char *msg);                                    /* 0x00427370 */
@@ -1140,6 +1199,8 @@ void UpdateRoomMenuCursor(void);                                   /* 0x0042A680
 void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
                                            unsigned short colour,
                                            short enabled);             /* 0x0042A700 */
+
+/* targ.c */
 short find_objective(int type, short index);                         /* 0x0042A8F0 */
 void arrive_from_warp(short obj);                                      /* 0x0042A950 */
 unsigned int unwarp(short obj);                                       /* 0x0042AA10 */
@@ -1147,17 +1208,25 @@ unsigned int warp(short obj);                                         /* 0x0042A
 int drop_player_mine(short obj);                                      /* 0x0042ABD0 */
 unsigned int personality_killed(short personality);                   /* 0x0042AC50 */
 void clean_up_cockpit(void);                                          /* 0x0042ACC0 */
+
+/* select.c */
 short find_next_gun(short obj, enum ObjectType currentGun);           /* 0x0042AD00 */
 int select_guns(short obj, short selectedGun);                         /* 0x0042ADA0 */
 unsigned int select_new_gun(void);                                    /* 0x0042AE10 */
 unsigned int select_new_release_weapon(enum ObjectType preferredType); /* 0x0042AE50 */
+
+/* timer.c */
 void WaitForDebugStep(void);                                          /* 0x0042AFA0 */
 void CALLBACK FrameTimerCallback(UINT timerId, UINT message, DWORD user,
                                  DWORD first, DWORD second);       /* 0x0042AFB0 */
 void SetMultimediaTimerCallback(int period);                       /* 0x0042AFC0 */
+
+/* pload.c */
 void * __stdcall PacketLoad(const char *filename, short section,
                             void *destination, unsigned short flags,
                             void *decompressionWorkspace);            /* 0x0042B050 */
+
+/* sound.c */
 void InitializeAudioSystem(HWND window);                              /* 0x0042B160 */
 void ServiceAudioStream(void);                                        /* 0x0042B1B0 */
 WaveTableEntry *AllocateWaveTableEntry(void);                         /* 0x0042B1F0 */
@@ -1180,17 +1249,25 @@ void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
                         const BYTE *data, DWORD size);                  /* 0x0042B840 */
 void LoadVolumeSettingsFromRegistry(void);                            /* 0x0042B870 */
 void SaveVolumeSettingsToRegistry(void);                               /* 0x0042B930 */
+
+/* launch.c */
 void DrawLaunchDoorFrame(short distance);                              /* 0x0042B9A0 */
 void LaunchPlayerShip(void);                                           /* 0x0042BA90 */
 unsigned int ShowCarrierLaunchSequence(signed char sceneObject);       /* 0x0042BC00 */
+
+/* install.c */
 void FxDriverShutdownHook(void);                                            /* 0x0042C410 */
 unsigned short InitializeDiskPromptTextContext(void);                 /* 0x0042C420 */
 unsigned short RewriteDiskFileGraphicsExtensions(short videoMode);    /* 0x0042C510 */
 short LoadWingCmdrCfgFile(short argc, char **argv);                    /* 0x0042C580 */
 unsigned short LoadInstallDat(void);                                   /* 0x0042C660 */
+
+/* damage.c */
 void show_damage_disp(void);                                           /* 0x0042C800 */
 void UpdateDamageDisplay(void);                                        /* 0x0042C970 */
 unsigned short GetJoystickPresentUnused(void);                                    /* 0x0042CDA0 */
+
+/* view.c */
 unsigned int parse_view_script(void);                                  /* 0x0042CDB0 */
 unsigned int update_scripted_view(void);                               /* 0x0042D1C0 */
 void initialize_scripted_view(const short *script);                    /* 0x0042D230 */
@@ -1217,6 +1294,8 @@ unsigned short __stdcall AllocateViewport(Viewport *viewport,
 void __stdcall AlignSpriteFrameToRectCorner(
     const ShortRect *rectangle, ShortPoint *position, short corner,
     struct Shape *shape, short frame);                                /* 0x0042E1D0 */
+
+/* music.c */
 void FadeMusic(void);                                                  /* 0x0042E320 */
 void SetMusicOn(short enabled);                                         /* 0x0042E330 */
 void StopMusic(short unused);                                          /* 0x0042E350 */
@@ -1252,6 +1331,8 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject,
 #else
 void PlaySfxWaveFileByNumber();                                      /* 0x0042EF30 */
 #endif
+
+/* screen.c */
 void cleanup_objectives(void);                                        /* 0x0042EFC0 */
 int too_busy(short ship);                                             /* 0x0042F1F0 */
 void reply(short ship, short accepted);                               /* 0x0042F210 */
@@ -1274,6 +1355,8 @@ void MessagePumpHook(int mode);                                        /* 0x0042
 void *PushMemoryStackFrame(void *memory, int offset);                   /* 0x0042F960 */
 int IsPushedPacketHandle(void *handle);                                /* 0x0042F9E0 */
 void *MapPacketHandleToBlock(void *handle);                            /* 0x0042FA20 */
+
+/* ending.c */
 void *AllocateTaggedMemory(int size, unsigned short flags);            /* 0x0042FA90 */
 void ReleasePacketHandle(void *handle);                               /* 0x0042FAE0 */
 unsigned int GetFixedOneMillionThunk(short memoryType);                /* 0x0042FB20 */
@@ -1285,9 +1368,13 @@ void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
 unsigned int ShowCampaignVictorySequence(void);                    /* 0x0042FC00 */
 unsigned int ShowTigerClawEscapeScene(void);                          /* 0x00430150 */
 unsigned int ShowTheEndScreen(short enableFireworks);                 /* 0x004304F0 */
+
+/* input.c */
 short __stdcall UpdateInputDeviceTransitions(short raw);               /* 0x00430710 */
 void PollJoystickButtonEvents(void);                                   /* 0x00430840 */
 void PollMenuInputDevices(void);                                       /* 0x00430920 */
+
+/* comm.c */
 short get_face(short rating, unsigned int side);                      /* 0x00430BC0 */
 void LoadCommPortraitShape(short face, signed char alternate);        /* 0x00430BF0 */
 void ResetCommMenuChoices(short reuse);                               /* 0x00430C50 */
@@ -1319,10 +1406,14 @@ void ShowCentredPrompt(char *text, unsigned short arg);                       /*
 short LoadCommDisplayResources(short rating, enum Side side);         /* 0x00431520 */
 char *ExpandCommMessageTokens(const char *text);                      /* 0x004315C0 */
 void real_vid_transmit(short obj, short message);                     /* 0x004316E0 */
+
+/* video.c */
 void __stdcall ShutdownVideoHook(short mode);                           /* 0x004318F0 */
 short __stdcall ReserveContiguousPaletteEntries(short entryCount);    /* 0x00431900 */
 void __stdcall ReleaseContiguousPaletteEntries(short firstEntry);     /* 0x00431970 */
 void PrintPaletteAllocationMap(void);                                 /* 0x004319B0 */
+
+/* joycal.c */
 void LoadJoystickCalibrationFile(short horizontalRange,
                                  short verticalRange,
                                  short horizontalDeadZone,
@@ -1331,6 +1422,8 @@ short ReadCalibratedJoystick(void);                                    /* 0x0043
 void __stdcall UnionRectBounds(ShortRect *destination,
                                const ShortRect *first,
                                const ShortRect *second);               /* 0x00431EA0 */
+
+/* dib.c */
 void ThrottleFrameAndDrawFps(HDC dc);                                       /* 0x00431F00 */
 void ReportSpaceFlightMaxFps(float adjustment);                      /* 0x00432050 */
 void SetSpaceFlightFrameTiming(void);                                  /* 0x004320E0 */
@@ -1356,7 +1449,11 @@ void DIBwholePaletteFromTriplets(unsigned char *palette);             /* 0x00433
 void DIBwholePaletteFromWords(short *palette);                         /* 0x00433120 */
 void DIBwaitForVerticalBlank(void);                                      /* 0x004331E0 */
 char *DirectDrawResultToText(int result);                              /* 0x004331F0 */
+
+/* game.c */
 void show_info_disp(void);                                             /* 0x00433910 */
+
+/* smart.c */
 unsigned int steer_away_from_object(short obj, short other,
                                     short amount);                    /* 0x00433AC0 */
 void steer_away_from_predicted_object(short obj, short other,
@@ -1392,6 +1489,8 @@ unsigned int process_maneuver_node(short obj, int event);              /* 0x0043
 void handle_stress(short obj, int event);                              /* 0x00434980 */
 void intelligence_events(short obj);                                    /* 0x00434A80 */
 unsigned int chase_speed(short obj, short range);                      /* 0x00434C70 */
+
+/* mathfp.c */
 short RandomBelow(short n);                                           /* 0x00434CD0 */
 void __stdcall SeedRandomFromClock(int seed);                          /* 0x00434CF0 */
 unsigned short RandomWord(void);                                        /* 0x00434D10 */
@@ -1424,6 +1523,8 @@ void __stdcall AppendTextCharacter(char character);                  /* 0x004353
 int __stdcall MeasureShapeFrameStorage(struct Shape *shape,
                                        short frame);                   /* 0x00435340 */
 void ResetTextCursor(void);                                           /* 0x004353F0 */
+
+/* strdos.c */
 unsigned int __stdcall DosFarPtrToNear(void *v);                       /* 0x00435410 */
 void *__stdcall DosNearPtrToFar(unsigned int v);                       /* 0x00435420 */
 char *__stdcall DosStrrchr(char *s, short c);                       /* 0x00435430 */
@@ -1453,6 +1554,8 @@ unsigned short __stdcall ConfigureEventManagerPointer(
 void __stdcall EventManagerHook(void (*callback)(void));               /* 0x004355C0 */
 void __stdcall SetEventManagerPump(void (*pump)(void));                /* 0x004355D0 */
 void EventManagerControlHook(void);                                    /* 0x004355E0 */
+
+/* eventmgr.c */
 void TranslatePolledInputEvent(unsigned short type,
                                unsigned int value);                   /* 0x004355F0 */
 void QueueInputEventAtCursor(unsigned short type, short primaryButton,
@@ -1525,6 +1628,8 @@ void __stdcall FillGraphicSuffix(char *path, short number,
                                  short digits);                        /* 0x00436C70 */
 void __stdcall ConvertChar_Int(char *text, short number,
                               short digits);                          /* 0x00436CB0 */
+
+/* screens.c */
 unsigned int LoadBriefingRoom(void);                                  /* 0x00436D00 */
 unsigned int ViewMedals(void);                                        /* 0x00436E30 */
 unsigned int AwardCampaignMedal(short medal);                         /* 0x00436F50 */
@@ -1567,6 +1672,8 @@ unsigned int ShowVictoryScreen(void);                                  /* 0x0043
 unsigned int ShowGameOverScreen(void);                                 /* 0x00439A80 */
 void __stdcall FillRasterBytes(void *destination, unsigned int length,
                                short value);                          /* 0x00439C10 */
+
+/* raster.asm */
 char *CopyRasterDriverName(void *const *callbacks);                   /* 0x00439C40 */
 void InstallRasterDriverCallbacks(void *const *callbacks);            /* 0x00439C69 */
 unsigned int SetRasterClipPixel(RasterClip *clip, int x, int y,
@@ -1681,6 +1788,8 @@ void FadeRasterPaletteToPalette(RasterSurface *surface,
                                 unsigned int duration);               /* 0x0043F425 */
 int CollectRasterClipColours(RasterClip *clip,
                              unsigned int *colours);                  /* 0x0043F5A9 */
+
+/* killbrd.c */
 void CorrectPointers(void);                                            /* 0x0043F640 */
 void ClearRoomMenuLabel(void);                                        /* 0x0043F690 */
 char IsRoomMenuLabelEmpty(void);                                       /* 0x0043F6A0 */
@@ -1701,6 +1810,8 @@ void ResetCampaignData(void);                                         /* 0x00440
 short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
                                       void *destination,
                                       unsigned int length);            /* 0x00440840 */
+
+/* gr.c */
 void CheckHeapBlockSignature(struct Shape *shape);                  /* 0x004408A0 */
 struct RLEShape *GetPreparedShapeData(struct Shape *shape);           /* 0x004408C0 */
 short __stdcall GetShapeFrameCount(struct Shape *shape);            /* 0x004408D0 */
@@ -1799,6 +1910,8 @@ unsigned int GetMusicStreamVolume(void);                              /* 0x00442
 void Streamer_close(void);                                            /* 0x004425D0 */
 void ShutdownAudioStreamer(void);                                     /* 0x004425F0 */
 int ReadCheaterFlagFromRegistry(void);                                /* 0x00442600 */
+
+/* ix/system.cpp */
 int ix_system_init(void);                                              /* 0x00447200 */
 void ix_system_service_sounds(void);                                     /* 0x004472A7 */
 void ix_system_shutdown(void);                                            /* 0x004473F3 */
@@ -1810,10 +1923,14 @@ void ix_system_delete_all_samples(void);                                  /* 0x0
 IxSound *ix_system_new_sound(IxSample *sample);                        /* 0x0044758D */
 void ix_system_delete_all_sounds(void);                                   /* 0x00447610 */
 void ix_system_delete_sound(IxSound *sound);                              /* 0x004475C7 */
+
+/* ix/sound.cpp */
 void __fastcall ix_sound_start(IxSound *sound);                       /* 0x00447CD8 */
 void __fastcall ix_sound_release(IxSound *sound);                    /* 0x0044801E */
 void __fastcall ix_sound_stop(IxSound *sound);                       /* 0x004480CF */
 int __fastcall ix_sound_is_playing(IxSound *sound);                  /* 0x00448678 */
+
+/* ix/streamer.cpp */
 int ix_streamer_init(void);                                           /* 0x00442750 */
 void ix_streamer_destroy(void);                                      /* 0x0044286F */
 void ix_streamer_configure(int option, void *value);                  /* 0x0044291E */
@@ -1828,6 +1945,7 @@ void ix_streamer_force_trigger(char trigger);                         /* 0x00443
 void ix_streamer_set_volume(unsigned short volume);                   /* 0x004435BE */
 unsigned short ix_streamer_get_volume(void);                          /* 0x0044363B */
 
+/* gr.c */
 /* Graphics-private shape decoders (gr.c takes their addresses). Declared last:
  * their parameter names then precede only the units' own symbols, which every
  * unit but gr.c tolerates and gr.c balances. */

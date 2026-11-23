@@ -264,6 +264,126 @@ typedef char MouseCursorState_size_must_be_0x1c[
 #define INPUT_MOD_ALT              0x0700
 #define INPUT_MOD_CONTROL          0x2000
 
+/* Logical data files: INSTALL.DAT's file number less one, the index into
+ * pDiskFileRecords that FetchDiskPacketRetrying and the other packet loaders
+ * take. Named after the Kilrathi Saga's INSTALL.DAT; DOS installs get the
+ * Secret Missions' records from the same table. */
+#define DISK_FILE_FONTS_FNT         0
+#define DISK_FILE_SCRAMBLE_VGA      1
+#define DISK_FILE_PILOTANM_VGA      2
+#define DISK_FILE_OBJECTS_VGA       3
+#define DISK_FILE_BRIEFING_VGA      4
+#define DISK_FILE_RECROOM_VGA       5
+#define DISK_FILE_TALKING_VGA       6
+#define DISK_FILE_COCKPIT_VGA       8
+#define DISK_FILE_TITLE_VGA         9
+#define DISK_FILE_BRIEFING_000     10
+#define DISK_FILE_WINGMEN_VGA      11
+#define DISK_FILE_PLANETS_VGA      12
+#define DISK_FILE_COMMUNIC_DAT     13
+#define DISK_FILE_ARROW_VGA        14
+#define DISK_FILE_MODULE_000       15
+#define DISK_FILE_MODULE_001       52
+#define DISK_FILE_CAMP_000         58
+#define DISK_FILE_CAMP_001         61
+#define DISK_FILE_BRIEFING_001     62
+#define DISK_FILE_MODULE_002       72
+#define DISK_FILE_BRIEFING_002     73
+#define DISK_FILE_CAMP_002         74
+#define DISK_FILE_TITLE1_VGA       75
+#define DISK_FILE_WINGMEN1_VGA     83
+
+/* Music tracks, as spacetrack, PreloadMusicTrackHook and ReleaseMusicTrackHook
+ * take them, named from where the game plays each. */
+#define MUSIC_MISSILE_ON_TAIL         3 /* update_missile_warning */
+/* new_space_music_changes, as a ship is destroyed. */
+#define MUSIC_ACE_KILLED              6 /* by the player */
+#define MUSIC_FRIENDLY_LOST           7
+#define MUSIC_WINGMAN_LOST            8
+#define MUSIC_ENEMY_KILLED            9 /* by the player */
+#define MUSIC_KILRATHI_ROUTED        10
+#define MUSIC_PROTECTED_SHIP_LOST    11 /* the defend or escort mission's ship */
+/* The training simulator. */
+#define MUSIC_SIMULATOR              20 /* gametrack */
+#define MUSIC_SIMULATOR_NEXT_WAVE    21 /* set_up_next_wave */
+#define MUSIC_SIMULATOR_GAME_OVER    22 /* ShowGameOverScreen */
+#define MUSIC_TITLE                  23 /* Title_Sequence, ShowTheEndScreen */
+/* Briefing preloads these; the DOS cutscene opens with the first. */
+#define MUSIC_BRIEFING               24
+#define MUSIC_BRIEFING_ROOM          25 /* EstablishingShot, LoadBriefingRoom */
+/* ReturnToBriefingLongShot; DOS also has the medal line-up salute to it. */
+#define MUSIC_SALUTE                 26
+#define MUSIC_SCRAMBLE               27 /* PlayScrambleHangarScene */
+#define MUSIC_LAUNCH                 28 /* ShowCarrierLaunchSequence */
+#define MUSIC_LANDING                29 /* landing */
+#define MUSIC_BAR                    30 /* RecRoom */
+#define MUSIC_EJECTION               31 /* ejection_sequence */
+#define MUSIC_FUNERAL                32 /* funeral_sequence, death_sequence */
+/* DeBriefing by the player's score; the campaign's endings too. */
+#define MUSIC_DEBRIEFING_SUCCESS     33 /* also ShowCampaignVictorySequence */
+#define MUSIC_DEBRIEFING_FAILURE     34 /* also ShowTigerClawEscapeScene */
+#define MUSIC_BARRACKS               35 /* BarracksScreen */
+#define MUSIC_OFFICE                 36 /* Office */
+/* AwardCampaignMedal preloads all four; the DOS ceremony opens with the
+ * first, which the Kilrathi Saga never plays. */
+#define MUSIC_MEDAL_CEREMONY         37
+#define MUSIC_MEDAL_GOLDEN_SUN       38
+#define MUSIC_MEDAL_STAR             39 /* the Bronze and Silver Stars */
+#define MUSIC_MEDAL_GOLD             40 /* the Gold Star and Medal of Valor */
+
+/* nArcadeState, which RunSpaceFlight returns: how the flight ended. */
+#define ARCADE_STATE_FLYING           0
+/* Aboard the carrier, or the simulator's last wave cleared. */
+#define ARCADE_STATE_LANDED           1
+#define ARCADE_STATE_EJECTED          2
+/* The carrier lost and no enemy left (check_stranded). */
+#define ARCADE_STATE_STRANDED         3
+/* The pilot killed, or the simulator's time run out. */
+#define ARCADE_STATE_DEAD             4
+#define ARCADE_STATE_QUIT             5
+
+/* The cockpit's two VDUs, as get_mode, set_mode and the other VDU routines
+ * number them; update_VDUs draws VDU 0 with stLeftVduTextContext. */
+#define VDU_LEFT                      0
+#define VDU_RIGHT                     1
+/* What a VDU shows, named after the routine update_VDUs draws it with. */
+#define VDU_MODE_DEAD                 0 /* update_dead_disp; vdu_malf sets it */
+#define VDU_MODE_WEAPONS              1 /* show_weapon_disp, left */
+#define VDU_MODE_DAMAGE               2 /* show_damage_disp, left */
+#define VDU_MODE_TARGET               3 /* show_target_disp, right */
+#define VDU_MODE_COMMUNICATIONS       4 /* show_communications_disp, right */
+#define VDU_MODE_NAVIGATION           5 /* show_navigation_disp, right */
+#define VDU_MODE_TRANSMISSION         6 /* vid_transmit, right */
+#define VDU_MODE_INFO                 8 /* show_info_disp, left */
+
+/* ConversationSceneRecord.shot: the camera shot SceneDirector cuts to, named
+ * after the function that draws it. */
+#define SCENE_SHOT_END                    -2 /* ends the scene */
+#define SCENE_SHOT_UNCHANGED              -1 /* keeps the previous shot */
+/* Flag: draw pConvOverlayShapePtr over the face (bConversationOverlay). */
+#define SCENE_SHOT_OVERLAY              0x40
+#define SCENE_SHOT_MASK                 0x3f
+#define SCENE_SHOT_ESTABLISHING            0 /* EstablishingShot */
+#define SCENE_SHOT_BRIEFING_LONG           1 /* DrawBriefingLongShot */
+#define SCENE_SHOT_PODIUM                  2 /* DrawPodiumShot */
+#define SCENE_SHOT_DISMISSED               3 /* Dismissed; then the map */
+#define SCENE_SHOT_MAP                     4 /* UpdateMap */
+#define SCENE_SHOT_RETURN_TO_BRIEFING_LONG 5 /* ReturnToBriefingLongShot */
+#define SCENE_SHOT_MEDAL_LONG              6 /* DrawMedalLongShot */
+#define SCENE_SHOT_MEDAL_ESTABLISHING      7 /* MedalEstablish */
+#define SCENE_SHOT_PIN_MEDAL               8 /* PinMedal */
+#define SCENE_SHOT_FUNERAL_LONG            9 /* DrawFuneralLongShot */
+#define SCENE_SHOT_DEBRIEFING_ESTABLISHING 10 /* DebriefingEstablishingShot */
+/* DrawDebriefingLongShot, the speaker's mouth moving at the podium. */
+#define SCENE_SHOT_DEBRIEFING_PODIUM      11
+/* 12 + n: DrawFuneralLongShot over the star field, with backdrop frame 4 + n
+ * (n = 0-3). */
+#define SCENE_SHOT_FUNERAL_STARS          12
+#define SCENE_SHOT_MEDAL_CHEST            16 /* DrawMedalChest */
+#define SCENE_SHOT_FUNERAL_WINGMAN        17 /* funeral_wingman */
+#define SCENE_SHOT_FACE                   20 /* 20 + n: character n's face */
+#define SCENE_SHOT_ANIMATION              50 /* 50 + n: PlaySceneAnimation n */
+
 #define INPUT_BUTTON_PRIMARY       1
 #define INPUT_BUTTON_SECONDARY     2
 #define INPUT_BUTTON_BOTH          3

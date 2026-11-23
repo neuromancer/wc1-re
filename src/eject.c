@@ -41,13 +41,13 @@ unsigned int ejection_sequence(void)
 
     free_all_slots();
     free_cockpit();
-    PreloadMusicTrackHook(0x1f);
-    spacetrack(0x1f, 2, 1);
+    PreloadMusicTrackHook(MUSIC_EJECTION);
+    spacetrack(MUSIC_EJECTION, 2, 1);
     frame = 0;
     new_view(9, 0);
     background = FetchDiskPacketRetrying(
         cCockpitLogicalFile, 3, 0);
-    ejectionShape = FetchDiskPacketRetrying(2, 1, 0);
+    ejectionShape = FetchDiskPacketRetrying(DISK_FILE_PILOTANM_VGA, 1, 0);
     PlaySfxWaveFileByNumber(0x21, -1, 0);
     y = 199;
     bEscapePressedFlag = 0;
@@ -86,16 +86,16 @@ unsigned int ejection_sequence(void)
         PromptInsertNumberedDisk(8);
         pCurrentScreenViewportPkt =
             AllocateTaggedMemory(
-                GetPacketSize(pDiskFileRecords[8].name, 8),
+                GetPacketSize(pDiskFileRecords[DISK_FILE_COCKPIT_VGA].name, 8),
                 0x40);
         if (pCurrentScreenViewportPkt == 0)
             ReportOutOfMemoryAndExit("View Templates");
         else
-            LoadPacketIntoBuffer(8, 8,
+            LoadPacketIntoBuffer(DISK_FILE_COCKPIT_VGA, 8,
                                  pCurrentScreenViewportPkt);
 
         aObjectTypeData[OBJECT_TYPE_EJECTED_PILOT].shapeSet =
-            FetchDiskPacketRetrying(2, 2, 0);
+            FetchDiskPacketRetrying(DISK_FILE_PILOTANM_VGA, 2, 0);
         nEjectedPilotObject = find_vacant_3d_object();
         set_objects_data(nEjectedPilotObject,
                          OBJECT_TYPE_EJECTED_PILOT, -1);
@@ -194,7 +194,7 @@ unsigned int ejection_sequence(void)
     RestoreGamePalette();
     free_all_slots();
     StopMusicUnlessSuppressed();
-    ReleaseMusicTrackHook(0x1f);
+    ReleaseMusicTrackHook(MUSIC_EJECTION);
     return 0;
 }
 
@@ -206,7 +206,7 @@ void stranded_sequence(void)
     nCannedSceneMode = 1;
     free_cockpit();
     force_view(13, 0);
-    pIntroFont = FetchDiskPacketRetrying(9, 1, 0);
+    pIntroFont = FetchDiskPacketRetrying(DISK_FILE_TITLE_VGA, 1, 0);
     frame = 0;
     do {
         if (RefreshCockpitStatus() != 0) {

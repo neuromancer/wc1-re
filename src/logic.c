@@ -95,7 +95,7 @@ short asConstellationObjectIndices[4] = {
 int bCockpitResourcesActive = 0; /* 0x00469d58 */
 int b3SpaceObjectsActive = 0; /* 0x00469d5c */
 short asSceneAnimationLogicalFiles[8] = {
-    63, 64, 65, 66, 67, 68, 69, 70
+    63, 64, 65, 66, 67, 68, 69, 70 /* MIDGAME.V00-V07 */
 }; /* 0x00469d60 */
 short bSceneAnimationWaitCommand = 0; /* 0x00469d70 */
 
@@ -1578,8 +1578,8 @@ unsigned int initialize_cockpit(int requestedMode)
         if (bCockpitlessView == 0)
             explosion_draw();
         reset_cockpit();
-        InvalidateVduMode(0);
-        InvalidateVduMode(1);
+        InvalidateVduMode(VDU_LEFT);
+        InvalidateVduMode(VDU_RIGHT);
         update_VDUs();
         clear_head_up_display();
         if (bCockpitlessView == 0)
@@ -1640,7 +1640,7 @@ unsigned int initialize_cockpit(int requestedMode)
             } else {
                 struct Shape *cinematicBackdrop;
 
-                cinematicBackdrop = FetchDiskPacketRetrying(8, 6, 0);
+                cinematicBackdrop = FetchDiskPacketRetrying(DISK_FILE_COCKPIT_VGA, 6, 0);
                 DrawSpriteDefault(&stScreenView, 0, 0, cinematicBackdrop, 0);
                 if (bCockpitlessView < 1) {
                     DIBslam();
@@ -1663,7 +1663,7 @@ unsigned int initialize_cockpit(int requestedMode)
                 DrawSpriteDefault(&stScreenView, 0, 0,
                                   pLogicRearViewBackdropPtr, 0);
         } else {
-            backdrop = FetchDiskPacketRetrying(8, 7, 0);
+            backdrop = FetchDiskPacketRetrying(DISK_FILE_COCKPIT_VGA, 7, 0);
             if (bCockpitlessView == 0)
                 DrawSpriteDefault(&stScreenView, 0, 0, backdrop, 0);
             ReleasePacketHandle(backdrop);
@@ -1711,7 +1711,7 @@ unsigned int InitializeConstellationObject(
 #endif
     apObjShapeArray[object] =
         FetchDiskPacketRetrying(
-            12, (definition->shapePacket + 1), 0);
+            DISK_FILE_PLANETS_VGA, (definition->shapePacket + 1), 0);
     return 0;
 }
 
@@ -1734,7 +1734,7 @@ unsigned int init_constellation(short scene)
 
     scene--;
     pCurrentConstellationShape =
-        FetchDiskPacketRetrying(12, 0, 0);
+        FetchDiskPacketRetrying(DISK_FILE_PLANETS_VGA, 0, 0);
     if (nTrainSimActive != 0 || scene < 0)
         return;
 
@@ -1786,7 +1786,7 @@ void init_vdus(void)
         cBlackColour);
     stLeftVduTextContext.viewport = &stLeftVdu;
     stLeftVduTextContext.text = szDefaultTxtBuf;
-    set_mode(0, 1);
+    set_mode(VDU_LEFT, VDU_MODE_WEAPONS);
     anVduModeCache[0] = 0;
 
     InitializeTextContextFromFont(
@@ -1795,7 +1795,7 @@ void init_vdus(void)
         cBlackColour);
     stRightVduTxtContext.viewport = &stRightVduViewport;
     stRightVduTxtContext.text = szDefaultTxtBuf;
-    set_mode(1, nTrainSimActive == 0 ? 5 : 3);
+    set_mode(VDU_RIGHT, nTrainSimActive == 0 ? VDU_MODE_NAVIGATION : VDU_MODE_TARGET);
     anVduModeCache[1] = 0;
 }
 

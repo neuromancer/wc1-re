@@ -84,7 +84,7 @@ unsigned int is_alive(int pilot)
     if (pilot <= 4)
         return 1;
     if (pilot == 13)
-        return nArcadeState != 4;
+        return nArcadeState != ARCADE_STATE_DEAD;
     if (pilot >= 5 && pilot <= 12)
         return stCampaignState.personalityDeathMission[
             pilot - 5] == 0;
@@ -241,10 +241,10 @@ int load_ship(enum ObjectType type, short slot)
             if (type == OBJECT_TYPE_ASTEROID_FIELD) {
                 aObjectTypeData[
                     OBJECT_TYPE_ROCK_CHUNK].shapeSet =
-                    FetchDiskPacketRetrying(3, 13, 0);
+                    FetchDiskPacketRetrying(DISK_FILE_OBJECTS_VGA, 13, 0);
                 aObjectTypeData[
                     OBJECT_TYPE_ASTEROID5].shapeSet =
-                    FetchDiskPacketRetrying(3, 16, 0);
+                    FetchDiskPacketRetrying(DISK_FILE_OBJECTS_VGA, 16, 0);
                 aObjectTypeData[
                     OBJECT_TYPE_ASTEROID3].shapeSet =
                     aObjectTypeData[
@@ -260,7 +260,7 @@ int load_ship(enum ObjectType type, short slot)
                     aObjectTypeData[
                         OBJECT_TYPE_ASTEROID6].shapeSet =
                         FetchDiskPacketRetrying(
-                            3, 17, 0);
+                            DISK_FILE_OBJECTS_VGA, 17, 0);
                     aObjectTypeData[
                         OBJECT_TYPE_ASTEROID4].shapeSet =
                         aObjectTypeData[
@@ -757,7 +757,7 @@ void set_up_next_wave(void)
     short entry;
 
     if (nTrainSimActive != 0) {
-        spacetrack(21, 2, 0);
+        spacetrack(MUSIC_SIMULATOR_NEXT_WAVE, 2, 0);
         nArcadeBonusCountdown = 60;
         if (nCurrentWave != -1)
             nArcadeBonusCountdown = 30;
