@@ -18,7 +18,6 @@ jobs:
   metadata:
     runs-on: ubuntu-24.04
     outputs:
-      prerelease: ${{ steps.release.outputs.prerelease }}
       publish: ${{ steps.release.outputs.publish }}
       version: ${{ steps.release.outputs.version }}
     steps:
@@ -31,8 +30,8 @@ jobs:
           RUN_ATTEMPT: ${{ github.run_attempt }}
           RUN_NUMBER: ${{ github.run_number }}
         run: |
-          # A release candidate, vMAJOR.MINOR.PATCH-rcN, is published as a
-          # GitHub pre-release, which leaves the last release as the latest.
+          # A release candidate, vMAJOR.MINOR.PATCH-rcN, is published as a full
+          # release, which becomes the latest, so that players test it.
           if [[ "$EVENT_NAME" == push && "$REF_TYPE" == tag ]]; then
             if [[ ! "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?$ ]]; then
               echo "Release tags must match vMAJOR.MINOR.PATCH or vMAJOR.MINOR.PATCH-rcN: $REF_NAME" >&2
@@ -40,14 +39,8 @@ jobs:
             fi
             echo "publish=true" >> "$GITHUB_OUTPUT"
             echo "version=$REF_NAME" >> "$GITHUB_OUTPUT"
-            if [[ "$REF_NAME" == *-rc* ]]; then
-              echo "prerelease=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "prerelease=false" >> "$GITHUB_OUTPUT"
-            fi
           else
             echo "publish=false" >> "$GITHUB_OUTPUT"
-            echo "prerelease=false" >> "$GITHUB_OUTPUT"
             echo "version=ci-${RUN_NUMBER}-${RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
           fi
 
@@ -375,7 +368,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          PRERELEASE: ${{ needs.metadata.outputs.prerelease }}
           RELEASE_TAG: ${{ needs.metadata.outputs.version }}
         run: |
           cat > "$RUNNER_TEMP/release-notes.md" <<'EOF'
@@ -393,6 +385,5 @@ jobs:
             gh release create "$RELEASE_TAG" \
               ./*.zip ./*.dmg ./*-setup.exe ./*.flatpak ./SHA256SUMS \
               --verify-tag --generate-notes --title "$RELEASE_TAG" \
-              --prerelease="$PRERELEASE" \
               --notes-file "$RUNNER_TEMP/release-notes.md"
           fi

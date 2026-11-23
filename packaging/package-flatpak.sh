@@ -6,9 +6,10 @@ portable=${2:?usage: package-flatpak.sh VERSION PORTABLE_DIRECTORY}
 case "$version" in
     *[!A-Za-z0-9._-]*) echo "Invalid release version: $version" >&2; exit 1 ;;
 esac
-# Release candidates (vX.Y.Z-rcN) and CI artifacts are development builds.
+# CI artifacts are development builds; releases, candidates included, are
+# stable.
 case "$version" in
-    v[0-9]*.[0-9]*.[0-9]*-*|ci-*) release_type=development ;;
+    ci-*) release_type=development ;;
     *) release_type=stable ;;
 esac
 test "$(uname -m)" = x86_64
