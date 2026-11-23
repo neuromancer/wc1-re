@@ -42,4 +42,17 @@ int SdlGlRendererRecordSpaceSprite(const struct Viewport *viewport, float x,
 /* The launcher's hi-res HUD fonts option (issue 29). */
 void SdlSetHiResHudFonts(int enabled);
 
+/* Hi-res HUD text (src/sdl/hires_hud.c): a layer at twice the frame's size,
+   built on each present and drawn by the GL renderer over the frame. */
+#define SDL_PORT_HIRES_SCALE 2
+#define SDL_PORT_HIRES_WIDTH (SDL_PORT_FRAME_WIDTH * SDL_PORT_HIRES_SCALE)
+#define SDL_PORT_HIRES_HEIGHT (SDL_PORT_FRAME_HEIGHT * SDL_PORT_HIRES_SCALE)
+void SdlBuildHiResHudLayer(const unsigned char *pixels, unsigned char *frame);
+const unsigned char *SdlTakeHiResHudLayer(int *changed);
+/* From the GL renderer: whether it can draw the layer, and the frame as the
+   game drew it without the menus' mouse cursor. */
+int SdlGlOverlayReady(void);
+void SdlCopyFrameWithoutMouse(unsigned char *destination,
+                              const unsigned char *pixels);
+
 #endif
