@@ -40,6 +40,10 @@ The SDL2 release packages may include these components:
 - Spanish translation by L@Zar0, text revision by darkpadawan (v1.1, 2021).
   Adapted to wc1-re catalogs with local corrections in 2026.
   See SPANISH-TRANSLATION-NOTICE.txt for the original credits and terms.
+- Wing Commander I-II Double Resolution Cockpit Font by Trov, under
+  CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+  Unmodified and embedded; the hi-res HUD fonts option draws cockpit text
+  with it. Contributed in https://github.com/neuromancer/wc1-re/issues/29
 
 The exact set is platform-dependent. System libraries supplied by Windows,
 macOS, or the Linux distribution are not copied into these packages.

@@ -120,9 +120,10 @@ remembers your folder and options.
   **Custom**. The command line takes `--flight-fps=N`.
 - Optional extras: an enhanced renderer that draws ships at full resolution
   while keeping the original artwork, cockpit, and HUD, and can also show the
-  flight HUD's text in the game's larger 11-pixel font (launcher checkbox or
-  `--hires-hud`); EGA colours; the restored startup intro; a cockpitless view;
-  and a cheat mode.
+  flight HUD's text at double resolution (launcher checkbox or `--hires-hud`):
+  cockpit text in Trov's double-resolution cockpit font, for English, and
+  radio messages in the game's larger 11-pixel font; EGA colours; the restored
+  startup intro; a cockpitless view; and a cheat mode.
 
 | Enhanced renderer | Enhanced cockpit combat |
 | --- | --- |
@@ -220,7 +221,9 @@ Special thanks to:
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's
   AdLib emulation;
 - the [Munt project](https://github.com/munt/munt), whose libmt32emu
-  (LGPL-2.1 or later) emulates the Roland MT-32 and CM-32L; and
+  (LGPL-2.1 or later) emulates the Roland MT-32 and CM-32L;
+- Trov for the [double-resolution cockpit font](third_party/double-resolution-cockpit-font/README.md)
+  (CC BY 4.0) that the hi-res HUD shows cockpit text in; and
 - DaisenryakuFan for providing very advanced source reconstructions for the DOS
   releases of several *Wing Commander* titles.
 

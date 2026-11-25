@@ -1,7 +1,11 @@
 /* Hi-res HUD text (issues #29 and #37), with the enhanced renderer: in
- * flight, cockpit text, nav labels and HUD messages are shown in FONTS.FNT's
- * 11-pixel conversation font (section 0) at its native size, on a 640x400
- * layer that gl_renderer.c draws over the game's 320x200 frame.
+ * flight, cockpit text, nav labels and HUD messages are shown on a 640x400
+ * layer that gl_renderer.c draws over the game's 320x200 frame. Text in the
+ * 6-row cockpit font is shown in Trov's double-resolution redraw of it
+ * (third_party/double-resolution-cockpit-font) while the game's cockpit font
+ * is the original English one; HUD messages, and cockpit text under a
+ * translation, in FONTS.FNT's 11-pixel conversation font (section 0) at its
+ * native size.
  *
  * The game draws text once into a buffer, then copies it, draws over it or
  * erases it by drawing what was under it again. The overlay follows each
@@ -38,6 +42,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Generated from third_party/double-resolution-cockpit-font (CC BY 4.0). */
+extern const unsigned char abHiResCockpitFont[];
+extern const unsigned int nHiResCockpitFontSize;
+
 #define HIRES_HUD_GLYPH_CAPACITY 1024
 /* Text drawn off screen until it is copied: HUD messages in the space
    buffer and the nav map's labels. */
@@ -45,6 +53,12 @@
 #define HIRES_HUD_CELL_WIDTH 16
 #define HIRES_HUD_CELL_HEIGHT 8
 #define HIRES_HUD_TEXT_FONT 0
+/* FONTS.FNT's cockpit font, as the Kilrathi Saga and DOS releases ship it:
+   its size and SDL_crc32. The Spanish and French catalogs add glyphs to it
+   and the German patch redraws some, so only English text matches. */
+#define HIRES_HUD_COCKPIT_FONT 2
+#define HIRES_HUD_COCKPIT_FONT_SIZE 4342
+#define HIRES_HUD_COCKPIT_FONT_CRC 0xb2f668c0u
 /* How many presents a hidden glyph whose whole line is gone is kept. */
 #define HIRES_HUD_HIDDEN_FRAME_LIMIT 15
 
@@ -82,6 +96,9 @@ static int g_nHiResHudFlightDepth;
 static unsigned char *g_pHiResFont;
 static size_t g_nHiResFontSize;
 static int g_bHiResFontUnavailable;
+/* 1 when the game's cockpit font is the original, -1 when it is not, 0
+   until checked. */
+static int g_nHiResCockpitFontOriginal;
 static HiResGlyph g_aHiResGlyphs[HIRES_HUD_GLYPH_CAPACITY];
 static unsigned int g_nHiResGlyphCount;
 static HiResGlyph g_aHiResOffscreenGlyphs[HIRES_HUD_OFFSCREEN_GLYPH_CAPACITY];
@@ -136,6 +153,55 @@ static int LoadHiResFont(void)
     return g_pHiResFont != 0;
 }
 
+/* Whether the game's cockpit font, loaded as the game loads it with the
+   selected catalog, is the original that the double-resolution font
+   redraws: with any other, its characters may not be the redrawn ones. */
+static int HiResCockpitFontIsOriginal(void)
+{
+    const char *filename;
+    unsigned char *packet;
+    void *savedAllocation;
+    unsigned int size;
+    short savedError;
+
+    if (g_nHiResCockpitFontOriginal != 0)
+        return g_nHiResCockpitFontOriginal > 0;
+    if (pDiskFileRecords == 0)
+        return 0;
+    g_nHiResCockpitFontOriginal = -1;
+    filename = pDiskFileRecords[0].name;
+    savedError = nPacketError;
+    savedAllocation = pLastPacketAllocation;
+    size = GetPacketSize(filename, HIRES_HUD_COCKPIT_FONT);
+    if (size == HIRES_HUD_COCKPIT_FONT_SIZE) {
+        packet = PacketLoad(filename, HIRES_HUD_COCKPIT_FONT, 0, 0, 0);
+        if (packet != 0) {
+            if (SDL_crc32(0, packet, size) == HIRES_HUD_COCKPIT_FONT_CRC)
+                g_nHiResCockpitFontOriginal = 1;
+            ReleasePacketHandle(packet);
+        }
+    }
+    pLastPacketAllocation = savedAllocation;
+    nPacketError = savedError;
+    return g_nHiResCockpitFontOriginal > 0;
+}
+
+/* The hi-res font for text the game draws in cells this many rows tall, or
+   NULL: the double-resolution cockpit font for the cockpit font's 6-row
+   cells, when it applies, and otherwise the conversation font. */
+static const unsigned char *HiResFontFor(int cellHeight, size_t *size)
+{
+    if (cellHeight == 6 && HiResCockpitFontIsOriginal()) {
+        *size = nHiResCockpitFontSize;
+        return abHiResCockpitFont;
+    }
+    *size = 0;
+    if (!LoadHiResFont())
+        return 0;
+    *size = g_nHiResFontSize;
+    return g_pHiResFont;
+}
+
 /* A catalog change must discard both the cached font and recorded glyphs.
    Keep the player's option, so the next draw loads the newly selected font. */
 void SdlResetHiResHudFont(void)
@@ -144,17 +210,19 @@ void SdlResetHiResHudFont(void)
     g_pHiResFont = 0;
     g_nHiResFontSize = 0;
     g_bHiResFontUnavailable = 0;
+    g_nHiResCockpitFontOriginal = 0;
     g_nHiResGlyphCount = 0;
     g_nHiResOffscreenGlyphCount = 0;
     g_bHiResGlyphPending = 0;
     g_bHiResLayerVisible = 0;
 }
 
-/* The hi-res font's bitmap of a character, or NULL when it has none. */
-static const unsigned char *FindHiResGlyph(unsigned char character,
+/* A hi-res font's bitmap of a character, or NULL when it has none. */
+static const unsigned char *FindHiResGlyph(const unsigned char *data,
+                                           size_t size,
+                                           unsigned char character,
                                            int *width, int *height)
 {
-    const unsigned char *data = g_pHiResFont;
     size_t offset;
     size_t pixel;
 
@@ -165,7 +233,7 @@ static const unsigned char *FindHiResGlyph(unsigned char character,
     offset = (size_t)data[0x104 + character] |
              ((size_t)data[0x204 + character] << 8);
     if (*width == 0 || *height <= 0 || offset < 772 ||
-        offset + (size_t)*width * (size_t)*height > g_nHiResFontSize)
+        offset + (size_t)*width * (size_t)*height > size)
         return 0;
     /* Unused code-page slots can have a width and a valid offset but no
        ink. Keep the game's glyph instead of covering it with a blank one.
@@ -231,6 +299,8 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
     const HiResGlyph *previous;
     const HiResGlyph *recorded;
     const unsigned char *screen;
+    const unsigned char *font;
+    size_t fontSize;
     unsigned int count;
     unsigned int index;
     unsigned int kept;
@@ -278,8 +348,9 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
             return 0;
         }
     }
-    if (!LoadHiResFont() ||
-        FindHiResGlyph(character, &hiResWidth, &hiResHeight) == 0)
+    font = HiResFontFor(height, &fontSize);
+    if (FindHiResGlyph(font, fontSize, character, &hiResWidth,
+                       &hiResHeight) == 0)
         return 0;
     /* At a viewport's top row past buffer offset 0x8000, as the VDU
        headings are, DrawFontGlyph puts the first row at the top of the
@@ -718,7 +789,7 @@ static int HiResGlyphStillShown(const HiResGlyph *glyph,
 
 /* The hi-res font keeps its letter spacing in each glyph's leading columns. */
 static int HiResLeadingBlank(const unsigned char *bitmap, int width,
-                             int height)
+                             int height, unsigned char background)
 {
     int column;
     int row;
@@ -727,7 +798,7 @@ static int HiResLeadingBlank(const unsigned char *bitmap, int width,
     for (column = 0; column < width; column++) {
         for (row = 0; row < height; row++) {
             value = bitmap[row * width + column];
-            if (value != 0xff && value != g_pHiResFont[3])
+            if (value != 0xff && value != background)
                 return column;
         }
     }
@@ -879,6 +950,8 @@ void SdlBuildHiResHudLayer(const unsigned char *pixels, unsigned char *frame)
 {
     const HiResGlyph *glyph;
     const unsigned char *bitmap;
+    const unsigned char *font;
+    size_t fontSize;
     unsigned int index;
     unsigned int kept;
     unsigned char value;
@@ -915,7 +988,7 @@ void SdlBuildHiResHudLayer(const unsigned char *pixels, unsigned char *frame)
     DropHiResSpaceRuns(g_aHiResGlyphs, &g_nHiResGlyphCount);
     DropHiddenHiResGlyphs();
     kept = g_nHiResGlyphCount;
-    if (kept == 0 || g_pHiResFont == 0) {
+    if (kept == 0) {
         g_bHiResPointerShown = 0;
         return;
     }
@@ -936,17 +1009,21 @@ void SdlBuildHiResHudLayer(const unsigned char *pixels, unsigned char *frame)
             }
         }
     }
-    fontInk = g_pHiResFont[2];
-    fontBackground = g_pHiResFont[3];
     for (first = 0; first < kept; first = last) {
         last = first + 1;
         while (last < kept && HiResGlyphsAdjacent(&g_aHiResGlyphs[last - 1],
                                                   &g_aHiResGlyphs[last]))
             last++;
+        /* A run's cells share their height, and so their font. */
+        font = HiResFontFor(g_aHiResGlyphs[first].height, &fontSize);
+        if (font == 0)
+            continue;
+        fontInk = font[2];
+        fontBackground = font[3];
         total = 0;
         for (index = first; index < last; index++) {
-            if (FindHiResGlyph(g_aHiResGlyphs[index].character, &width,
-                               &height) != 0)
+            if (FindHiResGlyph(font, fontSize, g_aHiResGlyphs[index].character,
+                               &width, &height) != 0)
                 total += width;
         }
         left = g_aHiResGlyphs[first].x * SDL_PORT_HIRES_SCALE;
@@ -957,9 +1034,12 @@ void SdlBuildHiResHudLayer(const unsigned char *pixels, unsigned char *frame)
             left -= overflow / 2;
             overflow = 0;
         } else if (overflow > 0) {
-            bitmap = FindHiResGlyph(g_aHiResGlyphs[first].character, &width,
+            bitmap = FindHiResGlyph(font, fontSize,
+                                    g_aHiResGlyphs[first].character, &width,
                                     &height);
-            lead = bitmap != 0 ? HiResLeadingBlank(bitmap, width, height) : 0;
+            lead = bitmap != 0
+                ? HiResLeadingBlank(bitmap, width, height, fontBackground)
+                : 0;
             if (lead > overflow)
                 lead = overflow;
             left -= lead;
@@ -967,11 +1047,12 @@ void SdlBuildHiResHudLayer(const unsigned char *pixels, unsigned char *frame)
         }
         for (index = first; index < last; index++) {
             glyph = &g_aHiResGlyphs[index];
-            bitmap = FindHiResGlyph(glyph->character, &width, &height);
+            bitmap = FindHiResGlyph(font, fontSize, glyph->character, &width,
+                                    &height);
             if (bitmap == 0)
                 continue;
             if (overflow > 0 && index > first &&
-                HiResLeadingBlank(bitmap, width, height) >= 2) {
+                HiResLeadingBlank(bitmap, width, height, fontBackground) >= 2) {
                 left--;
                 overflow--;
             }

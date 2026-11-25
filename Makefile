@@ -629,6 +629,7 @@ MODERN_YMFM_OBJS = $(patsubst %.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_YMFM_SRCS
 MODERN_MUNT_OBJS = $(patsubst %.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_MUNT_SRCS))
 MODERN_GAME_HOST_OBJS = \
 	$(MODERN_OUT_DIR)/obj/towns_font.o \
+	$(MODERN_OUT_DIR)/obj/hires_cockpit_font.o \
 	$(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_SRCS)) \
 	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_CXX_SRCS)) \
 	$(MODERN_YMFM_OBJS) $(MODERN_MUNT_OBJS)
@@ -774,6 +775,16 @@ $(MODERN_OUT_DIR)/towns_font.c: third_party/misaki/misaki.bin translations/bin/c
 	python3 translations/bin/compileTownsFont.py $< $@
 
 $(MODERN_OUT_DIR)/obj/towns_font.o: $(MODERN_OUT_DIR)/towns_font.c | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+# The hi-res HUD's double-size cockpit font (CC BY 4.0, see its README.md).
+$(MODERN_OUT_DIR)/hires_cockpit_font.c: third_party/double-resolution-cockpit-font/cockpit-font-2x.bin bin/compileHiResFont.py
+	@mkdir -p $(dir $@)
+	python3 bin/compileHiResFont.py $< $@ --height 12 \
+		--symbol abHiResCockpitFont --size-symbol nHiResCockpitFontSize
+
+$(MODERN_OUT_DIR)/obj/hires_cockpit_font.o: $(MODERN_OUT_DIR)/hires_cockpit_font.c | modern-check-deps
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 
