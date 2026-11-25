@@ -45,8 +45,17 @@ void visit_the_cinema(int view, int obj, short frames)
      * narrowing explicit changes the register setup and loses an exact match. */
     force_view(view, obj);
     while (frames-- > 0) {
+#ifdef SDL_PORT
+        SdlCaptureFlightPoses();
+        Update_3Space();
+        /* Interpolated frames lead up to each drawn fly-by frame, which
+           only the frame rate cap paces. */
+        if (RenderSpaceViewFrame() != 0)
+            SdlDeferFlightFrame(0);
+#else
         Update_3Space();
         RenderSpaceViewFrame();
+#endif
         DIBslam();
         DIBslamReal();
     }

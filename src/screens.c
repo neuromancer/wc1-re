@@ -1741,8 +1741,18 @@ unsigned int death_sequence(void)
         new_view(4, 0);
         nFrameSkipCounter = 1;
         do {
+#ifdef SDL_PORT
+            /* The external view of the player's ship: interpolated frames
+               lead up to each drawn frame, paced by the frame rate cap. */
+            SdlCaptureFlightPoses();
+            if (RefreshCockpitStatus() != 0) {
+                dump_buffer_to_screen();
+                SdlDeferFlightFrame(0);
+            }
+#else
             if (RefreshCockpitStatus() != 0)
                 dump_buffer_to_screen();
+#endif
             switch (frame) {
             case 2:
                 Explosion(0);
@@ -1757,6 +1767,11 @@ unsigned int death_sequence(void)
     }
 
     bEscapePressedFlag = 0;
+#ifdef SDL_PORT
+    /* No frame left waiting, as when Escape ended the camera, is drawn once
+       the ships are gone. */
+    SdlResetFrameInterpolation();
+#endif
     free_all_slots();
     stScreenView.top = 0;
     stScreenView.bottom = 199;

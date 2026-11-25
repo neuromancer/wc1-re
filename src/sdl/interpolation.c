@@ -5,14 +5,16 @@
  * wait before the next step with frames drawn between the last two steps:
  * each object is moved and turned part of the way from where the previous
  * step left it, and the view is drawn again and presented. The cockpit
- * around the view keeps the step's own drawing.
+ * around the view keeps the step's own drawing. The autopilot's fly-by and
+ * the death camera, which step the simulation in loops of their own, are
+ * filled in the same way (after wc2-re 4e566b7).
  *
  * An in-between frame runs the drawing half of RenderSpaceViewFrame with the
  * state it writes saved and restored, so the simulation never sees it: its
  * results are bit-identical with or without interpolation. It does not
  * respawn stars or place exhaust, which call rand(), nor advance the missile
- * lock or the bracket blink. What is shown runs one step behind the
- * simulation. */
+ * lock or the bracket blink. The mouse-steering pointer is drawn where the
+ * mouse is at the time. What is shown runs one step behind the simulation. */
 #include "wc1.h"
 
 #include "video_internal.h"
@@ -34,8 +36,9 @@ typedef struct SavedRange {
 
 /* Everything an in-between frame writes: the poses it moves, the view
    lists, sorting and screen positions drawing produces, the HUD state the
-   overlay touches, and the slot draw_nav_pointer takes or frees for the nav
-   pointer when the right VDU changed mode since the step was drawn. */
+   overlay touches, the slot draw_nav_pointer takes or frees for the nav
+   pointer when the right VDU changed mode since the step was drawn, and the
+   mouse-steering pointer it moves to the mouse. */
 static const SavedRange g_aSavedFlightState[] = {
     SAVED(aeObjectClass), SAVED(acObjOwnersTable), SAVED(nYourWingman),
     SAVED(abHazardObjects),
@@ -50,7 +53,8 @@ static const SavedRange g_aSavedFlightState[] = {
     SAVED(nNavPointerObject), SAVED(cLastTargetObject), SAVED(DAT_0046c05c),
     SAVED(nStoredMouseCursorPosX), SAVED(nSavedMouseCursorY),
     SAVED(pszPendingHudMessage), SAVED(nPendingHudMessageColour),
-    SAVED(nTargetLockCountdown), SAVED(nTargetLockMode)
+    SAVED(nTargetLockCountdown), SAVED(nTargetLockMode),
+    SAVED(stMouseCursorState)
 };
 
 static int g_bFrameInterpolation;
@@ -65,6 +69,17 @@ static unsigned char g_abFlightViewScreen[FLIGHT_SCREEN_PIXELS];
 static unsigned char g_abFlightStepScreen[FLIGHT_SCREEN_PIXELS];
 static unsigned char g_abFlightOverlayMask[FLIGHT_SCREEN_PIXELS];
 static int g_bFlightViewCaptured;
+/* Whether the step is one of RunSpaceFlight's own, which draw the
+   instruments over the view after it; the autopilot's fly-by and the death
+   camera draw nothing over it. */
+static int g_bFlightLoopStep;
+/* The view and the object it watches that each step was drawn with, and
+   those the previous poses were drawn with: a change of either is a cut,
+   which the eye does not move across. */
+static int g_nDrawnView = -1;
+static signed char g_cDrawnViewObject = -1;
+static int g_nCapturedView = -1;
+static signed char g_cCapturedViewObject = -1;
 static Uint32 g_dwInterpolatedPresentMs = 16;
 static unsigned char *g_pSavedFlightState;
 static size_t g_nSavedFlightStateSize;
@@ -95,7 +110,8 @@ int SdlDrawingInterpolatedFrame(void)
     return g_bInterpolatedPass;
 }
 
-/* RunSpaceFlight, at its start and end: nothing to interpolate from. */
+/* RunSpaceFlight, at its start and end, and the death camera at its end:
+   nothing to interpolate from, and no frame left waiting. */
 void SdlResetFrameInterpolation(void)
 {
     g_bPreviousPosesValid = 0;
@@ -104,7 +120,8 @@ void SdlResetFrameInterpolation(void)
     g_bFlightViewCaptured = 0;
 }
 
-/* RunSpaceFlight, before each Update_3Space. */
+/* Before each Update_3Space of a loop that draws spaceflight:
+   RunSpaceFlight, the autopilot's fly-by and the death camera. */
 void SdlCaptureFlightPoses(void)
 {
     short obj;
@@ -120,6 +137,8 @@ void SdlCaptureFlightPoses(void)
         g_aePreviousClass[obj] = aeObjectClass[obj];
         g_aePreviousType[obj] = aeObjectTypeList[obj];
     }
+    g_nCapturedView = g_nDrawnView;
+    g_cCapturedViewObject = g_cDrawnViewObject;
     g_bPreviousPosesValid = 1;
 }
 
@@ -132,6 +151,8 @@ void SdlSnapshotFlightChildren(void)
     memcpy(g_asChildScreenY, asObjectScreenYArray, sizeof(g_asChildScreenY));
     memcpy(g_asChildDistance, asObjDistancesTable, sizeof(g_asChildDistance));
     g_bChildOffsetsValid = 1;
+    g_nDrawnView = nCameraViewMode;
+    g_cDrawnViewObject = cViewObject;
 }
 
 /* RunSpaceFlight, after RenderSpaceViewFrame and before update_cockpit. */
@@ -144,17 +165,24 @@ void SdlCaptureFlightView(void)
     g_bFlightViewCaptured = 1;
 }
 
-/* RunSpaceFlight, before presenting a drawn frame: DIBslamReal leaves the
-   present to ThrottleFrameAndDrawFps, which interpolates up to it. */
-void SdlDeferFlightFrame(void)
+/* Before a drawn step's frame is presented: DIBslamReal leaves the present
+   to ThrottleFrameAndDrawFps, which interpolates up to it. flightLoop tells
+   RunSpaceFlight's own steps, which draw over the view after
+   SdlCaptureFlightView, from the fly-by's and the death camera's. */
+void SdlDeferFlightFrame(int flightLoop)
 {
     size_t pixel;
 
     g_bFlightFrameDeferred = g_bFrameInterpolation && g_bChildOffsetsValid &&
-        g_bFlightViewCaptured && stScreenView.pixels != 0;
+        (g_bFlightViewCaptured || !flightLoop) && stScreenView.pixels != 0;
+    g_bFlightLoopStep = flightLoop != 0;
     g_bFlightViewCaptured = 0;
     if (!g_bFlightFrameDeferred)
         return;
+    if (!flightLoop) {
+        memset(g_abFlightOverlayMask, 0, sizeof(g_abFlightOverlayMask));
+        return;
+    }
     memcpy(g_abFlightStepScreen, stScreenView.pixels,
            sizeof(g_abFlightStepScreen));
     for (pixel = 0; pixel < FLIGHT_SCREEN_PIXELS; pixel++)
@@ -234,6 +262,37 @@ static int64_t LargestDifference(const FixedVector *current,
     return LargestComponent(&difference);
 }
 
+/* How far an object can move in a step: its velocity before or after. */
+static int64_t StepSpeed(int obj)
+{
+    int64_t speed;
+
+    if (obj < 0 || obj >= SPACE_OBJECT_COUNT)
+        return 0;
+    speed = LargestComponent(&aShipVelocity[obj]);
+    if (LargestComponent(&g_aPreviousVelocities[obj]) > speed)
+        speed = LargestComponent(&g_aPreviousVelocities[obj]);
+    return speed;
+}
+
+/* The eye follows the player, or in an external view the ship it watches
+   or the target, and some views place it there without giving it a
+   velocity of its own. */
+static int64_t EyeStepSpeed(void)
+{
+    const int followed[] = {
+        EYE_OBJECT, 0, cViewObject, nExternalViewShip, acShipTargetTable[0]
+    };
+    int64_t speed = 0;
+    size_t index;
+
+    for (index = 0; index < SDL_arraysize(followed); index++) {
+        if (StepSpeed(followed[index]) > speed)
+            speed = StepSpeed(followed[index]);
+    }
+    return speed;
+}
+
 /* Moves each object part of the way back to its previous pose. A slot whose
    object changed, a jump its velocity does not explain (a respawn or the
    autopilot), and a sharp turn (a view change) show the step's own pose.
@@ -247,7 +306,12 @@ static void InterpolatePoses(int alpha)
 
     for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
         /* The eye is no object of its own: set_eye_direction_and_position
-           gives it the player's or the camera's pose every step. */
+           gives it the player's or the camera's pose every step. A change
+           of view, or of the object an external view watches, is a cut. */
+        if (obj == EYE_OBJECT &&
+            (g_nCapturedView != g_nDrawnView ||
+             g_cCapturedViewObject != g_cDrawnViewObject))
+            continue;
         if (obj != EYE_OBJECT &&
             (aeObjectClass[obj] == OBJECT_CLASS_NULL ||
              aeObjectClass[obj] != g_aePreviousClass[obj] ||
@@ -258,9 +322,7 @@ static void InterpolatePoses(int alpha)
             continue;
         moved = LargestDifference(&aShipPositionsArray[obj],
                                   &g_aPreviousPositions[obj]);
-        speed = LargestComponent(&aShipVelocity[obj]);
-        if (LargestComponent(&g_aPreviousVelocities[obj]) > speed)
-            speed = LargestComponent(&g_aPreviousVelocities[obj]);
+        speed = obj == EYE_OBJECT ? EyeStepSpeed() : StepSpeed(obj);
         if (moved <= 3 * speed + 256)
             LerpVector(&aShipPositionsArray[obj], &g_aPreviousPositions[obj],
                        alpha);
@@ -277,6 +339,38 @@ static void InterpolatePoses(int alpha)
     }
 }
 
+/* Where HandleSpaceFlightControls would put the mouse-steering pointer if
+   the mouse moved now: the mouse in the game's 320 by 200, as
+   SdlHandleMouseEvent maps it, raised in the cockpitless view as the game
+   raises it. 0 when the mouse is over no window of the game. */
+static int LiveSteeringPointer(short *x, short *y)
+{
+    SDL_Window *window;
+    int windowX;
+    int windowY;
+    int logicalX;
+    int logicalY;
+
+    SDL_PumpEvents();
+    window = SDL_GetMouseFocus();
+    if (window == 0)
+        return 0;
+    SDL_GetMouseState(&windowX, &windowY);
+    if (!SdlMapWindowToLogical(window, windowX, windowY, &logicalX, &logicalY))
+        return 0;
+    logicalX = SDL_max(0, SDL_min(logicalX, 319));
+    logicalY = SDL_max(0, SDL_min(logicalY, 199));
+    if (bCockpitlessView != 0) {
+        if (cCurrentCockpitView == 0)
+            logicalY -= 10;
+        else if (cCurrentCockpitView == 1)
+            logicalY -= 25;
+    }
+    *x = (short)logicalX;
+    *y = (short)logicalY;
+    return 1;
+}
+
 /* The drawing half of RenderSpaceViewFrame at alpha/256 of the way from the
    previous step to this one, presented and then undone. */
 void SdlDrawInterpolatedFlightFrame(int alpha)
@@ -284,9 +378,18 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
     unsigned char *screen;
     size_t pixel;
     short obj;
+    short pointerX;
+    short pointerY;
 
     if (!SaveFlightState())
         return;
+    /* The mouse-steering pointer follows the mouse between the steps too;
+       the steps still steer from the mouse events as before. */
+    if (g_bFlightLoopStep && bMouseCursorVisible == 1 &&
+        LiveSteeringPointer(&pointerX, &pointerY)) {
+        stMouseCursorState.x = pointerX;
+        stMouseCursorState.y = pointerY;
+    }
     if (g_bPreviousPosesValid && alpha < 256)
         InterpolatePoses(alpha);
     g_bInterpolatedPass = 1;

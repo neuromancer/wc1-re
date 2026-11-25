@@ -2276,7 +2276,7 @@ int RunSpaceFlight(short entryNavPoint)
             frameReady = 0;
 #ifdef SDL_PORT
             /* Interpolated frames lead up to this one while waiting. */
-            SdlDeferFlightFrame();
+            SdlDeferFlightFrame(1);
 #endif
             DIBslam();
             DIBslamReal();

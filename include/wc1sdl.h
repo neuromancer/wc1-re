@@ -276,7 +276,7 @@ void SdlResetFrameInterpolation(void);
 void SdlCaptureFlightPoses(void);
 void SdlSnapshotFlightChildren(void);
 void SdlCaptureFlightView(void);
-void SdlDeferFlightFrame(void);
+void SdlDeferFlightFrame(int flightLoop);
 int SdlFlightFrameDeferred(void);
 int SdlDrawingInterpolatedFrame(void);
 void SdlDrawInterpolatedFlightFrame(int alpha);
