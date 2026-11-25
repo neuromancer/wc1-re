@@ -23,6 +23,8 @@
    (about 22 degrees) is a cut, such as a view change, not motion. */
 #define INTERPOLATION_MAX_TURN 96
 
+#define FLIGHT_SCREEN_PIXELS (SDL_PORT_FRAME_WIDTH * SDL_PORT_FRAME_HEIGHT)
+
 typedef struct SavedRange {
     void *data;
     size_t size;
@@ -55,6 +57,14 @@ static int g_bFrameInterpolation;
 static int g_bFlightFrameDeferred;
 static int g_bInterpolatedPass;
 static int g_bPreviousPosesValid;
+/* The screen as RenderSpaceViewFrame left it, the screen the step presents,
+   and which of its pixels RunSpaceFlight drew in between: update_cockpit's
+   instruments, which the cockpitless view draws over the view (issue #51),
+   as wc2-re lays its full-screen HUD over the in-between frames. */
+static unsigned char g_abFlightViewScreen[FLIGHT_SCREEN_PIXELS];
+static unsigned char g_abFlightStepScreen[FLIGHT_SCREEN_PIXELS];
+static unsigned char g_abFlightOverlayMask[FLIGHT_SCREEN_PIXELS];
+static int g_bFlightViewCaptured;
 static Uint32 g_dwInterpolatedPresentMs = 16;
 static unsigned char *g_pSavedFlightState;
 static size_t g_nSavedFlightStateSize;
@@ -91,6 +101,7 @@ void SdlResetFrameInterpolation(void)
     g_bPreviousPosesValid = 0;
     g_bChildOffsetsValid = 0;
     g_bFlightFrameDeferred = 0;
+    g_bFlightViewCaptured = 0;
 }
 
 /* RunSpaceFlight, before each Update_3Space. */
@@ -123,11 +134,32 @@ void SdlSnapshotFlightChildren(void)
     g_bChildOffsetsValid = 1;
 }
 
+/* RunSpaceFlight, after RenderSpaceViewFrame and before update_cockpit. */
+void SdlCaptureFlightView(void)
+{
+    if (!g_bFrameInterpolation || stScreenView.pixels == 0)
+        return;
+    memcpy(g_abFlightViewScreen, stScreenView.pixels,
+           sizeof(g_abFlightViewScreen));
+    g_bFlightViewCaptured = 1;
+}
+
 /* RunSpaceFlight, before presenting a drawn frame: DIBslamReal leaves the
    present to ThrottleFrameAndDrawFps, which interpolates up to it. */
 void SdlDeferFlightFrame(void)
 {
-    g_bFlightFrameDeferred = g_bFrameInterpolation && g_bChildOffsetsValid;
+    size_t pixel;
+
+    g_bFlightFrameDeferred = g_bFrameInterpolation && g_bChildOffsetsValid &&
+        g_bFlightViewCaptured && stScreenView.pixels != 0;
+    g_bFlightViewCaptured = 0;
+    if (!g_bFlightFrameDeferred)
+        return;
+    memcpy(g_abFlightStepScreen, stScreenView.pixels,
+           sizeof(g_abFlightStepScreen));
+    for (pixel = 0; pixel < FLIGHT_SCREEN_PIXELS; pixel++)
+        g_abFlightOverlayMask[pixel] =
+            g_abFlightStepScreen[pixel] != g_abFlightViewScreen[pixel];
 }
 
 int SdlFlightFrameDeferred(void)
@@ -249,6 +281,8 @@ static void InterpolatePoses(int alpha)
    previous step to this one, presented and then undone. */
 void SdlDrawInterpolatedFlightFrame(int alpha)
 {
+    unsigned char *screen;
+    size_t pixel;
     short obj;
 
     if (!SaveFlightState())
@@ -280,6 +314,12 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
     if (nCameraViewMode == 0)
         RestoreTransientCockpitGraphics();
     ClearViewport(&stSpaceBufferViewport, cPrimaryViewBufferColour);
+    /* What the step drew over its view, as it drew it. */
+    screen = stScreenView.pixels;
+    for (pixel = 0; pixel < FLIGHT_SCREEN_PIXELS; pixel++) {
+        if (g_abFlightOverlayMask[pixel])
+            screen[pixel] = g_abFlightStepScreen[pixel];
+    }
     g_bInterpolatedPass = 0;
     SdlPresentCurrentFrame(stScreenView.pixels);
     RestoreFlightState();

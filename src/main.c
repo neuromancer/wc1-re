@@ -2262,6 +2262,9 @@ int RunSpaceFlight(short entryNavPoint)
             ReadPerformanceCounter(&liSimulationDone);
             frameReady = RenderSpaceViewFrame();
             ReadPerformanceCounter(&liRenderDoneCounter);
+#ifdef SDL_PORT
+            SdlCaptureFlightView();
+#endif
             update_cockpit();
         } else {
             liSimulationDone =
