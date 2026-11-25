@@ -1786,6 +1786,9 @@ unsigned int ShowGetReadyScreen(void)
 {
     short frame;
     short distance;
+#ifdef SDL_PORT
+    short previousScale;
+#endif
 
     frame = 0;
     pIntroFont =
@@ -1795,13 +1798,29 @@ unsigned int ShowGetReadyScreen(void)
     distance = 400;
     nFrameSkipCounter = 1;
     bEscapePressedFlag = 0;
+#ifdef SDL_PORT
+    previousScale = (0xc800 / distance);
+#endif
     do {
+#ifdef SDL_PORT
+        SdlCaptureFlightPoses();
+#endif
         if (RefreshCockpitStatus() != 0) {
             DrawCenteredScaledIntroText(
                 C_("intro", "Get Ready"), nCurrentViewCenterPosX,
                 nCurrentViewCenterPosY,
                 (0xc800 / distance));
             dump_buffer_to_screen();
+#ifdef SDL_PORT
+            /* Smooth spaceflight: in-between frames lead up to each
+               frame, the title zooming in between the steps too. */
+            SdlSetViewOverlayZoomText(C_("intro", "Get Ready"),
+                                      nCurrentViewCenterPosX,
+                                      nCurrentViewCenterPosY,
+                                      previousScale, (0xc800 / distance));
+            SdlDeferFlightFrame(0);
+            previousScale = (0xc800 / distance);
+#endif
         }
         if (distance > 100)
             distance = (distance - 10);
@@ -1812,6 +1831,10 @@ unsigned int ShowGetReadyScreen(void)
         DIBslamReal();
     } while (frame < 40);
     bEscapePressedFlag = 0;
+#ifdef SDL_PORT
+    /* No frame left waiting, as when Escape ended it, outlives the font. */
+    SdlResetFrameInterpolation();
+#endif
     ReleasePacketHandle(pIntroFont);
     clear_view_buffer();
     nCannedSceneMode = 0;

@@ -14,7 +14,8 @@
  * results are bit-identical with or without interpolation. It does not
  * respawn stars or place exhaust, which call rand(), nor advance the missile
  * lock or the bracket blink. The mouse-steering pointer is drawn where the
- * mouse is at the time. What is shown runs one step behind the simulation. */
+ * mouse is at the time, and an explosion's growth is spread over the frames.
+ * What is shown runs one step behind the simulation. */
 #include "wc1.h"
 
 #include "video_internal.h"
@@ -37,8 +38,9 @@ typedef struct SavedRange {
 /* Everything an in-between frame writes: the poses it moves, the view
    lists, sorting and screen positions drawing produces, the HUD state the
    overlay touches, the slot draw_nav_pointer takes or frees for the nav
-   pointer when the right VDU changed mode since the step was drawn, and the
-   mouse-steering pointer it moves to the mouse. */
+   pointer when the right VDU changed mode since the step was drawn, the
+   mouse-steering pointer it moves to the mouse, and the scales it gives
+   growing explosions. */
 static const SavedRange g_aSavedFlightState[] = {
     SAVED(aeObjectClass), SAVED(acObjOwnersTable), SAVED(nYourWingman),
     SAVED(abHazardObjects),
@@ -54,7 +56,7 @@ static const SavedRange g_aSavedFlightState[] = {
     SAVED(nStoredMouseCursorPosX), SAVED(nSavedMouseCursorY),
     SAVED(pszPendingHudMessage), SAVED(nPendingHudMessageColour),
     SAVED(nTargetLockCountdown), SAVED(nTargetLockMode),
-    SAVED(stMouseCursorState)
+    SAVED(stMouseCursorState), SAVED(awObjectScales)
 };
 
 static int g_bFrameInterpolation;
@@ -80,6 +82,20 @@ static int g_nDrawnView = -1;
 static signed char g_cDrawnViewObject = -1;
 static int g_nCapturedView = -1;
 static signed char g_cCapturedViewObject = -1;
+/* What a scene draws over its view after drawing it, for in-between frames
+   to draw again: the title's subtitles and credits, its zooming logo, and
+   the simulator's zooming Get Ready. Each holds for one deferred frame. */
+static const char *g_pszOverlaySubtitle;
+static short g_nOverlaySubtitleColour;
+static int g_bOverlayLogo;
+static short g_nOverlayLogoFrom;
+static short g_nOverlayLogoTo;
+static short g_nOverlayLogoY;
+static const char *g_pszOverlayZoomText;
+static short g_nOverlayZoomX;
+static short g_nOverlayZoomY;
+static short g_nOverlayZoomFrom;
+static short g_nOverlayZoomTo;
 static Uint32 g_dwInterpolatedPresentMs = 16;
 static unsigned char *g_pSavedFlightState;
 static size_t g_nSavedFlightStateSize;
@@ -92,6 +108,7 @@ static FixedVector g_aPreviousRight[SPACE_OBJECT_COUNT];
 static FixedVector g_aPreviousUp[SPACE_OBJECT_COUNT];
 static enum ObjectClass g_aePreviousClass[SPACE_OBJECT_COUNT];
 static enum ObjectType g_aePreviousType[SPACE_OBJECT_COUNT];
+static unsigned short g_awPreviousScales[SPACE_OBJECT_COUNT];
 
 /* Child objects' offsets from their parents, as reposition_fixed_child_objects
    read them in the step's own drawing; it leaves them absolute. */
@@ -110,6 +127,40 @@ int SdlDrawingInterpolatedFrame(void)
     return g_bInterpolatedPass;
 }
 
+/* The overlays a scene draws over its view, for the frame it defers next. */
+void SdlSetViewOverlaySubtitle(short colour, const char *text)
+{
+    g_nOverlaySubtitleColour = colour;
+    g_pszOverlaySubtitle = text;
+}
+
+/* The title logo at the distance of the step before and of this one. */
+void SdlSetViewOverlayLogo(short fromDistance, short toDistance, short y)
+{
+    g_bOverlayLogo = 1;
+    g_nOverlayLogoFrom = fromDistance;
+    g_nOverlayLogoTo = toDistance;
+    g_nOverlayLogoY = y;
+}
+
+/* Zooming intro text at the scale of the step before and of this one. */
+void SdlSetViewOverlayZoomText(const char *text, short x, short y,
+                               short fromScale, short toScale)
+{
+    g_pszOverlayZoomText = text;
+    g_nOverlayZoomX = x;
+    g_nOverlayZoomY = y;
+    g_nOverlayZoomFrom = fromScale;
+    g_nOverlayZoomTo = toScale;
+}
+
+void SdlClearViewOverlay(void)
+{
+    g_pszOverlaySubtitle = 0;
+    g_bOverlayLogo = 0;
+    g_pszOverlayZoomText = 0;
+}
+
 /* RunSpaceFlight, at its start and end, and the death camera at its end:
    nothing to interpolate from, and no frame left waiting. */
 void SdlResetFrameInterpolation(void)
@@ -118,6 +169,7 @@ void SdlResetFrameInterpolation(void)
     g_bChildOffsetsValid = 0;
     g_bFlightFrameDeferred = 0;
     g_bFlightViewCaptured = 0;
+    SdlClearViewOverlay();
 }
 
 /* Before each Update_3Space of a loop that draws spaceflight:
@@ -136,6 +188,7 @@ void SdlCaptureFlightPoses(void)
         g_aPreviousUp[obj] = aShipUpVector[obj];
         g_aePreviousClass[obj] = aeObjectClass[obj];
         g_aePreviousType[obj] = aeObjectTypeList[obj];
+        g_awPreviousScales[obj] = awObjectScales[obj];
     }
     g_nCapturedView = g_nDrawnView;
     g_cCapturedViewObject = g_cDrawnViewObject;
@@ -177,8 +230,10 @@ void SdlDeferFlightFrame(int flightLoop)
         (g_bFlightViewCaptured || !flightLoop) && stScreenView.pixels != 0;
     g_bFlightLoopStep = flightLoop != 0;
     g_bFlightViewCaptured = 0;
-    if (!g_bFlightFrameDeferred)
+    if (!g_bFlightFrameDeferred) {
+        SdlClearViewOverlay();
         return;
+    }
     if (!flightLoop) {
         memset(g_abFlightOverlayMask, 0, sizeof(g_abFlightOverlayMask));
         return;
@@ -320,6 +375,11 @@ static void InterpolatePoses(int alpha)
              aeObjectClass[obj] == OBJECT_CLASS_DUST ||
              aeObjectClass[obj] == OBJECT_CLASS_FIXED_OBJECT))
             continue;
+        /* An explosion grows, and debris shrinks, by its animation's
+           steps (animate_shape): its scale goes part of the way too. */
+        if (obj != EYE_OBJECT)
+            awObjectScales[obj] = (unsigned short)Lerp(
+                g_awPreviousScales[obj], awObjectScales[obj], alpha);
         moved = LargestDifference(&aShipPositionsArray[obj],
                                   &g_aPreviousPositions[obj]);
         speed = obj == EYE_OBJECT ? EyeStepSpeed() : StepSpeed(obj);
@@ -405,9 +465,25 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
     sort_object_depth();
     SdlBeginSpaceFrame(pScreenViewGeometry, cScreenViewMode,
                        bCockpitlessView > 0, cPrimaryViewBufferColour);
+    /* Loops that draw with Draw_3Space_Frame alone, as the death camera
+       does, leave the step's picture in the view buffer: start from a
+       clear one, as RenderSpaceViewFrame leaves it. */
+    clear_view_buffer();
     draw_sorted_objects_to_buffer();
     if (nCameraViewMode == 0)
         overlay_head_up_display();
+    /* What the scene drew over its view after drawing it, a zoom part of
+       the way from the step before. */
+    if (g_pszOverlaySubtitle != 0)
+        print_subtitle(&stSpaceBufferViewport, g_nOverlaySubtitleColour,
+                       g_pszOverlaySubtitle);
+    if (g_bOverlayLogo)
+        DrawTitleLogo((short)Lerp(g_nOverlayLogoFrom, g_nOverlayLogoTo, alpha),
+                      g_nOverlayLogoY);
+    if (g_pszOverlayZoomText != 0)
+        DrawCenteredScaledIntroText(
+            g_pszOverlayZoomText, g_nOverlayZoomX, g_nOverlayZoomY,
+            (short)Lerp(g_nOverlayZoomFrom, g_nOverlayZoomTo, alpha));
     if (nTrainSimActive != 0) {
         SetTextContext(&stHudMessageTextContext);
         DrawArcadeScorePanel(10, 10);
@@ -466,4 +542,5 @@ void SdlPresentInterpolatedFlightFrames(long deadline, long interval)
         if (alpha >= 256)
             break;
     }
+    SdlClearViewOverlay();
 }

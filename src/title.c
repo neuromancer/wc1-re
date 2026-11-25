@@ -150,6 +150,7 @@ int Title_Sequence(void)
     signed char selectedIndex;
 #ifdef SDL_PORT
     short startFrame;
+    short previousTitleDistance;
 #endif
 
     state = 0;
@@ -189,11 +190,21 @@ int Title_Sequence(void)
             nFrameSkipCounter = 1;
 
             for (frame = 0; frame < 25; frame++) {
+#ifdef SDL_PORT
+                SdlCaptureFlightPoses();
+#endif
                 Update_3Space();
                 if (Draw_3Space_Frame() != 0) {
                     print_subtitle(&stSpaceBufferViewport, 0x32,
                                    C_("intro", pszIntroOpeningText));
                     dump_buffer_to_screen();
+#ifdef SDL_PORT
+                    /* Smooth spaceflight: in-between frames lead up to
+                       each intro frame, the subtitle drawn over them. */
+                    SdlSetViewOverlaySubtitle(
+                        0x32, C_("intro", pszIntroOpeningText));
+                    SdlDeferFlightFrame(0);
+#endif
                     DIBslam();
                     DIBslamReal();
                     intro_drawbackgroundships();
@@ -209,8 +220,15 @@ int Title_Sequence(void)
 
             frame = 0;
             do {
+#ifdef SDL_PORT
+                SdlCaptureFlightPoses();
+                Update_3Space();
+                if (RenderSpaceViewFrame() != 0)
+                    SdlDeferFlightFrame(0);
+#else
                 Update_3Space();
                 RenderSpaceViewFrame();
+#endif
                 if (CheckEscaped() != 0) {
                     state++;
                     break;
@@ -222,12 +240,26 @@ int Title_Sequence(void)
             if (state != 0)
                 break;
 
+#ifdef SDL_PORT
+            previousTitleDistance = titleDistance;
+#endif
             for (frame = 0; frame < 100; frame++) {
+#ifdef SDL_PORT
+                SdlCaptureFlightPoses();
+#endif
                 Update_3Space();
                 if (Draw_3Space_Frame() != 0) {
                     DrawTitleLogo(titleDistance,
                                   (nCurrentViewCenterPosY - 6));
                     dump_buffer_to_screen();
+#ifdef SDL_PORT
+                    /* The logo zooms in between the steps too. */
+                    SdlSetViewOverlayLogo(previousTitleDistance,
+                                          titleDistance,
+                                          (nCurrentViewCenterPosY - 6));
+                    SdlDeferFlightFrame(0);
+                    previousTitleDistance = titleDistance;
+#endif
                     DIBslam();
                     DIBslamReal();
                     clear_view_buffer();
@@ -255,11 +287,19 @@ int Title_Sequence(void)
             credit = 0;
             for (; credit < nIntroCreditCount; credit++) {
                 for (frame = 0; frame < 70; frame++) {
+#ifdef SDL_PORT
+                    SdlCaptureFlightPoses();
+#endif
                     Update_3Space();
                     if (Draw_3Space_Frame() != 0) {
                         print_subtitle(&stSpaceBufferViewport, 0x32,
                             C_("intro", apszIntroCredits[credit]));
                         dump_buffer_to_screen();
+#ifdef SDL_PORT
+                        SdlSetViewOverlaySubtitle(
+                            0x32, C_("intro", apszIntroCredits[credit]));
+                        SdlDeferFlightFrame(0);
+#endif
                         DIBslam();
                         DIBslamReal();
                         clear_view_buffer();
@@ -273,8 +313,15 @@ int Title_Sequence(void)
                     break;
 
                 for (frame = 0; frame < 40; frame++) {
+#ifdef SDL_PORT
+                    SdlCaptureFlightPoses();
+                    Update_3Space();
+                    if (RenderSpaceViewFrame() != 0)
+                        SdlDeferFlightFrame(0);
+#else
                     Update_3Space();
                     RenderSpaceViewFrame();
+#endif
                     DIBslam();
                     DIBslamReal();
                     if (CheckEscaped() != 0) {
@@ -287,8 +334,15 @@ int Title_Sequence(void)
                 break;
 
             for (frame = 0; frame < 150; frame++) {
+#ifdef SDL_PORT
+                SdlCaptureFlightPoses();
+                Update_3Space();
+                if (RenderSpaceViewFrame() != 0)
+                    SdlDeferFlightFrame(0);
+#else
                 Update_3Space();
                 RenderSpaceViewFrame();
+#endif
                 DIBslam();
                 DIBslamReal();
                 if (CheckEscaped() != 0) {
@@ -299,6 +353,11 @@ int Title_Sequence(void)
         }
 
         state = 0;
+#ifdef SDL_PORT
+        /* A frame left waiting when Escape ended the intro is not drawn
+           once its ships and fonts are gone. */
+        SdlResetFrameInterpolation();
+#endif
         StopMusicUnlessSuppressed();
         ResetSoundState();
         ReleasePacketHandle(pIntroFont);

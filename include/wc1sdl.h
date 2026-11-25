@@ -277,6 +277,11 @@ void SdlCaptureFlightPoses(void);
 void SdlSnapshotFlightChildren(void);
 void SdlCaptureFlightView(void);
 void SdlDeferFlightFrame(int flightLoop);
+void SdlSetViewOverlaySubtitle(short colour, const char *text);
+void SdlSetViewOverlayLogo(short fromDistance, short toDistance, short y);
+void SdlSetViewOverlayZoomText(const char *text, short x, short y,
+                               short fromScale, short toScale);
+void SdlClearViewOverlay(void);
 int SdlFlightFrameDeferred(void);
 int SdlDrawingInterpolatedFrame(void);
 void SdlDrawInterpolatedFlightFrame(int alpha);

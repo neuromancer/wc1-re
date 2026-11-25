@@ -26,6 +26,9 @@ void visit_the_cinema(int view, int obj, short frames)
     int savedOriginUnlock;
     int savedInputFlag;
     int savedKeyboardFlag;
+#ifdef SDL_PORT
+    int savedFrameInterval;
+#endif
 
 #ifdef SDL_PORT
     /* SWC's travel state is shared below; its movie/space presentation is
@@ -44,6 +47,14 @@ void visit_the_cinema(int view, int obj, short frames)
     /* The retail call converts both int parameters implicitly.  Making the
      * narrowing explicit changes the register setup and loses an exact match. */
     force_view(view, obj);
+#ifdef SDL_PORT
+    /* The fly-by keeps the Kilrathi Saga's 20 frames a second whatever the
+       Speed setting (issue #34): a slowed game need not slow its cinematic,
+       which even a 386 played no slower. The flight's own cap returns
+       after it. */
+    savedFrameInterval = nFrameIntervalMs;
+    nFrameIntervalMs = 50;
+#endif
     while (frames-- > 0) {
 #ifdef SDL_PORT
         SdlCaptureFlightPoses();
@@ -59,6 +70,9 @@ void visit_the_cinema(int view, int obj, short frames)
         DIBslam();
         DIBslamReal();
     }
+#ifdef SDL_PORT
+    nFrameIntervalMs = savedFrameInterval;
+#endif
     nOriginDevUnlock = savedOriginUnlock;
     bPlayerVulnerable = savedInputFlag;
     bPlayerCollisionResponse = savedKeyboardFlag;
