@@ -1665,6 +1665,11 @@ static void SdlPressPadControl(int button)
     scanCode = SdlTranslateScanCode(g_aSdlPadActions[binding->value].key);
     if (scanCode == SCAN_NONE)
         return;
+    /* F1's handler acts only on a fresh press, which the window marks with
+       this latch (SdlQueueGameKey, as the original's window procedure);
+       without it a button bound to the front view did nothing. */
+    if (scanCode == SCAN_F1)
+        bF1KeyLatch = 1;
     g_abSdlPadLatches[button] = 2;
     g_adwSdlPadRepeats[button] = SDL_GetTicks() + SDL_PAD_KEY_DELAY;
     if (g_bSdlJoystickDebug) {
