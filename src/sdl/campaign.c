@@ -18,11 +18,17 @@ int SdlPlayingSm2(void)
  * Saga's executables share SAVEGAME.WLD, where the transfer barracks also
  * finds the WC1 and SM1 pilots that SM2 can take over. The launch decides,
  * as the executable did: the title's Continue reaches the barracks before
- * any SM2 game sets the campaign (issue #50), and SM1.5 keeps SM2's file. */
+ * any SM2 game sets the campaign (issue #50). SM1.5 keeps its games in
+ * COVERT.WLD (issue #47): its patched SM2.EXE shared SM2's file, but a game
+ * of either is campaign 2 in its save, which loads it with whichever
+ * campaign's missions were launched. */
 const char *SdlSaveGameFileName(void)
 {
-    return nLaunchCampaign == 2 && SdlUsingDosData() && nPilotTransferState != 1 ?
-        "CRUSADE.WLD" : "SAVEGAME.WLD";
+    if (nPilotTransferState == 1)
+        return "SAVEGAME.WLD";
+    if (bLaunchSm15)
+        return "COVERT.WLD";
+    return nLaunchCampaign == 2 && SdlUsingDosData() ? "CRUSADE.WLD" : "SAVEGAME.WLD";
 }
 
 /* SM2's captured-Dralthi disguise, as the DOS SM2.EXE plays it (issue #31);

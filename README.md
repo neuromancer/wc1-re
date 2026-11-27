@@ -58,8 +58,11 @@ remembers your folder and options.
   Missions plays on SM2. Put its four files (`CAMP.015`, `MODULE.015`,
   `BRIEFING.015` and `TITL15.VGA`, from either its DOS or its Kilrathi Saga
   package) in `GAMEDAT` beside SM2's, and the launcher offers **Start SM1.5**
-  (`--campaign=sm15` on the command line). It shares SM2's saved games, as its
-  patched executable does. Its first briefing plays without the edited
+  (`--campaign=sm15` on the command line). It keeps its saved games apart from
+  SM2's, in `GAMEDAT/COVERT.WLD`: its patched executable shared SM2's file,
+  where a game saved in one campaign loads with the other's missions. To go on
+  with a game saved there, copy that file (`SAVEGAME.WLD`, or `CRUSADE.WLD`
+  with DOS data) to `COVERT.WLD`. Its first briefing plays without the edited
   `MODULE.015` the Kilrathi Saga needs.
 - **Languages:** choose **Español**, **Français**, or **Japanese (FM Towns)**
   in the launcher's **Language** menu.
