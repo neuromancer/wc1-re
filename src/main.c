@@ -1943,13 +1943,24 @@ int HandleSpaceFlightControls(void)
         break;
     case SCAN_M:
         if (notRepeated && control != 0) {
+#ifdef SDL_PORT
+            /* 1 is as silent as 0 (anVolumeLevels[1 / 2]). */
+            if (nMusicVolumeSetting / 2 == 0)
+#else
             if (nMusicVolumeSetting == 0)
+#endif
                 nMusicVolumeSetting = 20;
             else
                 nMusicVolumeSetting = 0;
             SetMusicStreamVolume(
                 anVolumeLevels[
                     nMusicVolumeSetting / 2]);
+#ifdef SDL_PORT
+            /* The Kilrathi Saga saved the volumes only from its Ctrl+arrow
+               keys, which the port gives up for steering (issue #46): the
+               toggle's choice holds at the next start too. */
+            SaveVolumeSettingsToRegistry();
+#endif
             ShowOnScreenMessage(0, 0, _("MUSIC VOLUME: %d."),
                                 nMusicVolumeSetting / 2);
             return 0;
@@ -1957,13 +1968,20 @@ int HandleSpaceFlightControls(void)
         break;
     case SCAN_S:
         if (control != 0 && notRepeated) {
+#ifdef SDL_PORT
+            if (nSfxVolumeSetting / 2 == 0)
+#else
             if (nSfxVolumeSetting == 0)
+#endif
                 nSfxVolumeSetting = 20;
             else
                 nSfxVolumeSetting = 0;
             SetSoundEffectsVolume(
                 anVolumeLevels[
                     nSfxVolumeSetting / 2]);
+#ifdef SDL_PORT
+            SaveVolumeSettingsToRegistry();
+#endif
             ShowOnScreenMessage(0, 0, _("SFX VOLUME: %d."),
                                 nSfxVolumeSetting / 2);
             return 0;

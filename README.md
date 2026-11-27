@@ -138,7 +138,7 @@ remembers your folder and options.
 | --- | --- |
 | `Cmd+Enter` (macOS), `Alt+Enter` (Windows and Linux) | Toggle fullscreen |
 | `Cmd+Q` (macOS) | Quit the game |
-| `Ctrl+S` / `Ctrl+M` (spaceflight) | Toggle sound effects / music |
+| `Ctrl+S` / `Ctrl+M` (spaceflight) | Toggle sound effects / music, kept for the next start |
 | `Esc` (spaceflight) | Pause; press any key to resume |
 | `[` / `]` (spaceflight) | Slow the game down / speed it up (the frame rate, 8 to 32 FPS) |
 | Mouse wheel (spaceflight) | Increase or decrease speed |
