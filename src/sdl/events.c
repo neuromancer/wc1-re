@@ -810,3 +810,63 @@ void SdlPumpEventsWhileWaiting(void)
     SdlPumpEvents();
     g_bSdlWaitingPump = 0;
 }
+
+static int g_bSdlScenePump;
+
+/* Whether SdlServiceSceneInput is reading the host's events: the gamepad's
+ * Start then pauses, as it does in flight. */
+int SdlScenePumpActive(void)
+{
+    return g_bSdlScenePump;
+}
+
+static void SdlPumpSceneEvents(void)
+{
+    g_bSdlScenePump = 1;
+    PumpWindowMessages();
+    g_bSdlScenePump = 0;
+}
+
+/* "GAME PAUSED", as a flight shows it, until the pause key is let go and
+ * a key, a mouse button or the gamepad is pressed again; Escape also ends
+ * the scene. The music plays on, as in a flight. */
+static void SdlPauseScene(void)
+{
+    short shown;
+    int resumed;
+
+    shown = ShowModalTextPanel(1, _("GAME PAUSED"));
+    resumed = 0;
+    do {
+        SDL_Delay(10);
+        SdlPumpSceneEvents();
+        if (abInputKeyStateArray[SCAN_P] == 0)
+            resumed = IsInputEventQueued(INPUT_EVENT_KEY_DOWN) != 0 ||
+                IsInputEventQueued(INPUT_EVENT_BUTTON_DOWN) != 0;
+        FlushInputEvents();
+    } while (!resumed);
+    if (shown != 0)
+        ReleaseModalTextPanel();
+}
+
+/* The endings' loops (ending.c) read no input of their own. Their Escape
+ * test relied on the DOS game's keyboard interrupt, and the Kilrathi Saga
+ * read no host events until they ended. Once a frame, read them: Escape, or
+ * the gamepad's Back, ends the scene, and closing the window quits. The
+ * pause key, P or the gamepad's Start, holds the scene. The scene's keys go
+ * no further. */
+void SdlServiceSceneInput(void)
+{
+    const InputEvent *event;
+    int pause;
+
+    SdlPumpSceneEvents();
+    pause = 0;
+    for (event = pInputEventHead; event != 0; event = event->next) {
+        if (event->type == INPUT_EVENT_KEY_DOWN && event->value == SCAN_P)
+            pause = 1;
+    }
+    FlushInputEvents();
+    if (pause && bEscapePressedFlag == 0)
+        SdlPauseScene();
+}

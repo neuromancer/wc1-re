@@ -286,6 +286,9 @@ struct Shape;
 void SdlSetViewOverlaySprite(int id, struct Shape *shape, short frame,
                              short flip, short x, short y, short scale);
 void SdlSetFlightStepPresents(int presents);
+/* The endings' frames: Escape ends the scene, P pauses it (events.c). */
+void SdlServiceSceneInput(void);
+int SdlScenePumpActive(void);
 void SdlClearViewOverlay(void);
 int SdlFlightFrameDeferred(void);
 int SdlDrawingInterpolatedFrame(void);

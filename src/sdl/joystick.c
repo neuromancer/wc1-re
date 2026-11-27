@@ -2061,9 +2061,10 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
         return;
     }
     if (button == SDL_PORT_JOYSTICK_BUTTON_START) {
+        /* It pauses in flight and in the endings. */
         if (pressed && custom)
             SdlPressPadControl(button);
-        else if (spaceflightActive && pressed)
+        else if ((spaceflightActive || SdlScenePumpActive()) && pressed)
             SdlQueueScanCodePress(SCAN_P);
         return;
     }

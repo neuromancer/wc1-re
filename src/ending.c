@@ -203,6 +203,10 @@ unsigned int ShowCampaignVictorySequence(void)
     SdlSetFlightStepPresents(2);
 #endif
     do {
+#ifdef SDL_PORT
+        /* Escape ends the scene and P pauses it. */
+        SdlServiceSceneInput();
+#endif
         switch (frame) {
         case 0:
             textIndex = 0;
@@ -478,6 +482,8 @@ unsigned int ShowTigerClawEscapeScene(void)
 #endif
     do {
 #ifdef SDL_PORT
+        /* Escape ends the scene and P pauses it. */
+        SdlServiceSceneInput();
         SdlCaptureFlightPoses();
         drawn = 0;
 #endif
@@ -569,6 +575,8 @@ unsigned int ShowTigerClawEscapeScene(void)
     } while (frame < 260);
 #ifdef SDL_PORT
     SdlResetFrameInterpolation();
+    /* An Escape that ended the scene ends nothing after it. */
+    bEscapePressedFlag = 0;
 #endif
 
     ReleasePacketHandle(aObjectTypeData[
@@ -616,6 +624,12 @@ unsigned int ShowTheEndScreen(short enableFireworks)
     frame = 0;
     nFrameSkipCounter = 1;
     do {
+#ifdef SDL_PORT
+        /* As in the scenes before it: Escape ends it and P pauses it. */
+        SdlServiceSceneInput();
+        if (bEscapePressedFlag == 1)
+            break;
+#endif
         ClearViewport(&stSceneBuffer, cBlackColour);
         if (enableFireworks != 0 && activeFireworks != 0 &&
             (RandomBelowOrEqual(100) < 40 || frame > 280)) {
@@ -645,6 +659,9 @@ unsigned int ShowTheEndScreen(short enableFireworks)
         DIBslam();
         DIBslamReal();
     } while (frame < 320);
+#ifdef SDL_PORT
+    bEscapePressedFlag = 0;
+#endif
 
     ReleasePacketHandle(pFireworkShape);
     ReleasePacketHandle(pIntroFont);

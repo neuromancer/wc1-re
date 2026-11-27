@@ -338,11 +338,18 @@ int main(short argc, char **argv)
     if (animationDemo == 1) {
         SystemDebugPrintf("Pre animation: %lu.\n",
                           GetFixedOneMillionThunkAlt(0));
+        /* Retail waits for a key before and after, time to read the memory
+         * figures on the developer's monitor. The port shows a black screen
+         * meanwhile, so the animation plays at once and the game goes on. */
+#ifndef SDL_PORT
         WaitForKeyAcknowledge(0);
+#endif
         RunAnimationDemoLoop(animationIndex);
         SystemDebugPrintf("Post animation: %lu.\n",
                           GetFixedOneMillionThunkAlt(0));
+#ifndef SDL_PORT
         WaitForKeyAcknowledge(0);
+#endif
     }
 
     LoadVolumeSettingsFromRegistry();
