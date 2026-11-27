@@ -153,6 +153,21 @@ static int g_bChildOffsetsValid;
 /* The objects the step drew: one made after its drawing, as the Tiger's
    Claw's jump flash, shows from the next step on. */
 static enum ObjectClass g_aeDrawnClass[SPACE_OBJECT_COUNT];
+/* The objects as the step's transform placed them on the screen, and those
+   made or moved after it without being placed again, out of the step's
+   view: update_star_field's respawned star or dust, and update_hazards'
+   new or respawned hazard. The step does not draw them where they now are,
+   and in-between frames leave them out too. */
+static enum ObjectClass g_aeTransformedClass[SPACE_OBJECT_COUNT];
+static FixedVector g_aTransformedPositions[SPACE_OBJECT_COUNT];
+static unsigned char g_abHiddenInBetween[SPACE_OBJECT_COUNT];
+/* The screen scales the step drew with, and the step before: those of a
+   planet, a star and dust are the scene's own, which the transform keeps.
+   The campaign victory grows its planet after drawing each step. */
+static short g_asDrawnScales[SPACE_OBJECT_COUNT];
+static short g_asPreviousDrawnScales[SPACE_OBJECT_COUNT];
+static int g_bDrawnScalesValid;
+static int g_bPreviousDrawnScalesValid;
 
 void SdlSetFrameInterpolation(int enabled)
 {
@@ -233,6 +248,8 @@ void SdlResetFrameInterpolation(void)
     g_bFlightFrameDeferred = 0;
     g_bFlightViewCaptured = 0;
     g_bStepViewBackgroundValid = 0;
+    g_bDrawnScalesValid = 0;
+    g_bPreviousDrawnScalesValid = 0;
     g_nOverlaySprites = 0;
     g_nPreviousOverlaySprites = 0;
     g_nStepPresents = 1;
@@ -294,17 +311,45 @@ void SdlCaptureFlightPoses(void)
            (size_t)g_nOverlaySprites * sizeof(g_aOverlaySprites[0]));
     g_nPreviousOverlaySprites = g_nOverlaySprites;
     g_nOverlaySprites = 0;
+    memcpy(g_asPreviousDrawnScales, g_asDrawnScales,
+           sizeof(g_asPreviousDrawnScales));
+    g_bPreviousDrawnScalesValid = g_bDrawnScalesValid;
+}
+
+/* Draw_3Space_Frame, just after transform_objects_to_your_view. */
+void SdlSnapshotFlightTransform(void)
+{
+    if (!g_bFrameInterpolation || g_bInterpolatedPass)
+        return;
+    memcpy(g_aeTransformedClass, aeObjectClass, sizeof(g_aeTransformedClass));
+    memcpy(g_aTransformedPositions, aShipPositionsArray,
+           sizeof(g_aTransformedPositions));
 }
 
 /* Draw_3Space_Frame, just before reposition_fixed_child_objects. */
 void SdlSnapshotFlightChildren(void)
 {
+    short obj;
+
     if (!g_bFrameInterpolation || g_bInterpolatedPass)
         return;
     memcpy(g_asChildScreenX, asObjectScreenXList, sizeof(g_asChildScreenX));
     memcpy(g_asChildScreenY, asObjectScreenYArray, sizeof(g_asChildScreenY));
     memcpy(g_asChildDistance, asObjDistancesTable, sizeof(g_asChildDistance));
     memcpy(g_aeDrawnClass, aeObjectClass, sizeof(g_aeDrawnClass));
+    memcpy(g_asDrawnScales, asObjScreenScalesArray, sizeof(g_asDrawnScales));
+    g_bDrawnScalesValid = 1;
+    /* The thrusters place_exhaust_on_ships adds are children, which
+       reposition_fixed_child_objects places from their parents. */
+    for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
+        g_abHiddenInBetween[obj] =
+            aeObjectClass[obj] != OBJECT_CLASS_NULL &&
+            aeObjectClass[obj] != OBJECT_CLASS_FIXED_OBJECT &&
+            (g_aeTransformedClass[obj] == OBJECT_CLASS_NULL ||
+             (asObjectScreenXList[obj] == (short)0x8001 &&
+              memcmp(&aShipPositionsArray[obj], &g_aTransformedPositions[obj],
+                     sizeof(FixedVector)) != 0));
+    }
     g_bChildOffsetsValid = 1;
     g_nDrawnView = nCameraViewMode;
     g_cDrawnViewObject = cViewObject;
@@ -627,14 +672,30 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
         asObjectScreenYArray[obj] = g_asChildScreenY[obj];
         asObjDistancesTable[obj] = g_asChildDistance[obj];
     }
+    /* A planet, a star or dust at the scale the step drew it, part of the
+       way from the step before's, before its children take theirs. */
+    for (obj = 0; obj < SPACE_OBJECT_COUNT && g_bDrawnScalesValid; obj++) {
+        if (aeObjectClass[obj] == OBJECT_CLASS_NULL ||
+            aeObjectClass[obj] >= OBJECT_CLASS_EXPLOSION)
+            continue;
+        if (g_bPreviousDrawnScalesValid && g_bPreviousPosesValid &&
+            aeObjectClass[obj] == g_aePreviousClass[obj] &&
+            aeObjectTypeList[obj] == g_aePreviousType[obj])
+            asObjScreenScalesArray[obj] = (short)Lerp(
+                g_asPreviousDrawnScales[obj], g_asDrawnScales[obj], alpha);
+        else
+            asObjScreenScalesArray[obj] = g_asDrawnScales[obj];
+    }
     reposition_fixed_child_objects();
-    /* An object made after the step drew stays off the screen, as the
-       transform leaves what it does not draw. Its slot keeps its class, so
-       that no vacant-slot search, as the transform's for the nav pointer,
-       takes it in the meantime. */
+    /* What the step did not draw where it is now, made or moved after
+       the step's transform or made after it drew, stays off the screen, as
+       the transform leaves what it does not draw. Its slot keeps its class,
+       so that no vacant-slot search, as the transform's for the nav
+       pointer, takes it in the meantime. */
     for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
-        if (g_aeDrawnClass[obj] == OBJECT_CLASS_NULL &&
-            aeObjectClass[obj] != OBJECT_CLASS_NULL)
+        if (g_abHiddenInBetween[obj] ||
+            (g_aeDrawnClass[obj] == OBJECT_CLASS_NULL &&
+             aeObjectClass[obj] != OBJECT_CLASS_NULL))
             asObjectScreenXList[obj] = (short)0x8001;
     }
     sort_object_depth();

@@ -2020,6 +2020,9 @@ unsigned int Draw_3Space_Frame(void)
     nFrameSkipCounter = nFrameSkip;
     nRenderedSpaceFrame++;
     transform_objects_to_your_view();
+#ifdef SDL_PORT
+    SdlSnapshotFlightTransform();
+#endif
     update_star_field();
     place_exhaust_on_ships();
 #ifdef SDL_PORT

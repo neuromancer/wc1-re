@@ -575,6 +575,16 @@ int set_up_action_sphere(short navPoint)
 #endif
     nCurrentNavigationPoint = navPoint;
     nav = &aMissionNavPoints[navPoint];
+#ifdef SDL_PORT
+    /* The Tiger's Claw's escape sets up the last nav point, 19, and retail
+     * reads the type of a 21st past the table. Its data puts the mission
+     * ships 4 bytes after the nav points (0x0046C948), which makes that
+     * byte the top of the first mission ship's z position. */
+    if (navPoint + 1 == MISSION_NAV_POINT_COUNT)
+        nCurrentWave =
+            (signed char)(aMissionShips[0].position.z >> 24) == 2 ? 2 : -1;
+    else
+#endif
     nCurrentWave =
         aMissionNavPoints[navPoint + 1].type == 2 ? 2 : -1;
     nEnemySighting = 0x7fff;
