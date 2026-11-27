@@ -1163,6 +1163,7 @@ static void SdlQueueScanCodePress(unsigned short scanCode);
  * reads: a raw joystick's third and fourth axes, or the other joystick's
  * first two. 0 when the device has no such axis. */
 static int SdlReadPadAxis(const SdlJoystickDevice *device, int control,
+                          int stickX, int stickY,
                           const Sint16 *extra, int extraCount,
                           int *step, int *position)
 {
@@ -1178,8 +1179,7 @@ static int SdlReadPadAxis(const SdlJoystickDevice *device, int control,
         if (axis >= SDL_JoystickNumAxes(device->joystick))
             return 0;
         raw = SdlReadJoystickAxis(device, axis);
-        *step = axis == 0 ? g_nSdlPadStickX : axis == 1 ? g_nSdlPadStickY
-                                                        : SdlNormalizeFlightAxis(raw);
+        *step = axis == 0 ? stickX : axis == 1 ? stickY : SdlNormalizeFlightAxis(raw);
         *position = raw + 32768;
         if ((axis & 1) != 0) {
             *step = -*step;
@@ -1189,11 +1189,11 @@ static int SdlReadPadAxis(const SdlJoystickDevice *device, int control,
     }
     switch (control) {
     case SDL_PAD_LEFT_STICK_X:
-        *step = g_nSdlPadStickX;
+        *step = stickX;
         *position = SdlReadJoystickAxis(device, 0) + 32768;
         return 1;
     case SDL_PAD_LEFT_STICK_Y:
-        *step = -g_nSdlPadStickY;
+        *step = -stickY;
         *position = 32767 - SdlReadJoystickAxis(device, 1);
         return 1;
     case SDL_PAD_RIGHT_STICK_X:
@@ -1228,26 +1228,18 @@ static int SdlClampTurn(int turn)
     return turn < -9 ? -9 : turn > 9 ? 9 : turn;
 }
 
-/* A frame of WC1's flight in the Custom mode. The axes add up per function;
- * while a roll-and-speed button is held, yaw rolls and pitch changes speed,
- * as the original joystick's second button makes them. An axis steers while
- * it is off centre and once more as it returns, so that the keys and the
- * mouse steer while the sticks rest. A throttle sets the speed every frame,
- * as the HOTAS layouts do. */
-static void SdlApplyPadFlightControls(SdlJoystickDevice *device)
+/* The Custom mode's axes, added up per function; stickX and stickY are the
+ * left stick's steps through j.cal. While a roll-and-speed button is held,
+ * yaw rolls and pitch changes speed, as the original joystick's second
+ * button makes them. throttle stays -1 without a throttle. */
+static void SdlAddPadAxes(SdlJoystickDevice *device, int stickX, int stickY,
+                          int turns[3], int *speed, int *throttle)
 {
     Sint16 extra[2] = {0, 0};
-    int turns[3] = {0, 0, 0};
-    int speed = 0;
-    int throttle = -1;
     int extraCount;
     int modifier;
     int control;
-    int axis;
-    Uint32 now;
 
-    if (SdlPadFunctionHeld(device, SDL_PAD_KEY, g_nSdlPadAfterburner))
-        your_afterburner();
     modifier = SdlPadFunctionHeld(device, SDL_PAD_ROLL_AND_SPEED, 0);
     extraCount = SdlReadExtraJoystickAxes(&extra[0], &extra[1]);
     for (control = 0; control < SDL_PAD_CONTROLS; control++) {
@@ -1257,21 +1249,40 @@ static void SdlApplyPadFlightControls(SdlJoystickDevice *device)
         int position;
 
         if (binding->kind != SDL_PAD_AXIS ||
-            !SdlReadPadAxis(device, control, extra, extraCount, &step, &position))
+            !SdlReadPadAxis(device, control, stickX, stickY, extra, extraCount,
+                            &step, &position))
             continue;
         if (modifier && function == SDL_PAD_YAW)
             function = SDL_PAD_ROLL;
         else if (modifier && function == SDL_PAD_PITCH)
             function = SDL_PAD_SPEED;
         if (function == SDL_PAD_THROTTLE) {
-            if (throttle < 0)
-                throttle = binding->sign < 0 ? 65535 - position : position;
+            if (*throttle < 0)
+                *throttle = binding->sign < 0 ? 65535 - position : position;
         } else if (function == SDL_PAD_SPEED) {
-            speed += binding->sign * step;
+            *speed += binding->sign * step;
         } else {
             turns[function] += binding->sign * step;
         }
     }
+}
+
+/* A frame of WC1's flight in the Custom mode. An axis steers while it is
+ * off centre and once more as it returns, so that the keys and the mouse
+ * steer while the sticks rest. A throttle sets the speed every frame, as
+ * the HOTAS layouts do. */
+static void SdlApplyPadFlightControls(SdlJoystickDevice *device)
+{
+    int turns[3] = {0, 0, 0};
+    int speed = 0;
+    int throttle = -1;
+    int control;
+    int axis;
+    Uint32 now;
+
+    if (SdlPadFunctionHeld(device, SDL_PAD_KEY, g_nSdlPadAfterburner))
+        your_afterburner();
+    SdlAddPadAxes(device, g_nSdlPadStickX, g_nSdlPadStickY, turns, &speed, &throttle);
     for (axis = 0; axis < 3; axis++) {
         int turn = SdlClampTurn(turns[axis]);
 
@@ -1457,6 +1468,126 @@ int SdlSpaceflightInputActive(void)
 {
     return g_bSdlJoystickSpaceflightActive &&
         pCurrentEventManagerPump == get_player_input && !SdlSwcFlightActive();
+}
+
+/* The pitch and yaw the stick steers with now, as the next step will take
+   them: the stick through j.cal and the dead zone as ReadCalibratedJoystick
+   reads it, then player_input's stick and the axes or the Custom mode's
+   bindings that SdlApplyJoystickFlightControls applies. *pitch and *yaw come
+   in as the step's and change where the stick steers; no input state
+   changes. 0 when the stick steers neither, as when it rests and the keys
+   or the mouse steer, or the original mode's second button makes it roll
+   and change speed. Smooth spaceflight's in-between frames draw the
+   cockpit's pilot hand with it (issue #34). */
+int SdlLiveJoystickSteering(short *pitch, short *yaw)
+{
+    SdlJoystickDevice *device;
+    InputDeviceSample sample;
+    SdlJoystickMode mode;
+    Sint16 firstRaw;
+    Sint16 secondRaw;
+    Uint8 triggersHeld;
+    int turns[3] = {0, 0, 0};
+    int speed = 0;
+    int throttle = -1;
+    int steered;
+    int slot;
+    int turn;
+    short x;
+    short y;
+
+    slot = nCurrentActiveInputDevice;
+    mode = g_eSdlJoystickMode;
+    if (slot < 0 || slot >= 2 || !SdlSpaceflightInputActive())
+        return 0;
+    device = &g_aSdlJoystickDevices[slot];
+    if (device->joystick == 0 || nCurrentJoystickLeftScale == 0 ||
+        nJoystickRightScale == 0 || nJoystickUpScale == 0 ||
+        nJoystickDownScaleValue == 0)
+        return 0;
+    SDL_JoystickUpdate();
+    SDL_zero(sample);
+    sample.x = SdlReadJoystickAxis(device, 0) + 32768;
+    sample.y = SdlReadJoystickAxis(device, 1) + 32768;
+    SdlShapeJoystickDeadZone(&sample);
+    if (sample.x < nStickMinimumPositionX)
+        sample.x = nStickMinimumPositionX;
+    if (sample.x > nStickMaxX)
+        sample.x = nStickMaxX;
+    if (sample.y < nStickMinimumPositionY)
+        sample.y = nStickMinimumPositionY;
+    if (sample.y > nStickMaxY)
+        sample.y = nStickMaxY;
+    x = 0;
+    y = 0;
+    if (sample.x < nJoystickCentreX) {
+        x = (short)(((int)nJoystickCentreX - sample.x) /
+                    nCurrentJoystickLeftScale);
+        x = nJoystickHorizontalDeadZone < x ? (short)-x : 0;
+    } else if (sample.x > nJoystickCentreX) {
+        x = (short)((sample.x - (int)nJoystickCentreX) / nJoystickRightScale);
+        if (x <= nJoystickHorizontalDeadZone)
+            x = 0;
+    }
+    if (sample.y < nJoystickCentreY) {
+        y = (short)(((int)nJoystickCentreY - sample.y) / nJoystickUpScale);
+        y = nJoystickVertDeadZoneValue < y ? (short)-y : 0;
+    } else if (sample.y > nJoystickCentreY) {
+        y = (short)((sample.y - (int)nJoystickCentreY) /
+                    nJoystickDownScaleValue);
+        if (y <= nJoystickVertDeadZoneValue)
+            y = 0;
+    }
+
+    /* Reading the triggers moves their latch; the step's own reads must
+       find it as they left it. */
+    triggersHeld = device->triggersHeld;
+    steered = 0;
+    if (mode == SDL_PORT_JOYSTICK_CUSTOM) {
+        /* An axis steers while off centre and once more as it returns. */
+        SdlAddPadAxes(device, x, y, turns, &speed, &throttle);
+        turn = SdlClampTurn(turns[SDL_PAD_PITCH]);
+        if (turn != 0 || g_anSdlPadTurns[SDL_PAD_PITCH] != 0) {
+            *pitch = (short)turn;
+            steered = 1;
+        }
+        turn = SdlClampTurn(turns[SDL_PAD_YAW]);
+        if (turn != 0 || g_anSdlPadTurns[SDL_PAD_YAW] != 0) {
+            *yaw = (short)turn;
+            steered = 1;
+        }
+    } else if (mode == SDL_PORT_JOYSTICK_FOUR_BUTTON_TWO_AXIS &&
+               SdlReadJoystickButton(device, 3)) {
+        /* The stick rolls and changes speed instead. */
+        *pitch = 0;
+        *yaw = 0;
+        steered = 1;
+    } else if (mode != SDL_PORT_JOYSTICK_ORIGINAL ||
+               !(SdlReadJoystickButton(device, 1) ||
+                 SdlReadJoystickTrigger(device, 1)) ||
+               aeSpecialManeuvers[0] == SPECIAL_MANEUVER_AFTERBURNER) {
+        /* player_input steers with the stick while it is off centre and
+           once more as it comes back to centre. */
+        if (x != 0 || y != 0 || stPreviousFlightInput.x != 0 ||
+            stPreviousFlightInput.y != 0 ||
+            (mode == SDL_PORT_JOYSTICK_FOUR_BUTTON_TWO_AXIS &&
+             g_bSdlTwoAxisModifierActive)) {
+            *yaw = x;
+            *pitch = (short)-y;
+            steered = 1;
+        }
+        /* A rudder or a second stick's yaw replaces the stick's. */
+        if (mode == SDL_PORT_JOYSTICK_FOUR_BUTTON_FOUR_AXIS &&
+            (g_eSdlJoystickAxesMode == SDL_PORT_JOYSTICK_AXES_TWIN_STICK_YAW ||
+             g_eSdlJoystickAxesMode == SDL_PORT_JOYSTICK_AXES_HOTAS_YAW ||
+             g_eSdlJoystickAxesMode == SDL_PORT_JOYSTICK_AXES_RUDDER_YAW) &&
+            SdlReadExtraJoystickAxes(&firstRaw, &secondRaw) != 0) {
+            *yaw = SdlNormalizeFlightAxis(firstRaw);
+            steered = 1;
+        }
+    }
+    device->triggersHeld = triggersHeld;
+    return steered;
 }
 
 void SdlEndJoystickSpaceflight(void)

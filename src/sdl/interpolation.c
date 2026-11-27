@@ -5,17 +5,19 @@
  * wait before the next step with frames drawn between the last two steps:
  * each object is moved and turned part of the way from where the previous
  * step left it, and the view is drawn again and presented. The cockpit
- * around the view keeps the step's own drawing. The autopilot's fly-by and
- * the death camera, which step the simulation in loops of their own, are
- * filled in the same way (after wc2-re 4e566b7).
+ * around the view keeps the step's own drawing. The autopilot's fly-by, the
+ * death camera, the title's intro fight and the endings, which step the
+ * simulation in loops of their own, are filled in the same way (the first
+ * two after wc2-re 4e566b7).
  *
  * An in-between frame runs the drawing half of RenderSpaceViewFrame with the
  * state it writes saved and restored, so the simulation never sees it: its
  * results are bit-identical with or without interpolation. It does not
  * respawn stars or place exhaust, which call rand(), nor advance the missile
  * lock or the bracket blink. The mouse-steering pointer is drawn where the
- * mouse is at the time, and an explosion's growth is spread over the frames.
- * What is shown runs one step behind the simulation. */
+ * mouse is at the time, the pilot's hand where the stick is, and an
+ * explosion's growth is spread over the frames. What is shown runs one step
+ * behind the simulation. */
 #include "wc1.h"
 
 #include "video_internal.h"
@@ -39,8 +41,8 @@ typedef struct SavedRange {
    lists, sorting and screen positions drawing produces, the HUD state the
    overlay touches, the slot draw_nav_pointer takes or frees for the nav
    pointer when the right VDU changed mode since the step was drawn, the
-   mouse-steering pointer it moves to the mouse, and the scales it gives
-   growing explosions. */
+   mouse-steering pointer it moves to the mouse, the scales it gives
+   growing explosions, and the steering it gives the pilot's hand. */
 static const SavedRange g_aSavedFlightState[] = {
     SAVED(aeObjectClass), SAVED(acObjOwnersTable), SAVED(nYourWingman),
     SAVED(abHazardObjects),
@@ -56,7 +58,8 @@ static const SavedRange g_aSavedFlightState[] = {
     SAVED(nStoredMouseCursorPosX), SAVED(nSavedMouseCursorY),
     SAVED(pszPendingHudMessage), SAVED(nPendingHudMessageColour),
     SAVED(nTargetLockCountdown), SAVED(nTargetLockMode),
-    SAVED(stMouseCursorState), SAVED(awObjectScales)
+    SAVED(stMouseCursorState), SAVED(awObjectScales),
+    SAVED(stRotationInput), SAVED(bStickIndicatorFrameState)
 };
 
 static int g_bFrameInterpolation;
@@ -96,6 +99,37 @@ static short g_nOverlayZoomX;
 static short g_nOverlayZoomY;
 static short g_nOverlayZoomFrom;
 static short g_nOverlayZoomTo;
+/* The scaled shapes a scene draws over its view after drawing it, as the
+   endings draw their ships and their planet: this step's, and the step
+   before's, from which an in-between frame moves and scales each part of
+   the way. An id tells the same shape from step to step. */
+#define VIEW_OVERLAY_SPRITES 24
+typedef struct ViewOverlaySprite {
+    int id;
+    struct Shape *shape;
+    short frame;
+    short flip;
+    short x;
+    short y;
+    short scale;
+} ViewOverlaySprite;
+static ViewOverlaySprite g_aOverlaySprites[VIEW_OVERLAY_SPRITES];
+static int g_nOverlaySprites;
+static ViewOverlaySprite g_aPreviousOverlaySprites[VIEW_OVERLAY_SPRITES];
+static int g_nPreviousOverlaySprites;
+/* How many times a step of the scene is presented, and how many of the
+   deferred step's presents have been made: the campaign victory presents
+   each of its steps twice. */
+static int g_nStepPresents = 1;
+static int g_nStepPresentsMade;
+/* The view buffer as the step's Draw_3Space_Frame found it, which the step
+   drew on: clear, or a hyperspace jump's flash (warp, unwarp and the Tiger's
+   Claw's escape). */
+static unsigned char g_abStepViewBackground[FLIGHT_SCREEN_PIXELS];
+static Viewport g_stStepViewBuffer;
+static int g_bStepViewBackgroundValid;
+/* The view buffer as an in-between frame finds it, put back after it. */
+static unsigned char g_abPassViewBuffer[FLIGHT_SCREEN_PIXELS];
 static Uint32 g_dwInterpolatedPresentMs = 16;
 static unsigned char *g_pSavedFlightState;
 static size_t g_nSavedFlightStateSize;
@@ -116,6 +150,9 @@ static short g_asChildScreenX[SPACE_OBJECT_COUNT];
 static short g_asChildScreenY[SPACE_OBJECT_COUNT];
 static unsigned short g_asChildDistance[SPACE_OBJECT_COUNT];
 static int g_bChildOffsetsValid;
+/* The objects the step drew: one made after its drawing, as the Tiger's
+   Claw's jump flash, shows from the next step on. */
+static enum ObjectClass g_aeDrawnClass[SPACE_OBJECT_COUNT];
 
 void SdlSetFrameInterpolation(int enabled)
 {
@@ -154,6 +191,32 @@ void SdlSetViewOverlayZoomText(const char *text, short x, short y,
     g_nOverlayZoomTo = toScale;
 }
 
+/* A scaled shape the scene draws over its view this step, as DrawSpriteScaled
+   draws it. */
+void SdlSetViewOverlaySprite(int id, struct Shape *shape, short frame,
+                             short flip, short x, short y, short scale)
+{
+    ViewOverlaySprite *sprite;
+
+    if (!g_bFrameInterpolation || g_nOverlaySprites >= VIEW_OVERLAY_SPRITES)
+        return;
+    sprite = &g_aOverlaySprites[g_nOverlaySprites++];
+    sprite->id = id;
+    sprite->shape = shape;
+    sprite->frame = frame;
+    sprite->flip = flip;
+    sprite->x = x;
+    sprite->y = y;
+    sprite->scale = scale;
+}
+
+/* A scene that presents each step more than once: in-between frames lead
+   up to the step over all of its presents. */
+void SdlSetFlightStepPresents(int presents)
+{
+    g_nStepPresents = presents > 1 ? presents : 1;
+}
+
 void SdlClearViewOverlay(void)
 {
     g_pszOverlaySubtitle = 0;
@@ -161,7 +224,7 @@ void SdlClearViewOverlay(void)
     g_pszOverlayZoomText = 0;
 }
 
-/* RunSpaceFlight, at its start and end, and the death camera at its end:
+/* RunSpaceFlight, at its start and end, and the other scenes at theirs:
    nothing to interpolate from, and no frame left waiting. */
 void SdlResetFrameInterpolation(void)
 {
@@ -169,11 +232,45 @@ void SdlResetFrameInterpolation(void)
     g_bChildOffsetsValid = 0;
     g_bFlightFrameDeferred = 0;
     g_bFlightViewCaptured = 0;
+    g_bStepViewBackgroundValid = 0;
+    g_nOverlaySprites = 0;
+    g_nPreviousOverlaySprites = 0;
+    g_nStepPresents = 1;
+    g_nStepPresentsMade = 0;
     SdlClearViewOverlay();
 }
 
-/* Before each Update_3Space of a loop that draws spaceflight:
-   RunSpaceFlight, the autopilot's fly-by and the death camera. */
+/* Copies the view buffer's pixels to copy, or back from it. 0 when there is
+   no buffer, or one larger than the screen. */
+static int CopyViewBuffer(unsigned char *copy, int back)
+{
+    const Viewport *view = &stSpaceBufferViewport;
+    unsigned char *row;
+    int width;
+    int height;
+    int stride;
+    int y;
+
+    if (view->pixels == 0 || view->rowOffsets == 0)
+        return 0;
+    width = view->right - view->left + 1;
+    height = view->bottom - view->top + 1;
+    if (width <= 0 || height < 2 || width * height > FLIGHT_SCREEN_PIXELS)
+        return 0;
+    stride = view->rowOffsets[view->top + 1] - view->rowOffsets[view->top];
+    row = view->pixels + view->left + view->rowOffsets[view->top];
+    for (y = 0; y < height; y++, row += stride) {
+        if (back)
+            memcpy(row, copy + y * width, (size_t)width);
+        else
+            memcpy(copy + y * width, row, (size_t)width);
+    }
+    return 1;
+}
+
+/* Before each Update_3Space of a loop that draws spaceflight: RunSpaceFlight
+   and the scenes that step it themselves. The scene's shapes drawn over the
+   view become the step before's. */
 void SdlCaptureFlightPoses(void)
 {
     short obj;
@@ -193,6 +290,10 @@ void SdlCaptureFlightPoses(void)
     g_nCapturedView = g_nDrawnView;
     g_cCapturedViewObject = g_cDrawnViewObject;
     g_bPreviousPosesValid = 1;
+    memcpy(g_aPreviousOverlaySprites, g_aOverlaySprites,
+           (size_t)g_nOverlaySprites * sizeof(g_aOverlaySprites[0]));
+    g_nPreviousOverlaySprites = g_nOverlaySprites;
+    g_nOverlaySprites = 0;
 }
 
 /* Draw_3Space_Frame, just before reposition_fixed_child_objects. */
@@ -203,9 +304,13 @@ void SdlSnapshotFlightChildren(void)
     memcpy(g_asChildScreenX, asObjectScreenXList, sizeof(g_asChildScreenX));
     memcpy(g_asChildScreenY, asObjectScreenYArray, sizeof(g_asChildScreenY));
     memcpy(g_asChildDistance, asObjDistancesTable, sizeof(g_asChildDistance));
+    memcpy(g_aeDrawnClass, aeObjectClass, sizeof(g_aeDrawnClass));
     g_bChildOffsetsValid = 1;
     g_nDrawnView = nCameraViewMode;
     g_cDrawnViewObject = cViewObject;
+    /* Nothing is drawn yet. */
+    g_bStepViewBackgroundValid = CopyViewBuffer(g_abStepViewBackground, 0);
+    g_stStepViewBuffer = stSpaceBufferViewport;
 }
 
 /* RunSpaceFlight, after RenderSpaceViewFrame and before update_cockpit. */
@@ -216,6 +321,16 @@ void SdlCaptureFlightView(void)
     memcpy(g_abFlightViewScreen, stScreenView.pixels,
            sizeof(g_abFlightViewScreen));
     g_bFlightViewCaptured = 1;
+}
+
+/* In-between frames draw the cockpit's pilot hand where the stick is, in
+   the flight's cockpit view, where update_cockpit draws it. Not in the
+   simulator: its right VDU reaches under the hand, and each step copies
+   the VDU into the hand's backdrop before drawing the hand. */
+static int PilotHandFollowsStick(void)
+{
+    return g_bFlightLoopStep && nCameraViewMode == 0 && bCockpitlessView == 0 &&
+        nTrainSimActive == 0 && pCurrentPilotHandShapePtr != 0;
 }
 
 /* Before a drawn step's frame is presented: DIBslamReal leaves the present
@@ -230,6 +345,7 @@ void SdlDeferFlightFrame(int flightLoop)
         (g_bFlightViewCaptured || !flightLoop) && stScreenView.pixels != 0;
     g_bFlightLoopStep = flightLoop != 0;
     g_bFlightViewCaptured = 0;
+    g_nStepPresentsMade = 0;
     if (!g_bFlightFrameDeferred) {
         SdlClearViewOverlay();
         return;
@@ -243,6 +359,19 @@ void SdlDeferFlightFrame(int flightLoop)
     for (pixel = 0; pixel < FLIGHT_SCREEN_PIXELS; pixel++)
         g_abFlightOverlayMask[pixel] =
             g_abFlightStepScreen[pixel] != g_abFlightViewScreen[pixel];
+    /* The pilot's hand stays as the screen shows it: in-between frames
+       draw it themselves, and animate_pilot knows what it last drew. */
+    if (PilotHandFollowsStick()) {
+        int x;
+        int y;
+
+        for (y = SDL_max(0, stPilotHandView.top);
+             y <= SDL_min(SDL_PORT_FRAME_HEIGHT - 1, stPilotHandView.bottom); y++) {
+            for (x = SDL_max(0, stPilotHandView.left);
+                 x <= SDL_min(SDL_PORT_FRAME_WIDTH - 1, stPilotHandView.right); x++)
+                g_abFlightOverlayMask[y * SDL_PORT_FRAME_WIDTH + x] = 0;
+        }
+    }
 }
 
 int SdlFlightFrameDeferred(void)
@@ -431,6 +560,42 @@ static int LiveSteeringPointer(short *x, short *y)
     return 1;
 }
 
+/* The scene's scaled shapes, each part of the way from where the step
+   before drew it, at the enhanced renderer's resolution where it draws. */
+static void DrawViewOverlaySprites(int alpha)
+{
+    const ViewOverlaySprite *sprite;
+    const ViewOverlaySprite *previous;
+    int index;
+    int match;
+    int x;
+    int y;
+    short scale;
+
+    for (index = 0; index < g_nOverlaySprites; index++) {
+        sprite = &g_aOverlaySprites[index];
+        previous = sprite;
+        for (match = 0; match < g_nPreviousOverlaySprites; match++) {
+            if (g_aPreviousOverlaySprites[match].id == sprite->id) {
+                previous = &g_aPreviousOverlaySprites[match];
+                break;
+            }
+        }
+        /* In 256ths of a pixel. */
+        x = previous->x * 256 + (sprite->x - previous->x) * alpha;
+        y = previous->y * 256 + (sprite->y - previous->y) * alpha;
+        scale = (short)Lerp(previous->scale, sprite->scale, alpha);
+        if (!SdlRecordSpaceSprite(&stSpaceBufferViewport, x / 256.0f, y / 256.0f,
+                                  sprite->shape, sprite->frame, 0, scale,
+                                  sprite->flip))
+            DrawSpriteScaled(&stSpaceBufferViewport,
+                             (short)Lerp(previous->x, sprite->x, alpha),
+                             (short)Lerp(previous->y, sprite->y, alpha),
+                             sprite->shape, sprite->frame, 0, scale,
+                             sprite->flip);
+    }
+}
+
 /* The drawing half of RenderSpaceViewFrame at alpha/256 of the way from the
    previous step to this one, presented and then undone. */
 void SdlDrawInterpolatedFlightFrame(int alpha)
@@ -440,6 +605,7 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
     short obj;
     short pointerX;
     short pointerY;
+    int passBufferSaved;
 
     if (!SaveFlightState())
         return;
@@ -462,16 +628,36 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
         asObjDistancesTable[obj] = g_asChildDistance[obj];
     }
     reposition_fixed_child_objects();
+    /* An object made after the step drew stays off the screen, as the
+       transform leaves what it does not draw. Its slot keeps its class, so
+       that no vacant-slot search, as the transform's for the nav pointer,
+       takes it in the meantime. */
+    for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
+        if (g_aeDrawnClass[obj] == OBJECT_CLASS_NULL &&
+            aeObjectClass[obj] != OBJECT_CLASS_NULL)
+            asObjectScreenXList[obj] = (short)0x8001;
+    }
     sort_object_depth();
     SdlBeginSpaceFrame(pScreenViewGeometry, cScreenViewMode,
                        bCockpitlessView > 0, cPrimaryViewBufferColour);
-    /* Loops that draw with Draw_3Space_Frame alone, as the death camera
-       does, leave the step's picture in the view buffer: start from a
-       clear one, as RenderSpaceViewFrame leaves it. */
-    clear_view_buffer();
+    /* The step drew on the view buffer as Draw_3Space_Frame found it: clear,
+       or a hyperspace jump's flash. Loops that draw with Draw_3Space_Frame
+       alone, as the death camera does, leave the step's picture there, and
+       the Tiger's Claw's escape lays the next step's flash: the buffer goes
+       back as the frame found it. */
+    passBufferSaved = CopyViewBuffer(g_abPassViewBuffer, 0);
+    if (!g_bStepViewBackgroundValid ||
+        g_stStepViewBuffer.pixels != stSpaceBufferViewport.pixels ||
+        g_stStepViewBuffer.left != stSpaceBufferViewport.left ||
+        g_stStepViewBuffer.top != stSpaceBufferViewport.top ||
+        g_stStepViewBuffer.right != stSpaceBufferViewport.right ||
+        g_stStepViewBuffer.bottom != stSpaceBufferViewport.bottom ||
+        !CopyViewBuffer(g_abStepViewBackground, 1))
+        clear_view_buffer();
     draw_sorted_objects_to_buffer();
     if (nCameraViewMode == 0)
         overlay_head_up_display();
+    DrawViewOverlaySprites(alpha);
     /* What the scene drew over its view after drawing it, a zoom part of
        the way from the step before. */
     if (g_pszOverlaySubtitle != 0)
@@ -492,12 +678,22 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
     dump_buffer_to_screen();
     if (nCameraViewMode == 0)
         RestoreTransientCockpitGraphics();
-    ClearViewport(&stSpaceBufferViewport, cPrimaryViewBufferColour);
+    if (passBufferSaved)
+        CopyViewBuffer(g_abPassViewBuffer, 1);
+    else
+        ClearViewport(&stSpaceBufferViewport, cPrimaryViewBufferColour);
     /* What the step drew over its view, as it drew it. */
     screen = stScreenView.pixels;
     for (pixel = 0; pixel < FLIGHT_SCREEN_PIXELS; pixel++) {
         if (g_abFlightOverlayMask[pixel])
             screen[pixel] = g_abFlightStepScreen[pixel];
+    }
+    /* The pilot's hand follows the stick between the steps too, so that it
+       does not lag behind it: the step's steering with the stick's now, as
+       animate_pilot draws the step's. */
+    if (PilotHandFollowsStick()) {
+        SdlLiveJoystickSteering(&stRotationInput.x, &stRotationInput.y);
+        animate_pilot();
     }
     g_bInterpolatedPass = 0;
     SdlPresentCurrentFrame(stScreenView.pixels);
@@ -506,18 +702,26 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
 
 /* ThrottleFrameAndDrawFps, before waiting for the next step: frames until
    that step is due, each drawn at its expected display time. The last ends
-   at the step itself, as the game would have presented it. */
+   at the step itself, as the game would have presented it. A step presented
+   more than once is led up to over all of its presents, each taking its
+   share of the way. */
 void SdlPresentInterpolatedFlightFrames(long deadline, long interval)
 {
     Uint32 start;
     Uint32 now;
     long elapsed;
     int alpha;
+    int first;
+    int last;
     int frames;
 
     if (!g_bFlightFrameDeferred)
         return;
-    g_bFlightFrameDeferred = 0;
+    first = g_nStepPresentsMade * 256 / g_nStepPresents;
+    g_nStepPresentsMade++;
+    last = g_nStepPresentsMade * 256 / g_nStepPresents;
+    if (g_nStepPresentsMade >= g_nStepPresents)
+        g_bFlightFrameDeferred = 0;
     frames = 0;
     for (;;) {
         now = SDL_GetTicks();
@@ -526,11 +730,12 @@ void SdlPresentInterpolatedFlightFrames(long deadline, long interval)
             break;
         elapsed = (long)now + (long)g_dwInterpolatedPresentMs -
                   (deadline - interval);
-        alpha = interval > 0 ? (int)(elapsed * 256 / interval) : 256;
-        if (alpha < 0)
-            alpha = 0;
-        if (alpha > 256)
-            alpha = 256;
+        alpha = interval > 0 ? first + (int)(elapsed * (last - first) / interval)
+                             : last;
+        if (alpha < first)
+            alpha = first;
+        if (alpha > last)
+            alpha = last;
         start = SDL_GetTicks();
         SdlDrawInterpolatedFlightFrame(alpha);
         g_dwInterpolatedPresentMs = SDL_GetTicks() - start;
@@ -539,8 +744,9 @@ void SdlPresentInterpolatedFlightFrames(long deadline, long interval)
         if (g_dwInterpolatedPresentMs > 50)
             g_dwInterpolatedPresentMs = 50;
         frames++;
-        if (alpha >= 256)
+        if (alpha >= last)
             break;
     }
-    SdlClearViewOverlay();
+    if (!g_bFlightFrameDeferred)
+        SdlClearViewOverlay();
 }

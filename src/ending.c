@@ -191,6 +191,12 @@ unsigned int ShowCampaignVictorySequence(void)
     bEscapePressedFlag = 0;
     verticalOffset = -70000;
     nFrameSkipCounter = 1;
+#ifdef SDL_PORT
+    /* Smooth spaceflight: each step is presented twice, and in-between
+       frames lead up to it over both. */
+    SdlResetFrameInterpolation();
+    SdlSetFlightStepPresents(2);
+#endif
     do {
         switch (frame) {
         case 0:
@@ -215,6 +221,9 @@ unsigned int ShowCampaignVictorySequence(void)
                 C_("font0", apszCampaignVictoryText[textIndex]));
         }
 
+#ifdef SDL_PORT
+        SdlCaptureFlightPoses();
+#endif
         Update_3Space();
         if (Draw_3Space_Frame() != 0) {
             if (frame > 90)
@@ -235,6 +244,16 @@ unsigned int ShowCampaignVictorySequence(void)
                             projectile->scale = -1;
                         } else {
 #ifdef SDL_PORT
+                            /* In-between frames move it on from the step
+                             * before. */
+                            SdlSetViewOverlaySprite(
+                                slot, projectileShape, 1,
+                                (short)projectile->flip,
+                                (short)(projectile->screenX +
+                                        nCurrentViewCenterPosX),
+                                (short)(projectile->screenY +
+                                        nCurrentViewCenterPosY),
+                                (short)projectile->scale);
                             /* The ending's scaled shapes are drawn at the
                              * enhanced renderer's output resolution, as
                              * the space objects around them are. */
@@ -313,6 +332,10 @@ unsigned int ShowCampaignVictorySequence(void)
                 planetScale = 0x40000L / planetDepth;
                 projectedY = verticalOffset / planetDepth;
 #ifdef SDL_PORT
+                SdlSetViewOverlaySprite(
+                    16, projectileShape, 0, 0, nCurrentViewCenterPosX,
+                    (short)(nCurrentViewCenterPosY + projectedY),
+                    (short)planetScale);
                 if (!SdlRecordSpaceSprite(
                         &stSpaceBufferViewport, nCurrentViewCenterPosX,
                         (short)(nCurrentViewCenterPosY + projectedY),
@@ -326,6 +349,9 @@ unsigned int ShowCampaignVictorySequence(void)
             }
             dump_buffer_to_screen();
             clear_view_buffer();
+#ifdef SDL_PORT
+            SdlDeferFlightFrame(0);
+#endif
             DIBslam();
             DIBslamReal();
         }
@@ -336,6 +362,10 @@ unsigned int ShowCampaignVictorySequence(void)
         DIBslamReal();
         frame++;
     } while (frame < 250);
+#ifdef SDL_PORT
+    /* No frame left waiting, as when Escape ended it, outlives the scene. */
+    SdlResetFrameInterpolation();
+#endif
 
     ReleasePacketHandle(projectileShape);
     ReleasePacketHandle(planetShape);
@@ -405,6 +435,9 @@ unsigned int ShowTigerClawEscapeScene(void)
     int depth;
     int scale;
     int projectedY;
+#ifdef SDL_PORT
+    int drawn;
+#endif
 
     approachStep = 15;
     PreloadMusicTrackHook(MUSIC_DEBRIEFING_FAILURE);
@@ -435,14 +468,29 @@ unsigned int ShowTigerClawEscapeScene(void)
     nFrameSkipCounter = 1;
     bEscapePressedFlag = 0;
     frame = 0;
+#ifdef SDL_PORT
+    SdlResetFrameInterpolation();
+#endif
     do {
+#ifdef SDL_PORT
+        SdlCaptureFlightPoses();
+        drawn = 0;
+#endif
         Update_3Space();
         if (Draw_3Space_Frame() != 0) {
+#ifdef SDL_PORT
+            drawn = 1;
+#endif
             if (asObjectCollisionRadius[61] < depth &&
                 frame < 198) {
                 scale = 0x40000L / depth;
                 projectedY = verticalOffset / depth;
 #ifdef SDL_PORT
+                /* In-between frames move it on from the step before. */
+                SdlSetViewOverlaySprite(
+                    0, escapeShape, 0, 0, nCurrentViewCenterPosX,
+                    (short)(nCurrentViewCenterPosY + projectedY),
+                    (short)scale);
                 /* At the enhanced renderer's output resolution, as the
                  * space objects around it are. */
                 if (!SdlRecordSpaceSprite(
@@ -506,9 +554,17 @@ unsigned int ShowTigerClawEscapeScene(void)
         if (bEscapePressedFlag == 1)
             break;
         frame++;
+#ifdef SDL_PORT
+        /* Smooth spaceflight: in-between frames lead up to the step. */
+        if (drawn)
+            SdlDeferFlightFrame(0);
+#endif
         DIBslam();
         DIBslamReal();
     } while (frame < 260);
+#ifdef SDL_PORT
+    SdlResetFrameInterpolation();
+#endif
 
     ReleasePacketHandle(aObjectTypeData[
         OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet);

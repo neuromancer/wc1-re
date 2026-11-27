@@ -281,6 +281,10 @@ void SdlSetViewOverlaySubtitle(short colour, const char *text);
 void SdlSetViewOverlayLogo(short fromDistance, short toDistance, short y);
 void SdlSetViewOverlayZoomText(const char *text, short x, short y,
                                short fromScale, short toScale);
+struct Shape;
+void SdlSetViewOverlaySprite(int id, struct Shape *shape, short frame,
+                             short flip, short x, short y, short scale);
+void SdlSetFlightStepPresents(int presents);
 void SdlClearViewOverlay(void);
 int SdlFlightFrameDeferred(void);
 int SdlDrawingInterpolatedFrame(void);
@@ -355,6 +359,7 @@ void SdlApplyJoystickFlightControls(void);
 void SdlEndJoystickSpaceflight(void);
 /* WC1 is flying and reading its flight controls (not a menu or the map). */
 int SdlSpaceflightInputActive(void);
+int SdlLiveJoystickSteering(short *pitch, short *yaw);
 /* Keyboard rebinding (keymap.c): the launcher's changed bindings, one
  * "action=bindings" line each. */
 void SdlSetKeyBindings(const char *bindings);
