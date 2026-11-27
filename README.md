@@ -10,6 +10,9 @@ Super Wing Commander Mac demo.
 
 No original game data or Sega CD voice recordings are included.
 
+Players and modders are invited to discuss wc1-re in the `#wc1-re` channel of
+the [Wing Commander Dev Discord](https://discord.gg/p8aKxvWKq).
+
 If you find this project useful, you can [support its development through
 GitHub Sponsors](https://github.com/sponsors/neuromancer).
 
