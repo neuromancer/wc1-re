@@ -1859,7 +1859,7 @@ short CheckTargetLockMalfunction(void)
 {
     short countdown;
 
-    if (malf(5) != 0) {
+    if (malf(COMPONENT_TARGET_TRACKING) != 0) {
         countdown = -10;
         lock_off();
         countdown = (countdown - RandomBelowOrEqual(30));
@@ -1875,7 +1875,7 @@ short decrement_lock_time(short screenX)
 {
     (void)screenX;
     if (nTargetLockCountdown > 0) {
-        if (malf(5) == 0) {
+        if (malf(COMPONENT_TARGET_TRACKING) == 0) {
             nTargetLockCountdown--;
             bTargetLockAcquired =
                 nTargetLockCountdown == 0;
@@ -2570,7 +2570,7 @@ void check_target(void)
     }
     if (nTargetLockMode != 0 &&
         (short)(nRenderedSpaceFrame % 8) == 0 &&
-        malf(5) != 0) {
+        malf(COMPONENT_TARGET_TRACKING) != 0) {
         nTargetLockMode = 0;
         malf_sound();
     }
@@ -3211,8 +3211,8 @@ void SelectCockpitVduMode(short vdu, int mode)
 #endif
     if (nCameraViewMode != 0)
         return;
-    if (malf(3) != 0 ||
-        (mode == VDU_MODE_COMMUNICATIONS && malf(4) != 0)) {
+    if (malf(COMPONENT_COMPUTER) != 0 ||
+        (mode == VDU_MODE_COMMUNICATIONS && malf(COMPONENT_INTERCOM) != 0)) {
         vdu_malf(vdu, 0x17);
         return;
     }

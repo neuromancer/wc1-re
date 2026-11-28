@@ -2492,7 +2492,7 @@ unsigned int replenish_weapon_energy_bank(short ship)
 /* Function start: 0x4218D0 */
 void accelerate(short amount)
 {
-    if (malf(0) != 0) {
+    if (malf(COMPONENT_ION_DRIVE) != 0) {
         amount = (amount - 2);
         if (nCurrentSpaceFrameValue % 3 == 0)
             PlaySfxWaveFileByNumber(3, -1, 0);
@@ -2512,7 +2512,7 @@ void your_afterburner(void)
 
     if (anShipFuelsTable[0] <= 0)
         return;
-    if (malf(0) != 0) {
+    if (malf(COMPONENT_ION_DRIVE) != 0) {
         PlaySfxWaveFileByNumber(3, -1, 0);
         return;
     }
