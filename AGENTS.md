@@ -1,225 +1,114 @@
----
-trigger: always_on
----
+## Project
 
-## Project Context
+This repository holds the reconstructed source of **Wing Commander** as shipped in
+*Wing Commander: The Kilrathi Saga* (1996), the Win32 port of the 1990 DOS game, and
+an SDL2 port that runs it on modern systems.
 
-You are reconstructing the source of **Wing Commander** as shipped in *Wing Commander: The
-Kilrathi Saga* (1996), the Win32 port of the 1990 DOS original. Confirmed by the registry key
-the binary reads: `Software\Origin Systems\WC: Kilrathi Saga`.
+- **The original game**: `src/*.c`, `src/*.cpp`, `src/*.asm`, `src/ix/` and the
+  headers in `include/`. They rebuild `WC1.EXE` byte for byte with the original
+  toolchain: Microsoft Visual C++ 4.20 under wibo, and UASM for the two hand-written
+  assembly files. The retail executable is a debug build, so its `assert()`s, the
+  MSVC debug heap and the `\\.\MONODEBG.VXD` channel are original behaviour, not
+  artifacts to remove.
+- **The SDL2 port**: the same sources compiled with `SDL_PORT` defined, together
+  with the port's own code in `src/port/`.
+- **Super Wing Commander**: `src/port/swc/`, a second engine for the Mac demo and
+  the full game. It reuses the original game's code wherever the two games share
+  logic, instead of copying it.
 
-- Original working title: **WINGLEADER**, © 1989,1990 Chris Roberts (Origin Systems).
-- Original codebase: **C** for the game core, **C++** for the `ix` audio library.
-- Compiler: **Microsoft Visual C++ 4.20**, static *debug* multithreaded CRT (LIBCMTD).
-- The shipped executable is a debug build: live `assert()`s, the MSVC debug heap, and a
-  `\\.\MONODEBG.VXD` developer channel are all present.
-- ~1,450 developer-written functions; all are named in the Ghidra database, but only ~437 of
-  those names are evidence-backed. The other ~1,013 are `<Verb><Object>Fn<addr>` operational
-  labels that describe mechanism, not purpose. **Do not trust an operational label as a
-  statement of intent.**
+## Building and checking
 
-IMPORTANT: The assembly output and the extracted strings are the *only* source of truth.
-Decompiled code is a useful hint but is NOT authoritative.
+    make                 # WC1.EXE, checked against the retail SHA-256
+    make verify-hash     # the same check; it must print "WC1.EXE: OK"
+    make modern          # the SDL2 port, out-modern/wc1-modern
+    make modern-gui      # the SDL2 port with its Slint launcher
+    make modern-swc      # the SWC demo viewer
+    make check-fuzz      # the libFuzzer flight fuzzer (see the Makefile)
+    make run-original    # the retail WC1.EXE in DREAMM
+    make run             # the rebuilt WC1.EXE in DREAMM
 
-The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in `src`
-(game core, C) and `src/ix` (audio library, C++).
+Run `make verify-hash` after any change the Win32 build can see. Build `modern` and
+`modern-gui` after any change to code the port compiles.
 
----
+Game data, disc images, MT-32 ROMs and the retail executable are never committed;
+they live in the ignored `data/`.
 
-## Absolute Rules (Do Not Violate)
+## The original game
 
-- Existing functions may be modified or removed when justified by the original
-  assembly. Preserve address annotations for reconstructed functions and validate
-  matching changes with `binary-comp`.
-- DO NOT remove code unrelated to the matching work.
-- DO NOT change calling conventions. The game core is `__cdecl`; a handful of `ix` functions
-  are `__thiscall` — leave those implicit, never spell `__thiscall` out.
-- DO NOT add:
-  - inline assembly, EXCEPT where there is strong evidence the original was hand-written
-    assembly (see docs/PATTERNS.md), or the explicitly user-authorized four-instruction
-    peak-counter update in `AllocateGuardedMemory`, retained as a matching workaround
-  - dummy variables
-  - helper functions or wrappers that do not exist in the original binary
-  - vtable fields or manual vtable handling
-  - unions or substructures
-  - `try`/`catch`/`__finally` (see the SEH note below)
-- DO NOT show the final code once you finish.
-- If you are out of ideas, stop. Do not break any rules.
-- In C++ (`src/ix`), do not use `this->`; use the class field name directly.
-- When a function is implemented, it should have a good name. No completely generic names are acceptable, so you must investigate globals and such to understand how to name them.
-- When a new .c file is added, it should have a good name. No leafsX.c are accepted.
-- Do NOT put a function in only one line `unsigned short f(void) { return 0; }`. The
-  reconstruction is read side by side with the disassembly, so one source line per statement
-  is what makes the two comparable. `make sort` fails if any remain;
-  `bin/expandOneLiners.py` rewrites them.
-- DO NOT use aliases; rename instead. In particular, do not use aliases for globals (#define g_X_Y ((void *)DAT_Y)). Instead rename all of them with a proper type.
-- Do NOT manually replicate thunk functions or other compiler generated glue code (e.g. GetFixedOneMillionThunkAlt(void) { __asm { jmp GetFixedOneMillionAlt }). These need to be produced by the compiler automatically, not forced.
+`WC1.EXE` must stay byte-identical. The original files change only for the port
+(inside `#ifdef SDL_PORT`) or for a fix that keeps the hash.
 
-### WC1-specific rules that differ from sibling projects
+- Never split, merge, reorder or reformat an original file, and never add one; new
+  code goes in `src/port/`. The link order fixes every address: the units in
+  `SRCS_ORDERED_CORE` and the ix lists in the Makefile, and the functions inside
+  each file, are in the original's order.
+- Keep every `/* Function start: 0x... */` annotation on a function and every
+  `/* 0x004xxxxx */` address comment on a global.
+- CL 4.20's output depends on more than the code. Each declaration a unit sees
+  takes symbol indices that break register-allocation ties, so adding, removing or
+  moving a declaration in a header can change functions elsewhere
+  (`include/wc1extern.h` keeps three uncalled prototypes for that reason). Put
+  what the port adds to an original file or header inside `#ifdef SDL_PORT`, and
+  let `make verify-hash` decide.
+- The `ix_log_printf` calls in `src/ix/` pass the retail file names and line
+  numbers as literals. Keep them.
+- The game core is C, ported from 16-bit DOS code, so most game state is `short`;
+  keep the types. Only `debug.cpp`, `pilot.cpp` and `sound.c` (compiled with
+  `/TP`) are C++.
+- `bin/extractRasterLibrary.py` generates `src/raster.asm` and holds its names and
+  comments: change the script and regenerate rather than edit the file.
+- Function names are the developers' own where the binary's strings state them;
+  the others describe what the function does.
 
-- **`.c` files are correct here.** The game core was C — the leaked WINGLEADER main module is
-  a `.c` file including `<game.h>` and `<dos.h>`. Preserve only the proven C++ exceptions
-  documented in `docs/COMPILER.md`; do not "upgrade" other core files to C++ or to classes.
-- **Never write C++ exception handling.** `/GX` is off except for the proven compiler-generated
-  construction cleanup in `pilot.cpp`; do not add `try`/`catch`. The remaining SEH is C
-  `_except_handler3` scope-table output and must not be written by hand either.
-- **Do not rely on identical string literals being merged.** `/Gf` was NOT used: two
-  byte-identical `"DIBsetWholePalette   SetEntries"` literals exist at `0x0046b6e0` and
-  `0x0046b71c`. Write each literal out at its own use site.
-- **Expect 16-bit types.** The core was ported from 16-bit DOS C, so `int` was 16 bits
-  originally. Most game state is `short`, and 814 functions carry a measurable 16-bit-operand
-  density. If your build emits 32-bit operations where the original used 16-bit, the type is
-  wrong — use `short`, not `int`.
-- Global variables may be renamed from `DAT_x` to `<hungarian><Name>` -- no `g_` prefix and
-  no address in the name, so use sites read cleanly. The address MUST survive as a
-  `/* 0x004xxxxx */` comment on the declaration in `include/globals.h` and on the
-  definition, which is what the layout audits resolve it from. Unidentified globals keep
-  `DAT_<address>` -- the address is all they have.
-  Functions must NOT carry the address in their name.
-- A file that defines globals must not put a bare `0x004xxxxx` in its header comment: it
-  outranks the first declaration's own address comment when the audit resolves it.
-- **Name every function you implement.** An operational label (`DoLocalFn5450`,
-  `HelperOf430FC0C`, `ReturnConst0v5`) is acceptable only while a function is an unwritten
-  stub. Once written it takes the developer's own name if the binary states one
-  (`bin/nameOracle.py`), otherwise a `<Verb><Object>` description of what it does; empty
-  originals get a `…Hook` suffix. Full policy in docs/LABELS.md.
-- **Files are named for their subsystem, never for a tranche.** Game-core files are short DOS
-  8.3-style names matching the original tree (`Library\Source\Pload.c` is the one leaked
-  path), each covering one address range recorded in docs/ORDER.md. Put a new function in the
-  file whose range contains its address; if none does, extend the nearest range rather than
-  starting a `misc.c`.
-- Global visibility follows the original compilation units: globals referenced by multiple
-  units are declared in `include/globals.h`, while compilation-unit-private globals are
-  declared only in that unit. Definitions belong in their evidence-backed original unit and
-  declaration order; until ownership is proven, storage may remain in `src/globals.c`.
-  Prototypes for implemented functions are in `include/wc1funcs.h`, and prototypes for
-  not-yet-written callees are in `include/wc1extern.h`; all three headers are reached through
-  `wc1.h`.
+### Style of the original files
 
-### Other important rules
+An `SDL_PORT` block follows the format of the file around it. The files share:
 
-- Use high-level struct fields to access members. If a field name is unknown, use
-  `field_0`, `field_4`, … until something better is established.
-- Small functions may be inlined into a header if the assembly shows the call was inlined.
-- Avoid low-level pointer arithmetic (`*(short *)(p + 0xE)`) where a struct field will do.
+- 4-space indentation, no tabs, braces on the same line, one statement per line,
+  and never a function body on the line of its signature.
+- Struct members by field name; an unknown member is `field_<offset>`. No raw
+  `*(short *)(p + 0xE)` where a field will do.
+- Globals with Hungarian names and no `g_` prefix (`bEscapePressedFlag`,
+  `aeObjectClass`); an unidentified one keeps `DAT_<address>`. Rename a symbol at
+  every use; never add an alias `#define`.
+- In `src/ix/`, class members are named without `this->`.
+- Globals used by several units are declared in `include/globals.h` and functions
+  in `include/wc1funcs.h`, both reached through `wc1.h`.
 
----
+## The SDL2 port
 
-## Your Task
+Port code lives in `src/port/`, one directory per job, on the model of ScummVM's
+structure. Port files may be split, merged and moved freely.
 
-Before starting:
-1. Review the existing files.
-2. Determine which compilation unit the target function belongs to (see `docs/ORDER.md`).
-3. If the function already exists, ensure it is used properly, not declared `extern`.
-4. Ensure naming is reasonable and consistent.
+| Directory | Owns |
+| --- | --- |
+| `platform/` | Program entry and options, C runtime and Win32 stand-ins, timers, threads, settings (`wc1-modern.cfg`) |
+| `graphics/` | Frame presentation, the OpenGL renderer, hi-res HUD text, Smooth spaceflight |
+| `input/` | Host events, keyboard and mouse, joysticks and gamepads, rebinding tables |
+| `audio/` | Mixing and sampled sound, OriginFX and AdLib, MT-32, speech |
+| `game/` | What the port adds to WC1's data and behaviour: packet loading, data patches, campaigns and SM1.5, autosave, translations, the DOS intro, FM Towns data |
+| `swc/` | The Super Wing Commander engine, for the Mac demo and the full game |
+| `launcher/` | The Slint launcher (C++) |
 
-You may stop once assembly similarity is >= 90%.
-If you give up, still provide the best possible implementation.
+- Original files reach the host only through port functions; SDL calls stay in
+  `src/port/`. `include/wc1sdl.h` declares what original files call.
+- An `SDL_PORT` block in an original file is a call into the port, or a short
+  behaviour fix that names its reason (usually an issue number). Longer logic
+  belongs in `src/port/`.
+- A port file keeps its state `static` and offers functions through a header. It
+  does not reach into another file's state.
+- Names: keep existing names. New port functions take the `Sdl` prefix and
+  PascalCase, like the names around them.
+- Format: as the original files.
+- Headers: include guards named `SDL_PORT_<NAME>_H`. Include another area's header
+  by its path from `src/port/` (`"graphics/video_internal.h"`).
+- Comments: short. Say what a function does, and why when that is not obvious.
+  History and investigation belong in commit messages.
 
----
+## Behaviour
 
-## Workflow
-
-### Locating a Function
-
-To implement the function at, say, `0x004075D0`:
-
-    grep -r -i 4075D0 code-full
-
-Always use `-i` for case-insensitive matches.
-
-IMPORTANT: `out/*.asm` is produced by the compiler from *our* C code — it is not the
-original. `WC1.map` likewise describes only the reimplementation. Use `binary-comp` to
-compare against the original.
-
-### Compiling & Comparing Assembly
-
-    make compare-func FUNC=RunShipAiBehaviorTick
-
-which resolves the export and runs
-
-    binary-comp compare --config config/binary-comp.json --target full \
-        RunShipAiBehaviorTick code-full/FUN_004075D0.disassembled.txt
-
-**binary-comp is the only comparison authority.** Do not write or trust a separate
-similarity script. `make report` scores every annotated function; `make verify` runs the
-expected-zero gates.
-
-If a function has no export yet, add its `/* Function start: 0x... */` header and run
-`make export-asm` (see docs/EXPORT.md).
-
-### Compilation-unit order
-
-Object link order fixes every address, so `docs/ORDER.md` and `SRCS_ORDERED_*` in the
-Makefile matter. The `ix` order is exactly known. The game-core order is NOT — recover it
-incrementally with `make order` and record findings in `docs/ORDER.md`.
-
----
-
-## Required Files & Documentation
-
-- `docs/COMPILER.md` — toolchain and flag derivation. Read before touching `CFLAGS`.
-- `docs/PATTERNS.md` — source idioms that decide whether the output matches.
-- `docs/EXPORT.md` — how `code-full/` is produced and what each command needs.
-- `docs/ORDER.md` — known and unknown compilation-unit boundaries.
-- `docs/LABELS.md` — what the two kinds of Ghidra name mean and how much to trust each.
-- `code-full/strings.txt` — address-to-string map. Always check when strings appear.
-- `src/map` — address-sorted function list showing which functions are adjacent.
-- `../WC1_ANALYSIS.md` and `../wc1_function_evidence.csv` — the analysis that seeded this
-  project: module map, compiler evidence, per-function evidence for all 1,836 functions.
-
----
-
-## Implementation Requirements
-
-### Function Structure
-
-- Add this header before every reimplemented function:
-
-      /* Function start: 0x4075D0 */
-
-- Sort functions by address within each file. MSVC emits functions in source order, so
-  ordering is what exposes incorrect module ownership.
-
-### Accuracy Constraints
-
-Preserve local variable order, field offsets, stack layout, and jump kinds/order
-(`jmp`, `jne`, …). The generated assembly must match stack usage as closely as possible.
-
-### Strings & Standard Functions
-
-- Write full string literals as constants; no pointer aliases (and see the `/Gf` rule).
-- If the decompilation calls `_strcpy`, use `strcpy` from the proper header.
-- `memcpy`/`strcpy` are allowed only where they improve matching through compiler inlining.
-
-### External Functions
-
-- If a function is referenced but not yet implemented, declare it `extern`. Do not guess an
-  implementation.
-
----
-
-## Special Cases & Patterns
-
-- This pattern indicates compiler-generated SEH, not something to hand-write:
-
-      local_X = unaff_FS_OFFSET;
-      local_u = 0xffffffff;
-
-  The `entry` scope table is at `0x00463be0`; a game-code example is the `__except` filter at
-  `0x00425b7d` belonging to the function at `0x00425b00`.
-
-- The debug CRT is linked in. Calls into `_CrtCheckMemory`, the debug heap, or
-  `assert`-shaped reporting are *original behaviour*, not artifacts to remove.
-
-- `ix_log_printf` (`0x004426a0`) is the `ix` diagnostic printer, called from 107 sites as
-  `log(fmt, file, line)` then `log(message)`. Its `__FILE__`/`__LINE__` arguments are the
-  source anchors that recovered the `ix` module map — keep them accurate.
-
----
-
-## Final Reminder
-
-If similarity is >= 90%, stop.
-If you are stuck, stop.
-Never break the rules above.
+- Same game, same behaviour: the port plays the same whichever release's data it
+  runs (DOS, Kilrathi Saga, FM Towns); only the data formats differ. The Kilrathi
+  Saga executable is the reference.
+- Behaviour changes only when a change says so. A restructuring change carries no
+  feature.
