@@ -450,10 +450,8 @@ void CaptureMouseCursorBackground(void)
         return;
 
 #ifdef SDL_PORT
-    /* Draw at the newest queued mouse position, including during the frame
-     * limiter's idle redraws.  Do not consume events or change the position
-     * used by game logic: a queued click must keep its original coordinates.
-     * Keyboard and joystick pointer moves use this same event queue. */
+    /* Draw at the newest queued mouse position without consuming events,
+     * so a queued click keeps its own coordinates. */
     x = stMouseCursorState.x;
     y = stMouseCursorState.y;
     for (event = pInputEventTail; event != 0; event = event->previous) {

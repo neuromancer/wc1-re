@@ -116,10 +116,8 @@ static void SdlStepMt32Song(void *context)
     g_nSdlQueuedMusicTrack = -1;
 }
 
-/* OriginFX's music and sound effects: the MT-32 renders what the player
- * chose it for, writing the output rather than adding to it when
- * addToOutput is 0, and the AdLib plays the rest. Call with the music mutex
- * held. */
+/* Renders OriginFX music and effects: the MT-32 what the player chose it
+ * for, the AdLib the rest. addToOutput 0 overwrites. Hold the music mutex. */
 static void SdlMixOriginFxOutput(short *samples, unsigned int frameCount,
                                  int addToOutput)
 {
@@ -408,10 +406,7 @@ int SdlHandlesGameSoundEffects(void)
     return 1;
 }
 
-/* The pan, 0 left to 127 right as every effect player takes it, for a unit
- * direction from the camera. Its component along the camera's right vector
- * is positive for objects that transform_objects_to_your_view draws right of
- * the view's centre. */
+/* The pan, 0 (left) to 127 (right), for a unit direction from the camera. */
 int SdlSoundEffectPan(const FixedVector *direction)
 {
     int scaledPan;
@@ -602,12 +597,9 @@ void SdlServiceOriginFxMusic(void)
     SDL_UnlockMutex(g_pSdlDosMusicMutex);
 }
 
-/* MusicCommand (003:00d6) for the game's spacetrack. While a change is
- * queued, or the track is the one playing, the command is ignored.
- * Commands 1 and 3 queue the track. The playing song then leaves at its
- * next exit, which keeps launch music and fanfares whole and moves combat
- * music on at a bar line. Commands 0 and 2 start the track at once. The
- * game's command-2 fades last one 60 Hz tick at most. */
+/* MusicCommand (003:00d6): commands 1 and 3 queue the track for the playing
+ * song's next exit, 0 and 2 start it at once. A queued or playing track is
+ * ignored. */
 int SdlOriginFxMusicCommand(int track, int command)
 {
     SdlOriginFxPlayer *player;

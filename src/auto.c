@@ -48,10 +48,8 @@ void visit_the_cinema(int view, int obj, short frames)
      * narrowing explicit changes the register setup and loses an exact match. */
     force_view(view, obj);
 #ifdef SDL_PORT
-    /* The fly-by keeps the Kilrathi Saga's 20 frames a second whatever the
-       Speed setting (issue #34): a slowed game need not slow its cinematic,
-       which even a 386 played no slower. The flight's own cap returns
-       after it. */
+    /* The fly-by keeps 20 frames a second whatever the Speed setting
+       (issue #34); the flight's own cap returns after it. */
     savedFrameInterval = nFrameIntervalMs;
     nFrameIntervalMs = 50;
 #endif

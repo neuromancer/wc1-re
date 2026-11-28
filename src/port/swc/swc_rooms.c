@@ -1,9 +1,5 @@
-/* SDL carrier presentation for the campaign, ceremonies and simulator.
- * Room routing: CODE_09 GameFlow +0x1b8e; CODE_07 RecRoom +0x059a;
- * CODE_03 BarracksScreen +0x5c70 and SceneDirector +0x254c.
- * WC1 owns pilot/campaign state, scene tests, substitutions and animation
- * parsing. Mac sprites, palettes, hit testing, audio and events are adapted here.
- * This is not a replacement for WC1's disk-backed room/scene director. */
+/* The carrier's rooms for the campaign, ceremonies and simulator (CODE_09
+ * GameFlow), on WC1's pilot and campaign state. */
 #include "wc1.h"
 #include "swc.h"
 #include "swc_map.h"
@@ -40,10 +36,8 @@ typedef struct SwcRoomPack {
     int count;
 } SwcRoomPack;
 
-/* CODE_05 init_parralax_shards +0x484e / update_parralax_shards +0x49d0:
- * DATA/0 +0x9530 still stars and +0x9260 drifting shards, up to 45 each,
- * in the DATA/0 +0x9758 rectangle. Every demo caller passes direction -1,
- * so the shards drift left. visible is SceneDirector's DATA/0 +0xa4e0. */
+/* CODE_05's parallax field: still stars and drifting shards, up to 45
+ * each. */
 typedef struct SwcParallax {
     SDL_Rect area;
     int count;
@@ -531,10 +525,8 @@ done:
     return result;
 }
 
-/* CODE_15 dark +0x03c2 switches to clut ID+10; ChangeSWPaletteClut
- * restores the scene palette. SDL interpolates between the two over ten
- * Mac ticks at room boundaries. This interpolation is a host transition;
- * the Mac routines change palette resources directly. */
+/* CODE_15 dark and ChangeSWPaletteClut switch between a room's palette and
+ * clut ID+10; the port fades over ten Mac ticks instead. */
 static int SwcFadeRoom(SwcCarrier *carrier, int entering)
 {
     SwcRoomInput input;
@@ -638,10 +630,7 @@ done:
     return result;
 }
 
-/* CODE_07 intro_ready_attack +0x1906 and intro_ranger_dead +0x1adc.
- * Both draw TKHD/13 at (0,10), with eyes 11..20 and mouth 1..10.
- * The first also draws ST01/1 frame 13 at (50,50)/(250,50), second flipped.
- * Host 20 Hz presentation replaces Mac loop timing; speech marks use 60 Hz. */
+/* CODE_07 intro_ready_attack +0x1906 and intro_ranger_dead +0x1adc. */
 int SdlPlaySwcIntroSpeech(SDL_Window *window, SDL_Renderer *renderer,
                            const char *resourceFork, int afterAttack)
 {
@@ -750,10 +739,8 @@ int SdlPlaySwcIntroSpeech(SDL_Window *window, SDL_Renderer *renderer,
             if (sequenceTime >= nextAnimation) {
                 animationTick++;
                 nextAnimation = sequenceTime + frequency / 20;
-                /* init_3d_shards(180), update_3d_shards(0): a stationary
-                 * camera looking backward, with 63 shards. Out-of-view
-                 * shards regenerate one draw in four. Their zero velocity
-                 * leaves visible positions and sprite frames unchanged. */
+                /* init_3d_shards(180), update_3d_shards(0): a still camera looking
+                 * back over 63 shards. */
                 for (index = 0; index < (int)SDL_arraysize(stars); index++) {
                     if (animationTick != 1 &&
                         (stars[index].x != INT_MIN || RandomBelowOrEqual(3) != 0))
@@ -1755,10 +1742,8 @@ static void SwcDrawMedalCase(SwcCarrier *carrier)
     }
 }
 
-/* Retail CODE_03 HandleMidGame 0x010351d2 and next_campaign_movie
- * 0x010344a4. Outcome is the next system for warps, otherwise series failure.
- * GameFlow handles 64/65 by moving to the next campaign, not by playing
- * HandleMidGame's otherwise-unreachable victory montage. */
+/* CODE_03 HandleMidGame and next_campaign_movie: the warp to the next
+ * system, or the series' failure. */
 int SdlPlaySwcCampaignTransition(SDL_Window *window, SDL_Renderer *renderer,
                                   int sequence, int outcome, int campaign)
 {
@@ -1968,10 +1953,8 @@ static void SwcUpdateEndShards(SwcEndShards *shards, int turn)
     }
 }
 
-/* CODE_03 the_end, CODE_14 stranded_sequence and retail TheEndFireWorks
- * 0x010e2d96 share GameMode(1)'s RecRoomScene PLNT/1 and clut 135.
- * Campaign completion uses GAME OVER and no camera turn; the funeral
- * uses THE END and a rotating field. These never advance the mission. */
+/* CODE_03 the_end and CODE_14 stranded_sequence: GAME OVER after the
+ * campaign, THE END and a turning field after the funeral. */
 int SdlShowSwcEnding(SDL_Window *window, SDL_Renderer *renderer,
                        const char *resourceFork, enum SwcEnding ending)
 {
@@ -2292,17 +2275,9 @@ static void SwcSaveGameScores(const char *path, unsigned char scores[6][28])
     }
 }
 
-/* Retail CODE_14 DisplayGameScores +0x248a / PrintGameScores +0x23d2.
- * Keep six name[24]/big-endian score records in the SDL preferences folder;
- * never overwrite the original Mac preferences or WC1's pilot-index table.
- * Retail LoadPreferences +0x38d8..+0x3930 fills a new table with six
- * invented pilots (A5-0x1ede..-0x1eb2), 10000 + random_number(2000) points
- * for the first and 100 + random_number(1500) fewer for each next one. The
- * Mac never adds a run: ArcadeGame only shows this table before and after.
- * SDL records the run, and like WC1's UpdateTrainSimHighScores (0x426820)
- * congratulates a top score; the name, which SWC fixes as the pilot's
- * callsign, is typed in place with ReadTextInput's rules (0x426200):
- * letters, digits and inner spaces, in capitals, Backspace to erase. */
+/* CODE_14 DisplayGameScores +0x248a. The six scores live in the SDL
+ * preferences folder; unlike the Mac, a run is recorded, and a top score
+ * takes a name as in WC1's simulator. */
 static int SwcDisplayGameScores(SwcCarrier *carrier, int recordScore)
 {
     static const char *const pilots[6] = {

@@ -1,12 +1,5 @@
-/* The WC1 flight inputs that the launcher's keyboard and mouse table can
- * rebind, shared by src/port/input/keymap.c and the launcher check. Each entry
- * names the input as the launcher settings and the table do, the key and
- * modifier that the game's own handler reads, and the original bindings: a
- * key by position, its other side for modifier keys, a modifier, a mouse
- * button, and a wheel direction. The arrows steer like a stick, so up
- * pitches the nose down. Full screen, a port shortcut, and the mouse buttons
- * that fire the guns and light the afterburner are handled separately, for
- * both games. */
+/* WC1's rebindable flight inputs, shared by keymap.c and the launcher: each
+ * input's id, the key the game reads and the original bindings. */
 #ifndef WC1_SDL_KEYMAP_ACTIONS_H
 #define WC1_SDL_KEYMAP_ACTIONS_H
 
@@ -57,13 +50,8 @@
     ACTION("music", SDL_SCANCODE_M, KMOD_CTRL, {SDL_SCANCODE_M, SDL_SCANCODE_UNKNOWN, KMOD_CTRL}) \
     ACTION("sound", SDL_SCANCODE_S, KMOD_CTRL, {SDL_SCANCODE_S, SDL_SCANCODE_UNKNOWN, KMOD_CTRL})
 
-/* SWC's rebindable inputs, as the Mac demo reads them (src/port/swc/swc_flight.c
- * and swc_options.c). Each names the input, the key SWC reads (its keycode,
- * its position or SDL_SCANCODE_UNKNOWN to look the keycode up on the layout,
- * and its modifier), whether it is a menu option that every SWC screen reads,
- * and the original bindings by name. The menu shortcut is Command on macOS
- * and Control elsewhere. The digits 8, 2, 4 and 6, the keypad and the Actions
- * and Views menus' shortcuts are not listed: they always work. */
+/* SWC's rebindable inputs, as the Mac demo reads them. The menu shortcut is
+ * Command on macOS and Control elsewhere. */
 #ifdef __APPLE__
 #define SDL_KEYMAP_MENU_MODIFIER KMOD_GUI
 #define SDL_KEYMAP_MENU_NAME "meta"

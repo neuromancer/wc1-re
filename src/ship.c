@@ -1540,10 +1540,8 @@ int explode(short attacker, short victim)
             return 0;
     }
 #ifdef SDL_PORT
-    /* Special-maneuver state exists only for the twelve ship slots.  The
-       original evaluates this lookup before rejecting non-ship objects, so
-       exploding a projectile in a later object slot reads the following
-       ship-mission table. */
+    /* Special maneuvers exist only for the twelve ship slots; the
+       original reads past them for later objects. */
     if (victim >= 0 && victim < 12 &&
         aeSpecialManeuvers[victim] ==
             SPECIAL_MANEUVER_UNKNOWN_9 &&

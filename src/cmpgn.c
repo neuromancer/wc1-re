@@ -808,11 +808,8 @@ unsigned int UpdateMap(char *text, short duration)
     ClearViewport(&stScreenView, cBlackColour);
     SetTextContext(&stCurrentConvTxtCtx);
 #ifdef SDL_PORT
-    /* The map raised the screen view's top from 24 to 4. DOS restores the
-     * saved view here; the Kilrathi Saga restores it before the map, so
-     * every later shot of the briefing was drawn 20 lines higher (issue
-     * #49). The scene buffer stays as the map left it, freshly allocated:
-     * the saved copy points at the pixels the map freed. */
+    /* Restore the screen view the map raised, as DOS does (issue #49), but
+     * keep the map's scene buffer: the saved one points at freed pixels. */
     stScreenView = savedScreen;
 #endif
     ClearViewport(&stScreenView, cBlackColour);

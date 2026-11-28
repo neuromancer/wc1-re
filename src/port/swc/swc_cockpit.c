@@ -1,7 +1,5 @@
-/* SDL presentation of the retail SWC cockpits.
- * CODE_13 and the expanded DATA/0 tables provide the layout and sprite
- * selection. WC1 supplies flight state, speed readouts and scanner maths.
- * QuickDraw Helvetica is supplied by the host text adapter. */
+/* The retail SWC cockpits (CODE_13's layout and sprites) over WC1's flight
+ * state. */
 #include "wc1.h"
 #include "swc.h"
 
@@ -210,16 +208,9 @@ void SdlSwcVocalizeMessage(int command)
     }
 }
 
-/* CODE_06 Chosen_communicate_option +0x0276. The Actions menu's message
- * items 13..16 and SetGInputForChar's B, R, H and E keys (CODE_01 +0x3ec4,
- * dispatched by process_player_input +0x3e62..+0x3ea2) send one order each,
- * with no recipient menu: 0 break/attack, 1 request landing from a targeted
- * Tiger's Claw or else form on my wing, 2 help me out, 3 taunt the target.
- * The Mac reads the wingman's objective and the target's side before
- * checking either index; test the indices first. Out of formation, B is
- * attack my target, whose bad_target reads the target's side: without a
- * target the Mac reads the bytes below its side table, so send nothing, as
- * for R and E (WC1 and the computer offer that order only for a target). */
+/* CODE_06 Chosen_communicate_option +0x0276: the message items and the B,
+ * R, H and E keys send one order each. Indices are checked first, and an
+ * order that needs a target sends nothing without one. */
 void SdlSwcCommunicate(int choice)
 {
     short wingman = nYourWingman;
@@ -812,10 +803,8 @@ void SdlSwcLockOff(void)
     nTargetLockCountdown = -1;
 }
 
-/* CODE_13 target_locking +0x37c0, start/starting_lock +0x36b2/+0x36d6
- * and decrement_lock_time +0x3752. WC2 cockpt.c (0x43c048) supplies the
- * common structure; SWC retains 18/32 updates, its sounds and malfunction
- * stall, without WC2's torpedo, target-camera or damage-eligibility branches. */
+/* CODE_13 target_locking +0x37c0, on WC2's structure without its torpedo
+ * and target-camera branches. */
 static void SwcUpdateTargetLock(void)
 {
     const ShipWeaponSlot *weapons = (ShipWeaponSlot *)&aShipWeaponsTable[0][1];
@@ -875,11 +864,8 @@ static void SwcUpdateTargetLock(void)
         SdlPlaySwcSound(22, 255);
 }
 
-/* CODE_13 check_target +0x3aa4. Adapt WC2 cockpt.c's check_target
- * (0x43ddfc): the Mac retains a listed target or takes the nearest entry,
- * then enables lock mode automatically. It has no WC2 target camera or
- * eight-frame lock-malfunction check. build_your_target_list and its sort
- * already match CODE_13 +0x38f0 / CODE_05 +0x0b52 below 12,000 units. */
+/* CODE_13 check_target +0x3aa4: keep a listed target or take the nearest,
+ * then enable lock mode. */
 static void SwcCheckTarget(void)
 {
     int oldTarget = SwcCockpitTarget();

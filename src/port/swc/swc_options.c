@@ -1,11 +1,6 @@
-/* SDL host for the SWC demo's Options menu. CODE_01 DoOptionsMenu +0x2b30
- * toggles music (item 11, Cmd-U), sound (item 12, Cmd-N) and text messages
- * (item 15) and opens Volume Controls (item 13: DoAdjustVolumes +0x4f80 and
- * DRAWVOLUMECONTROLS +0x5522). The Mac menu bar is not reproduced: Cmd (Ctrl
- * on other hosts) with U and N keeps the original keys, B and V are host
- * keys for the items that had none, and a short notice confirms toggles.
- * CODE_12 SavePreferences +0x3cdc keeps these settings; the host stores them
- * beside WC1's in the SDL preference directory. */
+/* The SWC demo's Options menu (CODE_01 DoOptionsMenu +0x2b30): music,
+ * sound, text messages and Volume Controls, on Cmd (Ctrl) shortcuts. The
+ * settings are kept with WC1's. */
 #include "wc1.h"
 #include "swc.h"
 
@@ -229,10 +224,7 @@ static int SwcDrawVolumeButton(SwcVolumeDialog *dialog, SDL_Rect rect,
         rect.y + 14, ink, label);
 }
 
-/* DRAWVOLUMECONTROLS composes each 47x105 control from PICT/128: its face,
- * the clean track from x=48 over the old knob (+0x55a2), then the knob from
- * (23,107) at the step's height or, while dragging, 5 pixels above the
- * pointer within 3..89 (+0x564a..+0x5672). */
+/* Draws a volume slider from PICT/128, as DRAWVOLUMECONTROLS does. */
 static int SwcDrawVolumeSlider(SwcVolumeDialog *dialog, int slider, int volume)
 {
     static const SDL_Rect face = {0, 0, 47, 105};
@@ -323,11 +315,8 @@ static void SwcSetVolume(int slider, int volume)
     }
 }
 
-/* DoAdjustVolumes: ModalDialog with OK as default and Cancel as cancel
- * item (+0x4fea..+0x500a); Cancel restores both levels (+0x518c..+0x519c).
- * Escape cancels as in HAPPYDIALOGFILTER. Arrow keys and Tab are host
- * additions. Running inside the caller's event poll suspends its loop as
- * the Mac dialog did; the caller's frame clock is capped after it returns. */
+/* DoAdjustVolumes: OK keeps the levels, Cancel and Escape restore them;
+ * the arrow keys and Tab are the port's. */
 static void SwcRunVolumeControls(SDL_Window *window)
 {
     SwcVolumeDialog dialog = {0};

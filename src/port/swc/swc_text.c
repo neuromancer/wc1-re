@@ -256,11 +256,8 @@ done:
     return result;
 }
 
-/* CODE_06 AllocTextLayer +0x1d9a selects Helvetica (QuickDraw ID 21).
- * CODE_14 init_text +0x1fec selects size 9 for cockpit readouts;
- * CODE_03 print_subtitle +0x1122 selects size 14. The demo contains no
- * FONT/NFNT resources. Prefer a local classic font resource; absent that,
- * macOS uses system Helvetica and other hosts use the bundled bitmap. */
+/* Helvetica, size 9 for cockpit readouts and 14 for subtitles: a local font
+ * resource, macOS's Helvetica or the bundled bitmap. */
 int SdlCreateSwcTextFont(SDL_Renderer *renderer, SwcTextFont *font, int size)
 {
     int character;
@@ -379,11 +376,8 @@ int SdlDrawSwcProportionalText(SDL_Renderer *renderer, const SwcTextFont *font,
     return 0;
 }
 
-/* CODE_03 print_subtitle/GetLineLength and CODE_06 CenterPrint: remove
- * script newlines, wrap at layer width minus 25, center each line, and
- * advance by 15 pixels. init_text gives this layer a 300x200 extent and
- * print_subtitle moves it to (10,120). The Mac draws white text directly
- * over the picture; the record's textColour also identifies the speaker. */
+/* CODE_03 print_subtitle: wrap at the layer's width less 25 and centre each
+ * line, 15 pixels apart, in a 300-pixel layer at (10,120). */
 int SdlDrawSwcRoomSubtitle(SDL_Renderer *renderer, const SwcTextFont *font,
                             const char *text)
 {

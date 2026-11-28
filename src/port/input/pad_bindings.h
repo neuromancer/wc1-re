@@ -1,24 +1,8 @@
-/* The game controller's inputs in WC1's Custom joystick mode, shared by
- * src/port/input/joystick.c and the launcher's Joystick tab (controls.slint).
- *
- * The launcher settings' [pad] section binds each control to a function, one
- * "control=function" line each; a control without a line keeps its default.
- * A device that SDL maps as a game controller binds the gamepad's controls:
- * sixteen buttons, numbered as SdlJoystickButton numbers them, and its two
- * sticks' axes. Any other joystick binds its own buttons, hats and axes, by
- * number. A button or hat direction takes a flight key's action (the ids of
- * keymap_actions.h), "cycle-views", or "roll-and-speed", which while held
- * turns what yaws into roll and what pitches into speed, as the original
- * joystick's second button does. An axis takes "pitch", "yaw", "roll",
- * "speed" (faster or slower at a rate) or "throttle" (the speed its position
- * gives); a leading "-" reverses one. The gamepad's triggers take either
- * kind. An empty function leaves a control unbound.
- *
- * Right, up and a pressed trigger are positive, and pitch pushes the nose
- * down, as the original's stick does. A joystick's axes come in pairs read as
- * a stick's: the first of each pair grows to the right, as SDL reports it, and
- * the second upwards, toward SDL's negative end, which is also forward on a
- * throttle lever. */
+/* Gamepad and joystick bindings for WC1's Custom joystick mode, shared by
+ * joystick.c and the launcher: "control=function" lines in [pad]. Buttons
+ * and hats take a flight action, "cycle-views" or "roll-and-speed"; axes
+ * take "pitch", "yaw", "roll", "speed" or "throttle", and "-" reverses
+ * one. Right, up and a pressed trigger are positive. */
 #ifndef WC1_SDL_PAD_BINDINGS_H
 #define WC1_SDL_PAD_BINDINGS_H
 
@@ -85,11 +69,7 @@ static inline int SdlPadControlTakesButton(int control)
         (control >= SDL_PAD_STICK_BUTTON && control < SDL_PAD_STICK_AXIS);
 }
 
-/* Steam Deck preset, after the player's layout in wc1-re#32 and wc2-re#66.
- * Speed changes while the left stick is held forward/back; it is not a
- * throttle position. WC1 has no jump drive, so A, which jumps in WC2, is
- * left for the player to bind. Keep it separate from [pad] so selecting a
- * preset preserves Custom. */
+/* The Steam Deck preset (wc1-re#32, wc2-re#66), kept apart from [pad]. */
 static inline const char *SdlSteamDeckPadFunction(int control)
 {
     static const char *const functions[SDL_PAD_GAMEPAD_CONTROLS] = {
@@ -112,13 +92,8 @@ static inline int SdlSteamDeckPaddleControl(int paddle)
     return paddle >= 0 && paddle < 4 ? controls[paddle] : -1;
 }
 
-/* The Custom mode's bindings until the player changes them: the WCAT
- * four-button, four-axis mode's, its axes as the axis layout (0-6, as
- * SdlJoystickAxesMode numbers them) sets them. Another joystick starts as
- * those modes read it: its first sixteen buttons as the gamepad's in
- * SdlJoystickButton's order, where the seventh and eighth light the
- * navigation display and the autopilot, its first hat as the D-pad and its
- * first four axes as the two sticks. */
+/* The Custom mode's default bindings: the WCAT four-button, four-axis
+ * layout, with the axes the axis layout sets. */
 static inline const char *SdlDefaultPadFunction(int control, int axes)
 {
     static const char *const buttons[SDL_PAD_BUTTONS] = {

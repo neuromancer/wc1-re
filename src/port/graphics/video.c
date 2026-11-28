@@ -8,18 +8,9 @@ static SDL_Texture *g_pSdlFrameTexture;
 static Uint32 g_adwSdlFramePixels[
     SDL_PORT_FRAME_WIDTH * SDL_PORT_FRAME_HEIGHT];
 
-/* EGA compatibility filter (--ega).  Static disassembly of data/dos/WC.EXE
- * shows that graphics selector 1 rewrites resource extensions from .V* to .E*
- * (file offset 0x20C96), and that video mode 0x0D uses fixed legacy colours
- * instead of loading GAME.PAL (file offset 0x3F940).  The installed data here
- * has only the VGA resources, so the SDL port converts the composed 320x200
- * frame instead.
- *
- * This table is byte-identical to data/dos/GAMEDAT/CONVERT.PAL (SHA-256
- * 5f58910e2f34fd0276f43ac962c2646269c0441062cddd450c9becd65f498dcb).
- * The compatibility filter interprets each byte's two nibbles as EGA indices.
- * Its screen-space checkerboard phase is an SDL-port approximation; it is not
- * claimed to reproduce the offline asset converter byte for byte. */
+/* EGA filter (--ega): the DOS game's EGA mode used .E* resources with fixed
+ * colours. With only VGA data, the frame goes through CONVERT.PAL's table,
+ * two EGA indices per byte, in a checkerboard. */
 static int g_bEgaDitherEnabled;
 static unsigned char g_abEgaDitherPixels[
     SDL_PORT_FRAME_WIDTH * SDL_PORT_FRAME_HEIGHT];
@@ -251,15 +242,8 @@ int SdlRecordSpaceSprite(
         viewport, x, y, shape, frame, angle, scale, flip);
 }
 
-/* Restores the display static the Kilrathi Saga port dropped.  Retail's
- * snow_viewport only slams the DIB and calls the empty RasterLineHook marker,
- * so a knocked-out display shows nothing while malf_noise still plays the
- * sound.  The DOS rasteriser's exact pattern is not recovered here; this
- * scatters noise over the viewport to restore the player-facing cue.
- *
- * The generator is local on purpose.  Drawing thousands of pixels through the
- * game's RandomBelowOrEqual would consume its sequence and change gameplay,
- * so the port keeps its own. */
+/* Display static, which the Kilrathi Saga dropped, from a generator of its
+ * own so the game's random sequence is not consumed. */
 static unsigned int SdlNextStaticNoise(void)
 {
     g_dwSdlStaticNoiseSeed ^= g_dwSdlStaticNoiseSeed << 13;

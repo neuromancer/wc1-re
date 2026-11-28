@@ -159,14 +159,9 @@ void SwcMovieClose(SwcMovie *movie)
     memset(movie, 0, sizeof(*movie));
 }
 
-/* CODE_12 +0x2898 LMovieDrawFrameMinRect. Keep the preceding frame for skip
- * commands. The original checks neither line width nor input: a run longer
- * than its line spills into the next one, each end-of-line command restarts
- * at the next line, and the frame ends after its last line whatever input
- * remains. Damaged copies rely on that (Multimedia Mania 06's OPEN1 has one
- * altered byte), so the host keeps the spill but stops at the end of the
- * image and of the record, and reports such frames as damaged. It uploads
- * the whole image instead of returning a QuickDraw dirty rectangle. */
+/* CODE_12 +0x2898 LMovieDrawFrameMinRect. As in the original, a run may
+ * spill into the next line; drawing stops at the end of the image and of the
+ * record, and such frames are reported as damaged. */
 static int SwcMovieDrawFrame(SwcMovie *movie, const SwcMovieRecord *record)
 {
     const uint8_t *source = movie->file.data + record->offset;

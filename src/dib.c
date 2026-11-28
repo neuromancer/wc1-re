@@ -134,10 +134,8 @@ void ThrottleFrameAndDrawFps(HDC dc)
     if (stMouseCursorState.viewport != 0 &&
         stMouseCursorState.viewport->pixels == pDIBImage) {
         while (timeGetTime() < (DWORD)nFrameDeadlineMs) {
-            /* The original redraws the cursor here without reading input,
-             * leaving it at the last 16 Hz menu-frame position.  Poll only
-             * the host events: game input and joystick movement still run
-             * once per game frame, and clicks remain queued for the menu. */
+            /* Redraw the cursor at the newest host mouse position; game input
+             * still runs once a frame and clicks stay queued for the menu. */
             if (nMouseCursorShowCount != 0 &&
                 stMouseCursorState.shape != 0) {
                 SdlPumpEventsWhileWaiting();

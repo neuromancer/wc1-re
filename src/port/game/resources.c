@@ -332,10 +332,8 @@ int SdlUsingDosData(void)
     return g_nSdlDosData;
 }
 
-/* The DOS INSTALL.DAT predates SM2, whose executable opened its files by
- * name, and names SHIPTYPE.V14 as SHIP.V14, a file no release ships. The
- * files are identical in both releases, so a DOS install takes these
- * records from the Kilrathi Saga table and plays SM1 and SM2 the same way. */
+/* The DOS INSTALL.DAT predates SM2 and names a SHIP.V14 no release ships:
+ * take those records from the Kilrathi Saga table. */
 void SdlCompleteDosInstallTable(DiskFileRecord *records)
 {
     static const DiskFileRecord sagaRecords[] = {
@@ -365,11 +363,8 @@ void SdlCompleteDosInstallTable(DiskFileRecord *records)
         records[sagaRecords[index].logicalFile - 1] = sagaRecords[index];
 }
 
-/* SM1.5, the fan port of Super Wing Commander's Covert Missions, plays on
- * SM2.EXE with four files of its own in logical files 73-76: its DOS
- * CM15.EXE has the names hex-edited, and its Kilrathi Saga package replaces
- * INSTALL.DAT. SM2's other files and saves stay shared. The launch picks
- * SM2's set or SM1.5's, so either INSTALL.DAT plays both. */
+/* SM1.5 plays on SM2.EXE with four files of its own, logical files 73-76;
+ * the launch picks SM2's set or SM1.5's. */
 void SdlSelectSm2Files(DiskFileRecord *records)
 {
     static const char *const sm2Files[4] = {

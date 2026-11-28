@@ -273,10 +273,8 @@ static void SdlQueueMouseMotion(unsigned short x, unsigned short y,
                     primaryButton, secondaryButton, 0);
 }
 
-/* The pointer is confined only while spaceflight is running, unpaused, and
- * focused.  Mouse flight steers by the pointer's distance from the viewport
- * centre, so a hard turn parks it against the window edge and needs the
- * confinement; anywhere else it would only trap the pointer. */
+/* The pointer is confined only in focused, unpaused spaceflight, where
+ * mouse steering holds it at the window's edge. */
 static int g_bSdlMouseGrabRequested;
 static int g_bSdlWindowFocused = 1;
 static int g_nSdlMouseGrabSuspendDepth;
@@ -453,15 +451,8 @@ int SdlHandleSwcEvent(SDL_Window *window, SDL_Event *event, int flight)
     return 0;
 }
 
-/* Windows folds a key's repeats into the WM_KEYDOWN still waiting in the
- * message queue, raising its repeat count instead of posting another, and
- * the Kilrathi Saga reads its messages once a game frame, in
- * PumpWindowMessages. A held arrow thus moved the menus' pointer once a
- * frame and stopped when released. The port also reads SDL's events while
- * the game waits out a frame, and queued every repeat: at the menus' 16
- * frames a second, the backlog kept the pointer moving long after the key
- * came up (issue #44). So a repeat is queued only as the first since the
- * game last pumped its messages, or once the key's last key-down was read. */
+/* Windows folds key repeats into a WM_KEYDOWN still queued, and the game
+ * reads messages once a frame: queue one repeat per pump (issue #44). */
 static unsigned int g_nSdlGamePumpCount = 1;
 static unsigned int g_anSdlKeyRepeatPump[256];
 static int g_bSdlWaitingPump;
@@ -588,12 +579,8 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
             SdlToggleFullscreen(event->windowID);
         return 0;
     }
-    /* In flight, [ and ] (the two keys right of P) lower and raise the frame
-       rate cap by half a frame a second, within 8 to 32, as the Kilrathi
-       Saga's Alt+N and Alt+M do, and the game's speed follows it. Holding
-       them repeats, and the game never sees the key, unless the player bound
-       an action to it. On release the launcher keeps the rate, as its
-       Speed choice. */
+    /* In flight, [ and ] change the frame rate cap by half a frame a second,
+       from 8 to 32, like the Kilrathi Saga's Alt+N and Alt+M. */
     if ((event->keysym.scancode == SDL_SCANCODE_LEFTBRACKET ||
          event->keysym.scancode == SDL_SCANCODE_RIGHTBRACKET) &&
         (event->keysym.mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI | KMOD_MODE)) == 0 &&
@@ -849,12 +836,8 @@ static void SdlPauseScene(void)
         ReleaseModalTextPanel();
 }
 
-/* The endings' loops (ending.c) read no input of their own. Their Escape
- * test relied on the DOS game's keyboard interrupt, and the Kilrathi Saga
- * read no host events until they ended. Once a frame, read them: Escape, or
- * the gamepad's Back, ends the scene, and closing the window quits. The
- * pause key, P or the gamepad's Start, holds the scene. The scene's keys go
- * no further. */
+/* Once a frame in the endings: Escape or Back ends the scene, P or Start
+ * pauses it, and closing the window quits. */
 void SdlServiceSceneInput(void)
 {
     const InputEvent *event;

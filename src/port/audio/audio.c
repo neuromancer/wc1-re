@@ -13,12 +13,8 @@ static Uint32 voiceBufferTick;
 static Uint32 *voiceMouthTimes;
 static Uint32 voiceMouthCount;
 
-/* WingLoader's Sega CD recordings are normalized to full scale: dialogue
- * averages about -9.5 dBFS RMS and radio messages -11.5, 12 to 18 dB above
- * the DOS music and 15 to 25 dB above its effects at their full default
- * settings, on the AdLib and the MT-32 alike. Mixed 8 dB lower, dialogue
- * sits a few dB above the briefing music, radio messages level with the
- * loudest flight music, and full-scale peaks no longer clip over it. */
+/* WingLoader's recordings are full scale: 8 dB down keeps speech just
+ * above the music, without clipping. */
 #define SDL_VOICE_VOLUME 51 /* of SDL_MIX_MAXVOLUME's 128: -8 dB */
 
 static void SdlAudioCallback(void *userData, Uint8 *stream, int bytes)
@@ -127,11 +123,8 @@ int SdlVoicePlaying(void)
 #define SDL_VOICE_SCRIPT_LIMIT 158
 #define SDL_VOICE_SMILE 9
 
-/* The mouth at a pause, at phoneme tick `at` of the script's `total`: the
- * smile where the script puts one, at its start, at its end (a closing
- * phoneme or two may follow it) or near the pause, and otherwise no mouth
- * (-1), which leaves the face's own, as when the original's script is
- * done. */
+/* The mouth at a pause, at tick `at` of `total`: the script's smile near
+ * there, at its start or at its end, else -1 for the face's own. */
 static short SdlVoiceRestFrame(const short *commands, Uint32 at, Uint32 total)
 {
     Uint32 elapsed = 0;
@@ -150,10 +143,8 @@ static short SdlVoiceRestFrame(const short *commands, Uint32 at, Uint32 total)
     return -1;
 }
 
-/* The speaker's mouth while the recording plays: the original phoneme
- * shapes, retimed over its audible stretches, and the script's own rest at
- * its pauses and once it is over (#45). Silence comes from the recording,
- * not the old PC pause lengths. */
+/* The speaker's mouth while the recording plays: the phoneme shapes,
+ * retimed to the recording's sound, and the script's rest at pauses (#45). */
 short SdlVoiceMouthFrame(const short *commands, short fallback)
 {
     Uint32 position, window, total = 0, target, spoken, said, i;
@@ -196,11 +187,8 @@ short SdlVoiceMouthFrame(const short *commands, short fallback)
     return frame;
 }
 
-/* WingLoader's Sega CD recordings keep 8 bytes of the extracted files' header
- * in their sound data, as 89 CF 89 CF 7F xx 83 7F or 87 DB 87 DB 7F xx 83 7F.
- * Played, its CF and DB bytes are spikes of 62% of full scale, a click at the
- * start of every line (#33). Two 16-bit files carry the same bytes widened.
- * Returns how many bytes of sound data the header takes, or 0. */
+/* WingLoader's recordings start with 8 bytes of file header, which click
+ * when played (#33). Returns how many bytes to skip, or 0. */
 static Uint32 SdlVoiceHeaderBytes(const Uint8 *data, Uint32 length, const SDL_AudioSpec *format)
 {
     const int wide = format->format != AUDIO_U8;

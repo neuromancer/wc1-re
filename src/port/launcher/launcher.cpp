@@ -521,11 +521,9 @@ void prepare_controls(const slint::ComponentHandle<LauncherWindow> &window,
         });
 }
 
-/* The Custom joystick mode's bindings (src/port/input/pad_bindings.h) as the
-   Joystick tab codes them (controls.slint): the index of a keyboard and mouse
-   row for a flight key's action, -1 for none, -2 to cycle the views, -3 to
-   roll and change speed, and -10 less twice an axis function's number, less
-   one more when reversed. Nothing when the control cannot take the function. */
+/* A Custom binding as the Joystick tab codes it: a key row's index, -1 for
+   none, -2 to cycle views, -3 to roll and change speed, -10 - 2n for axis
+   function n (one less reversed). Nothing when the control cannot take it. */
 std::optional<int> pad_code(const LauncherWindow &window, int control, std::string_view function)
 {
     if (function.empty())
@@ -574,12 +572,8 @@ std::string pad_function(const LauncherWindow &window, int control, int code)
 
 /* The defaults for an axis layout, with the saved "control=function" lines
    over them. */
-/* A raw joystick's axes by what they are: the stick's X turns as the axis
-   layout's left stick does and its Y pitches, a twist or rudder takes the
-   other turn, and the first throttle lever, or else Z, the throttle. Each is
-   reversed where its pair reads it the other way: the first of a pair grows
-   to the right, the second upwards (src/port/input/pad_bindings.h), and a lever is
-   taken to be forward at SDL's negative end. */
+/* Default functions for a raw joystick's axes by kind: the stick turns and
+   pitches, a twist or rudder yaws, and a lever or Z is the throttle. */
 std::vector<std::string> named_axis_functions(const std::vector<AxisKind> &kinds, int axes)
 {
     const bool leftRolls = axes == 1 || axes == 2 || axes == 5;
@@ -663,10 +657,8 @@ std::shared_ptr<slint::VectorModel<int>> pad_codes(const LauncherWindow &window,
     return std::make_shared<slint::VectorModel<int>>(std::move(codes));
 }
 
-/* The Joystick tab's Custom bindings start from the saved ones, or from when
-   the mode is first chosen, from the defaults for the axis layout then; kept
-   says whether the settings keep them. Restore defaults takes the axis layout
-   chosen last. */
+/* Starts the Joystick tab's Custom bindings from the saved ones or the axis
+   layout's defaults; kept says whether the settings keep them. */
 void prepare_pad(const slint::ComponentHandle<LauncherWindow> &window, std::string_view saved, bool &kept)
 {
     window->set_pad_codes(pad_codes(*window, window->get_joystick_axes_index(), saved));
@@ -722,11 +714,8 @@ std::string pad_bindings(const LauncherWindow &window)
 }
 
 #ifdef __linux__
-/* Gamescope, the compositor of Steam's Game Mode and other gaming sessions,
-   shows one window at a time, scaled to fit its output. A launcher larger
-   than the output was shrunk and left beyond the X pointer's reach, so the
-   cursor missed the buttons (issue #30); there the launcher fills the output.
-   Gamescope sets both variables for the programs it runs. */
+/* Under Gamescope the launcher fills the output, or the cursor misses its
+   buttons (issue #30). */
 bool running_under_gamescope()
 {
     const char *desktop = std::getenv("XDG_CURRENT_DESKTOP");
@@ -735,10 +724,8 @@ bool running_under_gamescope()
            (desktop != nullptr && std::string_view(desktop) == "gamescope");
 }
 
-/* Winit takes the scale from the panel's physical size, about 2.25 on the
-   Steam Deck, where the pages would not fit its 1280x800 screen. The scale
-   that fits the launcher's size (launcher.slint) to the output replaces it,
-   unless SLINT_SCALE_FACTOR already chooses one. */
+/* Fits the launcher to the output, as the Steam Deck's own scale is too
+   large, unless SLINT_SCALE_FACTOR is set. */
 void fit_scale_to_output()
 {
     constexpr double pageWidth = 800.0;
@@ -763,11 +750,8 @@ int dead_zone_percent(float value)
     return std::clamp(static_cast<int>(std::lround(value)), 0, SDL_JOYSTICK_DEAD_ZONE_MAXIMUM);
 }
 
-/* The calibration page: CalibrateJoystickInteractive's upper-left,
-   lower-right and centre positions (0x4102b0), read from SDL while the page
-   shows the stick, the calibration in use and what the game reads through the
-   dead zone. A corner takes the furthest position reached before the button,
-   so a round gate's edges count; the original took the position at the press. */
+/* The calibration page, after CalibrateJoystickInteractive (0x4102b0). A
+   corner takes the furthest position reached, so round gates count. */
 class CalibrationSession {
 public:
     explicit CalibrationSession(const slint::ComponentHandle<LauncherWindow> &launcher)
@@ -988,10 +972,8 @@ private:
     }
 };
 
-/* The Joystick tab's live view. While the tab shows, the joysticks are read
-   about thirty times a second, and the tab shows the one in pad-slot, or the
-   other when only that is connected. A button, trigger or hat direction
-   pressed since the last reading goes to the Custom mode's chooser. */
+/* The Joystick tab's live view, read about 30 times a second; a pressed
+   input goes to the Custom mode's chooser. */
 class PadSession {
 public:
     explicit PadSession(const slint::ComponentHandle<LauncherWindow> &launcher)

@@ -455,10 +455,8 @@ static int GermanText(const char **texts)
     return germanCount >= 3 && germanCount > frenchCount;
 }
 
-/* The German fan translation (v0.4b) rewrites the DOS WC.EXE B2.4 strings in
- * place, each within its English length. The port ships no translated text:
- * it reads the player's own patched executable. Returns its image with texts
- * filled in, or NULL for any other file, including other translations. */
+/* The German fan translation patches WC.EXE B2.4's strings in place. Reads
+ * them from the player's patched executable; NULL for any other file. */
 static unsigned char *ReadGermanText(const char *path, const char **texts, int *count)
 {
     SDL_RWops *file;

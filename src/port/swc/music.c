@@ -1,7 +1,5 @@
-/* Host reader for the QuickTime 'musi' movies loaded by CODE_12 QTSound
- * +0x0930. The demo uses moov/128 resource forks and 600-tick note streams.
- * Container/event definitions follow Apple's QuickTime file format and
- * QuickTimeMusic.h; no QuickTime runtime or persisted Mac pointers are used. */
+/* Reader for the demo's QuickTime 'musi' movies (CODE_12 QTSound +0x0930),
+ * after Apple's QuickTime file format; no QuickTime runtime. */
 #include "swc.h"
 
 #include <stdlib.h>
@@ -210,10 +208,8 @@ int SwcReadMusic(const char *path, SwcMusic *music)
     if (found < 0)
         goto malformed;
     if (!found) {
-        /* Flattened movies can carry moov in the data fork. Original demo
-         * files instead keep it in resource 128. Portable copies keep that
-         * fork in the file itself as MacBinary (archives of the HFS disc),
-         * a raw .rsrc sidecar, macOS's named fork or an AppleDouble ._ file. */
+        /* The moov atom is in the data fork or in resource 128, which copies
+         * keep as MacBinary, a .rsrc sidecar, a named fork or AppleDouble. */
         base = strrchr(path, '/');
         separator = strrchr(path, '\\');
         if (separator != NULL && (base == NULL || separator > base))

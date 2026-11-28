@@ -1451,10 +1451,8 @@ void fizzle_fade(Viewport *source, Viewport *destination)
 void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 {
 #ifdef SDL_PORT
-    /* Retail draws nothing here: the Kilrathi Saga port emptied the body
-     * down to the DIB slam and the RasterLineHook name marker, which is
-     * why a knocked-out display shows no static even though malf_noise
-     * still plays the sound. */
+    /* Retail draws no static here, though malf_noise still plays its
+     * sound; the port restores it. */
     SdlDrawViewportStatic(viewport, effect, colour);
 #else
     (void)effect;

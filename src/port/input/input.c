@@ -151,15 +151,8 @@ int SdlGetAsyncKeyState(int virtualKey)
     case VK_CONTROL:
         if (!keys[SDL_SCANCODE_LCTRL] && !keys[SDL_SCANCODE_RCTRL])
             return 0;
-        /* The SDL2 port balances audio itself and retains only Ctrl+S and
-           Ctrl+M as audio controls.  Let Ctrl+direction keys continue to
-           behave as flight directions instead of changing stored levels.
-           Ctrl gives way only while the game handles a direction key, not
-           whenever one is held, so Ctrl+M, Ctrl+S and Ctrl+E still work
-           while steering.  That also covers a tap released before the game
-           reads it, and a letter's Windows key code, which the game queues
-           beside its scan code in missions: M's is the Right arrow's scan
-           code, read as one when it shares a frame with another event. */
+        /* Ctrl+direction keys steer: Ctrl gives way while the game handles a
+           direction key, so Ctrl+M, Ctrl+S and Ctrl+E work while steering. */
         switch (bCurrentKey) {
         case SCAN_UP:
         case SCAN_DOWN:

@@ -162,10 +162,8 @@ int SdlInitSwcSound(const char *resourceFork);
 void SdlFreeSwcSound(void);
 void SdlPauseSwcSound(int paused);
 void SdlStopSwcSounds(void);
-/* Retail TalkerInit 0x01034288 gives speech the Sound volume, as play_sound
- * does for effects. The 3DO/Mac recordings peak near full scale and average
- * 16-18 dB above the briefing music and 4-7 dB above room effects, so the
- * host mixes speech 6 dB down. Movie soundtracks keep their level. */
+/* Speech takes the Sound volume, as in TalkerInit, mixed 6 dB down to sit
+ * above the music. */
 #define SWC_SPEECH_GAIN 0.5f
 int SdlQueueSwcPcm(const SwcBuffer *pcm, int rate, SDL_AudioFormat format, float gain);
 void SdlClearSwcPcm(void);

@@ -485,11 +485,8 @@ static int SwcLoadFlightImages(const SwcCmf *cockpit, const SwcCmf *space,
         return -1;
     if (SwcGetFrameCount(&set, &count) != 0)
         goto done;
-    /* PCShipV01 carries an extra frame for the Krant and Gratha, and
-     * Spaceflight.CMF SH20/1 repeats its last view (frame 37 is a byte copy
-     * of frame 36). Retail load_ship +0x05bc/+0x0770 uses the shape set
-     * without checking its count; the 37 directional views stay at the same
-     * indices. Keep validating every decoded frame. */
+    /* Some shape sets carry an extra frame, which retail ignores; accept
+     * those counts and still validate every frame. */
     if (count != expected && !(expected == 37 && count == 38) &&
         !(type == OBJECT_TYPE_SWC_WRECKAGE_BASE + 1 && count == 15)) {
         SDL_SetError("Unexpected SWC frame count in %s/%u", chunkType, chunk);
@@ -834,14 +831,8 @@ static int SwcCharacterHeld(const Uint8 *keys, SDL_Keycode character)
     return code != SDL_SCANCODE_UNKNOWN && keys[code];
 }
 
-/* CODE_01 SetGInputForChar +0x3ec4 reads characters: the arrows, J/K/L/I
- * and the digits steer (7/9/1/3 diagonally), ',' '<' and '.' '>' roll,
- * '+' '=' and '-' '_' change speed, Tab lights the afterburner and Space
- * fires. Keypad keys type the same digits and signs. Present those keys to
- * the WC1 input code as the arrows, keypad diagonals, comma/period and
- * throttle keys it reads, and leave out WC1's other flight keys: Home, End,
- * Page Up/Down, Insert, Delete, keypad 0, 5 and *, Backspace and Shift's fast
- * steering. */
+/* CODE_01 SetGInputForChar +0x3ec4: present SWC's flight keys as the WC1
+ * keys the shared input code reads, and leave out WC1's other keys. */
 static void SwcTranslateFlightKeys(const Uint8 *keys, Uint8 translated[SDL_NUM_SCANCODES])
 {
     memset(translated, 0, SDL_NUM_SCANCODES);
@@ -927,10 +918,8 @@ static void SwcFlightTick(const Uint8 *heldKeys, Uint32 mouseButtons)
         get_player_input();
         aInputDevSamples[nCurrentActiveInputDevice] = joystick;
     } else if (steeringKey == SCAN_NONE && bMouseCursorVisible) {
-        /* Feed the original mouse branch in player_input. A held position is
-           sampled each tick, so right-button throttle is independent of SDL
-           motion-event frequency. Button actions that fire weapons stay out
-           of the queue; the right button is only a motion modifier here. */
+        /* Feed player_input's mouse branch each tick; the firing buttons stay
+           out of the queue. */
         secondaryButton = (mouseButtons & SDL_BUTTON_RMASK) != 0;
         QueueInputEvent(INPUT_EVENT_MOUSE_MOVE, (unsigned short)nHostMouseMessageX,
                         (unsigned short)nHostMouseMessageY, 0, 0, secondaryButton, 0);
@@ -1056,10 +1045,8 @@ static void SwcFlightTick(const Uint8 *heldKeys, Uint32 mouseButtons)
     nRenderedSpaceFrame++;
 }
 
-/* CODE_04 transform_objects_to_your_view +0x4150. Mac projection keeps
- * 32-bit depth and scale until clamping and divides the full XY product.
- * Only the compatibility cache for the shared WC1 targeting code is 16-bit;
- * the SDL depth sort below uses the original full-distance values. */
+/* CODE_04 transform_objects_to_your_view +0x4150: 32-bit depth and scale,
+ * with a 16-bit cache only for WC1's targeting code. */
 static void SwcTransformObjectsToView(void)
 {
     FixedVector direction;
@@ -1296,10 +1283,7 @@ static int SwcDrawFlight(SDL_Renderer *renderer, SDL_Texture *cockpit,
     if (SdlDrawSwcHud() != 0 || (!cockpitless && SdlDrawSwcCockpitDamage() != 0))
         return -1;
 border:
-    /* CODE_01 dump_buffer_to_screen +0x06dc calls DrawBorder +0x065c
-     * in flight modes. Its fixed 8x6 margins cover the full banking range,
-     * leaving a stable (8,6)-(312,234) picture at every steering offset.
-     * Apply it after all cockpit layers, including the pilot's hand. */
+    /* CODE_01 DrawBorder +0x065c: fixed 8x6 margins over all cockpit layers. */
     if (SDL_SetRenderDrawColor(renderer, colors[255].r, colors[255].g,
             colors[255].b, 255) != 0 ||
         SDL_RenderFillRects(renderer, frameBorder, SDL_arraysize(frameBorder)) != 0)
@@ -1325,12 +1309,8 @@ border:
     return 0;
 }
 
-/* Retail CODE_09 FlyingLoop +0x0ab8..+0x0b46: three CenterPrint lines in
- * a 300-pixel text layer at x=10 (centred on 160), Helvetica 10, colour
- * 0x81, baselines 180/200/220, over the frozen picture. The original lines
- * (A5-0x28cb/-0x28a8/-0x2886) read "Press Cmd-P again or choose Resume /
- * from the Actions menu to continue / playing Super Wing Commander."; SDL
- * has no Actions menu, so the first two name its pause keys instead. */
+/* CODE_09 FlyingLoop +0x0ab8: the pause message, three centred lines; the
+ * first two name the port's pause keys. */
 static int SwcDrawPauseMessage(SDL_Renderer *renderer, const SDL_Color colors[256])
 {
     static const char *const lines[] = {
@@ -1390,10 +1370,8 @@ static int SwcConfirmMissionRetry(SDL_Window *window, SDL_Renderer *renderer,
     return result;
 }
 
-/* SWC CODE_14 +0x000c: visit_the_cinema. CODE_02 new_view's case 12
- * (+0x3474) supplies the camera setup; the shared case-12 camera update
- * matches CODE_02 +0x29f0. SDL owns pacing, window events and presentation.
- * The original reads no input while the camera runs, so no key skips it. */
+/* CODE_14 visit_the_cinema +0x000c: view 12's camera. As in the original,
+ * no key skips it. */
 int SdlSwcVisitCinema(int view, int obj, short frames)
 {
     SDL_Event event;
@@ -1547,11 +1525,9 @@ static void SwcUpdateSceneCamera(void)
         &aShipPositionsArray[EYE_OBJECT]);
 }
 
-/* CODE_07 Title_Sequence +0x1c86, CODE_14 death_sequence +0x362a and
- * ejection_sequence +0x07c4 share the live space renderer and view 16.
- * The title's return 3 maps to SKIPPED (replay IntroFilm); FINISHED starts
- * a fresh Enyo 1 campaign.
- * Continue resumes an active carrier session; disk save/load is separate. */
+/* The title, death and ejection scenes (CODE_07 +0x1c86, CODE_14 +0x362a
+ * and +0x07c4) on the live space renderer and view 16. After the title,
+ * SKIPPED replays the intro film and FINISHED starts a new campaign. */
 static int SwcRunFlightScene(enum SwcFlightScene scene, int canContinue)
 {
     static const MissionShipRecord titleShips[4] = {
@@ -2421,10 +2397,8 @@ begin_flight:
                     break;
                 case SDLK_ESCAPE:
                 case SDLK_p:
-                    /* Actions menu Pause/Resume (Cmd-P). The Mac leaves
-                       Escape inert in flight (SetGInputForChar only sets
-                       its skip flag, 0xa84e); as in this port's WC1, it
-                       pauses too, and so does the controller's Back. */
+                    /* Cmd-P pauses, as the Actions menu's Pause did; Escape and
+                       Back pause too. */
                     if (event.key.keysym.sym == SDLK_p && !menuKey)
                         break;
                     paused = !paused;
@@ -2478,10 +2452,8 @@ begin_flight:
                     nTrainSimMission = (nTrainSimMission + 1) % 4;
                     goto simulator_mission;
                 }
-                /* Retail ArcadeGame +0x2d14 ends the run as soon as
-                 * FlyingLoop stops, so a simulator death cut straight to
-                 * the scores. Show the player's ship exploding with
-                 * GameFlow's death_sequence (CODE_14 +0x3fee) first. */
+                /* Show the player's death (CODE_14 death_sequence) before the
+                 * scores, which retail cut straight to. */
                 if (bCurrentPlayerDestroyed) {
                     movieResult = SwcRunFlightScene(SWC_FLIGHT_DEATH, 0);
                     if (movieResult == SWC_MOVIE_ERROR)

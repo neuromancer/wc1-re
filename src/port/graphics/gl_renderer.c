@@ -1082,10 +1082,7 @@ static void BuildSpaceViewMask(const ScreenViewportGeometry *geometry,
         x = *run++;
         y = *run++;
         length = (unsigned short)*run++;
-        /* BlitViewportScanlineRuns copies each run with one memcpy into a
-           screen whose rows are 320 contiguous bytes, so the count is a byte
-           length and a run may cover whole rows: the mode 4 geometry copies
-           320x128 as the single run (0, 24, 40960). */
+        /* Runs are byte lengths into 320-byte rows, so one may span rows. */
         start = y * SDL_PORT_FRAME_WIDTH + x;
         if (start < 0) {
             length += start;
@@ -1346,11 +1343,8 @@ int SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
     if (width <= 0 || height <= 0)
         return 0;
     pixelCount = (size_t)(unsigned short)width * (unsigned short)height;
-    /* RotateRLEImage rasterises through a 0xfa00-byte scratch buffer and
-       refuses any frame larger than that, so the shipped renderer draws
-       nothing.  Its unrotated fast path has no such limit.  MIDGAME.V03
-       holds two 325x325 frames that reach this, so keep the same silence
-       instead of drawing what the original never shows. */
+    /* Like RotateRLEImage, draw nothing past 0xfa00 pixels unless unrotated:
+       the original never shows MIDGAME.V03's 325x325 frames. */
     if (pixelCount > 0xfa00 && !(angle == 0 && scale == 0x100 && flip == 0))
         return 0;
     frameTableOffset = frame * 4 + 4;

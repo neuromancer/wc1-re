@@ -1,21 +1,7 @@
-/* SDL2-only Roland MT-32 output for WC1's DOS music and sound effects,
- * through Munt's libmt32emu (third_party/munt) and the player's own control
- * and PCM ROMs.
- *
- * STRAX.DRV is three OriginFX drivers in one Origin packet file, and the
- * configured device picks a section: 0 drives an MT-32 through an MPU-401,
- * 1 an AdLib and 2 the PC speaker. WINGLDR.TIM holds their instruments in
- * the same order. Section 0 passes the MIDI it is given straight on (note
- * 0000:038c, controller 03c6, pitch bend 0437, program 0471: the status
- * byte for channel n - 1, then the data bytes); its bank loader (02c5)
- * initializes the MT-32, which SdlCreateMt32Synth reproduces.
- *
- * Above the driver, WC.EXE's sequencer (module 035) shares MIDI channels
- * 2-9 between the music and the sound effects. An effect claims a free
- * channel, or the oldest busy one whose priority is not higher, and the
- * music gets it back when the effect ends. The functions below follow it
- * on one MT-32, with the channel numbers it uses: 1-16 for MIDI channels
- * 0-15. */
+/* Roland MT-32 output for WC1's DOS music and sound effects, through Munt's
+ * libmt32emu and the player's ROMs. It follows STRAX.DRV's MT-32 section and
+ * WC.EXE's sequencer, which shares MIDI channels 2-9 between music and
+ * effects; channels here are numbered 1-16. */
 #include "wc1sdl.h"
 
 #include <stdarg.h>
@@ -489,10 +475,8 @@ static void SdlMt32PitchBend(SdlMt32Synth *synth, unsigned int channel,
     SdlSendMt32(synth, 0xe0 | ((channel - 1) & 0x0f), low, high);
 }
 
-/* STRAX.DRV section 0, 0000:0161: a Roland DT1 message to the MT-32 (device
- * 0x10, model 0x16), at most 256 data bytes each, the 21-bit address
- * advancing in 7-bit bytes. The driver waits after each for the hardware;
- * the emulator takes them at once. */
+/* STRAX.DRV 0000:0161: Roland DT1 messages to the MT-32, at most 256 data
+ * bytes each. */
 static void SdlMt32SendDataSet(mt32emu_context context, unsigned long address,
                                const unsigned char *data, size_t size)
 {
@@ -533,10 +517,8 @@ static unsigned long SdlMt32Address(unsigned int high, unsigned int middle,
     return ((unsigned long)high << 14) | ((unsigned long)middle << 7) | low;
 }
 
-/* Section 0's bank loader, 0000:02c5-0381: reset every parameter (any
- * address in the 7F area resets the MT-32), show the system's name, then
- * install each WINGLDR.TIM section 0 instrument (0267). A record is a
- * 246-byte timbre and the program, plus one, that plays it. */
+/* STRAX.DRV's bank loader (0000:02c5): reset the MT-32, show the name, then
+ * install each WINGLDR.TIM timbre (246 bytes and its program + 1). */
 static void SdlInitializeMt32Driver(mt32emu_context context,
                                     const unsigned char *timbres,
                                     size_t timbreSize)

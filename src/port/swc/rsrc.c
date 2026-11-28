@@ -20,10 +20,8 @@ const char *const swcApplicationForks[SWC_APPLICATION_FORKS] = {
     "Super Wing Commander Demo"
 };
 
-/* MacBinary I/II/III, the form archives of HFS discs (such as discmaster's
- * copy of the demo) give files with resource forks: a 128-byte header, then
- * the data and resource forks, each padded to 128 bytes. II and III protect
- * bytes 0..123 with CRC-16/XMODEM; I leaves bytes 99..125 zero. */
+/* MacBinary I, II and III: a 128-byte header, then both forks, each padded
+ * to 128 bytes. II and III carry a CRC-16 of bytes 0-123. */
 static int SwcMacBinaryForks(const uint8_t *file, size_t size,
                              SwcBuffer *dataFork, SwcBuffer *resourceFork)
 {

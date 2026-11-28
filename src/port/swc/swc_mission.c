@@ -41,10 +41,8 @@ int SdlFindSwcResources(const char *directory, char *path, unsigned long capacit
     return SwcFindApplicationFork(directory != NULL ? directory : ".", path, capacity);
 }
 
-/* Retail CODE_09 StartNewCampaign/MoveNewCampaign load CMPn/2. Convert
- * its 128-byte, big-endian records to the 90-byte WC1 packet consumed by
- * FullMissionScore, PlayersMissionScore and UpdateSeries. The spare leading
- * record makes UpdateSeries's terminal-series (-1) look-ahead safe. */
+/* Converts CMPn/2's 128-byte big-endian records into WC1's 90-byte
+ * campaign records, after a spare one for UpdateSeries's look-ahead. */
 int SdlLoadSwcCampaignData(const char *path, SwcBuffer *campaign)
 {
     SwcCmf cmf = {0};

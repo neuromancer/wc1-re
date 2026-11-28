@@ -1,8 +1,5 @@
-/*
- * Portable counterparts for the hand-written raster library in
- * src/raster.asm.  This file is included only by the SDL_PORT build of
- * screens.c; the Win32 build assembles the original routines.
- */
+/* Portable counterparts of src/raster.asm, for the SDL_PORT build of
+ * screens.c. */
 
 char *CopyRasterDriverName(void *const *callbacks)
 {

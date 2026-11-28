@@ -192,10 +192,8 @@ unsigned int ShowCampaignVictorySequence(void)
     verticalOffset = -70000;
     nFrameSkipCounter = 1;
 #ifdef SDL_PORT
-    /* Retail, as the DOS game before it, counts this down before ever
-       setting it, so whatever the stack held decided whether the first
-       fighters left at once, later or never. They leave at once, then
-       every eight frames. */
+    /* Retail counts this down without setting it; the fighters leave at
+       once, then every eight frames. */
     spawnCountdown = 0;
     /* Smooth spaceflight: each step is presented twice, and in-between
        frames lead up to it over both. */

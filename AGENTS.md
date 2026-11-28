@@ -102,8 +102,20 @@ structure. Port files may be split, merged and moved freely.
 - Format: as the original files.
 - Headers: include guards named `SDL_PORT_<NAME>_H`. Include another area's header
   by its path from `src/port/` (`"graphics/video_internal.h"`).
-- Comments: short. Say what a function does, and why when that is not obvious.
-  History and investigation belong in commit messages.
+
+## Comments
+
+Keep comments clean and lean, as ScummVM does. This holds for port files and for
+`SDL_PORT` blocks in original files.
+
+- A comment says what the code does, or why, in a line or two. It is not a report:
+  no measurements, levels, timings, investigations, alternatives tried or history.
+  Those belong in commit messages and issues.
+- Comment only what the code cannot say for itself. Point to an issue (`#46`)
+  rather than retell it.
+- A file's header says what the file is for, in a few lines.
+- For example, not a paragraph of loudness measurements above a volume constant,
+  but `/* The recordings are full scale; mix them 8 dB down. */`.
 
 ## Behaviour
 

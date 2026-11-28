@@ -1,7 +1,4 @@
-/* SWC CODE_01 software texture mapping, presented through an SDL texture.
- * The original Q8 edge/span arithmetic decides coverage and texels. SDL
- * only copies the completed pixels at 1:1 logical resolution. The optional
- * OpenGL path uses the same Q8 corners with output-resolution triangles. */
+/* SWC's software texture mapping (CODE_01), presented through SDL. */
 #include "swc.h"
 #include "graphics/video_internal.h"
 

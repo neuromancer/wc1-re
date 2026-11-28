@@ -991,10 +991,8 @@ static int SdlPadBindingsActive(void)
         pCurrentEventManagerPump == get_player_input && !SdlSwcFlightActive();
 }
 
-/* In the Custom mode get_player_input hands over the left stick's steps,
- * read through j.cal and the dead zone as the game reads them, and the
- * game's own stick handling sees the stick centred; the bindings apply it
- * in SdlApplyJoystickFlightControls. */
+/* In the Custom mode, take the left stick's steps through j.cal and centre
+ * the game's stick; SdlApplyJoystickFlightControls applies the bindings. */
 void SdlTakeFlightStickSample(void)
 {
     int slot = nCurrentActiveInputDevice;
@@ -1157,11 +1155,8 @@ static void SdlApplyLinearThrottle(Sint16 raw)
 
 static void SdlQueueScanCodePress(unsigned short scanCode);
 
-/* One of the Custom mode's axes: its step, -9 to 9 (0 to 9 for a trigger),
- * and its position, 0 to 65535, both growing to the right, upwards or as a
- * trigger is pressed. The right stick is whatever SdlReadExtraJoystickAxes
- * reads: a raw joystick's third and fourth axes, or the other joystick's
- * first two. 0 when the device has no such axis. */
+/* A Custom-mode axis: its step, -9 to 9 (0 to 9 for a trigger), and its
+ * position, 0 to 65535. 0 when the device has no such axis. */
 static int SdlReadPadAxis(const SdlJoystickDevice *device, int control,
                           int stickX, int stickY,
                           const Sint16 *extra, int extraCount,
@@ -1228,10 +1223,8 @@ static int SdlClampTurn(int turn)
     return turn < -9 ? -9 : turn > 9 ? 9 : turn;
 }
 
-/* The Custom mode's axes, added up per function; stickX and stickY are the
- * left stick's steps through j.cal. While a roll-and-speed button is held,
- * yaw rolls and pitch changes speed, as the original joystick's second
- * button makes them. throttle stays -1 without a throttle. */
+/* The Custom mode's axes, summed per function; roll-and-speed turns yaw
+ * into roll and pitch into speed. throttle stays -1 without a throttle. */
 static void SdlAddPadAxes(SdlJoystickDevice *device, int stickX, int stickY,
                           int turns[3], int *speed, int *throttle)
 {
@@ -1267,10 +1260,8 @@ static void SdlAddPadAxes(SdlJoystickDevice *device, int stickX, int stickY,
     }
 }
 
-/* A frame of WC1's flight in the Custom mode. An axis steers while it is
- * off centre and once more as it returns, so that the keys and the mouse
- * steer while the sticks rest. A throttle sets the speed every frame, as
- * the HOTAS layouts do. */
+/* One flight frame in the Custom mode. An axis steers only while off
+ * centre, so the keys and the mouse work while the sticks rest. */
 static void SdlApplyPadFlightControls(SdlJoystickDevice *device)
 {
     int turns[3] = {0, 0, 0};
@@ -1470,15 +1461,9 @@ int SdlSpaceflightInputActive(void)
         pCurrentEventManagerPump == get_player_input && !SdlSwcFlightActive();
 }
 
-/* The pitch and yaw the stick steers with now, as the next step will take
-   them: the stick through j.cal and the dead zone as ReadCalibratedJoystick
-   reads it, then player_input's stick and the axes or the Custom mode's
-   bindings that SdlApplyJoystickFlightControls applies. *pitch and *yaw come
-   in as the step's and change where the stick steers; no input state
-   changes. 0 when the stick steers neither, as when it rests and the keys
-   or the mouse steer, or the original mode's second button makes it roll
-   and change speed. Smooth spaceflight's in-between frames draw the
-   cockpit's pilot hand with it (issue #34). */
+/* The pitch and yaw the stick gives the next step, without changing input
+   state, for Smooth spaceflight's pilot hand (issue #34). 0 when the stick
+   does not steer. */
 int SdlLiveJoystickSteering(short *pitch, short *yaw)
 {
     SdlJoystickDevice *device;
@@ -1738,10 +1723,8 @@ static unsigned short SdlFlightScanCodeForButton(int button)
     return 0;
 }
 
-/* In flight the View (Back) button steps through the views of F1-F5:
- * front, left, right, rear and chase, then front again. In the front view
- * F1 would turn the cockpit off instead, so it is only sent from another
- * view, with the latch its handler checks (as SdlQueueGameKey sets it). */
+/* The View button cycles the views of F1-F5. F1 is sent only from another
+ * view: in the front view it turns the cockpit off. */
 static void SdlCycleFlightView(void)
 {
     unsigned short scanCode;
@@ -1774,10 +1757,8 @@ static int SdlJoystickSpaceflightActive(void)
         nArcadeState == 0;
 }
 
-/* A Custom button pressed in flight presses its action's key once, as the
- * WCAT layouts' buttons do, and SdlPadKeyboardState holds the key while the
- * button is down. The guns, the afterburner and the roll-and-speed modifier
- * work while held instead (SdlReadJoystick, SdlApplyPadFlightControls). */
+/* A Custom button presses its action's key once; the guns, afterburner and
+ * roll-and-speed act while it is held instead. */
 static void SdlPressPadControl(int button)
 {
     const SdlPadBinding *binding;

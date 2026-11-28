@@ -13,15 +13,9 @@ int SdlPlayingSm2(void)
     return nCampaignDataSet == 2 && !SdlSwcFlightActive();
 }
 
-/* The DOS SM2.EXE keeps its own saves in CRUSADE.WLD (CreateSaveFile,
- * 147:0308), so a DOS install's SM2 games carry over. WC.EXE and the Kilrathi
- * Saga's executables share SAVEGAME.WLD, where the transfer barracks also
- * finds the WC1 and SM1 pilots that SM2 can take over. The launch decides,
- * as the executable did: the title's Continue reaches the barracks before
- * any SM2 game sets the campaign (issue #50). SM1.5 keeps its games in
- * COVERT.WLD (issue #47): its patched SM2.EXE shared SM2's file, but a game
- * of either is campaign 2 in its save, which loads it with whichever
- * campaign's missions were launched. */
+/* The save file follows the launch (issue #50): COVERT.WLD for SM1.5
+ * (issue #47), CRUSADE.WLD for the DOS SM2.EXE, and otherwise SAVEGAME.WLD,
+ * where the pilot transfer finds WC1's and SM1's pilots. */
 const char *SdlSaveGameFileName(void)
 {
     if (nPilotTransferState == 1)
@@ -31,13 +25,9 @@ const char *SdlSaveGameFileName(void)
     return nLaunchCampaign == 2 && SdlUsingDosData() ? "CRUSADE.WLD" : "SAVEGAME.WLD";
 }
 
-/* SM2's captured-Dralthi disguise, as the DOS SM2.EXE plays it (issue #31);
- * the Kilrathi Saga's SM2.EXE kept WC1's code. A nav sphere with a wave link
- * back to itself (EnterSphere, 142:09b5) lets a player flying the Dralthi
- * pass as Kilrathi there. Kilrathi ships then overlook Confederation
- * Dralthis, until one of their gun shots hits a Kilrathi ship
- * (HandleCollisions, 138:209d). The DOS flag g_kilrathiMayTarget is the
- * opposite of bSdlSm2Disguised. */
+/* SM2's captured-Dralthi disguise, as DOS SM2.EXE plays it (issue #31): in a
+ * sphere whose wave links to itself, Kilrathi ignore the player's Dralthi
+ * until its guns hit one of theirs. */
 static int bSdlSm2Disguised;
 
 /* Each sphere starts without the disguise. */

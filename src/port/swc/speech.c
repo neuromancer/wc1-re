@@ -1,8 +1,5 @@
-/* Host reader for the demo's AIFF speech; Sound Manager is replaced by SDL.
- * CODE_03 SpoolSoundFile +0x6b02 consumes the original recording names.
- * COMM/SSND layouts and formats were checked against all 102 demo recordings:
- * the 92 conversation lines and intro.11 are 16-bit at 11025 Hz, intro.03..10
- * 8-bit at the Mac's 22254.545 Hz and Stranded.aif 8-bit at 11025 Hz. */
+/* Reader for the demo's AIFF speech (CODE_03 SpoolSoundFile +0x6b02),
+ * played through SDL. */
 #include "swc.h"
 
 #include <string.h>
@@ -64,11 +61,8 @@ int SwcReadSpeech(const char *path, SwcBuffer *pcm, int *rate)
         size = SDL_ReadBE32(reader);
         cursor += 8;
         if ((uint64_t)size + (size & 1) > end - cursor) {
-            /* All 92 demo files undercount FORM by four bytes, apparently
-             * excluding the AIFF form type. Their final SSND chunk reaches
-             * physical EOF and contains every sample declared by COMM.
-             * Permit only that exact overrun; never clip a truncated chunk
-             * or extend an ordinary FORM just because trailing bytes exist. */
+            /* The demo's files undercount FORM by four bytes: allow exactly that
+             * when the last SSND chunk ends at the end of the file. */
             if (file.size - end != 4 ||
                 memcmp(file.data + cursor - 8, "SSND", 4) != 0 ||
                 (uint64_t)size + (size & 1) != file.size - cursor)

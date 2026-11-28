@@ -1,12 +1,6 @@
-/* SDL-only corrections to decoded Origin packets and loaded stream metadata.
- * No disk writes.
- * Both GetPacketSize and PacketLoad go through OpenPacketSection, so callers
- * allocating their own buffers see exactly the same size as the reader.
- *
- * Patches identify a filename, packet section or stream offset, length and
- * CRC32. Unknown or already corrected assets pass through unchanged. Edits
- * are relative to the original decoded section or loaded stream record.
- * See data_patches.h and bin/buildDataPatches.py for the documented fixes. */
+/* Corrections to decoded Origin packets and stream records, in memory only.
+ * Each patch names its file and section or offset, with the original's
+ * length and CRC32; anything else passes unchanged. See data_patches.h. */
 #include "wc1.h"
 
 typedef struct SdlDataEdit {

@@ -1,21 +1,7 @@
-/* Keyboard rebinding for WC1's flight keys.
- *
- * The launcher's controls window passes the bindings that differ from the
- * original keys as "action=bindings" lines. Each value lists up to two
- * bindings separated by commas, each a key or "modifier+key". A key is what
- * it types on the player's layout ("e", "ñ") or a name for other keys ("up",
- * "f1", "ctrl"); bytes outside a-z, 0-9 and "-" are percent-encoded.
- *
- * Actions the player did not change keep the game's own handling, which
- * follows key positions. During flight, the keys of a changed action are
- * looked up on the current layout and stand in for the key the game reads,
- * and the action's original keys stop working. Escape keeps its meanings.
- *
- * Mouse buttons and the wheel can be bound like keys ("mouse-back",
- * "wheel-up"); in flight they press the action's key. Two rows choose the
- * game's own mouse buttons: "mouse-guns", which fires the guns and with the
- * other fires a missile, and "mouse-afterburner", which lights the
- * afterburner on a double-click and rolls and changes speed while dragged. */
+/* Keyboard and mouse rebinding for WC1's flight keys. The launcher passes
+ * changed actions as "action=bindings" lines: up to two comma-separated
+ * bindings, each a key, "modifier+key", a mouse button or a wheel direction.
+ * In flight a changed action's bindings replace its original keys. */
 #include "wc1sdl.h"
 #include "keymap_actions.h"
 
@@ -817,11 +803,8 @@ int SdlKeymapFullscreenShortcut(SDL_Scancode key, Uint16 modifiers)
     return 0;
 }
 
-/* SWC: the Mac demo reads characters and its own events (swc_flight.c), so
- * in flight a rebound input becomes the key SWC reads for its action, by
- * rewriting the SDL event and the held keys SwcFlightTick polls. Plain keys
- * exclude Command, Control and Option chords, which SWC reads as menu
- * commands; those shortcuts keep working. */
+/* SWC: in flight, a rebound input is rewritten into the key SWC reads.
+ * Menu chords with Command, Control or Option keep working. */
 typedef struct SdlSwcAction {
     const char *id;
     SDL_Keycode keycode;

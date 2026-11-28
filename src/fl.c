@@ -1014,10 +1014,8 @@ void perform_maneuver(short obj)
     short range;
 
 #ifdef SDL_PORT
-    /* The original performs this lookup before validating the maneuver.
-       MANEUVER_NONE reads the zero alignment byte at 0x00465677, immediately
-       before the table.  Other invalid values are reset before the result is
-       used.  Preserve those results without an invalid C array access. */
+    /* The original reads this before validating the maneuver (NONE reads
+       the zero byte before the table); keep its results, in bounds. */
     if (previous < MANEUVER_WARPING_IN ||
         previous > MANEUVER_UNKNOWN_46)
         bCurrentManeuverReroll = 0;

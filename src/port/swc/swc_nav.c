@@ -568,13 +568,8 @@ int SdlShowSwcComputer(SDL_Window *window, SDL_Renderer *renderer, const char *r
                 count = SwcBuildComputerComms(recipient, options, names);
                 selected = count > 0 ? SDL_clamp(selected, 0, count - 1) : -1;
             }
-            /* SetGInputForChar's arrow, Tab, Return, Escape, Space and C flags
-             * (CODE_01 +0x3ec4): Up/Down change pages (+0x3526/+0x353c);
-             * Left/Right step the nav or comm selection, and Right or Tab
-             * cycles guns and missiles (+0x3072, +0x3154, +0x32ec). Escape,
-             * Space, Cmd-. and C close (+0x3554/+0x355c); with a recipient
-             * chosen, UpdateCommStatus +0x2da2 returns Escape, Space and
-             * Cmd-. to the recipients and C does nothing. */
+            /* The nav map's keys, after CODE_01 SetGInputForChar: Up and Down
+             * page, Left and Right step, and Escape, Space, Cmd-. and C close. */
             if (event.type == SDL_KEYDOWN && !event.key.repeat) {
                 switch (event.key.keysym.sym) {
                 case SDLK_PERIOD:

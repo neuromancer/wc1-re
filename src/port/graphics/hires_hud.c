@@ -1,39 +1,8 @@
-/* Hi-res HUD text (issues #29 and #37), with the enhanced renderer: in
- * flight, cockpit text, nav labels and HUD messages are shown on a 640x400
- * layer that gl_renderer.c draws over the game's 320x200 frame. Text in the
- * 6-row cockpit font is shown in Trov's double-resolution redraw of it
- * (third_party/double-resolution-cockpit-font) while the game's cockpit font
- * is the original English one; HUD messages, and cockpit text under a
- * translation, in FONTS.FNT's 11-pixel conversation font (section 0) at its
- * native size.
- *
- * The game draws text once into a buffer, then copies it, draws over it or
- * erases it by drawing what was under it again. The overlay follows each
- * letter through that:
- *
- * - Recorded: DrawFontGlyph wraps each HUD-font character in
- *   SdlBeginHiResGlyph and SdlEndHiResGlyph, which keep the character, its
- *   colour and place, and its cell before and after the draw. Text drawn off
- *   screen, such as radio messages in the space buffer and the nav map's
- *   labels, keeps its buffer's coordinates until a copy to the screen moves
- *   it there (SdlCopyHiResGlyphs, SdlCopyHiResGlyphRuns).
- * - Shown: on each present, SdlBuildHiResHudLayer checks every letter
- *   against the frame (HiResGlyphMatches). A letter stays while its cell
- *   still shows the letter's own pixels, allowing up to a third of them to
- *   turn back into the background and the flight pointer to cover some. A
- *   shown letter is erased from the presented frame and drawn on the layer,
- *   each run of adjacent cells set with the hi-res font's own spacing.
- * - Hidden: a letter the frame stops showing, as when the weapon display's
- *   missile crosses it, keeps its place in its line (misses counts the
- *   presents) and shows again when the game restores the cell without
- *   drawing the letter again.
- * - Dropped: a hidden letter is forgotten once newer text is drawn in its
- *   line, or once its whole line has been gone for
- *   HIRES_HUD_HIDDEN_FRAME_LIMIT presents. Spaces go with their line, a cell
- *   drawn over replaces the letter there, and a full list starts over.
- *
- * The menus' mouse cursor and the flight pointer are drawn back above the
- * letters, at the base frame's 2x scale. */
+/* Hi-res HUD text (issues #29 and #37): in flight, the enhanced renderer
+ * draws cockpit text, nav labels and HUD messages on a 640x400 layer, in
+ * Trov's double-resolution cockpit font or FONTS.FNT's conversation font.
+ * Each letter the game draws is recorded and followed through copies; a
+ * present moves the letters the frame still shows onto the layer. */
 #include "wc1.h"
 
 #include "video_internal.h"
@@ -257,10 +226,8 @@ void SdlSetHiResHudFonts(int enabled)
     }
 }
 
-/* RunSpaceFlight marks the flight session. GameFlow widens it to the launch
-   before it, which draws the cockpit's displays, and the training simulator
-   to its Get Ready, Victory and Game Over screens around it: screens outside
-   keep the game's own fonts. Sessions nest. */
+/* Marks the flight session, which GameFlow widens to the launch and the
+   simulator's screens. Sessions nest. */
 void SdlBeginHiResHudFlight(void)
 {
     g_nHiResHudFlightDepth++;
@@ -286,10 +253,8 @@ static int SdlHiResHudFontsActive(void)
         SdlGlOverlayReady() && !SdlUsingTownsData();
 }
 
-/* Called by DrawFontGlyph before it draws a HUD-font character: keeps what
-   the cell showed. Only a whole cell laid out in plain rows of its buffer is
-   taken. Text drawn off screen keeps its buffer's coordinates until it is
-   copied. */
+/* Called by DrawFontGlyph before drawing a HUD-font character: records the
+   cell. Off-screen text keeps its buffer's coordinates until copied. */
 int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
                        int height, unsigned char character,
                        unsigned char colour, unsigned char background,
@@ -321,11 +286,8 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
         y + height - 1 > view->bottom)
         return 0;
     if (height != 6) {
-        /* print_message_text copies the HUD message context, which draws
-           into the space buffer, and clips it to the cockpit's 60-row
-           message area. The simulator's score and bonus lines use the
-           context itself. Other users of the 8-pixel font, such as nav
-           descriptions and modal panels, keep the game's own text. */
+        /* Only HUD messages and the simulator's score lines; other 8-pixel
+           text keeps the game's font. */
         if (height != 8 || background != 0xff ||
             view->pixels != stSpaceBufferViewport.pixels ||
             (view != &stSpaceBufferViewport &&
@@ -352,10 +314,8 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
     if (FindHiResGlyph(font, fontSize, character, &hiResWidth,
                        &hiResHeight) == 0)
         return 0;
-    /* At a viewport's top row past buffer offset 0x8000, as the VDU
-       headings are, DrawFontGlyph puts the first row at the top of the
-       buffer. That row is blank in the cockpit font: the cell stays where
-       the rest of the letter is. */
+    /* Past buffer offset 0x8000 DrawFontGlyph wraps the first row, which is
+       blank in this font; keep the cell with the rest of the letter. */
     skipped = view->top == y && (view->rowOffsets[y] & 0x8000) != 0;
     offset = (long)view->rowOffsets[y] + cursorX;
     stride = (long)view->rowOffsets[y + 1] - view->rowOffsets[y];
@@ -387,10 +347,8 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
     for (row = 0; row < height; row++)
         memcpy(glyph->before + row * width,
                view->pixels + offset + (long)row * stride, (size_t)width);
-    /* Transparent text redrawn over pixels a partial redraw left in place
-       would capture its own old letter as background. Reuse the clean
-       background under surviving ink instead, per pixel, because such a
-       redraw can cut through a glyph's cell. */
+    /* Transparent text redrawn over itself would record its old letter as
+       background; reuse the clean background under surviving ink. */
     if (background == 0xff) {
         recorded = view->pixels == screen ? g_aHiResGlyphs : g_aHiResOffscreenGlyphs;
         count = view->pixels == screen ? g_nHiResGlyphCount : g_nHiResOffscreenGlyphCount;
@@ -413,10 +371,8 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
     return 1;
 }
 
-/* Keeps a glyph in a list. Text cells tile without overlapping, so a glyph
-   drawn over part of a recorded one's cell replaces it. A full list starts
-   over: text still shown is recorded again when next drawn, and until then
-   it simply shows in the game's own font. */
+/* Text cells do not overlap, so a glyph drawn over part of a recorded one's
+   cell replaces it. A full list starts over. */
 static void StoreHiResGlyph(HiResGlyph *glyphs, unsigned int *count,
                             unsigned int capacity, const HiResGlyph *glyph)
 {
@@ -489,13 +445,8 @@ static int HiResGlyphHasInk(const HiResGlyph *glyph)
     return 0;
 }
 
-/* The flight pointer, which overlay_head_up_display draws into the space
-   buffer after the radio messages: the buffer's pixels it covers and their
-   colours, as that buffer was last copied to the screen with this offset,
-   before the HUD restores what it covered. The letters it
-   covers keep matching, and SdlBuildHiResHudLayer draws it back above the text,
-   as SdlCopyFrameWithoutMouse and CompositeHiResMouseCursor do for the menus'
-   cursor (#37). */
+/* Notes the flight pointer's pixels in the space buffer, so the letters
+   under it keep matching and it is drawn back above the text (#37). */
 
 void SdlNoteHiResFlightPointer(void)
 {
@@ -518,16 +469,9 @@ static int HiResPointerCovers(int x, int y, int screen)
     return g_abHiResPointerMask[y * SDL_PORT_FRAME_WIDTH + x] != 0;
 }
 
-/* Whether a cell still shows the game's letter. Only the letter's own pixels
-   count, so a heading's underline, a sprite's edge or a target bracket drawn
-   over the cell's background keeps it. A few of them may also have turned
-   back into that background: the damage report's first erase draws its
-   black leader line from the top corner of the display, through the
-   heading's G (#37). Erased text loses all of them, and a letter crossed
-   by anything else changes colour. Pixels under the flight pointer do not
-   count; pointer is 1 when pixels is the space buffer it was drawn into, 2
-   when it is the screen. A space has nothing to compare: it stays with the
-   letters next to it (DropHiResSpaceRuns). */
+/* Whether a cell still shows the game's letter: its ink, a few pixels of
+   which may have turned back to background (#37), less those under the
+   flight pointer (1: in the space buffer, 2: on the screen). */
 static int HiResGlyphMatches(const HiResGlyph *glyph,
                              const unsigned char *pixels, long stride,
                              int x, int y, int pointer)
@@ -637,14 +581,8 @@ void SdlEndHiResGlyph(void)
                         HIRES_HUD_OFFSCREEN_GLYPH_CAPACITY, glyph);
 }
 
-/* After an off-screen buffer was copied to the screen: the glyphs it shows
-   within the copied area follow it, moved by the copy's offset. One it no
-   longer shows there, such as a radio message's letter under the flight
-   pointer, which is drawn into the space buffer after the text, follows it
-   hidden, keeping its place and age, until it has been gone for
-   HIRES_HUD_HIDDEN_FRAME_LIMIT copies (#37). Forgotten sooner, it came back
-   as new text and the stale-run rule dropped its line's other hidden
-   letters, so the line split and slid. */
+/* After a buffer is copied to the screen, its glyphs in the copied area
+   move with it; those it no longer shows follow it hidden (#37). */
 static void CopyHiResGlyphsToScreen(const Viewport *source, int left, int top,
                                     int right, int bottom, int offsetX,
                                     int offsetY)
@@ -816,10 +754,7 @@ static void SetHiResPixel(int x, int y, unsigned char index)
     pixel[1] = 0xff;
 }
 
-/* Reuse the cursor's restore spans as an opacity mask, including clipping
-   and its hotspot: comparing the frame before and after drawing would miss
-   opaque cursor pixels whose colour matches the background. Copy the drawn
-   cursor above the text at the base frame's 2x scale. */
+/* Draws the mouse cursor above the text at 2x, masked by its restore spans. */
 static void CompositeHiResMouseCursor(const unsigned char *pixels)
 {
     unsigned char coverage[sizeof(abCursorSaveArea)];
@@ -894,11 +829,8 @@ static void CompositeHiResFlightPointer(const unsigned char *pixels)
     }
 }
 
-/* A letter something is drawn over, as the weapon display's missile crosses
-   its text, is hidden but keeps its place in its line: the game restores
-   what it covered without drawing the letter again. It is forgotten once
-   newer text is drawn in its line, or once the whole line has been gone
-   for a while. */
+/* A covered letter stays hidden in its line until newer text is drawn
+   there or the line has been gone for a while. */
 static void DropHiddenHiResGlyphs(void)
 {
     const HiResGlyph *glyph;
@@ -937,15 +869,9 @@ static void DropHiddenHiResGlyphs(void)
     g_nHiResGlyphCount = kept;
 }
 
-/* Forgets the glyphs the frame has stopped showing and hides those it does
-   not show now. The shown glyphs' letters are erased from the presented
-   frame, so recorded sprites still show between transparent HUD letters,
-   and the layer gets the hi-res glyphs. A
-   run of adjacent cells is set with the hi-res font's own spacing, centred
-   when the game centred it and otherwise from its left edge. A run a few
-   pixels wider than its cells, as digits are, starts in its first glyph's
-   leading blank columns and then closes gaps of two or more blank columns;
-   ink is never cut. */
+/* Drops or hides the glyphs the frame no longer shows, erases the shown
+   ones from the frame and draws them on the layer, each run with the
+   hi-res font's spacing. */
 void SdlBuildHiResHudLayer(const unsigned char *pixels, unsigned char *frame)
 {
     const HiResGlyph *glyph;

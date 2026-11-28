@@ -23,10 +23,7 @@
 #define ORIGINFX_TIMBRE_SIZE 48U
 #define ORIGINFX_EVENTS_PER_TICK 65536U
 
-/* STRAX.DRV 0000:01dc-020e.  Logical voices 6-10 are the five OPL2
- * rhythm voices after the driver reduces the melodic allocator to six
- * channels.  The second half of each operator table is selected in that
- * mode; snare, tom, cymbal, and hi-hat each program only one operator. */
+/* STRAX.DRV 0000:01dc: the five OPL2 rhythm voices, logical voices 6-10. */
 static const unsigned char g_abOriginFxRhythmBits[5] = {
     0x10, 0x08, 0x04, 0x02, 0x01
 };
@@ -41,13 +38,8 @@ static const unsigned char g_abOriginFxModulatorOffsets[20] = {
     0, 1, 2, 8, 9, 10, 16, 20, 18, 21, 17
 };
 
-/* WC.EXE 2231:051e-063d.  FUN_16ac_07f2 indexes the table with the
- * one-based game sound number.  Each OriginFX record is flags, program + 1,
- * note, velocity, a little-endian 60 Hz duration, glide target, and an
- * unused byte.  The preceding eight bytes at 2231:0516 are not a sound.
- * Sound 2 is the fly-by, its only use: UpdateFlightSound (003:0587) stores
- * note 0, duration 1 and target 127 before each one, so it rises through
- * the whole range.  WC.EXE's initial note 64 and target 0 never play. */
+/* WC.EXE 2231:051e: OriginFX sound records by game sound number: flags,
+ * program + 1, note, velocity, 60 Hz duration, glide target, unused. */
 static const unsigned char g_aabOriginFxSoundRecords[36][8] = {
     { 0, 1, 64, 64, 60, 0, 0, 0 },
     { 2, 2, 0, 64, 1, 0, 127, 0 },
@@ -1475,17 +1467,9 @@ static void OriginFxFinishSong(SdlOriginFxPlayer *player)
     player->finished = 1;
 }
 
-/* Plays one event of a track, then reads the delta time after it, as
- * MidiSequencer (035:0bda) does. Origin's 0xFE events:
- * - 0 loops back, unless the song is leaving for a queued one;
- * - 1 ends a leaving song;
- * - 2 jumps only while leaving, which the scores use to skip ahead to
- *   their ending at a bar line;
- * - 3 is a marker;
- * - 4 and 5 jump when the branch selector differs from or equals their
- *   third byte.
- * A jump moves the cursor back from the event's data by its signed 16-bit
- * offset, after silencing the track's channel. */
+/* Plays a track's next event and reads the delta time after it, as
+ * MidiSequencer (035:0bda) does. Origin's 0xFE events loop (0), end a
+ * leaving song (1), jump while leaving (2), mark (3) or branch (4, 5). */
 static void OriginFxPlayTrackEvent(SdlOriginFxPlayer *player,
                                       OriginFxTrack *track)
 {

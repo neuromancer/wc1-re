@@ -90,14 +90,8 @@ typedef struct SdlDirectDraw2 *LPDIRECTDRAW2;
 typedef struct SdlDirectDrawSurface *LPDIRECTDRAWSURFACE;
 typedef struct SdlDirectDrawPalette *LPDIRECTDRAWPALETTE;
 
-/* The port stands in for a slice of the Win32 API with SDL.  A native Windows
- * host already has kernel32, user32, gdi32, advapi32 and winmm exporting those
- * same names, and its idea of a HANDLE, an HWND or a CRITICAL_SECTION is not
- * the port's, so defining our own would either collide at link time or bind
- * the game to a real entry point that does not understand these structures.
- * Give the port's versions their own names on every host and let the game's
- * Win32 spellings reach them through these macros; the shims below are
- * declared after the renaming, so they carry the prefixed names too. */
+/* The port's Win32 stand-ins take Sdl names, so they never collide with or
+ * bind to the real Win32 API on Windows; the game's spellings map to them. */
 #define CloseHandle SdlCloseHandle
 #define CreateEventA SdlCreateEventA
 #define CreateFileA SdlCreateFileA
@@ -384,10 +378,9 @@ int SdlKeymapIsGameButton(Uint8 button);
 void SdlKeymapGameButtons(Uint32 buttons, int *primary, int *secondary);
 SDL_Scancode SdlKeymapMouseKey(Uint8 button);
 SDL_Scancode SdlKeymapWheelKey(int direction);
-/* SWC's rebound inputs in flight: rewrite an event into the key SWC reads
- * for its action (type 0 drops it), and give the held keys and mouse buttons
- * SwcFlightTick should see. Option keys (music, sound, text, volume) apply
- * on every SWC screen: 1 when rewritten, -1 to drop, 0 to keep. */
+/* SWC's rebound flight inputs: events rewritten into the keys SWC reads (type
+ * 0 drops one), and the held keys and buttons SwcFlightTick sees. Option keys
+ * return 1 when rewritten, -1 to drop, 0 to keep. */
 void SdlSwcKeymapTranslateEvent(SDL_Event *event);
 int SdlSwcKeymapTranslateOptionKey(SDL_KeyboardEvent *key);
 const Uint8 *SdlSwcKeymapKeyboardState(const Uint8 *keys);

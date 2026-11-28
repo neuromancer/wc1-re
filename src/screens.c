@@ -1386,10 +1386,8 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         text = (char *)textData + record->textOffset;
         if (*text != '\0') {
 #ifdef SDL_PORT
-            /* Close-up shot 20 + n shows character n, whose lines use text
-             * colour n. Anyone else's line leaves that face listening, and
-             * SWC's SceneDirector (retail 0x01032ee8) then draws it with
-             * CloseLook, which has no mouth. */
+            /* Shot 20 + n is character n's close-up; anyone else's line
+             * leaves that face listening. */
             SdlPlaySceneVoice(sceneBytes, (const unsigned char *)record,
                               previousShot >= 20 && previousShot <= 32 &&
                               previousShot - 20 != previousColour);

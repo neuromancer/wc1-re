@@ -863,10 +863,8 @@ void ShowChalkBoard(void)
 
     done = 0;
 #ifdef SDL_PORT
-    /* SM2.EXE 0x43a8a1: SM2's chalkboard lists Bossman and Paladin, its
-       roster entries 10 and 9, where Jazz and Doomsday took over WC1's
-       entries 2 and 5 (SdlSetSm2Pilots); those two veterans keep their
-       WC1 records. While it shows, entries 2 and 5 hold them. */
+    /* SM2's chalkboard (SM2.EXE 0x43a8a1) shows Bossman and Paladin in
+       roster entries 2 and 5, Jazz's and Doomsday's, while it is up. */
     sm2 = SdlPlayingSm2();
     if (sm2) {
         jazzAndDoomsday[0] = aPilotEntriesList[2];

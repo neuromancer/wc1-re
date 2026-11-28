@@ -1,23 +1,7 @@
-/* Spaceflight frame interpolation (issues #5 and #38), proof of concept.
- *
- * WC1 steps its spaceflight once per frame, at 20 frames a second by default
- * (fSpaceFlightFrameRate). This keeps that step and its timing, and fills the
- * wait before the next step with frames drawn between the last two steps:
- * each object is moved and turned part of the way from where the previous
- * step left it, and the view is drawn again and presented. The cockpit
- * around the view keeps the step's own drawing. The autopilot's fly-by, the
- * death camera, the title's intro fight and the endings, which step the
- * simulation in loops of their own, are filled in the same way (the first
- * two after wc2-re 4e566b7).
- *
- * An in-between frame runs the drawing half of RenderSpaceViewFrame with the
- * state it writes saved and restored, so the simulation never sees it: its
- * results are bit-identical with or without interpolation. It does not
- * respawn stars or place exhaust, which call rand(), nor advance the missile
- * lock or the bracket blink. The mouse-steering pointer is drawn where the
- * mouse is at the time, the pilot's hand where the stick is, and an
- * explosion's growth is spread over the frames. What is shown runs one step
- * behind the simulation. */
+/* Smooth spaceflight (issues #5 and #38): between WC1's steps, frames drawn
+ * with each object part of the way from its previous pose. An in-between
+ * frame restores everything it writes, so the simulation is the same with or
+ * without it; the view runs one step behind. */
 #include "wc1.h"
 
 #include "video_internal.h"
@@ -37,12 +21,7 @@ typedef struct SavedRange {
 
 #define SAVED(name) {(void *)&(name), sizeof(name)}
 
-/* Everything an in-between frame writes: the poses it moves, the view
-   lists, sorting and screen positions drawing produces, the HUD state the
-   overlay touches, the slot draw_nav_pointer takes or frees for the nav
-   pointer when the right VDU changed mode since the step was drawn, the
-   mouse-steering pointer it moves to the mouse, the scales it gives
-   growing explosions, and the steering it gives the pilot's hand. */
+/* Everything an in-between frame writes, restored after it. */
 static const SavedRange g_aSavedFlightState[] = {
     SAVED(aeObjectClass), SAVED(acObjOwnersTable), SAVED(nYourWingman),
     SAVED(abHazardObjects),
@@ -66,10 +45,8 @@ static int g_bFrameInterpolation;
 static int g_bFlightFrameDeferred;
 static int g_bInterpolatedPass;
 static int g_bPreviousPosesValid;
-/* The screen as RenderSpaceViewFrame left it, the screen the step presents,
-   and which of its pixels RunSpaceFlight drew in between: update_cockpit's
-   instruments, which the cockpitless view draws over the view (issue #51),
-   as wc2-re lays its full-screen HUD over the in-between frames. */
+/* The view as RenderSpaceViewFrame left it, the step's presented screen, and
+   the pixels RunSpaceFlight drew in between (the instruments, issue #51). */
 static unsigned char g_abFlightViewScreen[FLIGHT_SCREEN_PIXELS];
 static unsigned char g_abFlightStepScreen[FLIGHT_SCREEN_PIXELS];
 static unsigned char g_abFlightOverlayMask[FLIGHT_SCREEN_PIXELS];
@@ -99,10 +76,8 @@ static short g_nOverlayZoomX;
 static short g_nOverlayZoomY;
 static short g_nOverlayZoomFrom;
 static short g_nOverlayZoomTo;
-/* The scaled shapes a scene draws over its view after drawing it, as the
-   endings draw their ships and their planet: this step's, and the step
-   before's, from which an in-between frame moves and scales each part of
-   the way. An id tells the same shape from step to step. */
+/* Shapes a scene draws over its view, as the endings' ships and planet, for
+   this step and the last; the id matches them up. */
 #define VIEW_OVERLAY_SPRITES 24
 typedef struct ViewOverlaySprite {
     int id;
@@ -153,11 +128,8 @@ static int g_bChildOffsetsValid;
 /* The objects the step drew: one made after its drawing, as the Tiger's
    Claw's jump flash, shows from the next step on. */
 static enum ObjectClass g_aeDrawnClass[SPACE_OBJECT_COUNT];
-/* The objects as the step's transform placed them on the screen, and those
-   made or moved after it without being placed again, out of the step's
-   view: update_star_field's respawned star or dust, and update_hazards'
-   new or respawned hazard. The step does not draw them where they now are,
-   and in-between frames leave them out too. */
+/* Where the step's transform put each object. Objects made or moved after
+   it, as respawned stars and hazards, stay out of the in-between frames. */
 static enum ObjectClass g_aeTransformedClass[SPACE_OBJECT_COUNT];
 static FixedVector g_aTransformedPositions[SPACE_OBJECT_COUNT];
 static unsigned char g_abHiddenInBetween[SPACE_OBJECT_COUNT];
@@ -368,20 +340,16 @@ void SdlCaptureFlightView(void)
     g_bFlightViewCaptured = 1;
 }
 
-/* In-between frames draw the cockpit's pilot hand where the stick is, in
-   the flight's cockpit view, where update_cockpit draws it. Not in the
-   simulator: its right VDU reaches under the hand, and each step copies
-   the VDU into the hand's backdrop before drawing the hand. */
+/* The pilot's hand follows the stick in the flight cockpit only: the
+   simulator's VDU overlaps it. */
 static int PilotHandFollowsStick(void)
 {
     return g_bFlightLoopStep && nCameraViewMode == 0 && bCockpitlessView == 0 &&
         nTrainSimActive == 0 && pCurrentPilotHandShapePtr != 0;
 }
 
-/* Before a drawn step's frame is presented: DIBslamReal leaves the present
-   to ThrottleFrameAndDrawFps, which interpolates up to it. flightLoop tells
-   RunSpaceFlight's own steps, which draw over the view after
-   SdlCaptureFlightView, from the fly-by's and the death camera's. */
+/* Leaves the present of a drawn step to ThrottleFrameAndDrawFps. flightLoop
+   is set for RunSpaceFlight's own steps. */
 void SdlDeferFlightFrame(int flightLoop)
 {
     size_t pixel;
@@ -522,11 +490,8 @@ static int64_t EyeStepSpeed(void)
     return speed;
 }
 
-/* Moves each object part of the way back to its previous pose. A slot whose
-   object changed, a jump its velocity does not explain (a respawn or the
-   autopilot), and a sharp turn (a view change) show the step's own pose.
-   Stars and dust are respawned by direction, and children follow their
-   parents. */
+/* Moves each object part of the way back to its previous pose. Replaced
+   objects, jumps and sharp turns show the step's pose. */
 static void InterpolatePoses(int alpha)
 {
     int64_t moved;
@@ -573,10 +538,8 @@ static void InterpolatePoses(int alpha)
     }
 }
 
-/* Where HandleSpaceFlightControls would put the mouse-steering pointer if
-   the mouse moved now: the mouse in the game's 320 by 200, as
-   SdlHandleMouseEvent maps it, raised in the cockpitless view as the game
-   raises it. 0 when the mouse is over no window of the game. */
+/* Where the mouse-steering pointer would be if the mouse moved now; 0 when
+   the mouse is outside the window. */
 static int LiveSteeringPointer(short *x, short *y)
 {
     SDL_Window *window;
@@ -687,11 +650,8 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
             asObjScreenScalesArray[obj] = g_asDrawnScales[obj];
     }
     reposition_fixed_child_objects();
-    /* What the step did not draw where it is now, made or moved after
-       the step's transform or made after it drew, stays off the screen, as
-       the transform leaves what it does not draw. Its slot keeps its class,
-       so that no vacant-slot search, as the transform's for the nav
-       pointer, takes it in the meantime. */
+    /* Hide what the step did not draw where it is now. The slot keeps its
+       class, so no vacant-slot search takes it. */
     for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
         if (g_abHiddenInBetween[obj] ||
             (g_aeDrawnClass[obj] == OBJECT_CLASS_NULL &&
@@ -701,11 +661,8 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
     sort_object_depth();
     SdlBeginSpaceFrame(pScreenViewGeometry, cScreenViewMode,
                        bCockpitlessView > 0, cPrimaryViewBufferColour);
-    /* The step drew on the view buffer as Draw_3Space_Frame found it: clear,
-       or a hyperspace jump's flash. Loops that draw with Draw_3Space_Frame
-       alone, as the death camera does, leave the step's picture there, and
-       the Tiger's Claw's escape lays the next step's flash: the buffer goes
-       back as the frame found it. */
+    /* Draw on the view buffer as the step found it, clear or a jump's
+       flash, and leave it as found. */
     passBufferSaved = CopyViewBuffer(g_abPassViewBuffer, 0);
     if (!g_bStepViewBackgroundValid ||
         g_stStepViewBuffer.pixels != stSpaceBufferViewport.pixels ||
@@ -761,11 +718,8 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
     RestoreFlightState();
 }
 
-/* ThrottleFrameAndDrawFps, before waiting for the next step: frames until
-   that step is due, each drawn at its expected display time. The last ends
-   at the step itself, as the game would have presented it. A step presented
-   more than once is led up to over all of its presents, each taking its
-   share of the way. */
+/* Presents the in-between frames due before the next step, the last at the
+   step itself; a step presented several times shares the way among them. */
 void SdlPresentInterpolatedFlightFrames(long deadline, long interval)
 {
     Uint32 start;

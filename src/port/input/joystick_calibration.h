@@ -1,20 +1,7 @@
-/* WC1's joystick calibration and dead zone, shared by the game
- * (src/port/input/joystick.c) and the launcher's calibration window so that both
- * read the stick alike.
- *
- * Positions are the game's JOYINFO values: SDL's axis plus 32768, 0-65535.
- * j.cal holds seven 16-bit words as CalibrateJoystickInteractive (0x4102b0)
- * writes them: the joystick, the upper-left X and Y, the lower-right X and Y
- * and the centre X and Y.
- *
- * ReadCalibratedJoystick (0x431d20) cuts each side of an axis into nine steps
- * and zeroes those up to the dead zone that LoadJoystickCalibrationFile
- * (0x431a10) takes in whole steps. The game passes one, and the division
- * truncates, so a stick does nothing for two steps (22% of its travel) and
- * then jumps to step two, a quarter of the turn rate (players_flight_dynamics
- * divides by 8). The port's setting is a percentage of
- * travel: 11, 22 and 33 are the original's whole steps; any other value gives
- * the original its whole steps and moves the edge to that percentage. */
+/* WC1's joystick calibration and dead zone, shared by the game and the
+ * launcher. Positions are JOYINFO values, 0-65535. j.cal holds seven words:
+ * the joystick, upper-left X and Y, lower-right X and Y, centre X and Y. The
+ * dead zone is a percentage of travel; 11, 22 and 33 are the original's. */
 #ifndef WC1_SDL_JOYSTICK_CALIBRATION_H
 #define WC1_SDL_JOYSTICK_CALIBRATION_H
 
@@ -41,13 +28,8 @@ typedef struct SdlJoystickAxis {
     int maximum;
 } SdlJoystickAxis;
 
-/* The order in which devices take the game's two joystick slots, best first.
- * A gamepad or a flight stick steers. A throttle, a wheel or rudder pedals
- * can rest with axis 0 at one end of its travel, which would turn the ship
- * if it were the first joystick, and with a stick, throttle and pedals the
- * stick might get no slot at all. SDL knows flight sticks such as the
- * Thrustmaster T.16000M by their USB IDs; devices it does not know come
- * between. Each group keeps SDL's order. */
+/* Device preference for the game's two joystick slots: gamepads and flight
+ * sticks first, so a throttle or pedals resting off centre never steer. */
 #define SDL_JOYSTICK_PREFERENCES 3
 
 static inline int SdlJoystickPreference(int deviceIndex)

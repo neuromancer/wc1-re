@@ -314,10 +314,8 @@ int add_game_installations(std::vector<GameInstallation> &installations,
     return index >= 0 ? index : scan_game_library(installations, path);
 }
 
-// A Steam installation's default library, and every library its
-// steamapps/libraryfolders.vdf names: as "path" values since 2021, as numbered
-// values before. Libraries on other drives, such as a Steam Deck's microSD
-// card, are listed only there.
+// A Steam installation's libraries: its default one and those named in
+// steamapps/libraryfolders.vdf, as on a Steam Deck's microSD card.
 static void add_steam_libraries(std::vector<fs::path> &libraries,
                                 const fs::path &steamRoot)
 {

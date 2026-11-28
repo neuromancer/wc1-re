@@ -24,11 +24,8 @@ enum class AxisKind {
     Brake,
 };
 
-// SDL2 reports a joystick's axes by number only. The platform's input API
-// says what each is, and whether the device calls itself a joystick or a
-// gamepad. The axes are listed in the order SDL2's backend numbers them:
-// Linux evdev codes in ascending order without digital hats, DirectInput's
-// X, Y, Z, rotations and sliders, and macOS HID usages in ascending order.
+// What each joystick axis is, from the platform's input API, in the order
+// SDL2's backend numbers them.
 struct JoystickDescription {
     bool joystick = false;
     bool gamepad = false;

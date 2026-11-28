@@ -151,10 +151,8 @@ int SdlPlaySwcMovie(SDL_Window *window, SDL_Renderer *renderer,
     }
 
 done:
-    /* CODE_15 movie_dim_screen +0x046c halves all palette entries after
-     * a movie group. CODE_12 MovieDisplay +0x0738 does the same on skip,
-     * leaving entries 0 and 255 unchanged. Both are immediate palette
-     * changes; the next scene owns the subsequent palette. */
+    /* Halve the palette after a movie group (CODE_15 movie_dim_screen) or
+     * a skip, which keeps entries 0 and 255 (CODE_12 MovieDisplay). */
     if ((result == SWC_MOVIE_FINISHED && dimOnFinish) || result == SWC_MOVIE_SKIPPED) {
         for (index = result == SWC_MOVIE_SKIPPED ? 1 : 0;
              index < (result == SWC_MOVIE_SKIPPED ? 255 : 256); index++) {
@@ -354,11 +352,8 @@ static int SdlPlaySwcMovieSequence(SDL_Window *window, SDL_Renderer *renderer,
     default:
         return SDL_SetError("Unsupported SWC movie sequence");
     }
-    /* CODE_12 MovieDisplay +0x0580/+0x08c6 returns quietly when a clip is
-     * missing from the folder and from STR/128's disc path, so the sequence
-     * goes on: the March 1995 data (IMG 25, MacFormat 4) lacks LANDING1.dcMov.
-     * With no clip at all (a minimal flight installation) music and cursor
-     * stay untouched. Malformed present movies still report a decoding error. */
+    /* A missing clip is skipped quietly, as in CODE_12 MovieDisplay; some
+     * releases lack LANDING1.dcMov. */
     available = 0;
     for (index = 0; index < count; index++) {
         /* Retail CODE_03 scramble +0x46f8 / landing +0x455a format the
