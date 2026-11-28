@@ -963,7 +963,7 @@ unsigned int house_keep_objects(void)
                         acPreviousAttackers[obj] == 0 &&
                         aeShipSide[obj] == SIDE_KILRATHI &&
                         RandomBelowOrEqual(100) < 10) {
-                        send_message(nYourWingman, 6);
+                        send_message(nYourWingman, RADIO_PRAISE);
                     }
                     Create_explosion_debris(obj);
                     break;

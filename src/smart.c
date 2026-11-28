@@ -734,14 +734,14 @@ void intelligence_events(short obj)
         aeObjectClass[0] == OBJECT_CLASS_SHIP &&
         acWingmanMessageStatesArray[nYourWingman] == -1) {
         if (previousStress < 15 && acShipStressList[obj] >= 15) {
-            send_message(obj, 4);
+            send_message(obj, RADIO_HELP);
         } else {
             playerDamage = evaluate_damage(0);
             if (RandomBelow(1000) < 4 && playerDamage < 35) {
                 if (evaluate_damage(obj) > playerDamage)
-                    send_message(obj, 8);
+                    send_message(obj, RADIO_RETURN);
                 else
-                    send_message(obj, 4);
+                    send_message(obj, RADIO_HELP);
             }
         }
     }

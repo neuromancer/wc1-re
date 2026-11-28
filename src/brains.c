@@ -253,14 +253,14 @@ void imperial_formation(short obj)
                    OBJECTIVE_ENGAGE_ENEMY);
         } else if (obj == nYourWingman &&
                    nAutoEngageTimer == -1) {
-            send_message(obj, 3);
+            send_message(obj, RADIO_ATTACK);
             nAutoEngageTimer = 40;
         }
     } else if (obj == nYourWingman &&
                nEnemySighting != nCurrentWave &&
                any_enemy(obj, 16000) != 0 &&
                message_showing() == 0 && nCameraViewMode == 0) {
-        send_message(obj, 2);
+        send_message(obj, RADIO_ENEMY_SIGHTED);
         nEnemySighting = nCurrentWave;
     }
 

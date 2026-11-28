@@ -125,10 +125,10 @@ int too_busy(short ship)
 void reply(short ship, short accepted)
 {
     if (accepted == 1) {
-        send_message(ship, 0);
+        send_message(ship, RADIO_AFFIRMATIVE);
         return;
     }
-    send_message(ship, 1);
+    send_message(ship, RADIO_NEGATIVE);
 }
 
 /* Function start: 0x42F240 */
@@ -311,10 +311,10 @@ void request(short requester, short ship, short command)
             cleanup_objectives();
             if (can_land() != 0) {
                 bLandingAuthorized = 1;
-                send_message(ship, 8);
+                send_message(ship, RADIO_RETURN);
                 return;
             }
-            send_message(ship, 9);
+            send_message(ship, RADIO_DEPART);
             return;
         }
         return;

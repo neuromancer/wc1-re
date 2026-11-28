@@ -1450,7 +1450,7 @@ void flag_reached(short objective, short reached)
                 anShipMissionShips[0] &&
             aeObjectTypeList[carrierObject] !=
                 OBJECT_TYPE_TIGERS_CLAW)
-            send_message(carrierObject, 6);
+            send_message(carrierObject, RADIO_PRAISE);
         flag_objective(objective, 1);
     }
     if (advanceDestination != 0)

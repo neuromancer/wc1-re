@@ -370,6 +370,20 @@ typedef char MouseCursorState_size_must_be_0x1c[
 /* A component's damage level once it no longer works. */
 #define COMPONENT_DESTROYED           4
 
+/* The radio messages, slots of each speaker's lines in COMMUNIC.DAT, as
+ * send_message and real_vid_transmit number them. */
+#define RADIO_AFFIRMATIVE             0
+#define RADIO_NEGATIVE                1
+#define RADIO_ENEMY_SIGHTED           2
+#define RADIO_ATTACK                  3
+#define RADIO_HELP                    4
+#define RADIO_KILL                    5
+#define RADIO_PRAISE                  6
+#define RADIO_DYING                   7
+#define RADIO_RETURN                  8 /* "Let's go home"; landing cleared */
+#define RADIO_DEPART                  9 /* back to base; landing refused */
+#define RADIO_WATCH_FIRE              10
+
 /* ConversationSceneRecord.shot: the camera shot SceneDirector cuts to, named
  * after the function that draws it. */
 #define SCENE_SHOT_END                    -2 /* ends the scene */

@@ -555,7 +555,7 @@ void SdlSwcFlagReached(short objective, short reached)
         if (!visited(objective) && carrierObject != -1 &&
             aMissionObjectivesArray[objective].index == carrierMissionShip &&
             aeObjectTypeList[carrierObject] != OBJECT_TYPE_TIGERS_CLAW)
-            send_message(carrierObject, 6);
+            send_message(carrierObject, RADIO_PRAISE);
         flag_objective(objective, 1);
     }
     if (advanceDestination)

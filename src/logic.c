@@ -490,7 +490,7 @@ short try2rout(short obj)
     } else {
         reset_mission_type(obj, MISSION_TYPE_ROUT);
         if (obj == nYourWingman)
-            send_message(obj, 9);
+            send_message(obj, RADIO_DEPART);
     }
     return canContinue == 0;
 }

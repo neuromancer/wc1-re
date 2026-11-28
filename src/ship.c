@@ -519,7 +519,7 @@ void send_appropriate_message(short attacker, short victim)
             if (RandomBelowOrEqual(100) < 50 &&
                 aeSpecialManeuvers[attacker] !=
                     SPECIAL_MANEUVER_UNKNOWN_9)
-                send_message(nYourWingman, 5);
+                send_message(nYourWingman, RADIO_KILL);
 #ifdef SDL_PORT
         /* An unowned ship has owner -1.  The original indexes side[-1], which
            aliases the final roll-goal words and normally compares false. */
@@ -531,7 +531,7 @@ void send_appropriate_message(short attacker, short victim)
                        (short)acObjOwnersTable[attacker]] ==
                        SIDE_KILRATHI &&
                    nYourWingman == victim) {
-            send_message(acObjOwnersTable[attacker], 5);
+            send_message(acObjOwnersTable[attacker], RADIO_KILL);
         }
     }
 }
@@ -580,7 +580,7 @@ int inflict_damage(short attacker, short victim, short damage,
         if (attacker != -1 &&
             nYourWingman == victim &&
             acObjOwnersTable[attacker] == 0)
-            send_message(victim, 10);
+            send_message(victim, RADIO_WATCH_FIRE);
 
         quadrant = (dot_product(impactDirection,
             &aShipFwdVec[victim]) > 0);
@@ -617,7 +617,7 @@ int inflict_damage(short attacker, short victim, short damage,
                             OBJECT_CLASS_SHIP) {
                         if (aeShipSide[attacker] ==
                             SIDE_KILRATHI)
-                            send_message(attacker, 6);
+                            send_message(attacker, RADIO_PRAISE);
                         destroyed = explode(attacker, victim);
                     }
                 } else {
@@ -731,7 +731,7 @@ int internal_damage(short attacker, short victim, short damage,
                 asShipAccumulatedDmg[victimIndex] +
                 MaxShort(1, (damage / 10)));
             if (RandomBelowOrEqual(1000) < 35 && attacker != 0)
-                send_message(victim, 4);
+                send_message(victim, RADIO_HELP);
         }
         if (asShipAccumulatedDmg[victimIndex] >= damageCapacity)
             return explode(attacker, victim);
@@ -1315,7 +1315,7 @@ unsigned int analyze_kill(short attacker, short victim)
             aeShipSide[attacker];
     new_space_music_changes(attacker, victim);
     if (enemy) {
-        send_message(attacker, 5);
+        send_message(attacker, RADIO_KILL);
         score_for_kill(attacker, victim);
         if (attacker == 0)
             nPlayerKillTotal++;
@@ -1382,7 +1382,7 @@ short Explosion(short obj)
              (missionShip != -1 &&
               anShipMissionShips[obj] == missionShip) ||
              RandomBelow(100) < 3)) {
-            send_message(obj, 7);
+            send_message(obj, RADIO_DYING);
         }
         if (acShipRating[obj] != -1 &&
             acShipRating[obj] != RATING_ACE_ICEMAN)
@@ -1396,7 +1396,7 @@ short Explosion(short obj)
                     break;
             }
             if (missionShip < 10)
-                send_message(missionShip, 5);
+                send_message(missionShip, RADIO_KILL);
             nYourWingman = -1;
         }
         set_special(obj, SPECIAL_MANEUVER_UNKNOWN_9);
@@ -1535,7 +1535,7 @@ int explode(short attacker, short victim)
                 reset_maneuver(victim, MANEUVER_OUTA_HERE);
                 acShipDmg[victim] =
                     (acShipDmg[victim] / 2);
-                send_message(victim, 6);
+                send_message(victim, RADIO_PRAISE);
                 return 0;
             }
             if (RandomBelowOrEqual(1) == 0)
