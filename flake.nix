@@ -34,7 +34,7 @@
         buildPhase = ''
           runHook preBuild
           export HOME=$TMPDIR CARGO_HOME=$TMPDIR/cargo-home
-          cmake -S src/sdl/slint -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake -S src/port/launcher -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
           ${lib.optionalString (builtins.pathExists ./nix/slint-Cargo.lock) ''
             cp ${./nix/slint-Cargo.lock} build/_deps/slint-src/Cargo.lock
           ''}

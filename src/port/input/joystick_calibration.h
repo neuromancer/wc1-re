@@ -1,5 +1,5 @@
 /* WC1's joystick calibration and dead zone, shared by the game
- * (src/sdl/joystick.c) and the launcher's calibration window so that both
+ * (src/port/input/joystick.c) and the launcher's calibration window so that both
  * read the stick alike.
  *
  * Positions are the game's JOYINFO values: SDL's axis plus 32768, 0-65535.

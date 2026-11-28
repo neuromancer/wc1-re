@@ -58,7 +58,7 @@ def main():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--exe", type=Path, required=True, help="the English DOS WC.EXE B2.4")
     parser.add_argument("--output", type=Path,
-                        default=Path(__file__).resolve().parents[2] / "src/sdl/executable_text.h")
+                        default=Path(__file__).resolve().parents[2] / "src/port/game/executable_text.h")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
     image = args.exe.read_bytes()

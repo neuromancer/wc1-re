@@ -1,6 +1,6 @@
 #include "wc1.h"
 
-#include "video_internal.h"
+#include "graphics/video_internal.h"
 
 static int SdlTranslateVirtualKey(SDL_Keycode key)
 {

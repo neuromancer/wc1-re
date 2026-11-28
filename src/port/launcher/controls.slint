@@ -28,7 +28,7 @@ export struct PadDevice {
     connected: bool,
     // SDL maps it as a game controller, which the tab draws as one.
     mapped: bool,
-    // It calls itself a joystick (src/sdl/slint/launcher_axes.cpp).
+    // It calls itself a joystick (src/port/launcher/launcher_axes.cpp).
     joystick: bool,
     name: string,
     buttons: int,
@@ -362,7 +362,7 @@ export struct InputBinding {
 
 // A row of the keyboard and mouse table: a section heading, or a game input,
 // how to use it, and its original bindings. The id names the input in the
-// launcher settings and in src/sdl/keymap.c. A fixed row cannot be changed; a
+// launcher settings and in src/port/input/keymap.c. A fixed row cannot be changed; a
 // mouse-only row takes only mouse buttons; limit caps its bindings (0 uses
 // ControlsView.max-bindings).
 export struct InputRow {
@@ -434,7 +434,7 @@ export component ControlsView inherits Rectangle {
         (root.joystick-mode == 4 || (root.custom && root.joystick-source == 2));
     property <int> layout-mode: root.joystick-mode >= 3 ? 2 : root.joystick-mode;
     // The Custom mode's bindings, one code per control in the order of
-    // src/sdl/pad_bindings.h (A, B, X, Y, LB, RB, LT, RT, Back, Start, the
+    // src/port/input/pad_bindings.h (A, B, X, Y, LB, RB, LT, RT, Back, Start, the
     // stick clicks, the D-pad and the sticks' axes, then another joystick's
     // buttons, its two hats' directions and its axes): the index of a
     // keyboard-rows action, -1 for none, -2 to cycle the views, -3 to roll
@@ -444,7 +444,7 @@ export component ControlsView inherits Rectangle {
     in property <[int]> pad-codes;
     // The joystick shown, read live while the tab shows: a mapped game
     // controller is drawn as one, and any other lists its buttons, hats and
-    // axes by number, as src/sdl/pad_bindings.h binds them. Each control
+    // axes by number, as src/port/input/pad_bindings.h binds them. Each control
     // held now in that numbering, and a raw joystick's axes, -1 to 1, with
     // what each is (AxisKind in launcher_axes.h, 0 when unknown).
     in property <PadDevice> pad-device;
@@ -556,8 +556,8 @@ export component ControlsView inherits Rectangle {
             { inputs: [root.apple-keys ? "meta" : "alt", "enter"], joiner: "+" }
         ] }
     ];
-    // SWC's keys: the Mac demo's (src/sdl/swc_flight.c, swc_nav.c and
-    // swc_options.c), rebindable like WC1's (src/sdl/keymap_actions.h). The
+    // SWC's keys: the Mac demo's (src/port/swc/swc_flight.c, swc_nav.c and
+    // swc_options.c), rebindable like WC1's (src/port/input/keymap_actions.h). The
     // in-flight computer's keys and the menus' shortcuts stay as they are.
     out property <[InputRow]> swc-rows: [
         { section: @tr("Flight") },
@@ -811,7 +811,7 @@ export component ControlsView inherits Rectangle {
         return root.pad-y + drawing-y * 1px * root.scale;
     }
 
-    // The Custom mode's controls in the order of src/sdl/pad_bindings.h.
+    // The Custom mode's controls in the order of src/port/input/pad_bindings.h.
     pure function control-index(control: PadControl) -> int {
         if control == PadControl.a { return 0; }
         if control == PadControl.b { return 1; }
@@ -897,7 +897,7 @@ export component ControlsView inherits Rectangle {
         return root.binding-text(root.current-bindings(index)[0]) + " / " + root.binding-text(root.current-bindings(index)[1]);
     }
 
-    // How a button works a flight key's action (src/sdl/joystick.c): the
+    // How a button works a flight key's action (src/port/input/joystick.c): the
     // guns, the afterburner, steering and speed while it is held, the rest
     // once per press.
     pure function action-behaviour(id: string) -> string {
@@ -1112,7 +1112,7 @@ export component ControlsView inherits Rectangle {
 
     // A raw joystick's axis in the fixed layouts: the first two steer as
     // the game's stick, and the four-axis layouts read the third and fourth
-    // as src/sdl/joystick.c's axis layouts do.
+    // as src/port/input/joystick.c's axis layouts do.
     pure function raw-axis-fixed-label(axis: int) -> string {
         if axis == 0 {
             return root.layout-mode == 2 && (root.joystick-axes == 1 || root.joystick-axes == 2 || root.joystick-axes == 5)
@@ -1223,7 +1223,7 @@ export component ControlsView inherits Rectangle {
         root.hide-tip();
     }
 
-    // WC1 flight bindings (src/sdl/joystick.c). An empty string is unbound.
+    // WC1 flight bindings (src/port/input/joystick.c). An empty string is unbound.
     public pure function wc1-binding(control: PadControl) -> string {
         if root.custom {
             return root.code-label(root.pad-codes[root.control-index(control)], root.control-index(control));
@@ -1235,7 +1235,7 @@ export component ControlsView inherits Rectangle {
             }
             return @tr("pitch and yaw");
         }
-        // RT stands in for A and LT for B in flight (src/sdl/joystick.c).
+        // RT stands in for A and LT for B in flight (src/port/input/joystick.c).
         if control == PadControl.a || control == PadControl.right-trigger { return @tr("fire guns"); }
         if control == PadControl.back { return @tr("cycle views"); }
         if control == PadControl.start { return @tr("pause"); }
@@ -1270,7 +1270,7 @@ export component ControlsView inherits Rectangle {
         return "";
     }
 
-    // SWC reads the game controller through WC1's code (src/sdl/joystick.c,
+    // SWC reads the game controller through WC1's code (src/port/input/joystick.c,
     // SdlTranslateSwcJoystickEvent) but keeps the Mac demo's keys, so the
     // buttons that send keys only WC1 binds do nothing in flight.
     public pure function swc-binding(control: PadControl) -> string {
@@ -1289,7 +1289,7 @@ export component ControlsView inherits Rectangle {
     }
 
     // Another joystick's buttons stand in for the gamepad's by number
-    // (src/sdl/joystick.c): 1 for A, 2 for B, 3 for X, 4 for Y, 9 for Back
+    // (src/port/input/joystick.c): 1 for A, 2 for B, 3 for X, 4 for Y, 9 for Back
     // and 11 for the left stick's click, and its first hat for the D-pad.
     public pure function notes() -> string {
         if root.game == 1 {

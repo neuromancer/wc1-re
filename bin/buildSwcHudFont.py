@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw, ImageFont, __version__, features
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "third_party/anonymouspro/AnonymousPro-Regular.ttf"
-DESTINATION = ROOT / "src/sdl/swc_hud_font.h"
+DESTINATION = ROOT / "src/port/swc/swc_hud_font.h"
 SOURCE_SHA256 = "46d8b9a5f4b38fc9d30f3cdd676d4c6f78a9bef949bb1a8304216cc731eb87f8"
 
 

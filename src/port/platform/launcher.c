@@ -1,7 +1,7 @@
 #include "wc1.h"
 
-#include "video_internal.h"
-#include "slint/launcher_api.h"
+#include "graphics/video_internal.h"
+#include "launcher/launcher_api.h"
 
 #include <stdio.h>
 #include <string.h>

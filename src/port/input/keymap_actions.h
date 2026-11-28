@@ -1,5 +1,5 @@
 /* The WC1 flight inputs that the launcher's keyboard and mouse table can
- * rebind, shared by src/sdl/keymap.c and the launcher check. Each entry
+ * rebind, shared by src/port/input/keymap.c and the launcher check. Each entry
  * names the input as the launcher settings and the table do, the key and
  * modifier that the game's own handler reads, and the original bindings: a
  * key by position, its other side for modifier keys, a modifier, a mouse
@@ -57,7 +57,7 @@
     ACTION("music", SDL_SCANCODE_M, KMOD_CTRL, {SDL_SCANCODE_M, SDL_SCANCODE_UNKNOWN, KMOD_CTRL}) \
     ACTION("sound", SDL_SCANCODE_S, KMOD_CTRL, {SDL_SCANCODE_S, SDL_SCANCODE_UNKNOWN, KMOD_CTRL})
 
-/* SWC's rebindable inputs, as the Mac demo reads them (src/sdl/swc_flight.c
+/* SWC's rebindable inputs, as the Mac demo reads them (src/port/swc/swc_flight.c
  * and swc_options.c). Each names the input, the key SWC reads (its keycode,
  * its position or SDL_SCANCODE_UNKNOWN to look the keycode up on the layout,
  * and its modifier), whether it is a menu option that every SWC screen reads,

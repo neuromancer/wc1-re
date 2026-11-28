@@ -9,7 +9,7 @@
 
 #define TSF_IMPLEMENTATION
 #define TSF_NO_STDIO
-#include "../../third_party/tinysoundfont/tsf.h"
+#include "../../../third_party/tinysoundfont/tsf.h"
 
 typedef struct SwcMusicTrack {
     const char *name;

@@ -270,7 +270,7 @@ void SdlCancelSpaceFrame(void);
    glyphs, and the viewport copies move the ones drawn off screen. */
 void SdlBeginHiResHudFlight(void);
 void SdlEndHiResHudFlight(void);
-/* Spaceflight frame interpolation (src/sdl/interpolation.c). */
+/* Spaceflight frame interpolation (src/port/graphics/interpolation.c). */
 void SdlSetFrameInterpolation(int enabled);
 void SdlResetFrameInterpolation(void);
 void SdlCaptureFlightPoses(void);
@@ -325,7 +325,7 @@ BOOL SdlReadJoystickAxisRange(unsigned int device,
 int SdlSetJoystickMode(const char *name);
 int SdlSetJoystickSource(int source);
 int SdlSetJoystickAxesMode(const char *name);
-/* The Custom joystick mode's "control=function" lines (src/sdl/pad_bindings.h),
+/* The Custom joystick mode's "control=function" lines (src/port/input/pad_bindings.h),
  * after the axis layout, whose bindings are the defaults. */
 void SdlSetPadBindings(const char *bindings);
 /* get_player_input: the Custom mode takes the left stick's steps in flight. */
@@ -333,7 +333,7 @@ void SdlTakeFlightStickSample(void);
 /* The keys the Custom mode's held buttons hold in flight, given the keys that are. */
 const Uint8 *SdlPadKeyboardState(const Uint8 *keys);
 struct InputDeviceSample;
-/* The joystick dead zone, a percentage of travel (src/sdl/joystick_calibration.h). */
+/* The joystick dead zone, a percentage of travel (src/port/input/joystick_calibration.h). */
 int SdlSetJoystickDeadZone(int percent);
 short SdlGetJoystickDeadZoneSteps(void);
 int SdlAcceptJoystickCalibration(short device,
@@ -515,7 +515,7 @@ void SdlPatchStreamData(const char *filename, unsigned int fileOffset,
 SdlOriginFxPlayer *SdlCreateOriginFxPlayer(
     const unsigned char *midi, size_t midiSize,
     const unsigned char *timbres, size_t timbreSize);
-/* Roland MT-32 output through Munt's libmt32emu (src/sdl/mt32.c). */
+/* Roland MT-32 output through Munt's libmt32emu (src/port/audio/mt32.c). */
 typedef struct SdlMt32Synth SdlMt32Synth;
 /* The folder holding the player's ROMs and, optionally, a libmt32emu
  * machine id such as "mt32_1_07" (empty: the best the folder has). */

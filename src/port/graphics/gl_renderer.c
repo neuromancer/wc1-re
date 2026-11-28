@@ -306,7 +306,7 @@ static const GLchar g_spriteFragmentShaderSource[] =
     "        discard;\n"
     "}\n";
 
-/* The hi-res HUD layer (src/sdl/hires_hud.c) is an index and a coverage
+/* The hi-res HUD layer (src/port/graphics/hires_hud.c) is an index and a coverage
    byte per 640x400 pixel. */
 static const GLchar g_overlayFragmentShaderSource[] =
     "#version 150\n"
@@ -426,7 +426,7 @@ int SdlGlOverlayReady(void)
 
 static void DrawGlQuad(const GlVertex *vertices);
 
-/* The hi-res HUD layer (src/sdl/hires_hud.c) over the frame; changed is 1
+/* The hi-res HUD layer (src/port/graphics/hires_hud.c) over the frame; changed is 1
    when it must be uploaded again. */
 static void DrawHiResLayer(const unsigned char *layer, int changed)
 {

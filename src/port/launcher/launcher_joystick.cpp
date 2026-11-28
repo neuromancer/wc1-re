@@ -1,7 +1,7 @@
 #include "launcher_joystick.h"
 #include "launcher_paths.h"
 
-#include "../joystick_calibration.h"
+#include "../input/joystick_calibration.h"
 
 #include <algorithm>
 #include <cerrno>

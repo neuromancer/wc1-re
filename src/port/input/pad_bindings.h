@@ -1,5 +1,5 @@
 /* The game controller's inputs in WC1's Custom joystick mode, shared by
- * src/sdl/joystick.c and the launcher's Joystick tab (controls.slint).
+ * src/port/input/joystick.c and the launcher's Joystick tab (controls.slint).
  *
  * The launcher settings' [pad] section binds each control to a function, one
  * "control=function" line each; a control without a line keeps its default.

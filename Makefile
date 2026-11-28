@@ -147,7 +147,7 @@ MODERN_TARGET = $(MODERN_OUT_DIR)/wc1-modern$(MODERN_EXE_SUFFIX)
 MODERN_GUI_TARGET = $(MODERN_OUT_DIR)/wc1-modern-gui$(MODERN_EXE_SUFFIX)
 SWC_MUSIC_SOUNDFONT = $(MODERN_OUT_DIR)/swc-music.sf2
 MODERN_CMAKE ?= cmake
-MODERN_GUI_SOURCE_DIR = src/sdl/slint
+MODERN_GUI_SOURCE_DIR = src/port/launcher
 MODERN_GUI_BUILD_DIR = $(MODERN_OUT_DIR)/slint-gui
 MODERN_GUI_BUILD_TYPE ?= Release
 MODERN_GUI_CMAKE_ARGS ?=
@@ -179,7 +179,7 @@ MODERN_LZO_LIBS = $(shell pkg-config --libs lzo2 2>/dev/null)
 # Windows, which needs SDL2main.a to supply a WinMain wrapper.  The port has
 # its own main and calls SDL_SetMainReady() itself, so the rename is only a
 # way to fail the link.
-MODERN_CPPFLAGS = -DSDL_PORT=1 -DSDL_MAIN_HANDLED -Iinclude \
+MODERN_CPPFLAGS = -DSDL_PORT=1 -DSDL_MAIN_HANDLED -Iinclude -Isrc/port \
 	$(MODERN_SDL_CFLAGS) \
 	$(MODERN_LZO_CFLAGS) $(addprefix -I,$(MODERN_LZO_INCLUDEDIR))
 SWC_CPPFLAGS = -DSDL_PORT=1 -DSDL_MAIN_HANDLED -Iinclude \
@@ -534,54 +534,54 @@ MODERN_IX_SRCS = \
 	src/ix/ixfile.cpp
 
 MODERN_BASE_HOST_SRCS = \
-	src/sdl/compat.c \
-	src/sdl/input.c \
-	src/sdl/resources.c \
-	src/sdl/campaign.c \
-	src/sdl/data_patches.c \
-	src/sdl/translation.c \
-	src/sdl/speech.c \
-	src/sdl/swc_mission.c \
-	src/swc/cmf.c \
-	src/sdl/registry.c \
-	src/sdl/thread.c \
-	src/sdl/timer.c \
-	src/sdl/video_state.c
+	src/port/platform/compat.c \
+	src/port/input/input.c \
+	src/port/game/resources.c \
+	src/port/game/campaign.c \
+	src/port/game/data_patches.c \
+	src/port/game/translation.c \
+	src/port/audio/speech.c \
+	src/port/swc/swc_mission.c \
+	src/port/swc/cmf.c \
+	src/port/platform/registry.c \
+	src/port/platform/thread.c \
+	src/port/platform/timer.c \
+	src/port/graphics/video_state.c
 MODERN_GAME_HOST_SRCS = \
-	src/sdl/fmtowns.c \
-	src/sdl/towns_text.c \
-	src/sdl/autosave.c \
-	src/sdl/swc_save.c \
-	src/sdl/swc_flight.c \
-	src/sdl/swc_raster.c \
-	src/sdl/swc_cockpit.c \
-	src/sdl/swc_nav.c \
-	src/sdl/swc_sound.c \
-	src/sdl/swc_music.c \
-	src/sdl/swc_text.c \
-	src/sdl/swc_rooms.c \
-	src/sdl/swc_options.c \
-	src/sdl/swc_movie.c \
-	src/swc/speech.c \
-	src/swc/sound.c \
-	src/swc/movie.c \
-	src/swc/music.c \
-	src/swc/shape.c \
-	src/swc/rsrc.c \
-	src/sdl/audio.c \
-	src/sdl/dos_intro.c \
-	src/sdl/events.c \
-	src/sdl/gl_renderer.c \
-	src/sdl/hires_hud.c \
-	src/sdl/interpolation.c \
-	src/sdl/joystick.c \
-	src/sdl/keymap.c \
-	src/sdl/mt32.c \
-	src/sdl/music.c \
-	src/sdl/video.c
+	src/port/game/fmtowns.c \
+	src/port/game/towns_text.c \
+	src/port/game/autosave.c \
+	src/port/swc/swc_save.c \
+	src/port/swc/swc_flight.c \
+	src/port/swc/swc_raster.c \
+	src/port/swc/swc_cockpit.c \
+	src/port/swc/swc_nav.c \
+	src/port/swc/swc_sound.c \
+	src/port/swc/swc_music.c \
+	src/port/swc/swc_text.c \
+	src/port/swc/swc_rooms.c \
+	src/port/swc/swc_options.c \
+	src/port/swc/swc_movie.c \
+	src/port/swc/speech.c \
+	src/port/swc/sound.c \
+	src/port/swc/movie.c \
+	src/port/swc/music.c \
+	src/port/swc/shape.c \
+	src/port/swc/rsrc.c \
+	src/port/audio/audio.c \
+	src/port/game/dos_intro.c \
+	src/port/input/events.c \
+	src/port/graphics/gl_renderer.c \
+	src/port/graphics/hires_hud.c \
+	src/port/graphics/interpolation.c \
+	src/port/input/joystick.c \
+	src/port/input/keymap.c \
+	src/port/audio/mt32.c \
+	src/port/audio/music.c \
+	src/port/graphics/video.c
 MODERN_GAME_HOST_CXX_SRCS = \
-	src/sdl/originfx.cpp \
-	src/sdl/wave.cpp
+	src/port/audio/originfx.cpp \
+	src/port/audio/wave.cpp
 MODERN_YMFM_SRCS = \
 	third_party/ymfm/ymfm_adpcm.cpp \
 	third_party/ymfm/ymfm_opl.cpp \
@@ -616,7 +616,7 @@ MODERN_MUNT_SRCS = \
 	third_party/munt/mt32emu/srchelper/srctools/src/LinearResampler.cpp \
 	third_party/munt/mt32emu/srchelper/srctools/src/ResamplerModel.cpp \
 	third_party/munt/mt32emu/srchelper/srctools/src/SincResampler.cpp
-MODERN_LAUNCHER_SRC = src/sdl/launcher.c
+MODERN_LAUNCHER_SRC = src/port/platform/launcher.c
 
 MODERN_GAMEPLAY_OBJS = \
 	$(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAMEPLAY_SRCS)) \
@@ -634,7 +634,7 @@ MODERN_GAME_HOST_OBJS = \
 	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_CXX_SRCS)) \
 	$(MODERN_YMFM_OBJS) $(MODERN_MUNT_OBJS)
 MODERN_LAUNCHER_OBJ = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_LAUNCHER_SRC))
-MODERN_STATIC_GUI_LAUNCHER_OBJ = $(MODERN_OUT_DIR)/obj/sdl/launcher_gui.o
+MODERN_STATIC_GUI_LAUNCHER_OBJ = $(MODERN_OUT_DIR)/obj/port/platform/launcher_gui.o
 MODERN_GUI_GAME_OBJS = $(MODERN_STATIC_GUI_LAUNCHER_OBJ) \
 	$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
 	$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
@@ -654,9 +654,9 @@ MODERN_DEPFILES = \
 SWC_TARGET = $(MODERN_OUT_DIR)/swc-demo$(MODERN_EXE_SUFFIX)
 SWC_DATA_DIR ?= data/swc-demo/SuperWing DEMO
 SWC_ARGS ?=
-SWC_SRCS = src/swc/cmf.c src/swc/shape.c src/swc/rsrc.c
+SWC_SRCS = src/port/swc/cmf.c src/port/swc/shape.c src/port/swc/rsrc.c
 SWC_OBJS = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(SWC_SRCS))
-SWC_HOST_OBJ = $(MODERN_OUT_DIR)/obj/sdl/swc_demo.o
+SWC_HOST_OBJ = $(MODERN_OUT_DIR)/obj/port/swc/swc_demo.o
 MODERN_DEPFILES += $(SWC_OBJS:.o=.d) $(SWC_HOST_OBJ:.o=.d)
 
 # ---------------------------------------------------------------------------
@@ -736,6 +736,15 @@ $(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile | $(SW
 		echo "Rust 1.92 or newer is required to build Slint." >&2; \
 		exit 1; \
 	}
+	@if test -f $(MODERN_GUI_BUILD_DIR)/CMakeCache.txt && \
+	   ! grep -qx 'CMAKE_HOME_DIRECTORY:INTERNAL=$(abspath $(MODERN_GUI_SOURCE_DIR))' \
+		$(MODERN_GUI_BUILD_DIR)/CMakeCache.txt; then \
+		echo "The launcher's sources moved; configuring its build again."; \
+		sed -n 's/^Rust_TOOLCHAIN:STRING=\(..*\)$$/-DRust_TOOLCHAIN=\1/p' \
+			$(MODERN_GUI_BUILD_DIR)/CMakeCache.txt \
+			> $(MODERN_GUI_BUILD_DIR)/moved-cmake-args; \
+		rm -f $(MODERN_GUI_BUILD_DIR)/CMakeCache.txt; \
+	fi
 	$(MODERN_CMAKE) -S $(MODERN_GUI_SOURCE_DIR) \
 		-B $(MODERN_GUI_BUILD_DIR) \
 		-DCMAKE_CXX_COMPILER="$(MODERN_CXX)" \
@@ -743,7 +752,9 @@ $(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile | $(SW
 		-DWC1_GAME_OBJECTS="$(subst $(MODERN_SPACE),;,$(MODERN_GUI_CMAKE_OBJECTS))" \
 		-DWC1_GAME_SANITIZERS=$(if $(MODERN_SANITIZER_FLAGS),ON,OFF) \
 		-DWC1_GUI_OUTPUT_DIRECTORY="$(abspath $(MODERN_OUT_DIR))" \
+		$$(cat $(MODERN_GUI_BUILD_DIR)/moved-cmake-args 2>/dev/null) \
 		$(MODERN_GUI_CMAKE_ARGS)
+	@rm -f $(MODERN_GUI_BUILD_DIR)/moved-cmake-args
 	CARGO_PROFILE_RELEASE_LTO=false \
 		$(MODERN_CMAKE) --build $(MODERN_GUI_BUILD_DIR) \
 		--config $(MODERN_GUI_BUILD_TYPE) --target wc1-modern-gui
@@ -800,7 +811,7 @@ $(MODERN_OUT_DIR)/obj/%.o: src/%.cpp | modern-check-deps
 		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
-$(MODERN_OUT_DIR)/obj/sdl/originfx.o: src/sdl/originfx.cpp | modern-check-deps
+$(MODERN_OUT_DIR)/obj/port/audio/originfx.o: src/port/audio/originfx.cpp | modern-check-deps
 	@mkdir -p $(dir $@)
 	$(MODERN_CXX) $(MODERN_CPPFLAGS) -Ithird_party/ymfm \
 		$(MODERN_CXXFLAGS) -std=c++14 \
@@ -816,7 +827,7 @@ $(MODERN_MUNT_OBJS): $(MODERN_OUT_DIR)/obj/third_party/munt/%.o: third_party/mun
 		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) -fno-sanitize=shift-base \
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
-$(MODERN_OUT_DIR)/obj/sdl/mt32.o: MODERN_CPPFLAGS += -Ithird_party/munt
+$(MODERN_OUT_DIR)/obj/port/audio/mt32.o: MODERN_CPPFLAGS += -Ithird_party/munt
 
 $(MODERN_OUT_DIR)/obj/third_party/ymfm/%.o: third_party/ymfm/%.cpp | modern-check-deps
 	@mkdir -p $(dir $@)
@@ -1438,7 +1449,7 @@ $(FUZZ_OBJS): $(MODERN_OUT_DIR)/obj/fuzz/%.o: fuzz/%.c fuzz/flight.h $(REFERENCE
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
 
 # The SWC fuzzer includes swc_flight.c to reach its per-tick flight step.
-$(MODERN_OUT_DIR)/obj/fuzz/swcFlight.o: src/sdl/swc_flight.c include/swc.h
+$(MODERN_OUT_DIR)/obj/fuzz/swcFlight.o: src/port/swc/swc_flight.c src/port/swc/swc.h
 
 $(MODERN_OUT_DIR)/flight-fuzzer: $(addprefix $(MODERN_OUT_DIR)/obj/fuzz/,flight.o wc1Flight.o) \
 		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) $(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
@@ -1447,7 +1458,7 @@ $(MODERN_OUT_DIR)/flight-fuzzer: $(addprefix $(MODERN_OUT_DIR)/obj/fuzz/,flight.
 		$(MODERN_DEAD_STRIP_FLAGS) -fsanitize=fuzzer -o $@
 
 $(MODERN_OUT_DIR)/swc-flight-fuzzer: $(addprefix $(MODERN_OUT_DIR)/obj/fuzz/,flight.o swcFlight.o) \
-		$(MODERN_BASE_HOST_OBJS) $(filter-out $(MODERN_OUT_DIR)/obj/sdl/swc_flight.o,$(MODERN_GAME_HOST_OBJS)) \
+		$(MODERN_BASE_HOST_OBJS) $(filter-out $(MODERN_OUT_DIR)/obj/port/swc/swc_flight.o,$(MODERN_GAME_HOST_OBJS)) \
 		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
 		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \

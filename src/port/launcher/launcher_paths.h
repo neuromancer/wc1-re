@@ -33,7 +33,7 @@ struct GameInstallation {
 
 std::string path_to_utf8(const std::filesystem::path &path);
 std::filesystem::path path_from_utf8(std::string_view value);
-// The game resolves names without regard to ASCII case (src/sdl/compat.c).
+// The game resolves names without regard to ASCII case (src/port/platform/compat.c).
 std::optional<std::filesystem::path> find_child_case_insensitive(
     const std::filesystem::path &directory, std::string_view expected);
 DirectoryStatus validate_game_directory(std::string_view directoryText);

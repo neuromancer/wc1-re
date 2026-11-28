@@ -1,8 +1,8 @@
 #ifndef WC1_SDL_SLINT_LAUNCHER_API_H
 #define WC1_SDL_SLINT_LAUNCHER_API_H
 
-#include "../joystick_calibration.h"
-#include "../pad_bindings.h"
+#include "../input/joystick_calibration.h"
+#include "../input/pad_bindings.h"
 
 #include <stddef.h>
 
@@ -106,7 +106,7 @@ typedef struct SdlLauncherOptions {
      * renderer. */
     int hiResHudFonts;
     /* Spaceflight drawn at the display's refresh rate between the game's
-     * steps (src/sdl/interpolation.c). */
+     * steps (src/port/graphics/interpolation.c). */
     int frameInterpolation;
     int cockpitlessView;
     int cheatMode;
@@ -129,10 +129,10 @@ typedef struct SdlLauncherOptions {
     int transferPilot; /* Open the transfer barracks for this launch only. */
     int swcCredits; /* Show only the SWC credits for this launch. */
     /* WC1 flight keys changed in the controls window, one "action=bindings"
-     * line each (see src/sdl/keymap.c). */
+     * line each (see src/port/input/keymap.c). */
     char keyBindings[SDL_LAUNCHER_KEY_BINDINGS_CAPACITY];
     /* The Custom joystick mode's bindings, one "control=function" line each
-     * (see src/sdl/pad_bindings.h); empty for the defaults. */
+     * (see src/port/input/pad_bindings.h); empty for the defaults. */
     char padBindings[SDL_LAUNCHER_PAD_BINDINGS_CAPACITY];
     /* Command-line values take precedence over saved GUI settings. */
     unsigned int explicitOptions;
@@ -192,7 +192,7 @@ int SdlFindVoiceDirectory(const char *directory, char *root, unsigned long capac
 /* German UI strings in a player's patched DOS WC.EXE (0 for any other). */
 int SdlCountGermanText(const char *path);
 /* 1 when the folder has a playable MT-32 or CM-32L ROM pair, describing it;
- * otherwise 0 and the reason (src/sdl/mt32.c). */
+ * otherwise 0 and the reason (src/port/audio/mt32.c). */
 int SdlDescribeMt32Roms(const char *directory, const char *machine,
                         char *text, size_t textSize);
 

@@ -1,5 +1,5 @@
 /* SDL2 replacement for CODE_12 MovieDisplay/LMovieTask presentation and
- * Sound Manager playback. The recovered LMov codec lives in src/swc/movie.c. */
+ * Sound Manager playback. The recovered LMov codec lives in src/port/swc/movie.c. */
 #include "wc1sdl.h"
 #include "swc.h"
 

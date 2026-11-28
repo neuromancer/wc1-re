@@ -139,7 +139,7 @@ def read_spanish(path):
 
 
 def origin_lzw(data, expected):
-    """WC1's LSB-first 9-to-12-bit LZW, matching src/sdl/resources.c."""
+    """WC1's LSB-first 9-to-12-bit LZW, matching src/port/game/resources.c."""
     if not 0 < expected <= MAX_RESOURCE:
         raise ValueError("Invalid LZW output size")
     bit = 0

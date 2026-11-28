@@ -837,12 +837,12 @@ msgctxt "intro"
 msgid "wc1:ae517f2f44c29baf"
 msgstr ""
 
-#: src/sdl/autosave.c:56 src/sdl/swc_flight.c:1360
+#: src/port/game/autosave.c:56 src/port/swc/swc_flight.c:1360
 msgctxt "font0"
 msgid "wc1:c49c1b105b4018ae"
 msgstr ""
 
-#: src/sdl/autosave.c:170
+#: src/port/game/autosave.c:170
 msgctxt "font0"
 msgid "wc1:33a94eaf14393f50 (Y/N)"
 msgstr ""

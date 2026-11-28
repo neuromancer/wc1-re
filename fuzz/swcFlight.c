@@ -3,7 +3,7 @@
  * it on an SWC directory, which is only read. */
 #include <dlfcn.h>
 #include "flight.h"
-#include "swc.h"
+#include "swc/swc.h"
 
 /* The autopilot camera paces itself with SDL time and window focus. Run it
  * on a faster clock, with the hidden window treated as focused. */
@@ -51,7 +51,7 @@ Uint32 SDL_GetWindowFlags(SDL_Window *window)
 }
 
 /* The harness reaches swc_flight.c's per-tick flight step and drawing. */
-#include "../src/sdl/swc_flight.c"
+#include "../src/port/swc/swc_flight.c"
 
 /* The Mac menus' key equivalents: Command on macOS, Control elsewhere. */
 #ifdef __APPLE__

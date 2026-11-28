@@ -77,7 +77,7 @@ bool valid_name(std::string_view name)
 }
 
 /* A [keys] line: an action name and its bindings, both plain ASCII with
- * other bytes percent-encoded (see src/sdl/keymap.c). */
+ * other bytes percent-encoded (see src/port/input/keymap.c). */
 bool valid_key_binding(std::string_view action, std::string_view bindings)
 {
     if (action.empty())
@@ -196,7 +196,7 @@ void load_launcher_config(const std::filesystem::path &path,
             continue;
         }
         if (inPadSection) {
-            /* A game controller input and its function (src/sdl/pad_bindings.h);
+            /* A game controller input and its function (src/port/input/pad_bindings.h);
                an empty value leaves the input unbound. */
             if (!key.empty() && valid_name(key) && valid_name(value) &&
                 padBindings.size() + key.size() + value.size() + 2 < sizeof(options.padBindings))

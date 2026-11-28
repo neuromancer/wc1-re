@@ -118,7 +118,7 @@ static const SdlPadAction g_aSdlPadActions[] = {
     ((int)(sizeof(g_aSdlPadActions) / sizeof(g_aSdlPadActions[0])))
 
 /* A button held on a speed key repeats it, as a held key repeats, with the
- * delay and rate of the mouse buttons' keys (src/sdl/events.c). */
+ * delay and rate of the mouse buttons' keys (src/port/input/events.c). */
 #define SDL_PAD_KEY_DELAY 250
 #define SDL_PAD_KEY_REPEAT 33
 

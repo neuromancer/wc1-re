@@ -3,7 +3,7 @@
   "reference": "Super Wing Commander Mac demo 1.0.2, extracted 68000 CODE resources",
   "address_convention": "Byte offsets from the start of each CODE resource, including its segment header; end offsets are exclusive.",
   "validation_strategy": "Original instructions, original-data inspection and native compilation. Win32 changes are checked with binary-comp. The earlier automated checks recorded in status_review have been removed at user request; historical results do not establish interactive parity or SWC binary similarity.",
-  "host_selection": "SWC is selected from the directory's contents: GUI validation, or without the GUI the working directory, chooses the demo when CMFs is present without WC1's GAMEDAT/MODULE.000; a directory holding both starts WC1. There is no SWC command-line switch. Shared LoadMissionData never detects SWC. The SWC host calls SdlLoadSwcMissionData directly. Runtime --check modes and GUI snapshot/auto-launch automation are removed; the asset viewer retains BMP export. SWC and its music bank remain included in SDL builds/packages, never in the original Win32 target. Forked files (the application, MIDI/*.MooV, AIFF/Stranded.aif) are read natively, from raw .rsrc or AppleDouble sidecars, or from MacBinary I/II/III copies such as discmaster's folders; CMFs, movies and recordings may be MacBinary too. When the usual names are absent, src/swc/rsrc.c SwcFindApplicationFork accepts any top-level file whose resources hold MoeT/0 and clut/251 (MacFormat 4's renamed application). src/sdl/swc_mission.c SdlFindSwcResources is shared by the game and GUI validation.",
+  "host_selection": "SWC is selected from the directory's contents: GUI validation, or without the GUI the working directory, chooses the demo when CMFs is present without WC1's GAMEDAT/MODULE.000; a directory holding both starts WC1. There is no SWC command-line switch. Shared LoadMissionData never detects SWC. The SWC host calls SdlLoadSwcMissionData directly. Runtime --check modes and GUI snapshot/auto-launch automation are removed; the asset viewer retains BMP export. SWC and its music bank remain included in SDL builds/packages, never in the original Win32 target. Forked files (the application, MIDI/*.MooV, AIFF/Stranded.aif) are read natively, from raw .rsrc or AppleDouble sidecars, or from MacBinary I/II/III copies such as discmaster's folders; CMFs, movies and recordings may be MacBinary too. When the usual names are absent, src/port/swc/rsrc.c SwcFindApplicationFork accepts any top-level file whose resources hold MoeT/0 and clut/251 (MacFormat 4's renamed application). src/port/swc/swc_mission.c SdlFindSwcResources is shared by the game and GUI validation.",
   "demo_copies": {"date": "2026-11-01", "method": "archive.org images (MD5 equal to archive.org metadata) extracted with hfsutils, forked files as MacBinary; files, resources and CMF chunks compared with the reference copy; original strings and instructions read in Ghidra. See docs/SWC.md, Demo builds, discs and data sets.", "builds": [{"application": "1995-02-15", "disc": "Mac Magazin 08 (Germany)", "archive_item": "mac-magazin-and-mac-easy-magazine-cd-issues-1-to-62", "folder": "volume root", "data_sha256": "6c83baef10e181ca2450266dd84b3ef9b75f4a2346231fead8404c0457e2168f", "resource_sha256": "df16e941077d40dc14e6708250abc64e04607a7f10461ae13e7cffd3c01538b6", "data_set": "February", "notes": "No vers, STR/128, stop_afterburner_sound, snd/500, clut/400 or DLOG/DITL 200; GAME VOLUME CONTROL DLOG/DITL 132 with PICT/141-142; PICT/128 is a 300x150 About picture; no credits."}, {"application": "1995-03-06", "disc": "Inside Mac Games 25", "archive_item": "IMG25March1995", "folder": "Demos:SuperWing CD", "data_sha256": "de4d477c26b88189babce3d64250a0111330bdea01648a3280c9948b4d49efec", "resource_sha256": "74f27f21e734306096af55c30934d2f6c3c3eb84ad28edc085a9272aa2caa704", "data_set": "March", "notes": "Credits path hard-coded to IMG Mar/95:Demos:SuperWing CD:CMFs:credits.swc."}, {"application": "1995-03-20", "disc": "Electronic Entertainment CD-ROM Sampler, June 1995", "archive_item": "Electronic_Entertainment_CD-ROM_Sampler_Disc_June_1995", "folder": "SuperWing", "data_sha256": "216d7aa6fe95f82274a22f13fe1ffbe0dc842cc94940625c885d8ae892fa475e", "resource_sha256": "354c548b419a1b4291baad2a74f3e94e4b95066aa40b63d2d0dd2a2238840976", "data_set": "April", "notes": "All data files byte-identical to the reference; credits path hard-coded to E2 June 1995:SuperWing, which has no credits.swc."}, {"application": "v1.0.2, 1995-04-04", "disc": "CD-ROM Today 12 (theDISC); also Multimedia Mania 06", "archive_item": "CDROMTodayTheDisc12June1995 (dark); cdmm-06 (damaged image)", "folder": "mac:SuperWing DEMO", "data_sha256": "31e8158ba4900910388decad20f58c6df125dc7180cf79e449a9e242e2715156", "resource_sha256": "24b707f9e024d86bf8ce996e2bc45521f36f75582b7e7410bef6467c49cb7c2b", "data_set": "April", "notes": "Reference copy; STR/128 theDISC:SuperWing DEMO. Multimedia Mania 06 duplicates one byte in 28 plain files (OPEN1 frame 11 decodes damaged)."}, {"application": "v1.0.2, 1995-04-04", "disc": "Inside Mac Games 27; copied by GRAVIS Top 100 #4-#6 and Multimedia Joker 5&6 (listings only)", "archive_item": "IMG27May1995", "folder": "Demos:SuperWing CD", "data_sha256": "9b342c455d84542e039ed4349ddd81e6ac766af1bac1b6164fc8d0db9aa2cf5d", "resource_sha256": "8adc191fb9cf8c5483015223beff11c4841efc405a2530ca32a1bb3a7b187e7e", "data_set": "March", "notes": "STR/128 IMG May/95:Demos:SuperWing CD."}, {"application": "v1.0.2 (IMG 27's), renamed SuperWing Commander Demo", "disc": "MacFormat 4 (Spain)", "archive_item": "macformat_4_spain_dump", "folder": "Demos:SuperWing Commander", "data_sha256": "9b342c455d84542e039ed4349ddd81e6ac766af1bac1b6164fc8d0db9aa2cf5d", "resource_sha256": "95f7e281df686c3906a06c90f2ab713a816d19a1615bbdeab6ecf743851f8ee1", "data_set": "March", "notes": "Only STR/128 differs from IMG 27: MacFormat 4:Demos:SuperWing Commander."}], "data_sets": {"April": "Reference data: REVIEW.MooV and LANDING1.dcMov, no credits.swc.", "March": "Earlier art in 17 CMFs with unchanged frame counts and bounds where the port draws; credits.swc (sha256 e555ddc671ac5c69dba0c51ff537a0aaba0dafb5b77e7fa65fc277393ac63f31); Spaceflight CKPT/17, RecRoomScene RCRM/38-39; no REVIEW.MooV or LANDING1.dcMov.", "February": "Earlier art in 15 CMFs; no REVIEW.MooV, LANDING1.dcMov or credits.swc."}, "host_handling": "Application found by resources under any name; snd/500 optional; a missing movie clip is skipped as MovieDisplay +0x0580/+0x08c6 does; damaged movie frames spill and continue as LMovieDrawFrameMinRect +0x2898 does, clipped to the image and record; CMFs and movies may be MacBinary. Not reproduced: the credits screen and the February Volume Controls."},
   "status_review": {
     "date": "2026-10-12",
@@ -14,7 +14,7 @@
       "Historical codec, mission-translation and launcher checks (suite now removed)",
       "Historical corpus check: 23 CMFs, 1011 chunks, 267 sprite sets, 3446 frames; five ships/four objectives; 120 simulation/render ticks (suite now removed)",
       "Ad hoc current-C-reader ASan/UBSan harness: 38 movies, 3521 movie frames, 92 AIFF recordings, without playback",
-      "Original CODE_08 plus expanded DATA/A5 regenerate src/sdl/swc_objects.h byte-identically"
+      "Original CODE_08 plus expanded DATA/A5 regenerate src/port/swc/swc_objects.h byte-identically"
     ],
     "limits": "No sanitizer failures reported; existing packed-pointer linker warnings remain. Dummy-driver flight bypasses rooms/movies and supplies steering/throttle only. Combat, autopilot, landing, debriefing, funerals, interactive appearance and audio synchronization were not exercised.",
     "confirmed_differences": [
@@ -89,7 +89,7 @@
       "resource": "CODE_02.bin",
       "entry_offset": "0x3190",
       "end_offset": "0x37aa",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcSelectFlightView",
       "relationship": "partial-algorithm-and-presentation-adaptation",
       "differences": "Views 0/4/14 follow CODE_01 DoViewsMenu +0x3052 (MENU/206 Cmd-Y/D/F) and get_player_input's F1-F3 key codes, as process_player_input +0x3de8..+0x3e56 applies them. Chase case 4 targets +0x35ba: -0x4b000 initial offset, despite an incorrect 0x5000 in Ghidra pseudocode. SDL owns cockpit visibility and input. Selected view persists through navigation and is repositioned after autopilot travel."
@@ -99,7 +99,7 @@
       "resource": "CODE_02.bin",
       "entry_offset": "0x25d8",
       "end_offset": "0x3144",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcUpdateFlightCamera",
       "relationship": "partial-algorithm-adaptation",
       "differences": "Mac cases 4/14 replace the forced cockpit camera. Chase uses -700/-500 units, 25/7-frame following, roll matching and CODE_02 shrink_vector +0x57c8 with its 0xf00 limit. Shared cases retain cockpit/autopilot behavior; scene view 16 keeps its own updater. No Win32 changes."
@@ -109,7 +109,7 @@
       "resource": "CODE_02.bin",
       "entry_offset": "0x58f6",
       "end_offset": "0x5bb4",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcBattleView",
       "relationship": "algorithm-adaptation",
       "differences": "Active ships 0..9 supply the integer centroid, 1200-unit minimum range, player-relative framing beyond 8000 units and 10000-unit look-at threshold. Shared vector operations use Mac point_at reduction through SwcPointCameraAt; scratch object 63 supplies orientation. Both external views render the player ship and omit cockpit layers."
@@ -119,7 +119,7 @@
       "resource": "CODE_14.bin",
       "entry_offset": "0x14f8",
       "end_offset": "0x1bf8",
-      "source": "src/sdl/swc_nav.c",
+      "source": "src/port/swc/swc_nav.c",
       "symbol": "SdlBuildSwcMap",
       "relationship": "algorithm-and-presentation-adaptation",
       "differences": "Shared SDL map builder for briefing DATA+0x272 (125,124,40,20,54,45) and navigation DATA+0x28a (137,138,41,43,0,0). Uses SetScale +0x1c8a, ScaleX/ScaleY +0x1eaa/+0x1f06 and FindTextPos +0x142c, including the extra briefing offsets and text-layer origin. Retains objective/hazard bounds, mobile positions, hidden/lost filtering, visited colors and label placement; the player entry appears only in navigation. BRFG/28 and CKPT/10 use replacement-color masks. Font size 10 uses the shared classic-resource/platform adapter."
@@ -129,7 +129,7 @@
       "resource": "CODE_14.bin",
       "entry_offset": "0x2dd2",
       "end_offset": "0x3616",
-      "source": "src/sdl/swc_nav.c",
+      "source": "src/port/swc/swc_nav.c",
       "symbol": "SdlShowSwcComputer",
       "relationship": "algorithm-and-presentation-adaptation",
       "differences": "All five pages use ComputerInflight.CMF CKPT/2,3,4,9,10,12,13 and clut/250; comm/guns/weapons backgrounds are intentionally empty. DATA+0x466e retains the selected tab, DATA+0x210 supplies tab coordinates. Navigation uses UpdateInflightNavText +0x273a and a bounded set_new_objective search. Gun/weapon selection uses shared selectors; CKPT/9 mount icons use DATA+0x30 x/y/Q8 scales and blink ten of twenty updates. Native quantities appear with weapon names. Guard frames advance every five updates and alternate 13/14 while open; eject background alternates every ten. Ejection follows +0x34e6..+0x351c damage/exclusive-random/failure-sound logic. Keys follow SetGInputForChar's flags: C opens it; Up/Down change pages (+0x3526/+0x353c); Left/Right select nav or comm entries and Right or Tab cycles guns and missiles (+0x3072, +0x3154, +0x32ec); Return activates (+0x34e6); Escape, Space, Cmd-. or C close it (+0x3554/+0x355c). SDL owns frozen simulation/audio, 50 ms animation pacing, mouse/controller input, fullscreen, focus/cursor restoration and release-to-activate. Classic-Mac font pixels remain approximate."
@@ -139,7 +139,7 @@
       "resource": "CODE_14.bin",
       "entry_offset": "0x290e",
       "end_offset": "0x2dbe",
-      "source": "src/sdl/swc_nav.c",
+      "source": "src/port/swc/swc_nav.c",
       "symbol": "SwcBuildComputerComms",
       "relationship": "algorithm-and-presentation-adaptation",
       "differences": "Wingman/carrier/current hostile-fighter recipients, original conditional order list and DATA+0x2c70 strings. SwcDrawComputerComms also adapts print_message_text +0x289a: size-10 text, twelve-pixel rows, selected color 1/unselected 0xb0, size-9 prompts at (42,179). Sending queues Vocalize_Message then calls request(0,recipient,command) directly rather than WC1's quick-menu index handler. SDL bounds active objects and adds mouse input; Left/Right, Return and Escape follow +0x2b38..+0x2b68 and +0x2d3e..+0x2da2, Escape returning from orders to the recipients."
@@ -149,7 +149,7 @@
       "resource": "CODE_06.bin",
       "entry_offset": "0x0276",
       "end_offset": "0x03da",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlSwcCommunicate",
       "relationship": "algorithm",
       "differences": "Actions menu items 13-16 and SetGInputForChar's B, R, H and E keys, dispatched by process_player_input +0x3e62..+0x3ea2: break and attack, request landing from a targeted Tiger's Claw or else form on my wing, help me out here, taunt the targeted enemy. Random3DO(0,3) becomes RandomInRange(0,2). The original reads the wingman's objective and the target's side before testing those indices; SDL tests the indices first."
@@ -169,17 +169,17 @@
       "resource": "CODE_08.bin",
       "entry_offset": "0x0286",
       "end_offset": "0x47b8",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcSetObjectData",
       "relationship": "data-layout-adaptation",
-      "differences": "bin/extractSwcFlightData.py evaluates original constant stores and emits src/sdl/swc_objects.h. Only IDs 0..57 of the 83 native 204-byte records are adapted. Mac pointers become host strings/animation words or SDL textures; ten-byte slots become seven-byte slots with byte +9 quantities retained separately in SDL. Full-width fuel is retained in WC1's combined lifetime/weaponDamage storage. Definitions are restored on exit."
+      "differences": "bin/extractSwcFlightData.py evaluates original constant stores and emits src/port/swc/swc_objects.h. Only IDs 0..57 of the 83 native 204-byte records are adapted. Mac pointers become host strings/animation words or SDL textures; ten-byte slots become seven-byte slots with byte +9 quantities retained separately in SDL. Full-width fuel is retained in WC1's combined lifetime/weaponDamage storage. Definitions are restored on exit."
     },
     {
       "original_name": "init_data_struct2",
       "resource": "CODE_08.bin",
       "entry_offset": "0x47cc",
       "end_offset": "0x66d2",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcSetObjectData",
       "relationship": "data-layout-adaptation",
       "differences": "Same extractor/adapter as init_data_struct1; recovers effect and remaining common-object constants and DATA/0 animation commands. No persisted Mac handles or pointers are copied into host state."
@@ -189,7 +189,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x2bce",
       "end_offset": "0x2c34",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcIttsRangeCheck",
       "relationship": "algorithm-adaptation",
       "differences": "Reuses the matching WC2 HasInRangeGunForTargetLead loop with WC1 packed slots: enabled projectile guns qualify when maximumVelocity*lifetime exceeds the range. Original SWC instructions remain authoritative."
@@ -199,7 +199,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x2c48",
       "end_offset": "0x2f3c",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcUpdateItts",
       "relationship": "algorithm-and-presentation-adaptation",
       "differences": "Adapts WC2 UpdateTargetLeadIndicator's forward player velocity, fastest enabled gun and predicted target position. Retains SWC's 0x94 view cone, 160-pixel projection, (160,100) center, (-15,-15) marker anchor, clipping, original CKPT/1 frame 5 and overlapping frame 4. Activation follows overlay_head_up_display; updates once per simulation tick. SDL rendering and WC1 message lifetimes replace Mac presentation."
@@ -209,7 +209,7 @@
       "resource": "CODE_07.bin",
       "entry_offset": "0x059a",
       "end_offset": "0x1110",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SdlRunSwcCarrier",
       "relationship": "partial-presentation-adaptation",
       "differences": "Enyo 1 Shotglass/Paladin/Angel roster; native half-open hotspots and character priority, hover poses 3/4/5, door/board highlights and RCRM/11 simulator animation. Idle programs and hover motion use the existing 15 Hz host clock. CODE_01 SetGInputForChar('@') enables RecRoom +0x0e5c's RCRM/49 incidental sprite: thirteen frames, x=-75..320, y=40, drawn behind RCRM/1. SDL text/cursors and interpolated normal/dim palettes replace Mac hardware presentation. RECROOM.MooV accompanies bar/rankings. Simulator restriction remains; debug selectors are outside scope."
@@ -219,7 +219,7 @@
       "resource": "CODE_03.bin",
       "entry_offset": "0x5c70",
       "end_offset": "0x6a88",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SdlRunSwcCarrier",
       "relationship": "partial-presentation-adaptation",
       "differences": "Original room/bunk hotspots, door/medal hovers, wall display and desk. RCRM/15..22 occupants follow DATA+0x419a order 2,6,0,1,3,4,5,7, DATA+0x411a origins and DATA+0x40c2/+0x40e2 frame/delay/jump programs. Hover changes reset old/new program cursors while retaining delays/frames; RCRM/45 lamps use DATA+0x415a. The desk follows +0x6320..+0x63f6's falling palette-8 pixel, six-update flashes and sound 35. Optional original SuperWing Preferences metadata supplies saved-slot occupancy; absent preferences leave bunks empty. Save/load and name-entry dialogs remain unsupported. Animations use the existing 15 Hz host clock."
@@ -229,7 +229,7 @@
       "resource": "CODE_07.bin",
       "entry_offset": "0x111a",
       "end_offset": "0x13ea",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SwcDrawRankings",
       "relationship": "partial-presentation-adaptation",
       "differences": "Uses WC1 pilot records and the common kills*1000-missions+1 ranking rule, original RCRM/3 art and DATA/0 +0x2690 rows. SDL bitmap labels replace QuickDraw fonts and formatting."
@@ -239,7 +239,7 @@
       "resource": "CODE_03.bin",
       "entry_offset": "0x5a9c",
       "end_offset": "0x5bf6",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SwcDrawMedalCase",
       "relationship": "host-adaptation",
       "differences": "Draws original RCRM/46 background, badge frames and medal frames from shared WC1 campaign state, retaining the (-109,-77) origin and DATA/0 +0x42f2 lookup. SDL events replace the modal Mac input loop."
@@ -249,7 +249,7 @@
       "resource": "CODE_03.bin",
       "entry_offset": "0x254c",
       "end_offset": "0x2f98",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SwcPlayRoomScene",
       "relationship": "partial-presentation-adaptation",
       "differences": "BRF0/5 sections 0,2,4,6,8 and BRF0/1 funeral sections 0,2,10,12 share WC1 scene tests, substitutions and animation parsing. Original art and AIFF MARK phonemes drive speaking mouths; CloseLook suppresses other voices. Eye scripts use a 30 Hz host clock. PanToScreen retains its commander turn and grid reveal; the map now uses native transforms/markers/labels. Dismissed includes standing and staggered walk-outs after speech. Helvetica 14 uses optional classic bitmap resources with platform fallback. Normal/dim palettes retain host interpolation. Save/load, later scenes and exact frame pacing remain qualified."
@@ -259,7 +259,7 @@
       "resource": "CODE_03.bin",
       "entry_offset": "0x4a08",
       "end_offset": "0x4b0a",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SdlRunSwcCarrier",
       "relationship": "partial-presentation-adaptation",
       "differences": "Fresh Enyo 1 player/Spirit paths: SdlPlaySwcFuneralMovies plays FUNSERV0/FUNSERVA before the eulogy and FUNSERVB before farewell. Original BRF0/1 dialogue branches, artwork and AIFF speech use the shared WC1 parser and pilot state. A shared SDL device mixes movie/dialogue PCM with continuous FUNERAL.MooV music; skip/quit/errors stop the sequence. Movie skip palette dimming is connected; no group-end dim is applied between its room speeches. Exact scene timing remains unverified."
@@ -269,7 +269,7 @@
       "resource": "CODE_03.bin",
       "entry_offset": "0x4b1e",
       "end_offset": "0x4bbe",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SdlShowSwcEnding",
       "relationship": "partial-presentation-adaptation",
       "differences": "Original RecRoomScene.CMF PLNT/1 particle background, palette 135, Helvetica 14 THE END at baseline 110 and palette index 4, with the original input wait. FUNERAL.MooV continues through this screen. Host animation runs at 20 Hz and uses WC1 RNG; classic Mac pixels require a supplied font resource; variable frame pacing differs. Skipping the funeral bypasses the end card, matching its skip-latch branch."
@@ -279,7 +279,7 @@
       "resource": "CODE_07.bin",
       "entry_offset": "0x1c86",
       "end_offset": "0x2138",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcRunFlightScene",
       "relationship": "partial-presentation-adaptation",
       "differences": "Original title art and four-ship combat background with view 16, eliminated-side respawn, six-update highlight cycle and 10,001-update intro replay. As retail +0x2018..+0x20d4, only New Game and Continue exist: either step wraps between them, Continue needs a session or save, and Escape, P and I are inert: the original title has no such keys and disables the Actions menu with Pause. The Apple-menu About credits (retail CODE_01 DoAppleMenu +0x2a86) are the launcher's Credits action (--credits), not a title choice. New Game resets Enyo 1."
@@ -289,7 +289,7 @@
       "resource": "CODE_14.bin",
       "entry_offset": "0x362a",
       "end_offset": "0x379a",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcRunFlightScene",
       "relationship": "partial-presentation-adaptation",
       "differences": "View 16 follows the player for 40 updates before Explosion(0); simulation continues behind the size-10 continuation prompt. Shared WC1 flight simulation and 20 Hz SDL pacing replace Mac event/presentation timing."
@@ -299,7 +299,7 @@
       "resource": "CODE_14.bin",
       "entry_offset": "0x0a06",
       "end_offset": "0x0c4a",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SdlShowSwcEnding",
       "relationship": "partial-presentation-adaptation",
       "differences": "Arcade state 3 plays BUC with LASTRITE, then Stranded.aif and original captions over PLNT/1 particles. Caption replacement occurs after 127 host updates. Shared SDL audio replaces Sound Manager channels."
@@ -309,7 +309,7 @@
       "resource": "CODE_05.bin",
       "entry_offset": "0x4362",
       "end_offset": "0x4468",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SwcGenerateEndShard",
       "relationship": "partial-presentation-adaptation",
       "differences": "Original Q8 spawn bias and DATA/0 +0x2ede byte frame table; WC1 RNG uses the recovered exclusive ranges."
@@ -319,7 +319,7 @@
       "resource": "CODE_05.bin",
       "entry_offset": "0x4480",
       "end_offset": "0x4586",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SdlShowSwcEnding",
       "relationship": "partial-presentation-adaptation",
       "differences": "Endings use the angle-zero identity basis, velocity (0,0,0x9000), 63 particles, RecRoomScene PLNT/1 and clut 135. SDL owns textures and instance state."
@@ -329,7 +329,7 @@
       "resource": "CODE_05.bin",
       "entry_offset": "0x4598",
       "end_offset": "0x481a",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SwcUpdateEndShards",
       "relationship": "partial-presentation-adaptation",
       "differences": "Original angle-one rotation, basis normalization, Q8 projection, age retirement, forward-cone rejection and one-in-four respawn. SDL draws at retained frame offsets. Equivalent origin rebasing prevents signed overflow while an end screen is left idle."
@@ -339,7 +339,7 @@
       "resource": "CODE_03.bin",
       "entry_offset": "0x4374",
       "end_offset": "0x43e0",
-      "source": "src/sdl/swc_movie.c",
+      "source": "src/port/swc/swc_movie.c",
       "symbol": "SdlPlaySwcOpening",
       "relationship": "partial-presentation-adaptation",
       "differences": "Original OPEN0/OPEN1/OPEN2/OPEN3 order before the initial carrier visit, following CODE_09 squadron +0x84..+0x90. Reuses the existing SDL movie decoder and sequence player. Missing files or skipping leave carrier entry available; quit/error end the session. DOCKING.MooV accompanies the group. The separate startup splash/logo/prologue now precedes this group; native group-end and skip palette dimming are connected."
@@ -349,7 +349,7 @@
       "resource": "CODE_03.bin",
       "entry_offset": "0x45d0",
       "end_offset": "0x46e0",
-      "source": "src/sdl/swc_movie.c",
+      "source": "src/port/swc/swc_movie.c",
       "symbol": "SdlPlaySwcLaunch",
       "relationship": "partial-presentation-adaptation",
       "differences": "Original nine-clip order with Hornet suffix 00. Uses the existing SDL path resolver; missing movies preserve direct flight. Skipping, quit and error are explicit results. ARMOR.MooV accompanies the group; native group-end and skip palette dimming are connected. WC1's sprite-based scramble is not suitable for these assets."
@@ -359,7 +359,7 @@
       "resource": "CODE_03.bin",
       "entry_offset": "0x447e",
       "end_offset": "0x45c6",
-      "source": "src/sdl/swc_movie.c",
+      "source": "src/port/swc/swc_movie.c",
       "symbol": "SdlPlaySwcLanding",
       "relationship": "partial-presentation-adaptation",
       "differences": "Original seven-clip order with Hornet suffix 00; LANDING7 variant is 2-evaluate_damage(0)*2/100. Shares the launch SDL decoder/presentation and skip/quit/error handling. A missing clip is skipped, as MovieDisplay +0x0580/+0x08c6 returns quietly (the March 1995 data lacks LANDING1); a group without clips leaves debriefing available. LANDING.MooV accompanies the group; native group-end and skip palette dimming are connected."
@@ -369,7 +369,7 @@
       "resource": "CODE_12.bin",
       "entry_offset": "0x0468",
       "end_offset": "0x0920",
-      "source": "src/sdl/swc_movie.c",
+      "source": "src/port/swc/swc_movie.c",
       "symbol": "SdlPlaySwcMovie",
       "relationship": "partial-presentation-adaptation",
       "differences": "SDL textures, per-movie palette conversion, shared PCM/music mixing and events replace QuickDraw/Sound Manager. Adds focus-loss freezing, explicit quit and skip-on-release for a complete movie group; the original Pause command is flight-only. movie_dim_screen halves all palette entries at native group boundaries; MovieDisplay +0x0738 halves only entries 1..254 on skip. Both changes are immediate. The native +0x07d0 skip-time zero-index pixel rewrite is not reproduced. A missing file returns quietly after the STR/128 retry (+0x08c6); the SDL sequences skip that clip."
@@ -379,7 +379,7 @@
       "resource": "CODE_12.bin",
       "entry_offset": "0x1fc4",
       "end_offset": "0x288a",
-      "source": "src/swc/movie.c",
+      "source": "src/port/swc/movie.c",
       "symbol": "SwcMovieOpen",
       "relationship": "host-adaptation",
       "differences": "Validates the demo's version-1 320x240 container, record spans, 256-color table and 8-bit mono audio. Uses owned host buffers; ignores persisted Mac pointers. LMFillPixMap +0x1e5e supplies the initial pixel value. Palette order follows +0x2590..+0x25bc. Host limits files to 64 MiB and frame rate to 1..60; rounds 16.16 sample rate to integer Hz."
@@ -389,7 +389,7 @@
       "resource": "CODE_12.bin",
       "entry_offset": "0x1eea",
       "end_offset": "0x1fb6",
-      "source": "src/swc/movie.c",
+      "source": "src/port/swc/movie.c",
       "symbol": "SwcMovieClose",
       "relationship": "host-adaptation",
       "differences": "Releases host-owned record, pixel, PCM and file buffers. SDL presentation owns and closes its audio device and textures."
@@ -399,7 +399,7 @@
       "resource": "CODE_12.bin",
       "entry_offset": "0x1644",
       "end_offset": "0x1dc8",
-      "source": "src/swc/movie.c",
+      "source": "src/port/swc/movie.c",
       "symbol": "SwcMovieNextFrame",
       "relationship": "partial-algorithm-adaptation",
       "differences": "Preserves record-order video deltas and skipping of audio records (+0x18c4..+0x199e). SwcMovieOpen collects PCM using the remaining-sample counter semantics at +0x1c42..+0x1c78, excluding padding even after a 0x11 audio marker. SdlPlaySwcMovie replaces asynchronous Mac disk buffers, timers and Sound Manager; no emulation of that I/O machinery."
@@ -409,7 +409,7 @@
       "resource": "CODE_12.bin",
       "entry_offset": "0x2898",
       "end_offset": "0x2bba",
-      "source": "src/swc/movie.c",
+      "source": "src/port/swc/movie.c",
       "symbol": "SwcMovieDrawFrame",
       "relationship": "algorithm-adaptation",
       "differences": "Preserves end-row, short/long skip/literal/repeat and no-op command semantics, including retained pixels between frames and runs that spill into the next line (the original checks neither width nor input). Clips writes to the image and reads to the record; a frame that runs out of input or leaves input unused counts as damaged and keeps what it drew (Multimedia Mania 06 OPEN1 frame 11). Contiguous indexed pixels replace the QuickDraw pixmap; SDL uploads the full image instead of using the original dirty rectangle."
@@ -419,7 +419,7 @@
       "resource": "CODE_01.bin",
       "entry_offset": "0x05f4",
       "end_offset": "0x064e",
-      "source": "src/swc/shape.c",
+      "source": "src/port/swc/shape.c",
       "symbol": "SwcGetFramePtr",
       "relationship": "host-adaptation",
       "differences": "Explicit buffer length, index/format checks and host frame descriptor replace a Mac Handle and an A0 pointer return."
@@ -429,7 +429,7 @@
       "resource": "CODE_01.bin",
       "entry_offset": "0x17aa",
       "end_offset": "0x1b72",
-      "source": "src/swc/shape.c",
+      "source": "src/port/swc/shape.c",
       "symbol": "SwcDecodeFrame",
       "relationship": "format-evidence-only",
       "differences": "The SDL adapter decodes a whole frame; original clipped drawing and hotspot placement are not reconstructed."
@@ -439,7 +439,7 @@
       "resource": "CODE_09.bin",
       "entry_offset": "0x22f6",
       "end_offset": "0x26a0",
-      "source": "src/swc/cmf.c",
+      "source": "src/port/swc/cmf.c",
       "symbol": "SwcCMGetChunk",
       "relationship": "host-adaptation",
       "differences": "Owned SDL buffers replace Mac Handles, purge state and cached pointers. File bytes and output lengths are validated."
@@ -451,7 +451,7 @@
       "end_offset": "0x2c16",
       "algorithm_offset": "0x2ba4",
       "algorithm_end_offset": "0x2c00",
-      "source": "src/swc/cmf.c",
+      "source": "src/port/swc/cmf.c",
       "symbol": "SwcDecompressRLE",
       "relationship": "algorithm-adaptation",
       "differences": "Allocation and BE size prefix handling move to the caller; explicit bounds/exact-consumption checks are added; Mac debugger callbacks are absent."
@@ -461,7 +461,7 @@
       "resource": "CODE_03.bin",
       "entry_offset": "0x16d2",
       "end_offset": "0x1890",
-      "source": "src/sdl/swc_mission.c",
+      "source": "src/port/swc/swc_mission.c",
       "symbol": "SdlLoadSwcMissionData",
       "relationship": "format-adapter-to-wc1-state",
       "differences": "Decode big-endian records into existing WC1 mission structures, validate narrower fields and references, then publish atomically. The original copies Mac records directly."
@@ -471,7 +471,7 @@
       "resource": "CODE_01.bin",
       "entry_offset": "0x0ef4",
       "end_offset": "0x10a2",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcDrawInstrument",
       "relationship": "placement-evidence-only",
       "differences": "Adds signed frame x/y offsets to the draw origin. SDL cached textures and renderer clipping replace the Mac drawing pipeline; this does not reconstruct the whole original routine."
@@ -481,7 +481,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x0520",
       "end_offset": "0x0652",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlDrawSwcCockpit",
       "relationship": "host-adaptation",
       "differences": "Uses the Hornet's original frame-selection formulas and maxima with shared WC1 fuel, throttle and energy state. Capacities use the recovered SWC definitions; explicit capacity guards, frame bounds and a wider fuel-product intermediate replace unchecked arithmetic."
@@ -491,7 +491,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x0e54",
       "end_offset": "0x101a",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcDrawPlayerStatus",
       "relationship": "partial-presentation-adaptation",
       "differences": "Presents hull, armor flash and shield-presence sprites from WC1 state. SdlUpdateSwcCockpit supplies the original component cycle and malfunction check; SdlDrawSwcCockpit respects VDU modes and physical damage."
@@ -501,7 +501,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x285a",
       "end_offset": "0x2bbc",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcDrawCockpitScanner",
       "relationship": "partial-presentation-adaptation",
       "differences": "Reuses WC1 classification, transforms, scanner mapping and objective range. Uses SWC's 30,000-unit cutoff, contact-frame mapping, selected-contact blink, navigation activation and grid draw order. SwcUpdateCockpitScanner retains/selects a hostile and chooses CKPT/1 direction frames using the original thresholds; arrows are suppressed outside range to avoid stale coordinates. Physical radar damage disables contacts and arrows. Updates run on simulation ticks."
@@ -511,7 +511,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x1270",
       "end_offset": "0x14ce",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcDrawTargetStatus",
       "relationship": "partial-presentation-adaptation",
       "differences": "Uses the original target hull, four armor-flash frames, shield-presence thresholds and Hornet position. Reads WC1 state and capacities; the caller respects target mode, component-five malfunction and physical VDU damage."
@@ -521,7 +521,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x2f56",
       "end_offset": "0x30fa",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlDrawSwcSpaceHud",
       "relationship": "partial-presentation-adaptation",
       "differences": "Normal CKPT/1 reticle at its original position plus cockpit banking, ITTS frame 5 and overlapping reticle frame 4. SwcDrawTargetBox uses original Q16 boundaries, CKPT/36 target/speaker corners and converging/blinking CKPT/5 missile-lock markers. The transmitting ship has a separate blue highlight. Spatial HUD precedes the cockpit artwork; text remains a separate overlay."
@@ -531,7 +531,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x3114",
       "end_offset": "0x341a",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcDrawTargetBox",
       "relationship": "host-adaptation",
       "differences": "Uses shared projected coordinates and original get_Mac_boundaries bounds. CKPT/36 ink 0xd4/0xef identifies hostile/friendly targets; 0x81 and wider offsets identify the current speaker, not a missile lock. Four CKPT/5 frames draw around center minus (14,14), displaced outward by the countdown, then blink on odd simulation frames when acquired. Object/frame accesses are bounded."
@@ -541,7 +541,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x3708",
       "end_offset": "0x3746",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlSwcLockOff",
       "relationship": "host-adaptation",
       "differences": "Preserves the countdown-dependent snd/21 or snd/22 stop, readout dirty flag and acquired/countdown reset. Uses the SDL mixer; no WC1 MISSILE LOCKED text. Keyboard and computer weapon selection call this native reset."
@@ -551,7 +551,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x37c0",
       "end_offset": "0x38de",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcUpdateTargetLock",
       "relationship": "host-adaptation",
       "differences": "Includes start_lock +0x36b2, starting_lock +0x36d6 and decrement_lock_time +0x3752. Hostile target, component-five damage <4 and projected radius <=60; HS facing <=-65 and 18 updates, IR 32. Offscreen targets retain progress, malfunction stalls decrement, recovery values below -1 advance toward -1. snd/21 restarts with signed projected X*2/5 volume, clamped by SDL; acquired state requests snd/22 at 255. Weapon and target indices are bounded. Runs on forward-view simulation updates, not display refreshes. No WC2 torpedo/target-camera branches or WC1 random-angle/extra malfunction/message handling."
@@ -561,7 +561,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x3aa4",
       "end_offset": "0x3c3e",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcCheckTarget",
       "relationship": "host-adaptation",
       "differences": "Adapts the WC2 control structure to the original Mac selection loop: retain a listed target or use the nearest visible entry, automatically enable hostile lock, preserve locked offscreen targets, clear friendly/missing lock and ITTS. Native check_target has no WC2 target-camera branch or periodic malfunction check. Reuses the matching WC1 target list/sort; removed or invalid object indices are explicitly rejected. Flight projection runs before each update, including catch-up ticks."
@@ -571,7 +571,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x02d4",
       "end_offset": "0x03de",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcDrawFlight",
       "relationship": "draw-order-evidence-only",
       "differences": "Spatial HUD is composed before cockpit art, followed by instruments/text, persistent damage, pilot hand and sparks. Banking offsets move the cockpit layers. SDL masks markers with cockpit transparency. Communication portraits are connected; side/rear views remain pending."
@@ -581,7 +581,7 @@
       "resource": "CODE_01.bin",
       "entry_offset": "0x065c",
       "end_offset": "0x06c6",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcDrawFlight",
       "relationship": "host-adaptation",
       "differences": "SDL fills the same fixed palette-255 margins after flight composition: 320*6 pixels at top/bottom and 8 pixels on each side for the middle 228 rows. Matches dump_buffer_to_screen's flight-mode mask, including cockpitless and external views, so steering cannot reveal moving strips beyond the 320x240 cockpit artwork."
@@ -591,7 +591,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x0408",
       "end_offset": "0x0510",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlUpdateSwcCockpit",
       "relationship": "host-adaptation",
       "differences": "Seven-tick warning refresh reuses WC1 auto_pilot_valid, missile_on_tail and calculate_damage_level. Original PC00/12, /14 and /13 lamps, low-shield threshold and thirty-frame damage alarm (snd/32, volume 255). SWC-specific autopilot escort eligibility and the 120-frame travel camera are connected through SDL-only dispatch."
@@ -601,7 +601,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x0aa8",
       "end_offset": "0x0b6c",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlDrawSwcCockpit",
       "relationship": "partial-presentation-adaptation",
       "differences": "Shared mode stack gates player/target/communication displays and mode-zero static. SWC components 3/5/4 can temporarily replace their displays with static; physical damage suppresses the corresponding VDU. Static plays snd/23 at volume 199. Demo navigation/damage/info routines are empty."
@@ -611,7 +611,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x0dda",
       "end_offset": "0x0e40",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcDrawVduShape",
       "relationship": "host-adaptation",
       "differences": "Uses VDUS/1 and /2 (CODE_03 init_vdus +0x0914) and original Hornet polygons. Original random selection 0..2 is sampled per simulation tick; each resource contains four frames. MacDrawcel2 uses the recovered Q8 polygon rasterizer."
@@ -621,7 +621,7 @@
       "resource": "CODE_01.bin",
       "entry_offset": "0x14a4",
       "end_offset": "0x15b2",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SwcDrawVduShape",
       "relationship": "placement-evidence-only",
       "differences": "Maps the full static or portrait image to four polygon corners, ignoring frame x/y. Portraits use DATA/A5+0x4e6; static uses +0x426/+0x5a6. Banking offsets move all corners. SdlDrawSwcPolygon preserves original edge/span clipping and sampling; SDL copies the resulting pixels."
@@ -631,7 +631,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x1a28",
       "end_offset": "0x1aa6",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlSwcComponentMalfunction",
       "relationship": "algorithm-adaptation",
       "differences": "Shared WC1 malf dispatches here only during SWC flight. Preserves damage-squared probability and the per-component 5..9-call countdown; uses WC1 RNG with adjusted inclusive bounds, not SWC's Rand16 generator."
@@ -641,7 +641,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x102e",
       "end_offset": "0x1204",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlDrawSwcHud",
       "relationship": "partial-presentation-adaptation",
       "differences": "Original component/severity strings and colors with show_weapon_disp's 30-update cycle. Gun/weapon notices last fifteen simulation updates, including automatic changes; computer messages follow them at (51,84) with eleven-pixel advances. Helvetica 9 uses the shared classic-resource/platform adapter. Shared damage notices and host communication acknowledgments now join the native queue; WC1's bottom-edge targeting banners are suppressed in SWC."
@@ -651,7 +651,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x4222",
       "end_offset": "0x4296",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlSwcCockpitDamage",
       "relationship": "host-adaptation",
       "differences": "Three physical regions and their original origins; active sparks suppress another hit. Reuses the first three WC1 damage flags. Region bounds are checked; malf_sound's snd/24 plays at volume 255."
@@ -661,7 +661,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x41ae",
       "end_offset": "0x4208",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlDrawSwcCockpitDamage",
       "relationship": "host-adaptation",
       "differences": "Draws PC00/7 frames 0..2 at the original Hornet positions after instruments/text. Other cockpits are unsupported."
@@ -671,7 +671,7 @@
       "resource": "CODE_13.bin",
       "entry_offset": "0x40a0",
       "end_offset": "0x419c",
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "symbol": "SdlDrawSwcCockpitDamage",
       "relationship": "host-adaptation",
       "differences": "Original eight CKPT/6 spark frames and offsets; SdlUpdateSwcCockpit advances/restarts them on simulation ticks. Repeat probability and position ranges use WC1 RNG with adjusted exclusive upper bounds. Initial impact audio is supplied by SdlSwcCockpitDamage."
@@ -681,7 +681,7 @@
       "resource": "CODE_14.bin",
       "entry_offset": "0x0f88",
       "end_offset": "0x10aa",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SwcDrawBriefingMap",
       "relationship": "algorithm-and-presentation-adaptation",
       "differences": "Initial map after the grid reveal: original BRFG/27 background/overlay and BRFG/28 replacement-color markers, without labels. Shared SDL map data replaces Mac handles and QuickDraw text layers."
@@ -691,7 +691,7 @@
       "resource": "CODE_14.bin",
       "entry_offset": "0x10c4",
       "end_offset": "0x1414",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SwcDrawBriefingMap",
       "relationship": "algorithm-and-presentation-adaptation",
       "differences": "Original map transforms, size-10 labels, thirty-update objective blink (three on/three off) and terminal BRFG/27 overlay. SDL uses a 30 Hz scene clock and shared mission state."
@@ -701,7 +701,7 @@
       "resource": "CODE_03.bin",
       "entry_offset": "0x1eba",
       "end_offset": "0x2216",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SwcPlayDismissal",
       "relationship": "partial-presentation-adaptation",
       "differences": "SwcPlayRoomScene owns speech/reverse-angle mouth frames. The post-speech phase uses BRFG/32 stand frames every third update, BRFG/31 turn frames every second update, then independent one-in-five walk starts and BRFG/30/33 terminal frames 10/9. SDL focus/release-skip handling and 30 Hz cadence replace the redraw loop. Original BRIEFING.MooV is absent; BRIEFIN0 continues."
@@ -711,7 +711,7 @@
       "resource": "CODE_02.bin",
       "entry_offset": "0x38cc",
       "end_offset": "0x39e0",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcGenerateStars",
       "relationship": "algorithm-adaptation",
       "differences": "Eight dust slots use native 0..4999 forward range; seven stars use frame 32..41 and Q8 15000 distance. Shared fixed-vector/rotation/start_dust routines and WC1 RNG remain; upper bounds are adjusted to Mac exclusive choices."
@@ -721,7 +721,7 @@
       "resource": "CODE_02.bin",
       "entry_offset": "0x39f2",
       "end_offset": "0x3cee",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcUpdateStarField",
       "relationship": "algorithm-adaptation",
       "differences": "Native 200-unit camera offset, twenty-times velocity, one-at-a-time offscreen respawn, pitch/yaw selection, frame 32..36 respawn and velocity-dependent dust range. Reuses shared hazards and start_dust with adjusted exclusive choices, without reproducing the Mac RNG sequence."
@@ -731,7 +731,7 @@
       "resource": "CODE_02.bin",
       "entry_offset": "0x00b8",
       "end_offset": "0x02e6",
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcDrawFlight",
       "relationship": "partial-presentation-adaptation",
       "differences": "Native class-2 stars use unscaled PLNT/1 frames 32..41 and original MacDraw2 origins; class-4 dust draws a palette-128 pixel. Both are depth sorted after glare. SDL owns cached textures; the existing ship rasterizer handles other supported classes. Planet presentation and full original rendering parity remain outside this path."
@@ -741,7 +741,7 @@
       "resource": "CODE_15.bin",
       "entry_offset": "0x046c",
       "end_offset": "0x050a",
-      "source": "src/sdl/swc_movie.c",
+      "source": "src/port/swc/swc_movie.c",
       "symbol": "SdlPlaySwcMovie",
       "relationship": "partial-presentation-adaptation",
       "differences": "Immediate RGB halving for all 256 entries at native movie-group endings; skip handling separately halves entries 1..254, preventing a second dim. SDL reblits and presents the indexed final frame. Funeral room/end-screen transitions retain their existing palette path."
@@ -751,7 +751,7 @@
       "resource": "CODE_05.bin",
       "entry_offset": "0x484e",
       "end_offset": "0x49b8",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SwcInitParallax",
       "relationship": "algorithm-adaptation",
       "differences": "density*45/100 still stars (PLNT/1 32..41) and shards; DATA/0 +0x2ede frame groups and +0x2eee speeds share a Random3DO(0,15) index. Every demo caller passes direction -1. RecRoom +0x0a1a uses (0,0)-(320,120) and density 100; SceneDirector +0x26a6 uses (0,0)-(320,150) and density 16; RecRoom +0x0ffc/+0x107a refill density 100 in SceneDirector's rectangle. Host RNG."
@@ -761,7 +761,7 @@
       "resource": "CODE_05.bin",
       "entry_offset": "0x49d0",
       "end_offset": "0x4c18",
-      "source": "src/sdl/swc_rooms.c",
+      "source": "src/port/swc/swc_rooms.c",
       "symbol": "SwcStepParallax/SwcDrawParallax",
       "relationship": "algorithm-and-presentation-adaptation",
       "differences": "MacDraw2 offsets by the rectangle origin and clips only to the screen. Shards move by their speed, spin (frame+1)%4+(frame&~3) and restart within their speed of the right edge. RecRoom +0x0a92 draws before RCRM/49; CloseLook/CloseTalk draw only while SceneDirector's +0xa4e0 is set (talkers 2, 3, 8). SDL advances on the 15 Hz room clock instead of once per Mac redraw."
@@ -771,7 +771,7 @@
       "resource": "CODE_01.bin",
       "entry_offset": "0x2b30",
       "end_offset": "0x3042",
-      "source": "src/sdl/swc_options.c",
+      "source": "src/port/swc/swc_options.c",
       "symbol": "SdlHandleSwcOptionKey",
       "relationship": "partial-behavior-adaptation",
       "differences": "Items 11 (Turn Music Off/On, Cmd-U), 12 (Turn Sound Off/On, Cmd-N), 13 (Volume Controls) and 15 (Turn Text Off/On). No menu bar: Cmd (Ctrl elsewhere) with U/N keeps the original keys; B and V are host keys. A host notice replaces the changed item text. Music off stops the track and music on restarts it; sound off stops flight channels and mutes effects, speech and movie PCM; text off hides print_subtitle output (dialogue and bar/barracks hotspot names). Graphics-size, QuickDraw and odd-line items are Mac display options."
@@ -781,7 +781,7 @@
       "resource": "CODE_01.bin",
       "entry_offset": "0x4f80",
       "end_offset": "0x5510",
-      "source": "src/sdl/swc_options.c",
+      "source": "src/port/swc/swc_options.c",
       "symbol": "SwcRunVolumeControls",
       "relationship": "behavior-and-presentation-adaptation",
       "differences": "DLOG/DITL 132 layout, OK default and Cancel restore. Click heights <12,24,35,47,59,71,83 select 100,84,70,56,42,28,14,0 percent; a new sound level plays selection_bing (snd/31, 255); music volume applies live. Runs modally inside the caller's event poll; speech, movie PCM and playing effects are held while music continues. Arrow keys/Tab are host additions; the dialog is centred over a black screen at 320x240 scale."
@@ -791,7 +791,7 @@
       "resource": "CODE_01.bin",
       "entry_offset": "0x5522",
       "end_offset": "0x56d8",
-      "source": "src/sdl/swc_options.c",
+      "source": "src/port/swc/swc_options.c",
       "symbol": "SwcDrawVolumeSlider",
       "relationship": "presentation-adaptation",
       "differences": "PICT/128 face (0,0)-(47,105), clean track (48,1)-(66,105) copied to x=28, knob (23,107)-(46,118) at tops 6,18,29,41,53,65,77,89 or pointer-5 clamped to 3..89 while dragging. SDL textures replace the offscreen GWorld."
@@ -855,7 +855,7 @@
   "flight_gameplay": {
     "scope": "Enyo 1 patrol encounters, NPC AI/firing, hazards, autopilot, automatic target acquisition, native missile lock and ITTS. Carrier landing, first debriefing and player/wingman funerals are connected; the host ends after this mission and does not advance the campaign.",
     "generator": "bin/extractSwcFlightData.py",
-    "generated_header": "src/sdl/swc_objects.h",
+    "generated_header": "src/port/swc/swc_objects.h",
     "data_sha256": "8373edcff90ab35cda5663c1b0cc5112d00ed8c6c35ab14a45a0577a23a54faa",
     "negative_a5_sha256": "15338836d634310d80e725c8254c6ee2589917d610515e44f2dd33c3cd7f62ec",
     "hardpoints": {"resource": "CODE_04.bin", "entry_offset": "0x367a", "data_offset": "0x2efe", "encoding": "63 BE32 xyz vectors", "qualification": "Coordinates fit WC1 ShortVector storage; SWC carrier mounts 56..62 exceed WC1's original 56-entry table."},
@@ -867,10 +867,10 @@
     "autopilot_reconstruction": {
       "status": "Connected to the SDL2 mission host, A-key travel, objective arrival and autopilot lamp. The Win32 reference path is unchanged.",
       "functions": [
-        {"resource": "CODE_13.bin", "entry_offset": "0x1732", "original_name": "auto_pilot_valid", "source": "src/sdl/swc_cockpit.c", "symbol": "SdlSwcAutopilotValid"},
-        {"resource": "CODE_13.bin", "entry_offset": "0x212e", "original_name": "flag_reached", "source": "src/sdl/swc_cockpit.c", "symbol": "SdlSwcFlagReached"},
-        {"resource": "CODE_09.bin", "entry_offset": "0x00c2", "original_name": "Update_3Space", "source": "src/sdl/swc_flight.c", "symbol": "SdlSwcUpdateSpace"},
-        {"resource": "CODE_14.bin", "entry_offset": "0x000c", "original_name": "visit_the_cinema", "source": "src/sdl/swc_flight.c", "symbol": "SdlSwcVisitCinema"}
+        {"resource": "CODE_13.bin", "entry_offset": "0x1732", "original_name": "auto_pilot_valid", "source": "src/port/swc/swc_cockpit.c", "symbol": "SdlSwcAutopilotValid"},
+        {"resource": "CODE_13.bin", "entry_offset": "0x212e", "original_name": "flag_reached", "source": "src/port/swc/swc_cockpit.c", "symbol": "SdlSwcFlagReached"},
+        {"resource": "CODE_09.bin", "entry_offset": "0x00c2", "original_name": "Update_3Space", "source": "src/port/swc/swc_flight.c", "symbol": "SdlSwcUpdateSpace"},
+        {"resource": "CODE_14.bin", "entry_offset": "0x000c", "original_name": "visit_the_cinema", "source": "src/port/swc/swc_flight.c", "symbol": "SdlSwcVisitCinema"}
       ],
       "escort_state": "DATA/A5+0x46ec; CODE_13 +0x2170 clears it on every flag_reached call, +0x2250 sets it while waiting. Eligibility keeps the +0x179a ship-ID indexing with an array-bound guard; only types 6,4,7,5 produce wait text.",
       "camera": "CODE_02 new_view view-12 case +0x3474 initializes relative (500,0,2000); set_eye_direction_and_position case +0x29f0 moves ten units sideways and looks at the player. Fresh Ghidra exports explicitly decode both switch tables.",
@@ -882,9 +882,9 @@
   },
   "music": {
     "sources": [
-      "src/swc/music.c",
-      "src/sdl/swc_music.c",
-      "src/sdl/swc_sound.c"
+      "src/port/swc/music.c",
+      "src/port/swc/swc_music.c",
+      "src/port/swc/swc_sound.c"
     ],
     "scope": "SDL-only QuickTime note-sequence playback for the connected Enyo 1 scenes and flight. Original Win32 functions and source selection are unchanged.",
     "original_functions": [
@@ -992,7 +992,7 @@
     ]
   },
   "flight_audio": {
-    "sources": ["src/swc/sound.c", "src/sdl/swc_sound.c", "src/sdl/swc_cockpit.c", "src/sdl/swc_flight.c"],
+    "sources": ["src/port/swc/sound.c", "src/port/swc/swc_sound.c", "src/port/swc/swc_cockpit.c", "src/port/swc/swc_flight.c"],
     "scope": "Native Enyo 1 weapon/impact effects, afterburner loop/release, autopilot effect, cockpit alarms/static, computer messages, player orders and NPC communication. SDL-only; original Win32 source selection and code paths are preserved.",
     "bank": {"file": "CMFs/Sounds.CMF", "chunks": "snd /1..494", "format": "Sound Manager format 1, one sampledSynth modifier (5, init 0xa0), one bufferCmd (0x8051), standard header encoding 0, unsigned 8-bit mono", "sample_rate_fixed": "0x2b7745d1", "sample_rate_note": "Original 16.16 rate, approximately 11127.27 samples/second; not the AIFF dialogue rate of 11025."},
     "release": {"file": "SuperWingCommanderDemo resource fork", "chunk": "snd /500", "sample_rate_fixed": "0x56ee8ba3", "sample_count": 13420, "evidence": "CODE_01 stop_afterburner_sound +0x67fc uses GetResource, not CMGetChunk. The February 1995 build has neither the routine nor snd/500; the host then stops the loop."},
@@ -1013,10 +1013,10 @@
     "validation": "Fresh Ghidra original-instruction exports and offline original-resource header/data inspection; static source review; Win32/native/GUI/viewer compilation. No tests, game, GUI, playback or audio-device execution. binary-comp core-hook scores unchanged: message_showing 100.00%, real_vid_transmit 98.53%."
   },
   "wc1_control_reuse": {
-    "source": "src/sdl/swc_flight.c",
+    "source": "src/port/swc/swc_flight.c",
     "host_cursor": "SDL-only: active flight and autopilot hide the system cursor; pause, focus loss and minimization show it while releasing capture. Resuming hides it again. Title/carrier menus enable their cursor, and session cleanup restores prior visibility. The WC1 bMouseCursorVisible steering flag is independent and unchanged.",
     "pause_message": {
-      "source": "src/sdl/swc_flight.c",
+      "source": "src/port/swc/swc_flight.c",
       "symbol": "SwcDrawPauseMessage",
       "evidence": "Demo CODE_09 FlyingLoop +0x0ad2..+0x0b60 (A5-0x2845/-0x2822/-0x2800) and retail +0x0ab8..+0x0b46 (A5-0x28cb/-0x28a8/-0x2886) redraw the prompt only after a quit dialog is cancelled while paused. tprintf %X%Y%C%F selects colour 0x81 and font 10; CenterPrint centres each line in the 300-pixel layer that init_text allocates and MoveTextLayer places at x=10, so lines centre on x=160 at baselines 180/200/220. The retail lines are Press Cmd-P again or choose Resume / from the Actions menu to continue / playing Super Wing Commander. CODE_01 DoActionsMenu item 1 toggles the pause byte and the Pause/Resume label; ShowMenuBar disables the Actions menu outside flight mode 8 and during Title_Sequence, and visit_the_cinema never tests the pause byte.",
       "adaptation": "Flight only, as in the original: Cmd-P (Ctrl-P on other platforms), the Actions menu's key equivalent, pauses and resumes. The three lines are drawn centred over the frozen picture without a panel or heading; SDL has no Actions menu, so the first two name the key alone (Press Cmd-P again / to continue). Focus loss freezes flight silently. The title, autopilot camera, carrier rooms, movies and other scenes have no pause; they freeze only while the window is unfocused.",
@@ -1038,10 +1038,10 @@
     {"resource": "CODE_09.bin", "entry_offset": "0x32a6", "name": "CMFindChunkEntryPtr"}
   ],
   "cockpit_ui": {
-    "source": "src/sdl/swc_cockpit.c",
+    "source": "src/port/swc/swc_cockpit.c",
     "scope": "Enyo 1 Hornet instruments, target hull/armor/shields, normal reticle, navigation/hostile markers, warning lamps, component text, malfunctioning VDUs, damaged panels and sparks. Spatial HUD is masked by the cockpit; text/HUD also appear without it. Capacities use SWC definitions. Automatic hostile acquisition enables lock mode; L toggles it and the WC2-derived, SWC-adjusted ITTS calculation. Cockpit banking, pilot hands, communication portraits and computer messages are connected. Automatic acquisition, 18/32-update missile locks, CKPT/5 convergence/blink and separate blue speaker brackets are connected; WC2 source supplies the common control structure with Mac-specific behavior. Side/rear views and other cockpitless instruments remain pending. SDL2 2.0.18 or later is required for VDU polygons.",
     "targeting": {
-      "source": "src/sdl/swc_cockpit.c",
+      "source": "src/port/swc/swc_cockpit.c",
       "selection": "CODE_13 check_target +0x3aa4 adapts WC2's common structure with the Mac's nearest/current-list choice and automatic hostile lock. Shared WC1 build_your_target_list, sort_viable_target_list and cycle_onscreen_targets match CODE_13 +0x38f0/+0x39c6 and CODE_05 +0x0b52. Visible ships use a strict 12000-unit cutoff. Locked offscreen targets persist; T prefers enemies when cycling.",
       "missile_lock": "CODE_13 +0x36b2..+0x38de: HS 18 updates/facing <=-65, IR 32, projected radius <=60. Offscreen progress is retained; component-five malfunction stalls it. SDL handles snd/21 search and snd/22 acquired, retaining the original signed X*2/5 search volume argument with host volume clamping. Unsupported/absent weapons are rejected without negative-index access. No WC2 torpedo lock or WC1 extra completion malfunction/text.",
       "presentation": "CODE_13 draw_target_box +0x3114: CKPT/36 friendly/hostile corners, wider blue speaker highlight, separate four-frame CKPT/5 countdown convergence and acquired blink on odd frames. DATA/0 +0x43f2 maps CKPT/5 to handle +0xa546. CODE_03 init_vdus +0x0914 sets the right VDU to target mode; T preserves an active portrait. Projection refreshes before every simulation targeting update; pause holds progress and blink.",
@@ -1112,7 +1112,7 @@
       "source_url": "https://raw.githubusercontent.com/google/fonts/main/ofl/anonymouspro/AnonymousPro-Regular.ttf",
       "sha256": "46d8b9a5f4b38fc9d30f3cdd676d4c6f78a9bef949bb1a8304216cc731eb87f8",
       "derived_name": "SWC HUD Bitmap",
-      "generated_header": "src/sdl/swc_hud_font.h",
+      "generated_header": "src/port/swc/swc_hud_font.h",
       "generator": "bin/buildSwcHudFont.py",
       "license": "SIL OFL 1.1; third_party/anonymouspro/OFL.txt; copied into release archives",
       "qualification": "Fallback for missing classic Helvetica strikes on portable hosts; macOS falls back to system Helvetica at sizes 9/10/14. Also retained by host-only overlays. Nine-pixel monochrome ASCII substitute with five-pixel advance, requiring neither SDL2_ttf nor a runtime TTF."
@@ -1121,10 +1121,10 @@
   },
   "cockpit_fidelity": {
     "sources": [
-      "src/sdl/swc_raster.c",
-      "src/sdl/swc_text.c",
-      "src/sdl/swc_cockpit.c",
-      "src/sdl/swc_flight.c"
+      "src/port/swc/swc_raster.c",
+      "src/port/swc/swc_text.c",
+      "src/port/swc/swc_cockpit.c",
+      "src/port/swc/swc_flight.c"
     ],
     "scope": "Enyo 1 Hornet typography, notice timing, sprite/VDU rasterization and hit/explosion glare. All new core behavior is inside SDL_PORT and SdlSwcFlightActive guards.",
     "text": {
@@ -1180,7 +1180,7 @@
     "validation": "Fresh Ghidra original-instruction exports and offline original data inspection; native/GUI/viewer builds, Clang static analysis, portable-font syntax compilation and binary-comp checks for guarded Win32 functions. No tests, game, GUI, audio playback or interactive checks executed. Existing packed-pointer linker warnings remain."
   },
   "weapon_presentation": {
-    "source": "src/sdl/swc_flight.c",
+    "source": "src/port/swc/swc_flight.c",
     "resource_mapping_evidence": {"resource": "CODE_08.bin", "entry_offset": "0x000c", "name": "get_Mac_mem", "mapping_instructions": "0x0050..0x022c", "qualification": "CODE_03 init_3Space_objects aliases shared debris resources. Host caches independently counted OBJT, 22-frame missile MSnn/1 and 37-frame ship resources."},
     "explosion_data": {
       "reference": "CODE_08 init_data_struct2 +0x4c7c/+0x4d52/+0x4e28 and expanded DATA/0",
@@ -1230,11 +1230,11 @@
     "validation": "Fresh Ghidra CODE_02/04/14 exports plus original CODE_03/05/07/09/13 instructions; A5 calls/strings and expanded DATA inspected; title frame dimensions, palettes and original artwork inspected offline. All three SDL targets built and changed units checked with Clang static analysis. No tests added/run, no game/GUI execution, playback or audio device. No original Win32 source or flags changed."
   },
   "movies": {
-    "decoder_source": "src/swc/movie.c",
-    "presentation_source": "src/sdl/swc_movie.c",
+    "decoder_source": "src/port/swc/movie.c",
+    "presentation_source": "src/port/swc/swc_movie.c",
     "scope": "Version-1 LMov decoder and original startup splash/logo/prologue, new-campaign opening, Hornet launch/landing, player/Spirit funeral clips and stranded BUC for Enyo 1 in both SDL launchers. Missing movie groups preserve their following presentation; malformed movies fail explicitly.",
     "startup": {
-      "sources": ["src/sdl/swc_movie.c", "src/sdl/swc_rooms.c", "src/swc/rsrc.c", "src/swc/speech.c"],
+      "sources": ["src/port/swc/swc_movie.c", "src/port/swc/swc_rooms.c", "src/port/swc/rsrc.c", "src/port/swc/speech.c"],
       "entry": "SdlRunSwcMission calls SdlPlaySwcStartup before SdlPlaySwcOpening.",
       "sequence": ["PICT/129 splash", "Lion", "INTRO00", "INTRO01", "INTRO02", "INTRO03", "INTRO04", "intro.03..09 speech", "INTRO05", "INTRO06", "INTRO07", "intro.10..11 speech", "INTRO08", "INTRO09", "INTRO10"],
       "evidence": [
@@ -1268,7 +1268,7 @@
     "validation": "Original assembly and A5-string inspection; offline parsing of all 38 original files and 3521 encoded frames, including record bounds, scanline commands, exact frame consumption and audio lengths; static source review and make modern modern-gui. No interactive code, game, GUI, playback or audio device executed."
   },
   "carrier": {
-    "source": "src/sdl/swc_rooms.c",
+    "source": "src/port/swc/swc_rooms.c",
     "scope": "Fresh Enyo 1: splash/logo/prologue, animated title battle and idle intro replay, opening movies, bar, conversations, rankings, barracks, medals, briefing, Hornet launch, flight, landing, debriefing, death cinematic, player/Spirit funerals and stranded BUC. Completed flights and endings return to the title menu; New Game resets Enyo 1. Later campaign progression and save/load remain unsupported. Simulator remains disabled as in the original demo.",
     "flow_evidence": [
       {"resource": "CODE_09.bin", "entry_offset": "0x000c", "name": "squadron", "qualification": "+0x84..+0x90 calls opening_scene, StartNewCampaign(0), then GameFlow for a new campaign. The SDL host uses this order for its fresh Enyo 1 session."},
@@ -1317,7 +1317,7 @@
     },
     "data_offsets": {"palettes": "0x3fd2", "filenames": "0x4046", "ranking_rows": "0x2690", "idle_sequences": ["0x27ae", "0x2816", "0x27da"], "medal_frames": "0x42f2", "briefing_origin": ["0x4306", "0x430a"]},
     "speech": {
-      "reader_source": "src/swc/speech.c",
+      "reader_source": "src/port/swc/speech.c",
       "format": "AIFF COMM/SSND, mono signed 16-bit big-endian PCM, 11025 Hz; all 92 demo recordings inspected have this format.",
       "form_length_quirk": "All 92 original files declare FORM four bytes short, apparently excluding the AIFF form type. Each final SSND chunk ends at physical EOF with exactly the PCM byte count declared by COMM. The reader permits only this exact four-byte overrun by a final SSND chunk; other bounds/sample-count checks remain in force. Observed directly in 04060000.AIF and the full original speech corpus without playback.",
       "path": "AIFF/camp.0/MM/MMSSLL00.AIF; MM=04 for Enyo 1 or 00 for funerals, SS=section, LL=original record index",
@@ -1335,8 +1335,8 @@
     "pending": "Save/load and name entry, later rooms/scenes, campaign progression and exact frame pacing. Classic bitmap font output requires an external resource and remains unverified. Native briefing map, dismissal walk-out, bunk art, incidental bar animation and movie palette dimming are connected.",
     "validation": "Fresh Ghidra CODE_02/14 exports plus original CODE_01/03/07/12/13/15 instructions and A5/DATA inspection; offline CMF/frame/music inventories. Native/GUI/viewer compilation and Clang static analysis. No tests added/run and no game, GUI or playback launched. No Win32 reconstruction source or flags changed. Font data and interactive appearance/timing remain unverified."
   },
-  "classic_font_resource": {"source": "src/sdl/swc_text.c", "location": "SWC_MAC_FONT_RESOURCE or game-root Fonts/Helvetica.rsrc", "format": "FOND 21 plain-style association -> exact-size NFNT/FONT; FONT-only family*128+size fallback. Monochrome FontRec pixels, per-glyph bearings/advances and ascent. Raw resource fork, explicit macOS ..namedfork/rsrc path, or AppleDouble accepted.", "references": ["https://developer.apple.com/library/archive/documentation/mac/Text/Text-250.html", "https://developer.apple.com/library/archive/documentation/mac/Text/Text-271.html"], "limits": "No bundled font data; no actual classic Helvetica resource available for validation. Printable ASCII only, with existing platform fallback for missing/unsupported strikes."},
-  "target_message_evidence": {"source": "src/sdl/swc_cockpit.c", "original": "CODE_13 set_global_message +0x3f4e only writes DATA+0x4712/+0x4716; an all-CODE operand search found no readers. CODE_05 fire_missile +0x38b0 rejects unlocked shots silently.", "implementation": "Remove WC1 ITTS/out-of-range, Need Lock and MISSILE LOCKED bottom banners from SWC. Preserve shared damage notices via CockpitMessage at native status positions/lifetimes. Native reticle, converging/blinking missile-lock markers and search/acquired sounds supply targeting feedback; host communications acknowledgments use the native queue."},
-  "host_only_sources": ["src/swc/rsrc.c", "src/swc/speech.c", "src/swc/sound.c", "src/swc/music.c", "src/sdl/swc_sound.c", "src/sdl/swc_music.c", "src/sdl/swc_demo.c", "src/sdl/swc_flight.c", "src/sdl/swc_raster.c", "src/sdl/swc_cockpit.c", "src/sdl/swc_nav.c", "src/sdl/swc_text.c", "src/sdl/swc_rooms.c", "src/sdl/swc_movie.c", "src/sdl/swc_options.c"],
+  "classic_font_resource": {"source": "src/port/swc/swc_text.c", "location": "SWC_MAC_FONT_RESOURCE or game-root Fonts/Helvetica.rsrc", "format": "FOND 21 plain-style association -> exact-size NFNT/FONT; FONT-only family*128+size fallback. Monochrome FontRec pixels, per-glyph bearings/advances and ascent. Raw resource fork, explicit macOS ..namedfork/rsrc path, or AppleDouble accepted.", "references": ["https://developer.apple.com/library/archive/documentation/mac/Text/Text-250.html", "https://developer.apple.com/library/archive/documentation/mac/Text/Text-271.html"], "limits": "No bundled font data; no actual classic Helvetica resource available for validation. Printable ASCII only, with existing platform fallback for missing/unsupported strikes."},
+  "target_message_evidence": {"source": "src/port/swc/swc_cockpit.c", "original": "CODE_13 set_global_message +0x3f4e only writes DATA+0x4712/+0x4716; an all-CODE operand search found no readers. CODE_05 fire_missile +0x38b0 rejects unlocked shots silently.", "implementation": "Remove WC1 ITTS/out-of-range, Need Lock and MISSILE LOCKED bottom banners from SWC. Preserve shared damage notices via CockpitMessage at native status positions/lifetimes. Native reticle, converging/blinking missile-lock markers and search/acquired sounds supply targeting feedback; host communications acknowledgments use the native queue."},
+  "host_only_sources": ["src/port/swc/rsrc.c", "src/port/swc/speech.c", "src/port/swc/sound.c", "src/port/swc/music.c", "src/port/swc/swc_sound.c", "src/port/swc/swc_music.c", "src/port/swc/swc_demo.c", "src/port/swc/swc_flight.c", "src/port/swc/swc_raster.c", "src/port/swc/swc_cockpit.c", "src/port/swc/swc_nav.c", "src/port/swc/swc_text.c", "src/port/swc/swc_rooms.c", "src/port/swc/swc_movie.c", "src/port/swc/swc_options.c"],
   "palette_resource_fork_sha256": "24b707f9e024d86bf8ce996e2bc45521f36f75582b7e7410bef6467c49cb7c2b"
 }

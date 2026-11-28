@@ -3,7 +3,7 @@
  * only copies the completed pixels at 1:1 logical resolution. The optional
  * OpenGL path uses the same Q8 corners with output-resolution triangles. */
 #include "swc.h"
-#include "video_internal.h"
+#include "graphics/video_internal.h"
 
 typedef struct SwcTextureVertex {
     int x;

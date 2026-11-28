@@ -42,7 +42,7 @@ int SdlGlRendererRecordSpaceSprite(const struct Viewport *viewport, float x,
 /* The launcher's hi-res HUD fonts option (issue 29). */
 void SdlSetHiResHudFonts(int enabled);
 
-/* Hi-res HUD text (src/sdl/hires_hud.c): a layer at twice the frame's size,
+/* Hi-res HUD text (src/port/graphics/hires_hud.c): a layer at twice the frame's size,
    built on each present and drawn by the GL renderer over the frame. */
 #define SDL_PORT_HIRES_SCALE 2
 #define SDL_PORT_HIRES_WIDTH (SDL_PORT_FRAME_WIDTH * SDL_PORT_HIRES_SCALE)

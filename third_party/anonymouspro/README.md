@@ -6,7 +6,7 @@ Its SHA-256 is
 `46d8b9a5f4b38fc9d30f3cdd676d4c6f78a9bef949bb1a8304216cc731eb87f8`.
 The copyright and SIL Open Font License 1.1 are in `OFL.txt`.
 
-The derived **SWC HUD Bitmap** in `src/sdl/swc_hud_font.h` is an ASCII subset
+The derived **SWC HUD Bitmap** in `src/port/swc/swc_hud_font.h` is an ASCII subset
 rasterized at 9 pixels in monochrome, with a five-pixel advance. Its name is
 distinct from the source's reserved font name. It remains under the OFL.
 It is a provisional substitute for classic Mac QuickDraw text; it does not

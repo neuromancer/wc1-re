@@ -4,7 +4,7 @@
 #include "launcher_joystick.h"
 #include "launcher_paths.h"
 #include "wc1_logo.h"
-#include "../pad_bindings.h"
+#include "../input/pad_bindings.h"
 
 #include <SDL.h>
 #include <nfd.h>
@@ -222,7 +222,7 @@ std::shared_ptr<KeyboardBindings> default_bindings(const slint::Model<InputRow> 
 
 /* Input names are stored percent-encoded outside a-z, 0-9 and "-", so "+"
    joins a modifier to its key and "," separates bindings (see
-   src/sdl/keymap.c). */
+   src/port/input/keymap.c). */
 std::string encode_input(std::string_view input)
 {
     static constexpr char digits[] = "0123456789abcdef";
@@ -521,7 +521,7 @@ void prepare_controls(const slint::ComponentHandle<LauncherWindow> &window,
         });
 }
 
-/* The Custom joystick mode's bindings (src/sdl/pad_bindings.h) as the
+/* The Custom joystick mode's bindings (src/port/input/pad_bindings.h) as the
    Joystick tab codes them (controls.slint): the index of a keyboard and mouse
    row for a flight key's action, -1 for none, -2 to cycle the views, -3 to
    roll and change speed, and -10 less twice an axis function's number, less
@@ -578,7 +578,7 @@ std::string pad_function(const LauncherWindow &window, int control, int code)
    layout's left stick does and its Y pitches, a twist or rudder takes the
    other turn, and the first throttle lever, or else Z, the throttle. Each is
    reversed where its pair reads it the other way: the first of a pair grows
-   to the right, the second upwards (src/sdl/pad_bindings.h), and a lever is
+   to the right, the second upwards (src/port/input/pad_bindings.h), and a lever is
    taken to be forward at SDL's negative end. */
 std::vector<std::string> named_axis_functions(const std::vector<AxisKind> &kinds, int axes)
 {

@@ -1011,7 +1011,7 @@ msgid "wc1:ae517f2f44c29baf"
 msgstr "F I N"
 
 # Translation: wc1-re contributors.
-#: src/sdl/autosave.c:70
+#: src/port/game/autosave.c:70
 msgctxt "font0"
 msgid "wc1:33a94eaf14393f50 (Y/N)"
 msgstr "¿Reemplazar autoguardado? (Y/N)"

@@ -1,7 +1,7 @@
 /* SDL2 restoration of the Origin FX sequence omitted from Kilrathi Saga. */
 #include "wc1.h"
 
-#include "video_internal.h"
+#include "graphics/video_internal.h"
 
 #define SDL_PORT_DOS_INTRO_ACTOR_COUNT 10
 #define SDL_PORT_DOS_INTRO_TITLE_SECTION_COUNT 12

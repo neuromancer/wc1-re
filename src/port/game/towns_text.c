@@ -2,7 +2,7 @@
  * 8/4 logical pixels per full/half-width glyph and 10 pixels per line.
  * Misaki replaces the machine's font ROM; game strings stay on the disc. */
 #include "wc1.h"
-#include "video_internal.h"
+#include "graphics/video_internal.h"
 
 extern const unsigned char abTownsFont[];
 extern const unsigned short awTownsUnicode[256 + 94 * 94];

@@ -6,7 +6,7 @@ export enum CalibrationStep { idle, upper-left, lower-right, centre }
 export enum CalibrationMessage { none, saved, removed, failed, cannot-save, cannot-remove, unavailable }
 
 // The stick and its calibration in the game's positions, 0 to 65535 on each
-// axis (src/sdl/joystick_calibration.h).
+// axis (src/port/input/joystick_calibration.h).
 export struct StickView {
     x: int,
     y: int,

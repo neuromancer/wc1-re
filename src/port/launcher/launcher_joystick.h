@@ -2,7 +2,7 @@
 #define WC1_SLINT_LAUNCHER_JOYSTICK_H
 
 #include "launcher_axes.h"
-#include "../pad_bindings.h"
+#include "../input/pad_bindings.h"
 
 #include <SDL.h>
 
@@ -15,7 +15,7 @@
 
 namespace wc1_launcher {
 
-// j.cal's words, in src/sdl/joystick_calibration.h's order.
+// j.cal's words, in src/port/input/joystick_calibration.h's order.
 using JoystickCalibration = std::array<std::uint16_t, 7>;
 
 struct JoystickPosition {
@@ -28,7 +28,7 @@ struct JoystickPosition {
 
 // A joystick as the Joystick tab shows it: a mapped game controller's
 // controls, or another joystick's buttons, hats and axes, numbered as
-// src/sdl/pad_bindings.h numbers them.
+// src/port/input/pad_bindings.h numbers them.
 struct PadSnapshot {
     bool connected = false;
     // SDL maps it as a game controller.
@@ -50,7 +50,7 @@ struct PadSnapshot {
 };
 
 // The first two SDL joysticks, numbered and read as the game does in
-// src/sdl/joystick.c, for the calibration window and the Joystick tab.
+// src/port/input/joystick.c, for the calibration window and the Joystick tab.
 class JoystickReader {
 public:
     JoystickReader() = default;

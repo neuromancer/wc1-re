@@ -15,7 +15,7 @@
  * (campaign:series:mission) select missions, and WC1_FLIGHT_TICKS limits the
  * ticks per input (1..3600, default 600). WC1_FLIGHT_SEEDS names a corpus to
  * add seed inputs to, WC1_FLIGHT_KEYS changes key bindings as the launcher
- * does (src/sdl/keymap.c), WC1_FLIGHT_LIST prints the installed campaigns and
+ * does (src/port/input/keymap.c), WC1_FLIGHT_LIST prints the installed campaigns and
  * the selected missions instead of fuzzing, and WC1_FLIGHT_TRACE prints where
  * each input started and ended. */
 #ifndef FUZZ_FLIGHT_H

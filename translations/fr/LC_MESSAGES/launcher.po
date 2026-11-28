@@ -299,902 +299,902 @@ msgctxt "LauncherWindow"
 msgid "Transfer pilot to SM2…"
 msgstr "Pilote vers SM2…"
 
-#: src/sdl/slint/launcher.slint:337
+#: src/port/launcher/launcher.slint:337
 msgctxt "LauncherWindow"
 msgid "Show controls…"
 msgstr "Voir les commandes…"
 
-#: src/sdl/slint/controls.slint:178
+#: src/port/launcher/controls.slint:178
 msgctxt "ControlsView"
 msgid "Super Wing Commander controls"
 msgstr "Commandes de Super Wing Commander"
 
-#: src/sdl/slint/controls.slint:178
+#: src/port/launcher/controls.slint:178
 msgctxt "ControlsView"
 msgid "Wing Commander controls"
 msgstr "Commandes de Wing Commander"
 
-#: src/sdl/slint/controls.slint:192
+#: src/port/launcher/controls.slint:192
 msgctxt "ControlsView"
 msgid "Original — two axes / two buttons"
 msgstr "Original — deux axes / deux boutons"
 
-#: src/sdl/slint/controls.slint:193
+#: src/port/launcher/controls.slint:193
 msgctxt "ControlsView"
 msgid "WCAT — four buttons / two axes"
 msgstr "WCAT — quatre boutons / deux axes"
 
-#: src/sdl/slint/controls.slint:194
+#: src/port/launcher/controls.slint:194
 msgctxt "ControlsView"
 msgid "WCAT — four buttons / four axes"
 msgstr "WCAT — quatre boutons / quatre axes"
 
-#: src/sdl/slint/controls.slint:197
+#: src/port/launcher/controls.slint:197
 msgctxt "ControlsView"
 msgid "Twin-stick roll"
 msgstr "Deux manches : roulis"
 
-#: src/sdl/slint/controls.slint:198
+#: src/port/launcher/controls.slint:198
 msgctxt "ControlsView"
 msgid "Twin-stick yaw"
 msgstr "Deux manches : lacet"
 
-#: src/sdl/slint/controls.slint:199
+#: src/port/launcher/controls.slint:199
 msgctxt "ControlsView"
 msgid "HOTAS yaw"
 msgstr "HOTAS : lacet"
 
-#: src/sdl/slint/controls.slint:200
+#: src/port/launcher/controls.slint:200
 msgctxt "ControlsView"
 msgid "HOTAS roll"
 msgstr "HOTAS : roulis"
 
-#: src/sdl/slint/controls.slint:201
+#: src/port/launcher/controls.slint:201
 msgctxt "ControlsView"
 msgid "Linear throttle"
 msgstr "Gaz linéaires"
 
-#: src/sdl/slint/controls.slint:202
+#: src/port/launcher/controls.slint:202
 msgctxt "ControlsView"
 msgid "Rudder yaw"
 msgstr "Palonnier : lacet"
 
-#: src/sdl/slint/controls.slint:203
+#: src/port/launcher/controls.slint:203
 msgctxt "ControlsView"
 msgid "Rudder roll"
 msgstr "Palonnier : roulis"
 
-#: src/sdl/slint/controls.slint:219 src/sdl/slint/controls.slint:289
+#: src/port/launcher/controls.slint:219 src/port/launcher/controls.slint:289
 msgctxt "ControlsView"
 msgid "Flight"
 msgstr "Vol"
 
-#: src/sdl/slint/controls.slint:220 src/sdl/slint/controls.slint:290
+#: src/port/launcher/controls.slint:220 src/port/launcher/controls.slint:290
 msgctxt "ControlsView"
 msgid "Pitch down"
 msgstr "Piquer"
 
-#: src/sdl/slint/controls.slint:221 src/sdl/slint/controls.slint:291
+#: src/port/launcher/controls.slint:221 src/port/launcher/controls.slint:291
 msgctxt "ControlsView"
 msgid "Pitch up"
 msgstr "Cabrer"
 
-#: src/sdl/slint/controls.slint:222 src/sdl/slint/controls.slint:292
+#: src/port/launcher/controls.slint:222 src/port/launcher/controls.slint:292
 msgctxt "ControlsView"
 msgid "Yaw left"
 msgstr "Lacet à gauche"
 
-#: src/sdl/slint/controls.slint:223 src/sdl/slint/controls.slint:293
+#: src/port/launcher/controls.slint:223 src/port/launcher/controls.slint:293
 msgctxt "ControlsView"
 msgid "Yaw right"
 msgstr "Lacet à droite"
 
-#: src/sdl/slint/controls.slint:224 src/sdl/slint/controls.slint:294
+#: src/port/launcher/controls.slint:224 src/port/launcher/controls.slint:294
 msgctxt "ControlsView"
 msgid "Pitch down and yaw left"
 msgstr "Piquer et lacet à gauche"
 
-#: src/sdl/slint/controls.slint:225 src/sdl/slint/controls.slint:295
+#: src/port/launcher/controls.slint:225 src/port/launcher/controls.slint:295
 msgctxt "ControlsView"
 msgid "Pitch down and yaw right"
 msgstr "Piquer et lacet à droite"
 
-#: src/sdl/slint/controls.slint:226 src/sdl/slint/controls.slint:296
+#: src/port/launcher/controls.slint:226 src/port/launcher/controls.slint:296
 msgctxt "ControlsView"
 msgid "Pitch up and yaw left"
 msgstr "Cabrer et lacet à gauche"
 
-#: src/sdl/slint/controls.slint:227 src/sdl/slint/controls.slint:297
+#: src/port/launcher/controls.slint:227 src/port/launcher/controls.slint:297
 msgctxt "ControlsView"
 msgid "Pitch up and yaw right"
 msgstr "Cabrer et lacet à droite"
 
-#: src/sdl/slint/controls.slint:228 src/sdl/slint/controls.slint:298
+#: src/port/launcher/controls.slint:228 src/port/launcher/controls.slint:298
 msgctxt "ControlsView"
 msgid "Roll left"
 msgstr "Roulis à gauche"
 
-#: src/sdl/slint/controls.slint:229 src/sdl/slint/controls.slint:299
+#: src/port/launcher/controls.slint:229 src/port/launcher/controls.slint:299
 msgctxt "ControlsView"
 msgid "Roll right"
 msgstr "Roulis à droite"
 
-#: src/sdl/slint/controls.slint:230
+#: src/port/launcher/controls.slint:230
 msgctxt "ControlsView"
 msgid "Full turn rate"
 msgstr "Virage maximal"
 
-#: src/sdl/slint/controls.slint:230
+#: src/port/launcher/controls.slint:230
 msgctxt "ControlsView"
 msgid "hold with a turn key"
 msgstr "maintenir avec une touche de virage"
 
-#: src/sdl/slint/controls.slint:231 src/sdl/slint/controls.slint:300 src/sdl/slint/controls.slint:342
+#: src/port/launcher/controls.slint:231 src/port/launcher/controls.slint:300 src/port/launcher/controls.slint:342
 msgctxt "ControlsView"
 msgid "Speed up"
 msgstr "Accélérer"
 
-#: src/sdl/slint/controls.slint:232 src/sdl/slint/controls.slint:301 src/sdl/slint/controls.slint:343
+#: src/port/launcher/controls.slint:232 src/port/launcher/controls.slint:301 src/port/launcher/controls.slint:343
 msgctxt "ControlsView"
 msgid "Slow down"
 msgstr "Ralentir"
 
-#: src/sdl/slint/controls.slint:233
+#: src/port/launcher/controls.slint:233
 msgctxt "ControlsView"
 msgid "Full speed"
 msgstr "Pleine vitesse"
 
-#: src/sdl/slint/controls.slint:234
+#: src/port/launcher/controls.slint:234
 msgctxt "ControlsView"
 msgid "Stop"
 msgstr "Arrêt"
 
-#: src/sdl/slint/controls.slint:235 src/sdl/slint/controls.slint:247 src/sdl/slint/controls.slint:302 src/sdl/slint/controls.slint:311
+#: src/port/launcher/controls.slint:235 src/port/launcher/controls.slint:247 src/port/launcher/controls.slint:302 src/port/launcher/controls.slint:311
 msgctxt "ControlsView"
 msgid "Afterburner"
 msgstr "Postcombustion"
 
-#: src/sdl/slint/controls.slint:235 src/sdl/slint/controls.slint:302
+#: src/port/launcher/controls.slint:235 src/port/launcher/controls.slint:302
 msgctxt "ControlsView"
 msgid "hold"
 msgstr "maintenir"
 
-#: src/sdl/slint/controls.slint:236 src/sdl/slint/controls.slint:303
+#: src/port/launcher/controls.slint:236 src/port/launcher/controls.slint:303
 msgctxt "ControlsView"
 msgid "Weapons"
 msgstr "Armes"
 
-#: src/sdl/slint/controls.slint:237 src/sdl/slint/controls.slint:246 src/sdl/slint/controls.slint:304 src/sdl/slint/controls.slint:310
+#: src/port/launcher/controls.slint:237 src/port/launcher/controls.slint:246 src/port/launcher/controls.slint:304 src/port/launcher/controls.slint:310
 msgctxt "ControlsView"
 msgid "Fire guns"
 msgstr "Tirer au canon"
 
-#: src/sdl/slint/controls.slint:238 src/sdl/slint/controls.slint:249 src/sdl/slint/controls.slint:305 src/sdl/slint/controls.slint:313
+#: src/port/launcher/controls.slint:238 src/port/launcher/controls.slint:249 src/port/launcher/controls.slint:305 src/port/launcher/controls.slint:313
 msgctxt "ControlsView"
 msgid "Fire missile or drop mine"
 msgstr "Tirer un missile ou larguer une mine"
 
-#: src/sdl/slint/controls.slint:239
+#: src/port/launcher/controls.slint:239
 msgctxt "ControlsView"
 msgid "Weapons display, next gun"
 msgstr "Écran des armes, canon suivant"
 
-#: src/sdl/slint/controls.slint:240
+#: src/port/launcher/controls.slint:240
 msgctxt "ControlsView"
 msgid "Weapons display, next missile"
 msgstr "Écran des armes, missile suivant"
 
-#: src/sdl/slint/controls.slint:245 src/sdl/slint/controls.slint:309
+#: src/port/launcher/controls.slint:245 src/port/launcher/controls.slint:309
 msgctxt "ControlsView"
 msgid "Mouse"
 msgstr "Souris"
 
-#: src/sdl/slint/controls.slint:247 src/sdl/slint/controls.slint:311
+#: src/port/launcher/controls.slint:247 src/port/launcher/controls.slint:311
 msgctxt "ControlsView"
 msgid "double-click and hold"
 msgstr "double-clic maintenu"
 
-#: src/sdl/slint/controls.slint:249 src/sdl/slint/controls.slint:313
+#: src/port/launcher/controls.slint:249 src/port/launcher/controls.slint:313
 msgctxt "ControlsView"
 msgid "both buttons"
 msgstr "les deux boutons"
 
-#: src/sdl/slint/controls.slint:251 src/sdl/slint/controls.slint:315
+#: src/port/launcher/controls.slint:251 src/port/launcher/controls.slint:315
 msgctxt "ControlsView"
 msgid "Roll and change speed"
 msgstr "Roulis et changement de vitesse"
 
-#: src/sdl/slint/controls.slint:251 src/sdl/slint/controls.slint:315
+#: src/port/launcher/controls.slint:251 src/port/launcher/controls.slint:315
 msgctxt "ControlsView"
 msgid "hold and move"
 msgstr "maintenir et déplacer"
 
-#: src/sdl/slint/controls.slint:253 src/sdl/slint/controls.slint:317
+#: src/port/launcher/controls.slint:253 src/port/launcher/controls.slint:317
 msgctxt "ControlsView"
 msgid "Cockpit"
 msgstr "Cockpit"
 
-#: src/sdl/slint/controls.slint:254
+#: src/port/launcher/controls.slint:254
 msgctxt "ControlsView"
 msgid "Target display, next target"
 msgstr "Écran de cible, cible suivante"
 
-#: src/sdl/slint/controls.slint:255
+#: src/port/launcher/controls.slint:255
 msgctxt "ControlsView"
 msgid "Lock target"
 msgstr "Verrouiller la cible"
 
-#: src/sdl/slint/controls.slint:256
+#: src/port/launcher/controls.slint:256
 msgctxt "ControlsView"
 msgid "Damage display"
 msgstr "Écran des dégâts"
 
-#: src/sdl/slint/controls.slint:257
+#: src/port/launcher/controls.slint:257
 msgctxt "ControlsView"
 msgid "Navigation display, then map"
 msgstr "Écran de navigation, puis carte"
 
-#: src/sdl/slint/controls.slint:258 src/sdl/slint/controls.slint:318 src/sdl/slint/controls.slint:341
+#: src/port/launcher/controls.slint:258 src/port/launcher/controls.slint:318 src/port/launcher/controls.slint:341
 msgctxt "ControlsView"
 msgid "Autopilot"
 msgstr "Pilote automatique"
 
-#: src/sdl/slint/controls.slint:259
+#: src/port/launcher/controls.slint:259
 msgctxt "ControlsView"
 msgid "Eject"
 msgstr "S’éjecter"
 
-#: src/sdl/slint/controls.slint:260
+#: src/port/launcher/controls.slint:260
 msgctxt "ControlsView"
 msgid "Wingman"
 msgstr "Ailier"
 
-#: src/sdl/slint/controls.slint:261
+#: src/port/launcher/controls.slint:261
 msgctxt "ControlsView"
 msgid "Communications"
 msgstr "Communications"
 
-#: src/sdl/slint/controls.slint:262
+#: src/port/launcher/controls.slint:262
 msgctxt "ControlsView"
 msgid "Choose a message"
 msgstr "Choisir un message"
 
-#: src/sdl/slint/controls.slint:263 src/sdl/slint/controls.slint:321
+#: src/port/launcher/controls.slint:263 src/port/launcher/controls.slint:321
 msgctxt "ControlsView"
 msgid "Break and attack"
 msgstr "Rompre et attaquer"
 
-#: src/sdl/slint/controls.slint:264
+#: src/port/launcher/controls.slint:264
 msgctxt "ControlsView"
 msgid "Form on my wing"
 msgstr "Former sur mon aile"
 
-#: src/sdl/slint/controls.slint:265 src/sdl/slint/controls.slint:325
+#: src/port/launcher/controls.slint:265 src/port/launcher/controls.slint:325
 msgctxt "ControlsView"
 msgid "Views"
 msgstr "Vues"
 
-#: src/sdl/slint/controls.slint:266
+#: src/port/launcher/controls.slint:266
 msgctxt "ControlsView"
 msgid "Front view; again: cockpit on/off"
 msgstr "Vue avant ; à nouveau : avec/sans cockpit"
 
-#: src/sdl/slint/controls.slint:267
+#: src/port/launcher/controls.slint:267
 msgctxt "ControlsView"
 msgid "Left view"
 msgstr "Vue gauche"
 
-#: src/sdl/slint/controls.slint:268
+#: src/port/launcher/controls.slint:268
 msgctxt "ControlsView"
 msgid "Right view"
 msgstr "Vue droite"
 
-#: src/sdl/slint/controls.slint:269
+#: src/port/launcher/controls.slint:269
 msgctxt "ControlsView"
 msgid "Rear view"
 msgstr "Vue arrière"
 
-#: src/sdl/slint/controls.slint:270
+#: src/port/launcher/controls.slint:270
 msgctxt "ControlsView"
 msgid "Chase view"
 msgstr "Vue de poursuite"
 
-#: src/sdl/slint/controls.slint:271
+#: src/port/launcher/controls.slint:271
 msgctxt "ControlsView"
 msgid "Battle view"
 msgstr "Vue de bataille"
 
-#: src/sdl/slint/controls.slint:272
+#: src/port/launcher/controls.slint:272
 msgctxt "ControlsView"
 msgid "Tactical view, with a target"
 msgstr "Vue tactique, avec une cible"
 
-#: src/sdl/slint/controls.slint:273
+#: src/port/launcher/controls.slint:273
 msgctxt "ControlsView"
 msgid "Missile camera on/off"
 msgstr "Activer/désactiver la caméra de missile"
 
-#: src/sdl/slint/controls.slint:274
+#: src/port/launcher/controls.slint:274
 msgctxt "ControlsView"
 msgid "Other ships"
 msgstr "Autres vaisseaux"
 
-#: src/sdl/slint/controls.slint:275 src/sdl/slint/controls.slint:330
+#: src/port/launcher/controls.slint:275 src/port/launcher/controls.slint:330
 msgctxt "ControlsView"
 msgid "Game"
 msgstr "Jeu"
 
-#: src/sdl/slint/controls.slint:276 src/sdl/slint/controls.slint:331 src/sdl/slint/controls.slint:403
+#: src/port/launcher/controls.slint:276 src/port/launcher/controls.slint:331 src/port/launcher/controls.slint:403
 msgctxt "ControlsView"
 msgid "Pause"
 msgstr "Pause"
 
-#: src/sdl/slint/controls.slint:277
+#: src/port/launcher/controls.slint:277
 msgctxt "ControlsView"
 msgid "Message speed"
 msgstr "Vitesse des messages"
 
-#: src/sdl/slint/controls.slint:278
+#: src/port/launcher/controls.slint:278
 msgctxt "ControlsView"
 msgid "Comm videos on/off"
 msgstr "Activer/désactiver les vidéos de communication"
 
-#: src/sdl/slint/controls.slint:279 src/sdl/slint/controls.slint:332
+#: src/port/launcher/controls.slint:279 src/port/launcher/controls.slint:332
 msgctxt "ControlsView"
 msgid "Music on/off"
 msgstr "Activer/désactiver la musique"
 
-#: src/sdl/slint/controls.slint:280 src/sdl/slint/controls.slint:333
+#: src/port/launcher/controls.slint:280 src/port/launcher/controls.slint:333
 msgctxt "ControlsView"
 msgid "Sound on/off"
 msgstr "Activer/désactiver le son"
 
-#: src/sdl/slint/controls.slint:281 src/sdl/slint/controls.slint:336
+#: src/port/launcher/controls.slint:281 src/port/launcher/controls.slint:336
 msgctxt "ControlsView"
 msgid "Full screen"
 msgstr "Plein écran"
 
-#: src/sdl/slint/controls.slint:306 src/sdl/slint/controls.slint:338
+#: src/port/launcher/controls.slint:306 src/port/launcher/controls.slint:338
 msgctxt "ControlsView"
 msgid "Next gun"
 msgstr "Canon suivant"
 
-#: src/sdl/slint/controls.slint:307 src/sdl/slint/controls.slint:339
+#: src/port/launcher/controls.slint:307 src/port/launcher/controls.slint:339
 msgctxt "ControlsView"
 msgid "Next missile"
 msgstr "Missile suivant"
 
-#: src/sdl/slint/controls.slint:308 src/sdl/slint/controls.slint:340
+#: src/port/launcher/controls.slint:308 src/port/launcher/controls.slint:340
 msgctxt "ControlsView"
 msgid "Next target"
 msgstr "Cible suivante"
 
-#: src/sdl/slint/controls.slint:318
+#: src/port/launcher/controls.slint:318
 msgctxt "ControlsView"
 msgid "not in the simulator"
 msgstr "pas dans le simulateur"
 
-#: src/sdl/slint/controls.slint:319 src/sdl/slint/controls.slint:347
+#: src/port/launcher/controls.slint:319 src/port/launcher/controls.slint:347
 msgctxt "ControlsView"
 msgid "In-flight computer"
 msgstr "Ordinateur de bord"
 
-#: src/sdl/slint/controls.slint:320
+#: src/port/launcher/controls.slint:320
 msgctxt "ControlsView"
 msgid "Messages"
 msgstr "Messages"
 
-#: src/sdl/slint/controls.slint:322
+#: src/port/launcher/controls.slint:322
 msgctxt "ControlsView"
 msgid "Request landing, or form on my wing"
 msgstr "Demander l’atterrissage, ou former sur mon aile"
 
-#: src/sdl/slint/controls.slint:323
+#: src/port/launcher/controls.slint:323
 msgctxt "ControlsView"
 msgid "Help me out here"
 msgstr "Aide-moi"
 
-#: src/sdl/slint/controls.slint:324
+#: src/port/launcher/controls.slint:324
 msgctxt "ControlsView"
 msgid "Taunt the targeted enemy"
 msgstr "Provoquer l’ennemi ciblé"
 
-#: src/sdl/slint/controls.slint:326 src/sdl/slint/controls.slint:344
+#: src/port/launcher/controls.slint:326 src/port/launcher/controls.slint:344
 msgctxt "ControlsView"
 msgid "Cockpit view"
 msgstr "Vue du cockpit"
 
-#: src/sdl/slint/controls.slint:327 src/sdl/slint/controls.slint:345
+#: src/port/launcher/controls.slint:327 src/port/launcher/controls.slint:345
 msgctxt "ControlsView"
 msgid "Battle view; again: cockpit"
 msgstr "Vue de bataille ; à nouveau : cockpit"
 
-#: src/sdl/slint/controls.slint:328 src/sdl/slint/controls.slint:346
+#: src/port/launcher/controls.slint:328 src/port/launcher/controls.slint:346
 msgctxt "ControlsView"
 msgid "Chase view; again: cockpit"
 msgstr "Vue de poursuite ; à nouveau : cockpit"
 
-#: src/sdl/slint/controls.slint:329
+#: src/port/launcher/controls.slint:329
 msgctxt "ControlsView"
 msgid "Cockpit on/off"
 msgstr "Avec/sans cockpit"
 
-#: src/sdl/slint/controls.slint:329
+#: src/port/launcher/controls.slint:329
 msgctxt "ControlsView"
 msgid "this port"
 msgstr "ce portage"
 
-#: src/sdl/slint/controls.slint:334
+#: src/port/launcher/controls.slint:334
 msgctxt "ControlsView"
 msgid "Text on/off"
 msgstr "Activer/désactiver le texte"
 
-#: src/sdl/slint/controls.slint:335
+#: src/port/launcher/controls.slint:335
 msgctxt "ControlsView"
 msgid "Volume"
 msgstr "Volume"
 
-#: src/sdl/slint/controls.slint:337
+#: src/port/launcher/controls.slint:337
 msgctxt "ControlsView"
 msgid "Menu shortcuts"
 msgstr "Raccourcis de menu"
 
-#: src/sdl/slint/controls.slint:348
+#: src/port/launcher/controls.slint:348
 msgctxt "ControlsView"
 msgid "Previous or next page"
 msgstr "Page précédente ou suivante"
 
-#: src/sdl/slint/controls.slint:349
+#: src/port/launcher/controls.slint:349
 msgctxt "ControlsView"
 msgid "Previous or next choice"
 msgstr "Choix précédent ou suivant"
 
-#: src/sdl/slint/controls.slint:350
+#: src/port/launcher/controls.slint:350
 msgctxt "ControlsView"
 msgid "Next gun or missile"
 msgstr "Canon ou missile suivant"
 
-#: src/sdl/slint/controls.slint:351
+#: src/port/launcher/controls.slint:351
 msgctxt "ControlsView"
 msgid "Select"
 msgstr "Sélectionner"
 
-#: src/sdl/slint/controls.slint:352
+#: src/port/launcher/controls.slint:352
 msgctxt "ControlsView"
 msgid "Close, or back to the recipients"
 msgstr "Fermer, ou revenir aux destinataires"
 
-#: src/sdl/slint/controls.slint:356
+#: src/port/launcher/controls.slint:356
 msgctxt "ControlsView"
 msgid "Close"
 msgstr "Fermer"
 
-#: src/sdl/slint/controls.slint:385
+#: src/port/launcher/controls.slint:385
 msgctxt "ControlsView"
 msgid "Home"
 msgstr "Début"
 
-#: src/sdl/slint/controls.slint:386
+#: src/port/launcher/controls.slint:386
 msgctxt "ControlsView"
 msgid "End"
 msgstr "Fin"
 
-#: src/sdl/slint/controls.slint:387
+#: src/port/launcher/controls.slint:387
 msgctxt "ControlsView"
 msgid "PgUp"
 msgstr "Pg préc"
 
-#: src/sdl/slint/controls.slint:388
+#: src/port/launcher/controls.slint:388
 msgctxt "ControlsView"
 msgid "PgDn"
 msgstr "Pg suiv"
 
-#: src/sdl/slint/controls.slint:389
+#: src/port/launcher/controls.slint:389
 msgctxt "ControlsView"
 msgid "Ins"
 msgstr "Inser"
 
-#: src/sdl/slint/controls.slint:390
+#: src/port/launcher/controls.slint:390
 msgctxt "ControlsView"
 msgid "Del"
 msgstr "Suppr"
 
-#: src/sdl/slint/controls.slint:391
+#: src/port/launcher/controls.slint:391
 msgctxt "ControlsView"
 msgid "Backspace"
 msgstr "Retour arrière"
 
-#: src/sdl/slint/controls.slint:392
+#: src/port/launcher/controls.slint:392
 msgctxt "ControlsView"
 msgid "Tab"
 msgstr "Tab"
 
-#: src/sdl/slint/controls.slint:393
+#: src/port/launcher/controls.slint:393
 msgctxt "ControlsView"
 msgid "Space"
 msgstr "Espace"
 
-#: src/sdl/slint/controls.slint:394
+#: src/port/launcher/controls.slint:394
 msgctxt "ControlsView"
 msgid "Enter"
 msgstr "Entrée"
 
-#: src/sdl/slint/controls.slint:395
+#: src/port/launcher/controls.slint:395
 msgctxt "ControlsView"
 msgid "Esc"
 msgstr "Échap"
 
-#: src/sdl/slint/controls.slint:396
+#: src/port/launcher/controls.slint:396
 msgctxt "ControlsView"
 msgid "Shift"
 msgstr "Maj"
 
-#: src/sdl/slint/controls.slint:397
+#: src/port/launcher/controls.slint:397
 msgctxt "ControlsView"
 msgid "Ctrl"
 msgstr "Ctrl"
 
-#: src/sdl/slint/controls.slint:398
+#: src/port/launcher/controls.slint:398
 msgctxt "ControlsView"
 msgid "Alt"
 msgstr "Alt"
 
-#: src/sdl/slint/controls.slint:401
+#: src/port/launcher/controls.slint:401
 msgctxt "ControlsView"
 msgid "Caps Lock"
 msgstr "Verr Maj"
 
-#: src/sdl/slint/controls.slint:402
+#: src/port/launcher/controls.slint:402
 msgctxt "ControlsView"
 msgid "Scroll Lock"
 msgstr "Arrêt défil"
 
-#: src/sdl/slint/controls.slint:404
+#: src/port/launcher/controls.slint:404
 msgctxt "ControlsView"
 msgid "Print Screen"
 msgstr "Impr écran"
 
-#: src/sdl/slint/controls.slint:405
+#: src/port/launcher/controls.slint:405
 msgctxt "ControlsView"
 msgid "Menu"
 msgstr "Menu"
 
-#: src/sdl/slint/controls.slint:407
+#: src/port/launcher/controls.slint:407
 msgctxt "ControlsView"
 msgid "Mouse movement"
 msgstr "Mouvement de la souris"
 
-#: src/sdl/slint/controls.slint:408
+#: src/port/launcher/controls.slint:408
 msgctxt "ControlsView"
 msgid "Left mouse button"
 msgstr "Bouton gauche de la souris"
 
-#: src/sdl/slint/controls.slint:409
+#: src/port/launcher/controls.slint:409
 msgctxt "ControlsView"
 msgid "Right mouse button"
 msgstr "Bouton droit de la souris"
 
-#: src/sdl/slint/controls.slint:410
+#: src/port/launcher/controls.slint:410
 msgctxt "ControlsView"
 msgid "Middle mouse button"
 msgstr "Bouton du milieu de la souris"
 
-#: src/sdl/slint/controls.slint:411
+#: src/port/launcher/controls.slint:411
 msgctxt "ControlsView"
 msgid "Mouse button 4"
 msgstr "Bouton 4 de la souris"
 
-#: src/sdl/slint/controls.slint:412
+#: src/port/launcher/controls.slint:412
 msgctxt "ControlsView"
 msgid "Mouse button 5"
 msgstr "Bouton 5 de la souris"
 
-#: src/sdl/slint/controls.slint:413
+#: src/port/launcher/controls.slint:413
 msgctxt "ControlsView"
 msgid "Mouse wheel up"
 msgstr "Molette vers le haut"
 
-#: src/sdl/slint/controls.slint:414
+#: src/port/launcher/controls.slint:414
 msgctxt "ControlsView"
 msgid "Mouse wheel down"
 msgstr "Molette vers le bas"
 
-#: src/sdl/slint/controls.slint:532
+#: src/port/launcher/controls.slint:532
 msgctxt "ControlsView"
 msgid "roll and pitch"
 msgstr "roulis et tangage"
 
-#: src/sdl/slint/controls.slint:534
+#: src/port/launcher/controls.slint:534
 msgctxt "ControlsView"
 msgid "pitch and yaw"
 msgstr "tangage et lacet"
 
-#: src/sdl/slint/controls.slint:537
+#: src/port/launcher/controls.slint:537
 msgctxt "ControlsView"
 msgid "fire guns"
 msgstr "tirer au canon"
 
-#: src/sdl/slint/controls.slint:538
+#: src/port/launcher/controls.slint:538
 msgctxt "ControlsView"
 msgid "cycle views"
 msgstr "changer de vue"
 
-#: src/sdl/slint/controls.slint:539
+#: src/port/launcher/controls.slint:539
 msgctxt "ControlsView"
 msgid "pause"
 msgstr "pause"
 
-#: src/sdl/slint/controls.slint:542 src/sdl/slint/controls.slint:549
+#: src/port/launcher/controls.slint:542 src/port/launcher/controls.slint:549
 msgctxt "ControlsView"
 msgid "hold to roll and change speed"
 msgstr "maintenir : roulis et vitesse"
 
-#: src/sdl/slint/controls.slint:546
+#: src/port/launcher/controls.slint:546
 msgctxt "ControlsView"
 msgid "fire missile"
 msgstr "tirer un missile"
 
-#: src/sdl/slint/controls.slint:547
+#: src/port/launcher/controls.slint:547
 msgctxt "ControlsView"
 msgid "afterburner"
 msgstr "postcombustion"
 
-#: src/sdl/slint/controls.slint:549
+#: src/port/launcher/controls.slint:549
 msgctxt "ControlsView"
 msgid "cycle targets"
 msgstr "changer de cible"
 
-#: src/sdl/slint/controls.slint:551
+#: src/port/launcher/controls.slint:551
 msgctxt "ControlsView"
 msgid "cycle guns"
 msgstr "changer de canons"
 
-#: src/sdl/slint/controls.slint:552
+#: src/port/launcher/controls.slint:552
 msgctxt "ControlsView"
 msgid "cycle missiles"
 msgstr "changer de missile"
 
-#: src/sdl/slint/controls.slint:553
+#: src/port/launcher/controls.slint:553
 msgctxt "ControlsView"
 msgid "navigation display"
 msgstr "écran de navigation"
 
-#: src/sdl/slint/controls.slint:554
+#: src/port/launcher/controls.slint:554
 msgctxt "ControlsView"
 msgid "autopilot"
 msgstr "pilote automatique"
 
-#: src/sdl/slint/controls.slint:555
+#: src/port/launcher/controls.slint:555
 msgctxt "ControlsView"
 msgid "full speed"
 msgstr "pleine vitesse"
 
-#: src/sdl/slint/controls.slint:556
+#: src/port/launcher/controls.slint:556
 msgctxt "ControlsView"
 msgid "stop"
 msgstr "arrêt"
 
-#: src/sdl/slint/controls.slint:557
+#: src/port/launcher/controls.slint:557
 msgctxt "ControlsView"
 msgid "communications"
 msgstr "communications"
 
-#: src/sdl/slint/controls.slint:558
+#: src/port/launcher/controls.slint:558
 msgctxt "ControlsView"
 msgid "lock target"
 msgstr "verrouiller la cible"
 
-#: src/sdl/slint/controls.slint:560
+#: src/port/launcher/controls.slint:560
 msgctxt "ControlsView"
 msgid "roll, speed"
 msgstr "roulis, vitesse"
 
-#: src/sdl/slint/controls.slint:561
+#: src/port/launcher/controls.slint:561
 msgctxt "ControlsView"
 msgid "yaw, speed"
 msgstr "lacet, vitesse"
 
-#: src/sdl/slint/controls.slint:562
+#: src/port/launcher/controls.slint:562
 msgctxt "ControlsView"
 msgid "yaw, throttle position"
 msgstr "lacet, position des gaz"
 
-#: src/sdl/slint/controls.slint:563
+#: src/port/launcher/controls.slint:563
 msgctxt "ControlsView"
 msgid "roll, throttle position"
 msgstr "roulis, position des gaz"
 
-#: src/sdl/slint/controls.slint:564
+#: src/port/launcher/controls.slint:564
 msgctxt "ControlsView"
 msgid "throttle position"
 msgstr "position des gaz"
 
-#: src/sdl/slint/controls.slint:565
+#: src/port/launcher/controls.slint:565
 msgctxt "ControlsView"
 msgid "yaw"
 msgstr "lacet"
 
-#: src/sdl/slint/controls.slint:566
+#: src/port/launcher/controls.slint:566
 msgctxt "ControlsView"
 msgid "roll"
 msgstr "roulis"
 
-#: src/sdl/slint/controls.slint:580
+#: src/port/launcher/controls.slint:580
 msgctxt "ControlsView"
 msgid "in-flight computer"
 msgstr "ordinateur de bord"
 
-#: src/sdl/slint/controls.slint:592 src/sdl/slint/controls.slint:597
+#: src/port/launcher/controls.slint:592 src/port/launcher/controls.slint:597
 msgctxt "ControlsView"
 msgid "Original joystick: A and B together fire a missile; double-click B and hold it for the afterburner."
 msgstr "Joystick d’origine : A et B ensemble tirent un missile ; double-cliquez sur B et maintenez-le pour la postcombustion."
 
-#: src/sdl/slint/controls.slint:593
+#: src/port/launcher/controls.slint:593
 msgctxt "ControlsView"
 msgid "SWC has no keys for the left stick's click or for D-pad up, down and right."
 msgstr "SWC n’a pas de touche pour le clic du manche gauche ni pour le haut, le bas et la droite de la croix."
 
-#: src/sdl/slint/controls.slint:594
+#: src/port/launcher/controls.slint:594
 msgctxt "ControlsView"
 msgid "In menus, A selects, B and Back go back, X presses Space and the D-pad moves."
 msgstr "Dans les menus, A sélectionne, B et Back reviennent, X appuie sur Espace et la croix déplace."
 
-#: src/sdl/slint/controls.slint:598
+#: src/port/launcher/controls.slint:598
 msgctxt "ControlsView"
 msgid "In the communications display, the D-pad's up and down choose, right sends and left closes."
 msgstr "Sur l’écran des communications, le haut et le bas de la croix choisissent, la droite envoie et la gauche ferme."
 
-#: src/sdl/slint/controls.slint:599
+#: src/port/launcher/controls.slint:599
 msgctxt "ControlsView"
 msgid "Y answers Yes in prompts; Back is Escape outside flight."
 msgstr "Y répond Oui aux questions ; Back est Échap hors du vol."
 
-#: src/sdl/slint/controls.slint:606
+#: src/port/launcher/controls.slint:606
 msgctxt "ControlsView"
 msgid "Game controller — Super Wing Commander"
 msgstr "Manette — Super Wing Commander"
 
-#: src/sdl/slint/controls.slint:606
+#: src/port/launcher/controls.slint:606
 msgctxt "ControlsView"
 msgid "Keyboard and mouse — Super Wing Commander"
 msgstr "Clavier et souris — Super Wing Commander"
 
-#: src/sdl/slint/controls.slint:607
+#: src/port/launcher/controls.slint:607
 msgctxt "ControlsView"
 msgid "Game controller — Wing Commander"
 msgstr "Manette — Wing Commander"
 
-#: src/sdl/slint/controls.slint:607
+#: src/port/launcher/controls.slint:607
 msgctxt "ControlsView"
 msgid "Keyboard and mouse — Wing Commander"
 msgstr "Clavier et souris — Wing Commander"
 
-#: src/sdl/slint/controls.slint:622
+#: src/port/launcher/controls.slint:622
 msgctxt "ControlsView"
 msgid "Game controller"
 msgstr "Manette"
 
-#: src/sdl/slint/controls.slint:630
+#: src/port/launcher/controls.slint:630
 msgctxt "ControlsView"
 msgid "Keyboard and mouse"
 msgstr "Clavier et souris"
 
-#: src/sdl/slint/controls.slint:653
+#: src/port/launcher/controls.slint:653
 msgctxt "ControlsView"
 msgid "Control mode"
 msgstr "Mode de contrôle"
 
-#: src/sdl/slint/controls.slint:672
+#: src/port/launcher/controls.slint:672
 msgctxt "ControlsView"
 msgid "Axis layout"
 msgstr "Affectation des axes"
 
-#: src/sdl/slint/controls.slint:744
+#: src/port/launcher/controls.slint:744
 msgctxt "ControlsView"
 msgid "Left stick"
 msgstr "Manche gauche"
 
-#: src/sdl/slint/controls.slint:746 src/sdl/slint/controls.slint:800
+#: src/port/launcher/controls.slint:746 src/port/launcher/controls.slint:800
 msgctxt "ControlsView"
 msgid "move"
 msgstr "déplacer"
 
-#: src/sdl/slint/controls.slint:747 src/sdl/slint/controls.slint:801
+#: src/port/launcher/controls.slint:747 src/port/launcher/controls.slint:801
 msgctxt "ControlsView"
 msgid "click"
 msgstr "clic"
 
-#: src/sdl/slint/controls.slint:755
+#: src/port/launcher/controls.slint:755
 msgctxt "ControlsView"
 msgid "D-pad"
 msgstr "Croix directionnelle"
 
-#: src/sdl/slint/controls.slint:784
+#: src/port/launcher/controls.slint:784
 msgctxt "ControlsView"
 msgid "Buttons"
 msgstr "Boutons"
 
-#: src/sdl/slint/controls.slint:798
+#: src/port/launcher/controls.slint:798
 msgctxt "ControlsView"
 msgid "Right stick"
 msgstr "Manche droit"
 
-#: src/sdl/slint/controls.slint:845
+#: src/port/launcher/controls.slint:845
 msgctxt "ControlsView"
 msgid "In flight. Click a key or button to change it, or + to add one; changes apply when the game starts."
 msgstr "En vol. Cliquez sur une touche ou un bouton pour le changer, ou sur + pour en ajouter ; les changements s’appliquent au lancement du jeu."
 
-#: src/sdl/slint/controls.slint:867
+#: src/port/launcher/controls.slint:867
 msgctxt "ControlsView"
 msgid "Game input"
 msgstr "Commande du jeu"
 
-#: src/sdl/slint/controls.slint:879
+#: src/port/launcher/controls.slint:879
 msgctxt "ControlsView"
 msgid "Key or mouse"
 msgstr "Touche ou souris"
 
-#: src/sdl/slint/controls.slint:1062
+#: src/port/launcher/controls.slint:1062
 msgctxt "ControlsView"
 msgid "The digit keys 8, 2, 4 and 6 and the keypad steer too; keypad . rolls right, + and − change speed and Enter fires a missile. Two inputs at most per action; the menus' shortcuts and the in-flight computer's keys cannot be changed."
 msgstr "Les touches 8, 2, 4 et 6 et le pavé numérique dirigent aussi ; son . fait le roulis à droite, + et − changent la vitesse et Entrée tire un missile. Deux entrées au plus par action ; les raccourcis des menus et les touches de l’ordinateur de bord ne peuvent pas être changés."
 
-#: src/sdl/slint/controls.slint:1063
+#: src/port/launcher/controls.slint:1063
 msgctxt "ControlsView"
 msgid "The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, 5 stops turning, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Two inputs at most per action; Escape cannot be changed."
 msgstr "Le pavé numérique fonctionne aussi : 8, 2, 4 et 6 servent de flèches, 7, 9, 1 et 3 de diagonales, 0 et . font le roulis, 5 arrête de tourner, * est la postcombustion et + et − changent la vitesse. Ce portage ajoute Échap pour la pause et la molette de la souris pour la vitesse. Deux entrées au plus par action ; Échap ne peut pas être changé."
 
-#: src/sdl/slint/controls.slint:1073
+#: src/port/launcher/controls.slint:1073
 msgctxt "ControlsView"
 msgid "Restore defaults"
 msgstr "Valeurs par défaut"
 
-#: src/sdl/slint/controls.slint:1140
+#: src/port/launcher/controls.slint:1140
 msgctxt "ControlsView"
 msgid "Change binding"
 msgstr "Changer l’affectation"
 
-#: src/sdl/slint/controls.slint:1170
+#: src/port/launcher/controls.slint:1170
 msgctxt "ControlsView"
 msgid "Click a mouse button in this box. Esc cancels."
 msgstr "Cliquez avec un bouton de la souris dans ce cadre. Échap annule."
 
-#: src/sdl/slint/controls.slint:1171
+#: src/port/launcher/controls.slint:1171
 msgctxt "ControlsView"
 msgid "Press a key, or click or scroll in this box with the mouse. Esc cancels."
 msgstr "Appuyez sur une touche, ou cliquez ou faites défiler la souris dans ce cadre. Échap annule."
 
-#: src/sdl/slint/controls.slint:1220
+#: src/port/launcher/controls.slint:1220
 msgctxt "ControlsView"
 msgid "Remove"
 msgstr "Retirer"
 
-#: src/sdl/slint/controls.slint:1228
+#: src/port/launcher/controls.slint:1228
 msgctxt "ControlsView"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: src/sdl/slint/launcher.slint:347
+#: src/port/launcher/launcher.slint:347
 msgctxt "LauncherWindow"
 msgid "Dead zone"
 msgstr "Zone morte"
 
-#: src/sdl/slint/launcher.slint:390
+#: src/port/launcher/launcher.slint:390
 msgctxt "LauncherWindow"
 msgid "Calibrate…"
 msgstr "Calibrer…"
 
-#: src/sdl/slint/calibration.slint:33
+#: src/port/launcher/calibration.slint:33
 msgctxt "DeadZoneText"
 msgid "{}% (original)"
 msgstr "{} % (d’origine)"
 
-#: src/sdl/slint/calibration.slint:34
+#: src/port/launcher/calibration.slint:34
 msgctxt "DeadZoneText"
 msgid "{}%"
 msgstr "{} %"
 
-#: src/sdl/slint/calibration.slint:39
+#: src/port/launcher/calibration.slint:39
 msgctxt "CalibrationView"
 msgid "Joystick calibration"
 msgstr "Calibrage du joystick"
@@ -1203,142 +1203,142 @@ msgctxt "CalibrationView"
 msgid "Back"
 msgstr "Retour"
 
-#: src/sdl/slint/calibration.slint:61
+#: src/port/launcher/calibration.slint:61
 msgctxt "CalibrationView"
 msgid "Joystick 1: {}"
 msgstr "Joystick 1 : {}"
 
-#: src/sdl/slint/calibration.slint:61
+#: src/port/launcher/calibration.slint:61
 msgctxt "CalibrationView"
 msgid "not connected"
 msgstr "non connecté"
 
-#: src/sdl/slint/calibration.slint:62
+#: src/port/launcher/calibration.slint:62
 msgctxt "CalibrationView"
 msgid "Joystick 2: {}"
 msgstr "Joystick 2 : {}"
 
-#: src/sdl/slint/calibration.slint:78
+#: src/port/launcher/calibration.slint:78
 msgctxt "CalibrationView"
 msgid "Move the stick to the upper left, then press a joystick button."
 msgstr "Placez le manche en haut à gauche, puis appuyez sur un bouton du joystick."
 
-#: src/sdl/slint/calibration.slint:81
+#: src/port/launcher/calibration.slint:81
 msgctxt "CalibrationView"
 msgid "Move the stick to the lower right, then press a joystick button."
 msgstr "Placez le manche en bas à droite, puis appuyez sur un bouton du joystick."
 
-#: src/sdl/slint/calibration.slint:84
+#: src/port/launcher/calibration.slint:84
 msgctxt "CalibrationView"
 msgid "Center the stick, then press a joystick button."
 msgstr "Centrez le manche, puis appuyez sur un bouton du joystick."
 
-#: src/sdl/slint/calibration.slint:86
+#: src/port/launcher/calibration.slint:86
 msgctxt "CalibrationView"
 msgid "Press Calibrate and follow the steps."
 msgstr "Cliquez sur Calibrer et suivez les étapes."
 
-#: src/sdl/slint/calibration.slint:86
+#: src/port/launcher/calibration.slint:86
 msgctxt "CalibrationView"
 msgid "Connect a joystick."
 msgstr "Branchez un joystick."
 
-#: src/sdl/slint/calibration.slint:91
+#: src/port/launcher/calibration.slint:91
 msgctxt "CalibrationView"
 msgid "Calibration saved in GAMEDAT/j.cal."
 msgstr "Calibrage enregistré dans GAMEDAT/j.cal."
 
-#: src/sdl/slint/calibration.slint:94
+#: src/port/launcher/calibration.slint:94
 msgctxt "CalibrationView"
 msgid "Calibration removed: the game uses the joystick's full range."
 msgstr "Calibrage supprimé : le jeu utilise toute la course du joystick."
 
-#: src/sdl/slint/calibration.slint:97
+#: src/port/launcher/calibration.slint:97
 msgctxt "CalibrationView"
 msgid "Calibration failed: move the stick fully into each corner, center it, and try again."
 msgstr "Échec du calibrage : poussez le manche à fond dans chaque coin, centrez-le et réessayez."
 
-#: src/sdl/slint/calibration.slint:100
+#: src/port/launcher/calibration.slint:100
 msgctxt "CalibrationView"
 msgid "Cannot save the calibration: {}"
 msgstr "Impossible d’enregistrer le calibrage : {}"
 
-#: src/sdl/slint/calibration.slint:103
+#: src/port/launcher/calibration.slint:103
 msgctxt "CalibrationView"
 msgid "Cannot remove the calibration: {}"
 msgstr "Impossible de supprimer le calibrage : {}"
 
-#: src/sdl/slint/calibration.slint:106
+#: src/port/launcher/calibration.slint:106
 msgctxt "CalibrationView"
 msgid "Joysticks are unavailable: {}"
 msgstr "Joysticks indisponibles : {}"
 
-#: src/sdl/slint/calibration.slint:120
+#: src/port/launcher/calibration.slint:120
 msgctxt "CalibrationView"
 msgid "Joystick"
 msgstr "Joystick"
 
-#: src/sdl/slint/calibration.slint:205
+#: src/port/launcher/calibration.slint:205
 msgctxt "CalibrationView"
 msgid "The game reads X {} and Y {}, from −9 to 9."
 msgstr "Le jeu lit X {} et Y {}, de −9 à 9."
 
-#: src/sdl/slint/calibration.slint:211
+#: src/port/launcher/calibration.slint:211
 msgctxt "CalibrationView"
 msgid "Using this joystick's saved calibration."
 msgstr "Le calibrage enregistré de ce joystick est utilisé."
 
-#: src/sdl/slint/calibration.slint:212
+#: src/port/launcher/calibration.slint:212
 msgctxt "CalibrationView"
 msgid "Using the joystick's full range."
 msgstr "Toute la course du joystick est utilisée."
 
-#: src/sdl/slint/calibration.slint:232
+#: src/port/launcher/calibration.slint:232
 msgctxt "CalibrationView"
 msgid "Dead zone"
 msgstr "Zone morte"
 
-#: src/sdl/slint/calibration.slint:256
+#: src/port/launcher/calibration.slint:256
 msgctxt "CalibrationView"
 msgid "The stick does nothing inside the shaded area. Turn auto fire off if your stick has it. Calibration applies to WC1; the dead zone to both games."
 msgstr "Dans la zone ombrée, le manche est sans effet. Désactivez le tir automatique si votre joystick en possède un. Le calibrage s’applique à WC1 ; la zone morte, aux deux jeux."
 
-#: src/sdl/slint/calibration.slint:268
+#: src/port/launcher/calibration.slint:268
 msgctxt "CalibrationView"
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: src/sdl/slint/calibration.slint:278
+#: src/port/launcher/calibration.slint:278
 msgctxt "CalibrationView"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: src/sdl/slint/calibration.slint:285
+#: src/port/launcher/calibration.slint:285
 msgctxt "CalibrationView"
 msgid "Record position"
 msgstr "Enregistrer la position"
 
-#: src/sdl/slint/calibration.slint:293
+#: src/port/launcher/calibration.slint:293
 msgctxt "CalibrationView"
 msgid "Calibrate"
 msgstr "Calibrer"
 
-#: src/sdl/slint/launcher.slint:53
+#: src/port/launcher/launcher.slint:53
 msgctxt "LauncherWindow"
 msgid "AdLib"
 msgstr "AdLib"
 
-#: src/sdl/slint/launcher.slint:53
+#: src/port/launcher/launcher.slint:53
 msgctxt "LauncherWindow"
 msgid "Roland MT-32"
 msgstr "Roland MT-32"
 
-#: src/sdl/slint/launcher.slint:54
+#: src/port/launcher/launcher.slint:54
 msgctxt "LauncherWindow"
 msgid "Digital"
 msgstr "Numérique"
 
-#: src/sdl/slint/launcher.slint:220
+#: src/port/launcher/launcher.slint:220
 msgctxt "LauncherWindow"
 msgid "Music"
 msgstr "Musique"
@@ -1347,102 +1347,102 @@ msgctxt "LauncherWindow"
 msgid "Sound"
 msgstr "Effets sonores"
 
-#: src/sdl/slint/launcher.slint:233
+#: src/port/launcher/launcher.slint:233
 msgctxt "LauncherWindow"
 msgid "MT-32 ROMs…"
 msgstr "ROM du MT-32…"
 
-#: src/sdl/slint/launcher.slint:255
+#: src/port/launcher/launcher.slint:255
 msgctxt "LauncherWindow"
 msgid "MT-32: {}"
 msgstr "MT-32 : {}"
 
-#: src/sdl/slint/launcher.slint:257
+#: src/port/launcher/launcher.slint:257
 msgctxt "LauncherWindow"
 msgid "Choose the folder with your MT-32 or CM-32L ROMs; until then the AdLib plays instead."
 msgstr "Choisissez le dossier de vos ROM MT-32 ou CM-32L ; d’ici là, la carte AdLib est utilisée."
 
-#: src/sdl/slint/launcher.slint:258
+#: src/port/launcher/launcher.slint:258
 msgctxt "LauncherWindow"
 msgid "The AdLib plays instead: {}"
 msgstr "La carte AdLib est utilisée : {}"
 
-#: src/sdl/slint/launcher.slint:462
+#: src/port/launcher/launcher.slint:462
 msgctxt "LauncherWindow"
 msgid "Custom — your own bindings"
 msgstr "Personnalisé — vos propres affectations"
 
-#: src/sdl/slint/controls.slint:639
+#: src/port/launcher/controls.slint:639
 msgctxt "ControlsView"
 msgid "Pitch"
 msgstr "Tangage"
 
-#: src/sdl/slint/controls.slint:640
+#: src/port/launcher/controls.slint:640
 msgctxt "ControlsView"
 msgid "Yaw"
 msgstr "Lacet"
 
-#: src/sdl/slint/controls.slint:641
+#: src/port/launcher/controls.slint:641
 msgctxt "ControlsView"
 msgid "Roll"
 msgstr "Roulis"
 
-#: src/sdl/slint/controls.slint:642
+#: src/port/launcher/controls.slint:642
 msgctxt "ControlsView"
 msgid "Speed"
 msgstr "Vitesse"
 
-#: src/sdl/slint/controls.slint:643
+#: src/port/launcher/controls.slint:643
 msgctxt "ControlsView"
 msgid "Throttle position"
 msgstr "Position des gaz"
 
-#: src/sdl/slint/controls.slint:662
+#: src/port/launcher/controls.slint:662
 msgctxt "ControlsView"
 msgid "{} (analog)"
 msgstr "{} (analogique)"
 
-#: src/sdl/slint/controls.slint:665
+#: src/port/launcher/controls.slint:665
 msgctxt "ControlsView"
 msgid "{}, reversed"
 msgstr "{}, inversé"
 
-#: src/sdl/slint/controls.slint:1327
+#: src/port/launcher/controls.slint:1327
 msgctxt "ControlsView"
 msgid "None"
 msgstr "Aucune"
 
-#: src/sdl/slint/controls.slint:1345
+#: src/port/launcher/controls.slint:1345
 msgctxt "ControlsView"
 msgid "Cycle views"
 msgstr "Changer de vue"
 
-#: src/sdl/slint/controls.slint:1353
+#: src/port/launcher/controls.slint:1353
 msgctxt "ControlsView"
 msgid "Hold to roll and change speed"
 msgstr "Maintenir : roulis et vitesse"
 
-#: src/sdl/slint/controls.slint:1361
+#: src/port/launcher/controls.slint:1361
 msgctxt "ControlsView"
 msgid "Analog"
 msgstr "Analogique"
 
-#: src/sdl/slint/controls.slint:1304
+#: src/port/launcher/controls.slint:1304
 msgctxt "ControlsView"
 msgid "Reversed"
 msgstr "Inversé"
 
-#: src/sdl/slint/controls.slint:878 src/sdl/slint/controls.slint:954
+#: src/port/launcher/controls.slint:878 src/port/launcher/controls.slint:954
 msgctxt "ControlsView"
 msgid "left and right"
 msgstr "gauche et droite"
 
-#: src/sdl/slint/controls.slint:879 src/sdl/slint/controls.slint:955
+#: src/port/launcher/controls.slint:879 src/port/launcher/controls.slint:955
 msgctxt "ControlsView"
 msgid "up and down"
 msgstr "haut et bas"
 
-#: src/sdl/slint/controls.slint:768
+#: src/port/launcher/controls.slint:768
 msgctxt "ControlsView"
 msgid "SWC keeps the WCAT four-axis layout in the Custom mode."
 msgstr "SWC garde l’affectation WCAT à quatre axes en mode personnalisé."
@@ -1451,263 +1451,263 @@ msgctxt "ControlsView"
 msgid "SWC keeps the WCAT four-axis layout in the Steam Deck mode."
 msgstr "SWC garde l’affectation WCAT à quatre axes en mode Steam Deck."
 
-#: src/sdl/slint/controls.slint:745
+#: src/port/launcher/controls.slint:745
 msgctxt "ControlsView"
 msgid "Fires while held."
 msgstr "Tire tant que vous le maintenez."
 
-#: src/sdl/slint/controls.slint:746
+#: src/port/launcher/controls.slint:746
 msgctxt "ControlsView"
 msgid "Burns while held."
 msgstr "Allume la postcombustion tant que vous le maintenez."
 
-#: src/sdl/slint/controls.slint:747
+#: src/port/launcher/controls.slint:747
 msgctxt "ControlsView"
 msgid "Turns at the full rate while held, with a turn button or key."
 msgstr "Virage maximal tant que vous le maintenez, avec un bouton ou une touche de virage."
 
-#: src/sdl/slint/controls.slint:748
+#: src/port/launcher/controls.slint:748
 msgctxt "ControlsView"
 msgid "Changes speed while held."
 msgstr "Change la vitesse tant que vous le maintenez."
 
-#: src/sdl/slint/controls.slint:749
+#: src/port/launcher/controls.slint:749
 msgctxt "ControlsView"
 msgid "Steers while held."
 msgstr "Dirige le vaisseau tant que vous le maintenez."
 
-#: src/sdl/slint/controls.slint:750
+#: src/port/launcher/controls.slint:750
 msgctxt "ControlsView"
 msgid "Once per press."
 msgstr "Une fois par appui."
 
-#: src/sdl/slint/controls.slint:756
+#: src/port/launcher/controls.slint:756
 msgctxt "ControlsView"
 msgid "Right dives and left climbs."
 msgstr "Vers la droite, pique ; vers la gauche, cabre."
 
-#: src/sdl/slint/controls.slint:756
+#: src/port/launcher/controls.slint:756
 msgctxt "ControlsView"
 msgid "Up dives and down climbs, as with the original joystick."
 msgstr "Vers le haut, pique ; vers le bas, cabre, comme avec le joystick d’origine."
 
-#: src/sdl/slint/controls.slint:759
+#: src/port/launcher/controls.slint:759
 msgctxt "ControlsView"
 msgid "Right turns right and left turns left."
 msgstr "Vers la droite, tourne à droite ; vers la gauche, à gauche."
 
-#: src/sdl/slint/controls.slint:759
+#: src/port/launcher/controls.slint:759
 msgctxt "ControlsView"
 msgid "Up turns right and down turns left."
 msgstr "Vers le haut, tourne à droite ; vers le bas, à gauche."
 
-#: src/sdl/slint/controls.slint:762
+#: src/port/launcher/controls.slint:762
 msgctxt "ControlsView"
 msgid "Right rolls right and left rolls left."
 msgstr "Vers la droite, roule à droite ; vers la gauche, à gauche."
 
-#: src/sdl/slint/controls.slint:762
+#: src/port/launcher/controls.slint:762
 msgctxt "ControlsView"
 msgid "Up rolls right and down rolls left."
 msgstr "Vers le haut, roule à droite ; vers le bas, à gauche."
 
-#: src/sdl/slint/controls.slint:765
+#: src/port/launcher/controls.slint:765
 msgctxt "ControlsView"
 msgid "Right speeds up and left slows down, faster the further it goes."
 msgstr "Vers la droite, accélère ; vers la gauche, ralentit, d’autant plus qu’il va loin."
 
-#: src/sdl/slint/controls.slint:766
+#: src/port/launcher/controls.slint:766
 msgctxt "ControlsView"
 msgid "Up speeds up and down slows down, faster the further it goes."
 msgstr "Vers le haut, accélère ; vers le bas, ralentit, d’autant plus qu’il va loin."
 
-#: src/sdl/slint/controls.slint:768
+#: src/port/launcher/controls.slint:768
 msgctxt "ControlsView"
 msgid "Sets the speed like a throttle lever: fully right is full speed and fully left stops."
 msgstr "Règle la vitesse comme une manette des gaz : tout à droite, pleine vitesse ; tout à gauche, arrêt."
 
-#: src/sdl/slint/controls.slint:769
+#: src/port/launcher/controls.slint:769
 msgctxt "ControlsView"
 msgid "Sets the speed like a throttle lever: fully up is full speed and fully down stops."
 msgstr "Règle la vitesse comme une manette des gaz : tout en haut, pleine vitesse ; tout en bas, arrêt."
 
-#: src/sdl/slint/controls.slint:776
+#: src/port/launcher/controls.slint:776
 msgctxt "ControlsView"
 msgid "Keyboard and mouse: {}."
 msgstr "Clavier et souris : {}."
 
-#: src/sdl/slint/controls.slint:778
+#: src/port/launcher/controls.slint:778
 msgctxt "ControlsView"
 msgid "The input does nothing in flight."
 msgstr "La commande ne fait rien en vol."
 
-#: src/sdl/slint/controls.slint:779
+#: src/port/launcher/controls.slint:779
 msgctxt "ControlsView"
 msgid "Steps through the front, left, right, rear and chase views."
 msgstr "Passe par les vues avant, gauche, droite, arrière et de poursuite."
 
-#: src/sdl/slint/controls.slint:781
+#: src/port/launcher/controls.slint:781
 msgctxt "ControlsView"
 msgid "While held, what yaws rolls instead and what pitches changes speed, as the original joystick's second button does."
 msgstr "Tant que vous le maintenez, ce qui donne du lacet donne du roulis et ce qui donne du tangage change la vitesse, comme le second bouton du joystick d’origine."
 
-#: src/sdl/slint/controls.slint:784
+#: src/port/launcher/controls.slint:784
 msgctxt "ControlsView"
 msgid "{}, faster the further the trigger is pressed."
 msgstr "{}, d’autant plus que la gâchette est enfoncée."
 
-#: src/sdl/slint/controls.slint:785
+#: src/port/launcher/controls.slint:785
 msgctxt "ControlsView"
 msgid "Sets the speed like a throttle lever: fully pressed is full speed and released stops."
 msgstr "Règle la vitesse comme une manette des gaz : enfoncée, pleine vitesse ; relâchée, arrêt."
 
-#: src/sdl/slint/controls.slint:786 src/sdl/slint/controls.slint:789
+#: src/port/launcher/controls.slint:786 src/port/launcher/controls.slint:789
 msgctxt "ControlsView"
 msgid "Reversed: the other way round."
 msgstr "Inversé : dans l’autre sens."
 
-#: src/sdl/slint/controls.slint:1330
+#: src/port/launcher/controls.slint:1330
 msgctxt "ControlsView"
 msgid "Press an input on the controller, or click it, to change it; changes apply when the game starts."
 msgstr "Appuyez sur une commande de la manette, ou cliquez dessus, pour la changer ; les changements s’appliquent au lancement du jeu."
 
-#: src/sdl/slint/controls.slint:798
+#: src/port/launcher/controls.slint:798
 msgctxt "ControlsView"
 msgid "To rebind it, choose Custom in Control mode."
 msgstr "Pour la réaffecter, choisissez Personnalisé dans Mode de contrôle."
 
-#: src/sdl/slint/controls.slint:1042
+#: src/port/launcher/controls.slint:1042
 msgctxt "ControlsView"
 msgid "X axis"
 msgstr "Axe X"
 
-#: src/sdl/slint/controls.slint:1043
+#: src/port/launcher/controls.slint:1043
 msgctxt "ControlsView"
 msgid "Y axis"
 msgstr "Axe Y"
 
-#: src/sdl/slint/controls.slint:1044
+#: src/port/launcher/controls.slint:1044
 msgctxt "ControlsView"
 msgid "Z axis"
 msgstr "Axe Z"
 
-#: src/sdl/slint/controls.slint:1045
+#: src/port/launcher/controls.slint:1045
 msgctxt "ControlsView"
 msgid "X rotation"
 msgstr "Rotation X"
 
-#: src/sdl/slint/controls.slint:1046
+#: src/port/launcher/controls.slint:1046
 msgctxt "ControlsView"
 msgid "Y rotation"
 msgstr "Rotation Y"
 
-#: src/sdl/slint/controls.slint:1047
+#: src/port/launcher/controls.slint:1047
 msgctxt "ControlsView"
 msgid "Z rotation"
 msgstr "Rotation Z"
 
-#: src/sdl/slint/controls.slint:1048
+#: src/port/launcher/controls.slint:1048
 msgctxt "ControlsView"
 msgid "Slider"
 msgstr "Curseur"
 
-#: src/sdl/slint/controls.slint:1049
+#: src/port/launcher/controls.slint:1049
 msgctxt "ControlsView"
 msgid "Dial"
 msgstr "Cadran"
 
-#: src/sdl/slint/controls.slint:1050
+#: src/port/launcher/controls.slint:1050
 msgctxt "ControlsView"
 msgid "Wheel"
 msgstr "Molette"
 
-#: src/sdl/slint/controls.slint:1051
+#: src/port/launcher/controls.slint:1051
 msgctxt "ControlsView"
 msgid "Rudder"
 msgstr "Palonnier"
 
-#: src/sdl/slint/controls.slint:881 src/sdl/slint/controls.slint:1052
+#: src/port/launcher/controls.slint:881 src/port/launcher/controls.slint:1052
 msgctxt "ControlsView"
 msgid "Throttle"
 msgstr "Gaz"
 
-#: src/sdl/slint/controls.slint:1053
+#: src/port/launcher/controls.slint:1053
 msgctxt "ControlsView"
 msgid "Accelerator"
 msgstr "Accélérateur"
 
-#: src/sdl/slint/controls.slint:1054
+#: src/port/launcher/controls.slint:1054
 msgctxt "ControlsView"
 msgid "Brake"
 msgstr "Frein"
 
-#: src/sdl/slint/controls.slint:1084 src/sdl/slint/controls.slint:1085
+#: src/port/launcher/controls.slint:1084 src/port/launcher/controls.slint:1085
 msgctxt "ControlsView"
 msgid "Axis {}"
 msgstr "Axe {}"
 
-#: src/sdl/slint/controls.slint:1087 src/sdl/slint/controls.slint:1715
+#: src/port/launcher/controls.slint:1087 src/port/launcher/controls.slint:1715
 msgctxt "ControlsView"
 msgid "Hat {}"
 msgstr "Chapeau {}"
 
-#: src/sdl/slint/controls.slint:1088
+#: src/port/launcher/controls.slint:1088
 msgctxt "ControlsView"
 msgid "Button {}"
 msgstr "Bouton {}"
 
-#: src/sdl/slint/controls.slint:1321 src/sdl/slint/controls.slint:1333
+#: src/port/launcher/controls.slint:1321 src/port/launcher/controls.slint:1333
 msgctxt "ControlsView"
 msgid "Original joystick: buttons 1 and 2 together fire a missile; double-click button 2 and hold it for the afterburner."
 msgstr "Joystick d’origine : les boutons 1 et 2 ensemble tirent un missile ; double-cliquez sur le bouton 2 et maintenez-le pour la postcombustion."
 
-#: src/sdl/slint/controls.slint:1323
+#: src/port/launcher/controls.slint:1323
 msgctxt "ControlsView"
 msgid "SWC has no keys for button 11 or for hat 1's up, down and right."
 msgstr "SWC n’a pas de touche pour le bouton 11 ni pour le haut, le bas et la droite du chapeau 1."
 
-#: src/sdl/slint/controls.slint:1326
+#: src/port/launcher/controls.slint:1326
 msgctxt "ControlsView"
 msgid "In menus, button 1 selects, buttons 2 and 9 go back, button 3 presses Space and hat 1 moves."
 msgstr "Dans les menus, le bouton 1 sélectionne, les boutons 2 et 9 reviennent, le bouton 3 appuie sur Espace et le chapeau 1 déplace."
 
-#: src/sdl/slint/controls.slint:1335
+#: src/port/launcher/controls.slint:1335
 msgctxt "ControlsView"
 msgid "In the communications display, hat 1's up and down choose, right sends and left closes."
 msgstr "Sur l’écran des communications, le haut et le bas du chapeau 1 choisissent, la droite envoie et la gauche ferme."
 
-#: src/sdl/slint/controls.slint:1337
+#: src/port/launcher/controls.slint:1337
 msgctxt "ControlsView"
 msgid "Button 4 answers Yes in prompts; button 9 is Escape outside flight."
 msgstr "Le bouton 4 répond Oui aux questions ; le bouton 9 est Échap hors du vol."
 
-#: src/sdl/slint/controls.slint:1665
+#: src/port/launcher/controls.slint:1665
 msgctxt "ControlsView"
 msgid "Joystick"
 msgstr "Joystick"
 
-#: src/sdl/slint/controls.slint:1666
+#: src/port/launcher/controls.slint:1666
 msgctxt "ControlsView"
 msgid "{n} button"
 msgid_plural "{n} buttons"
 msgstr[0] "{n} bouton"
 msgstr[1] "{n} boutons"
 
-#: src/sdl/slint/controls.slint:1667
+#: src/port/launcher/controls.slint:1667
 msgctxt "ControlsView"
 msgid "{n} hat"
 msgid_plural "{n} hats"
 msgstr[0] "{n} chapeau"
 msgstr[1] "{n} chapeaux"
 
-#: src/sdl/slint/controls.slint:1668
+#: src/port/launcher/controls.slint:1668
 msgctxt "ControlsView"
 msgid "{n} axis"
 msgid_plural "{n} axes"
 msgstr[0] "{n} axe"
 msgstr[1] "{n} axes"
 
-#: src/sdl/slint/controls.slint:1695
+#: src/port/launcher/controls.slint:1695
 msgctxt "ControlsView"
 msgid "Axes"
 msgstr "Axes"
