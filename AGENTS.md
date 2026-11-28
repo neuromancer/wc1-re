@@ -72,8 +72,11 @@ An `SDL_PORT` block follows the format of the file around it. The files share:
   `aeObjectClass`); an unidentified one keeps `DAT_<address>`. Rename a symbol at
   every use; never add an alias `#define`.
 - In `src/ix/`, class members are named without `this->`.
-- Globals used by several units are declared in `include/globals.h` and functions
-  in `include/wc1funcs.h`, both reached through `wc1.h`.
+- Globals used by several units are declared in `include/globals.h`. Each unit
+  declares its functions in `include/funcs/<unit>.h`, which make joins in link
+  order into `include/wc1funcs.h`: edit the unit's header, never the joined file.
+  The units must read one file, since every extra header changes CL 4.20's
+  output; both reach the units through `wc1.h`.
 
 ## The SDL2 port
 
