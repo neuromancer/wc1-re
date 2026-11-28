@@ -1579,9 +1579,10 @@ int HandleSpaceFlightControls(void)
 #else
                 control != 0 &&
 #endif
-                acPlayerComponentDamageList[7] != 4) {
+                acPlayerComponentDamageList[COMPONENT_EJECTOR] !=
+                    COMPONENT_DESTROYED) {
                 if (RandomInRange(
-                        0, acPlayerComponentDamageList[7]) == 0)
+                        0, acPlayerComponentDamageList[COMPONENT_EJECTOR]) == 0)
                     nArcadeState = ARCADE_STATE_EJECTED;
                 else
                     malf_sound();

@@ -15,7 +15,7 @@ static ShortPoint aDamageDisplayPositions[9] = {
     {36, 15}, {36, 24}, {36, 16}, {36, 22}
 };
 /* 0x0046a778 */
-const char *apszComponentNames[9] = {
+const char *apszComponentNames[COMPONENT_COUNT] = {
     N_("Ion drive"),
     N_("Power plant"),
     N_("Shield gen'r"),
@@ -27,7 +27,7 @@ const char *apszComponentNames[9] = {
     N_("Repair systems")
 };
 /* 0x0046a7a0 */
-static unsigned char abDamageDisplayFrames[9] = {
+static unsigned char abDamageDisplayFrames[COMPONENT_COUNT] = {
     21, 22, 23, 24, 25, 26, 27, 28, 29
 };
 /* 0x0046a7b0 */
@@ -60,7 +60,7 @@ void show_damage_disp(void)
 
     nDmgDispState = 0;
     cDamagedComponentCount = 0;
-    for (component = 0; component < 9; component++) {
+    for (component = 0; component < COMPONENT_COUNT; component++) {
         if (acPlayerComponentDamageList[component] >= 1)
             cDamagedComponentCount++;
     }
@@ -112,7 +112,7 @@ void UpdateDamageDisplay(void)
 
     previousComponentCount = cDamagedComponentCount;
     componentCount = 0;
-    for (componentIndex = 0; componentIndex < 9; componentIndex++) {
+    for (componentIndex = 0; componentIndex < COMPONENT_COUNT; componentIndex++) {
         if (acPlayerComponentDamageList[componentIndex] >= 1)
             componentCount++;
     }

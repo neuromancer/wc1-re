@@ -116,7 +116,7 @@ extern short nArcadeBonusCountdown; /* 0x0046a014 */
 extern volatile int bMouseCursorVisible; /* 0x0046a018 */
 extern unsigned char bInputPollingGuard; /* 0x0046a01c */
 extern unsigned char *pDamageDisplayBackground; /* 0x0046a748 */
-extern const char *apszComponentNames[9]; /* 0x0046a778 */
+extern const char *apszComponentNames[COMPONENT_COUNT]; /* 0x0046a778 */
 extern short nMusicTrackComplete; /* 0x0046aa04 */
 extern short nFuneralSequenceActive; /* 0x0046aa10 */
 extern int nCurrentMusicTrack; /* 0x0046aa14 */
@@ -335,7 +335,7 @@ extern unsigned short asObjDistancesTable[SPACE_OBJECT_COUNT]; /* 0x0059b4a0 */
 extern FixedVector aShipRightVector[64]; /* 0x0059b6e0 */
 extern FixedVector aShipUpVector[64]; /* 0x0059b9e0 */
 extern FixedVector aShipFwdVec[64]; /* 0x0059bce0 */
-extern signed char acPlayerComponentDamageList[9]; /* 0x0059bff0 */
+extern signed char acPlayerComponentDamageList[COMPONENT_COUNT]; /* 0x0059bff0 */
 extern unsigned int anShipAlertFlags[12]; /* 0x0059b430 */
 extern int anShipFuelsTable[12]; /* 0x0059b470 */
 extern enum ObjectType aeObjectTypeList[SPACE_OBJECT_COUNT]; /* 0x0059b560 */

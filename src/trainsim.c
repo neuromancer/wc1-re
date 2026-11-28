@@ -905,7 +905,8 @@ void RunTrainSim(void)
             if (bCampaignStartupMode != 0) {
                 aasShipShield[0][0] = 0;
                 aasShipMaximumShieldTable[0][0] = 0;
-                acPlayerComponentDamageList[2] = 4;
+                acPlayerComponentDamageList[COMPONENT_SHIELD_GENERATOR] =
+                    COMPONENT_DESTROYED;
                 aasShipShield[0][1] = 0;
                 aasShipMaximumShieldTable[0][1] = 0;
                 nArcadeTimeRemaining = 100;

@@ -356,6 +356,20 @@ typedef char MouseCursorState_size_must_be_0x1c[
 #define VDU_MODE_TRANSMISSION         6 /* vid_transmit, right */
 #define VDU_MODE_INFO                 8 /* show_info_disp, left */
 
+/* The ship's components, in apszComponentNames' order. */
+#define COMPONENT_ION_DRIVE           0
+#define COMPONENT_POWER_PLANT         1
+#define COMPONENT_SHIELD_GENERATOR    2
+#define COMPONENT_COMPUTER            3
+#define COMPONENT_INTERCOM            4
+#define COMPONENT_TARGET_TRACKING     5
+#define COMPONENT_ACCEL_ABSORBERS     6
+#define COMPONENT_EJECTOR             7
+#define COMPONENT_REPAIR_SYSTEMS      8
+#define COMPONENT_COUNT               9
+/* A component's damage level once it no longer works. */
+#define COMPONENT_DESTROYED           4
+
 /* ConversationSceneRecord.shot: the camera shot SceneDirector cuts to, named
  * after the function that draws it. */
 #define SCENE_SHOT_END                    -2 /* ends the scene */

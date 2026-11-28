@@ -720,11 +720,11 @@ int SdlShowSwcComputer(SDL_Window *window, SDL_Renderer *renderer, const char *r
                     goto done;
                 }
             }
-            if (activate && page == SWC_COMPUTER_EJECT && acPlayerComponentDamageList[7] < 4) {
+            if (activate && page == SWC_COMPUTER_EJECT && acPlayerComponentDamageList[COMPONENT_EJECTOR] < COMPONENT_DESTROYED) {
                 /* +0x34e6..+0x351c: selection alone never ejects. Activation
                  * uses the same exclusive Random3DO bound as Ctrl+E. */
-                if (acPlayerComponentDamageList[7] <= 1 ||
-                    RandomBelowOrEqual((acPlayerComponentDamageList[7] - 1)) == 0)
+                if (acPlayerComponentDamageList[COMPONENT_EJECTOR] <= 1 ||
+                    RandomBelowOrEqual((acPlayerComponentDamageList[COMPONENT_EJECTOR] - 1)) == 0)
                     nArcadeState = 2;
                 else
                     SdlPlaySwcSound(25, 127);

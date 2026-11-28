@@ -911,16 +911,16 @@ int your_internal_damage(short attacker, short damage, short quadrant)
             if (severity < 4)
                 pilot_hit(0);
             else if (severity < 7)
-                damage_your_component(7, 2, 4);
+                damage_your_component(COMPONENT_EJECTOR, 2, 4);
             else
-                damage_your_component(6, 4, 4);
+                damage_your_component(COMPONENT_ACCEL_ABSORBERS, 4, 4);
             break;
         case 1:
             if (quadrant != 1) {
                 events++;
                 break;
             }
-            damage_your_component(0, 1, 3);
+            damage_your_component(COMPONENT_ION_DRIVE, 1, 3);
             damage_ion_drive(0, 1, 3);
             break;
         case 2:
@@ -934,15 +934,16 @@ int your_internal_damage(short attacker, short damage, short quadrant)
 #endif
                 3) == 0)
                 return explode(attacker, 0);
-            if (damage_your_component(1, 1, 4) == 4)
+            if (damage_your_component(COMPONENT_POWER_PLANT, 1, 4) ==
+                COMPONENT_DESTROYED)
                 return explode(attacker, 0);
             break;
         case 3:
             if (severity < 9) {
-                damage_your_component(2, 1, 4);
+                damage_your_component(COMPONENT_SHIELD_GENERATOR, 1, 4);
                 revise_shields(0);
             } else
-                damage_your_component(8, 2, 4);
+                damage_your_component(COMPONENT_REPAIR_SYSTEMS, 2, 4);
             break;
         case 4:
             acShipDmg[0]++;
@@ -1006,11 +1007,12 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                 events++;
             } else {
                 if (severity < 7) {
-                    damage_your_component(4, 2, 3);
-                    if (acPlayerComponentDamageList[4] >= 4)
+                    damage_your_component(COMPONENT_INTERCOM, 2, 3);
+                    if (acPlayerComponentDamageList[COMPONENT_INTERCOM] >=
+                        COMPONENT_DESTROYED)
                         acShipCommunicatorArray[0] = -1;
                 } else
-                    damage_your_component(5, 4, 4);
+                    damage_your_component(COMPONENT_TARGET_TRACKING, 4, 4);
             }
             break;
         }
@@ -1020,7 +1022,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
 /* Function start: 0x41F5D0 */
 unsigned int check_computer_damage(void)
 {
-    damage_your_component(3, 1, 3);
+    damage_your_component(COMPONENT_COMPUTER, 1, 3);
     return 0;
 }
 
@@ -1050,7 +1052,7 @@ void repair_internal_damage(void)
 #endif
 
 #ifndef SDL_PORT
-    if ((short)acPlayerComponentDamageList[component] >= 4)
+    if ((short)acPlayerComponentDamageList[component] >= COMPONENT_DESTROYED)
         return;
 #endif
     if (RandomBelowOrEqual(
@@ -1069,17 +1071,19 @@ void repair_internal_damage(void)
 #ifdef SDL_PORT
         /* The Mac body guards the selected component in each repair case.
            Retail Win32 instead reads an uninitialized component above. */
-        if (acPlayerComponentDamageList[2] >= 4)
+        if (acPlayerComponentDamageList[COMPONENT_SHIELD_GENERATOR] >=
+            COMPONENT_DESTROYED)
             break;
 #endif
-        ReportComponentRepaired(2, 1);
+        ReportComponentRepaired(COMPONENT_SHIELD_GENERATOR, 1);
         break;
     case 1:
 #ifdef SDL_PORT
-        if (acPlayerComponentDamageList[0] >= 4)
+        if (acPlayerComponentDamageList[COMPONENT_ION_DRIVE] >=
+            COMPONENT_DESTROYED)
             break;
 #endif
-        if (ReportComponentRepaired(0, 2) != 0)
+        if (ReportComponentRepaired(COMPONENT_ION_DRIVE, 2) != 0)
             damage_ion_drive(0, -1, 3);
         break;
     case 2:
@@ -2436,9 +2440,9 @@ unsigned int replenish_shields(short ship)
 {
     signed char shield;
 
-    if (ship == 0 && acPlayerComponentDamageList[1] > 0 &&
+    if (ship == 0 && acPlayerComponentDamageList[COMPONENT_POWER_PLANT] > 0 &&
         nCurrentSpaceFrameValue %
-            (acPlayerComponentDamageList[1] + 1) != 0)
+            (acPlayerComponentDamageList[COMPONENT_POWER_PLANT] + 1) != 0)
         return 0;
     for (shield = 0; shield <= 1; shield++) {
         if (aasShipShield[ship][shield] >
@@ -2461,9 +2465,9 @@ unsigned int replenish_weapon_energy_bank(short ship)
     short shieldEnergy;
     short maximumShield;
 
-    if (ship == 0 && acPlayerComponentDamageList[1] != 0 &&
+    if (ship == 0 && acPlayerComponentDamageList[COMPONENT_POWER_PLANT] != 0 &&
         (unsigned short)RandomInRange(0, 4) <
-            acPlayerComponentDamageList[1])
+            acPlayerComponentDamageList[COMPONENT_POWER_PLANT])
         return 0;
     energy = asShipWpnEnergyList[ship];
     if (energy < 100) {

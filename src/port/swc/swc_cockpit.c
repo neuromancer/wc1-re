@@ -815,7 +815,7 @@ static void SwcUpdateTargetLock(void)
     int y;
 
     if (target == -1 || aeShipSide[target] == aeShipSide[0] ||
-        acPlayerComponentDamageList[5] >= 4) {
+        acPlayerComponentDamageList[COMPONENT_TARGET_TRACKING] >= COMPONENT_DESTROYED) {
         swcIttsActive = 0;
         SdlSwcLockOff();
         return;
@@ -950,7 +950,7 @@ static void SwcUpdateItts(void)
     if (target == -1 || nTargetLockMode == 0 ||
         aeShipSide[target] == aeShipSide[0] ||
         aeObjectClass[target] >= OBJECT_CLASS_CAPITAL_SHIP ||
-        acPlayerComponentDamageList[5] >= 4) {
+        acPlayerComponentDamageList[COMPONENT_TARGET_TRACKING] >= COMPONENT_DESTROYED) {
         swcIttsActive = 0;
         return;
     }

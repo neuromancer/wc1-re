@@ -1910,7 +1910,8 @@ void target_locking(signed char target)
 #endif
     if (target != -1 &&
         aeShipSide[(short)target] != aeShipSide[0] &&
-        acPlayerComponentDamageList[5] < 4) {
+        acPlayerComponentDamageList[COMPONENT_TARGET_TRACKING] <
+            COMPONENT_DESTROYED) {
         x = asObjectScreenXList[(short)target];
         if (x == -0x7fff)
             return;

@@ -34,7 +34,7 @@ FixedVector aShipRightVector[64]; /* 0x0059b6e0 */
 FixedVector aShipUpVector[64]; /* 0x0059b9e0 */
 FixedVector aShipFwdVec[64]; /* 0x0059bce0 */
 HazardField *pActiveHazardField; /* 0x0059bfe0 */
-signed char acPlayerComponentDamageList[9]; /* 0x0059bff0 */
+signed char acPlayerComponentDamageList[COMPONENT_COUNT]; /* 0x0059bff0 */
 signed char abFlightPathList[MISSION_OBJECTIVE_COUNT]; /* 0x0059c000 */
 FixedVector aShipVelocity[SPACE_OBJECT_COUNT]; /* 0x0059c010 */
 short anYawTarget[16]; /* 0x0059c310 */
