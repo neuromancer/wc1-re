@@ -1,6 +1,6 @@
 /* Corrections to decoded Origin packets and stream records, in memory only.
  * Each patch names its file and section or offset, with the original's
- * length and CRC32; anything else passes unchanged. See data_patches.h. */
+ * length and CRC32; anything else passes unchanged. See data_patch_table.h. */
 #include "wc1.h"
 
 typedef struct SdlDataEdit {
@@ -23,7 +23,7 @@ typedef struct SdlDataPatch {
     size_t literalSize;
 } SdlDataPatch;
 
-#include "data_patches.h"
+#include "data_patch_table.h"
 
 static const char *SdlDataBasename(const char *filename)
 {

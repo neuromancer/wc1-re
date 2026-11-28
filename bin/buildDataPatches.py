@@ -276,7 +276,7 @@ if __name__ == "__main__":
     parser.add_argument("--original", type=Path, required=True)
     parser.add_argument("--wcat", type=Path, required=True)
     parser.add_argument("--output", type=Path,
-                        default=Path(__file__).resolve().parents[1] / "src/port/game/data_patches.h")
+                        default=Path(__file__).resolve().parents[1] / "src/port/game/data_patch_table.h")
     args = parser.parse_args()
     args.output.write_text(generate(args.original, args.wcat), encoding="utf-8")
     print(f"Wrote {len(FIXES) + 1} packet and {len(STREAM_FIXES)} stream patches to {args.output}")
