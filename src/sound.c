@@ -310,7 +310,7 @@ void PlaySnowStaticSound(void)
     /* VduEffect (134:2972) plays the static as sound 0x17, like the
      * VDUs' other noises. */
     if (SdlUsingOriginFxSoundEffects()) {
-        PlaySfxWaveFileByNumber(0x17, -1, 0);
+        PlaySfxWaveFileByNumber(SOUND_STATIC, -1, 0);
         return;
     }
 #endif

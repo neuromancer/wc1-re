@@ -2010,7 +2010,7 @@ int HandleSpaceFlightControls(void)
         if (notRepeated) {
             nTargetLockMode =
                 (nTargetLockMode == 0);
-            PlaySfxWaveFileByNumber(0x19, -1, 0);
+            PlaySfxWaveFileByNumber(SOUND_SELECT, -1, 0);
             if (get_mode(VDU_RIGHT) == VDU_MODE_TARGET) {
                 InvalidateVduMode(VDU_RIGHT);
                 return 0;

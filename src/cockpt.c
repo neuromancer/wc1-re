@@ -770,7 +770,7 @@ void update_lights(void)
             SetCockpitLightBlink(3, 2);
             if (nCurrentDamageAlarmSfxHandle == 0 ||
                 nCurrentSpaceFrameValue % 10 == 0)
-                PlaySfxWaveFileByNumber(0x20, -1, 0);
+                PlaySfxWaveFileByNumber(SOUND_DAMAGE_ALARM, -1, 0);
         } else if (nCurrentDamageAlarmSfxHandle != 0) {
             FlushSoundEffectsAndLog(
                 nCurrentDamageAlarmSfxHandle, 1);
@@ -1864,7 +1864,7 @@ short CheckTargetLockMalfunction(void)
         lock_off();
         countdown = (countdown - RandomBelowOrEqual(30));
         nTargetLockCountdown = countdown;
-        PlaySfxWaveFileByNumber(7, -1, 0);
+        PlaySfxWaveFileByNumber(SOUND_SPARKS, -1, 0);
         return 1;
     }
     return 0;
@@ -1881,12 +1881,12 @@ short decrement_lock_time(short screenX)
                 nTargetLockCountdown == 0;
             if (bTargetLockAcquired != 0) {
                 if (CheckTargetLockMalfunction() == 0)
-                    PlaySfxWaveFileByNumber(0x16, -1, 0);
+                    PlaySfxWaveFileByNumber(SOUND_MISSILE_LOCKED, -1, 0);
                 CockpitMessage(_(pszMissileLockedMessage),
                                cRedColour, 2);
                 return 1;
             }
-            PlaySfxWaveFileByNumber(0x15, -1, 0);
+            PlaySfxWaveFileByNumber(SOUND_MISSILE_LOCKING, -1, 0);
         }
         return 1;
     }
@@ -2879,7 +2879,7 @@ void cockpit_explosion(void)
     if (IsCockpitExplosionActive()) {
         frame = nCockpitExplosionFrame;
         if (frame == 0)
-            PlaySfxWaveFileByNumber(0x1b, -1, 0);
+            PlaySfxWaveFileByNumber(SOUND_COCKPIT_EXPLOSION, -1, 0);
         if (++nCockpitExplosionFrame == 3)
             DrawPendingCockpitDamage();
         if (IsCockpitExplosionActive() &&
@@ -3181,7 +3181,7 @@ void update_cockpit(void)
 void PlayCockpitSelectionSfx(short selectionSound)
 {
     (void)selectionSound;
-    PlaySfxWaveFileByNumber(0x19, -1, 0);
+    PlaySfxWaveFileByNumber(SOUND_SELECT, -1, 0);
 }
 
 /* Function start: 0x417F10 */

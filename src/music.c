@@ -648,7 +648,7 @@ void servicetrack(void)
                     (unsigned short)
                         asPreviousObjectDistance[object] < 50 &&
                     aiSoundEffectSourceActiveArray[object] == 0)
-                    PlaySfxWaveFileByNumber(6, object, 0);
+                    PlaySfxWaveFileByNumber(SOUND_ASTEROID_PASS, object, 0);
                 break;
             case OBJECT_CLASS_SHIP:
             case OBJECT_CLASS_CAPITAL_SHIP:
@@ -673,7 +673,7 @@ void servicetrack(void)
                                 nCurrentSpaceFrameValue) {
                                 nPassingShipAudioCooldown =
                                     nCurrentSpaceFrameValue + 6;
-                                PlaySfxWaveFileByNumber(2, object, 0);
+                                PlaySfxWaveFileByNumber(SOUND_SHIP_FLYBY, object, 0);
                             }
                         }
                     } else if (object ==

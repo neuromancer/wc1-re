@@ -895,7 +895,7 @@ void InflightComputer(void)
                 (short)cCurrentNavPtIdx) {
                 displayedNavPoint =
                     cCurrentNavPtIdx;
-                PlaySfxWaveFileByNumber(0x19, -1, 0);
+                PlaySfxWaveFileByNumber(SOUND_SELECT, -1, 0);
                 ShowConfedNavScan();
             }
             SetRectBounds(&stScreenView, 32, 24, 289, 177);
@@ -954,7 +954,7 @@ void InflightComputer(void)
 
     ReleasePacketHandle(pNavMapShape);
     SetTextContext(&stDefaultTxtContext);
-    PlaySfxWaveFileByNumber(0x19, -1, 0);
+    PlaySfxWaveFileByNumber(SOUND_SELECT, -1, 0);
     stMouseCursorState = savedInputState;
     WarpMouseTo(savedInputState.x, savedInputState.y);
     if (bCockpitlessView == 0) {

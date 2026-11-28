@@ -389,7 +389,7 @@ unsigned int Chosen_communicate_option(short choice)
 {
     int action;
 
-    PlaySfxWaveFileByNumber(0x19, -1, 0);
+    PlaySfxWaveFileByNumber(SOUND_SELECT, -1, 0);
     action = GetPendingMenuAction();
     switch (action) {
     case 0:

@@ -988,7 +988,7 @@ void AnimateBarracks(Viewport *viewport, struct Shape *shape,
                 state->fallingY = -99;
                 state->impactFrame = 37;
                 state->fallingDelay = 20;
-                PlaySfxWaveFileByNumber(35, -1, 0);
+                PlaySfxWaveFileByNumber(SOUND_DRIP, -1, 0);
             }
         }
     }

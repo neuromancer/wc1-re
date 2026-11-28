@@ -48,7 +48,7 @@ unsigned int ejection_sequence(void)
     background = FetchDiskPacketRetrying(
         cCockpitLogicalFile, 3, 0);
     ejectionShape = FetchDiskPacketRetrying(DISK_FILE_PILOTANM_VGA, 1, 0);
-    PlaySfxWaveFileByNumber(0x21, -1, 0);
+    PlaySfxWaveFileByNumber(SOUND_EJECT, -1, 0);
     y = 199;
     bEscapePressedFlag = 0;
     descentSpeed = 4;
@@ -169,7 +169,7 @@ unsigned int ejection_sequence(void)
                 switch (frame) {
                 case 10:
                     Explosion(0);
-                    PlaySfxWaveFileByNumber(4, -1, 0);
+                    PlaySfxWaveFileByNumber(SOUND_EXPLOSION, -1, 0);
                     break;
                 }
                 frame++;

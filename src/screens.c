@@ -1708,7 +1708,7 @@ unsigned int death_sequence(void)
     deathShape = FetchDiskPacketRetrying(DISK_FILE_PILOTANM_VGA, 0, 0);
     cockpitBackground = FetchDiskPacketRetrying(
         cCockpitLogicalFile, 3, 0);
-    PlaySfxWaveFileByNumber(4, -1, 0);
+    PlaySfxWaveFileByNumber(SOUND_EXPLOSION, -1, 0);
     new_view(9, 0);
     bEscapePressedFlag = 0;
     nFrameSkipCounter = 1;

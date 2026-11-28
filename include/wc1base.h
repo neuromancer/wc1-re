@@ -384,6 +384,29 @@ typedef char MouseCursorState_size_must_be_0x1c[
 #define RADIO_DEPART                  9 /* back to base; landing refused */
 #define RADIO_WATCH_FIRE              10
 
+/* Sound effects, as PlaySfxWaveFileByNumber numbers them, named after
+ * where they play. The rest play at moments that do not say what they are. */
+#define SOUND_SHIP_FLYBY              2 /* a ship passes close */
+#define SOUND_DRIVE_MALFUNCTION       3
+#define SOUND_EXPLOSION               4
+#define SOUND_ASTEROID_PASS           6 /* an asteroid passes close */
+#define SOUND_SPARKS                  7
+#define SOUND_ARMOR_HIT               9 /* a shot gets through the shields */
+#define SOUND_SHIELD_HIT              10
+#define SOUND_AFTERBURNER             12
+#define SOUND_DEBRIS                  13 /* tumbling wing and hull debris */
+#define SOUND_CANOPY                  15
+#define SOUND_MISSILE_LOCKING         21
+#define SOUND_MISSILE_LOCKED          22
+#define SOUND_STATIC                  23
+#define SOUND_SELECT                  25
+#define SOUND_COCKPIT_EXPLOSION       27
+#define SOUND_COLLISION               28
+#define SOUND_DAMAGE_ALARM            32
+#define SOUND_EJECT                   33
+#define SOUND_DRIP                    35 /* the barracks' leak */
+#define SOUND_ATTENTION               36 /* the funeral's "Atten-SHUN!" */
+
 /* ConversationSceneRecord.shot: the camera shot SceneDirector cuts to, named
  * after the function that draws it. */
 #define SCENE_SHOT_END                    -2 /* ends the scene */

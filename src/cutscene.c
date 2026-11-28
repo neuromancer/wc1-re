@@ -735,7 +735,7 @@ unsigned int scramble(void)
             if (bEscapePressedFlag != 1) {
                 FlushSoundEffectsAndLog(scrambleSound, 0);
                 nScrambleCanopyOffset--;
-                PlaySfxWaveFileByNumber(15, -1, 0);
+                PlaySfxWaveFileByNumber(SOUND_CANOPY, -1, 0);
                 nFrameSkipCounter = 1;
                 for (frame = 0; frame < 23; frame++) {
                     PumpWindowMessages();
@@ -924,7 +924,7 @@ unsigned int landing(signed char damageLevel)
         canopyFrames = apLandingCanopyFrames[damageLevel];
         stScrambleOverlay.y =
             (stScramblePlayerShipPos.y + 50);
-        PlaySfxWaveFileByNumber(15, -1, 0);
+        PlaySfxWaveFileByNumber(SOUND_CANOPY, -1, 0);
         nFrameSkipCounter = 1;
         for (canopyFrame = 0; canopyFrame < 30; canopyFrame++) {
             PumpWindowMessages();
@@ -1206,7 +1206,7 @@ unsigned int funeral_sequence(int playerFuneral)
                     PumpWindowMessages();
                     funeral_player();
                     if (frame == 0)
-                        PlaySfxWaveFileByNumber(0x24, -1, 0);
+                        PlaySfxWaveFileByNumber(SOUND_ATTENTION, -1, 0);
                     if (bEscapePressedFlag == 1)
                         break;
                 }

@@ -591,7 +591,7 @@ int inflict_damage(short attacker, short victim, short damage,
             if (attacker != -1 &&
                 aeObjectClass[attacker] ==
                     OBJECT_CLASS_PROJECTILE)
-                PlaySfxWaveFileByNumber(9, victim, 0);
+                PlaySfxWaveFileByNumber(SOUND_ARMOR_HIT, victim, 0);
 
             sideDot = dot_product(impactDirection,
                                   &aShipRightVector[victim]);
@@ -634,7 +634,7 @@ int inflict_damage(short attacker, short victim, short damage,
             if (attacker != -1 &&
                 aeObjectClass[attacker] ==
                     OBJECT_CLASS_PROJECTILE)
-                PlaySfxWaveFileByNumber(10, victim, 0);
+                PlaySfxWaveFileByNumber(SOUND_SHIELD_HIT, victim, 0);
         }
     }
     return 0;
@@ -1449,7 +1449,7 @@ short Explosion(short obj)
                 aeObjectTypeList[obj]].explosionDamage);
     }
     if (asObjectScreenXList[obj] != (short)0x8001)
-        PlaySfxWaveFileByNumber(4, obj, 0);
+        PlaySfxWaveFileByNumber(SOUND_EXPLOSION, obj, 0);
     return explosion;
 }
 
@@ -2495,7 +2495,7 @@ void accelerate(short amount)
     if (malf(COMPONENT_ION_DRIVE) != 0) {
         amount = (amount - 2);
         if (nCurrentSpaceFrameValue % 3 == 0)
-            PlaySfxWaveFileByNumber(3, -1, 0);
+            PlaySfxWaveFileByNumber(SOUND_DRIVE_MALFUNCTION, -1, 0);
     }
 #ifdef SDL_PORT
     /* Negative throttle steps are valid; shifting them is undefined in C. */
@@ -2513,7 +2513,7 @@ void your_afterburner(void)
     if (anShipFuelsTable[0] <= 0)
         return;
     if (malf(COMPONENT_ION_DRIVE) != 0) {
-        PlaySfxWaveFileByNumber(3, -1, 0);
+        PlaySfxWaveFileByNumber(SOUND_DRIVE_MALFUNCTION, -1, 0);
         return;
     }
     if (aeSpecialManeuvers[0] !=
@@ -2531,6 +2531,6 @@ void your_afterburner(void)
         nAfterburnerSoundDeadline = 0;
     if (nCurrentSpaceFrameValue > nAfterburnerSoundDeadline) {
         nAfterburnerSoundDeadline = nCurrentSpaceFrameValue + 6;
-        PlaySfxWaveFileByNumber(12, -1, 0);
+        PlaySfxWaveFileByNumber(SOUND_AFTERBURNER, -1, 0);
     }
 }

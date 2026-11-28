@@ -1239,7 +1239,7 @@ unsigned int animate_shape(short obj)
         if (asObjectScreenXList[obj] != (short)0x8001 &&
             (type == OBJECT_TYPE_DEBRIS_WING ||
              type == OBJECT_TYPE_DEBRIS_METAL_SHEET)) {
-            PlaySfxWaveFileByNumber(13, obj, 0);
+            PlaySfxWaveFileByNumber(SOUND_DEBRIS, obj, 0);
         }
         /* fall through */
     default: {
@@ -1329,7 +1329,7 @@ unsigned int animate_object(short obj)
         awObjectScales[effect] =
             awObjectScales[obj];
         if (RandomInRange(0, 3) == 0)
-            PlaySfxWaveFileByNumber(7, obj, 0, 0);
+            PlaySfxWaveFileByNumber(SOUND_SPARKS, obj, 0, 0);
         break;
     }
     return 0;
@@ -1517,7 +1517,7 @@ int object_collision(short obj)
                  aeObjectClass[partner] == OBJECT_CLASS_SHIP ||
                  aeObjectClass[partner] == OBJECT_CLASS_CAPITAL_SHIP) &&
                 acLastCollisionObjects[objectIndex] != partner) {
-                PlaySfxWaveFileByNumber(0x1c, obj, 0, 0);
+                PlaySfxWaveFileByNumber(SOUND_COLLISION, obj, 0, 0);
                 acLastCollisionObjects[partner] =
                     obj;
                 acLastCollisionObjects[objectIndex] =
