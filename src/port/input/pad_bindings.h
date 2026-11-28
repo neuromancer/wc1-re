@@ -3,8 +3,8 @@
  * and hats take a flight action, "cycle-views" or "roll-and-speed"; axes
  * take "pitch", "yaw", "roll", "speed" or "throttle", and "-" reverses
  * one. Right, up and a pressed trigger are positive. */
-#ifndef WC1_SDL_PAD_BINDINGS_H
-#define WC1_SDL_PAD_BINDINGS_H
+#ifndef SDL_PORT_PAD_BINDINGS_H
+#define SDL_PORT_PAD_BINDINGS_H
 
 /* Custom's input source; Automatic keeps SDL's mapped/raw device choice. */
 enum SdlPadSource {

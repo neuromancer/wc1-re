@@ -1,7 +1,7 @@
 /* WC1's rebindable flight inputs, shared by keymap.c and the launcher: each
  * input's id, the key the game reads and the original bindings. */
-#ifndef WC1_SDL_KEYMAP_ACTIONS_H
-#define WC1_SDL_KEYMAP_ACTIONS_H
+#ifndef SDL_PORT_KEYMAP_ACTIONS_H
+#define SDL_PORT_KEYMAP_ACTIONS_H
 
 #define SDL_KEYMAP_ACTION_LIST(ACTION) \
     ACTION("pitch-down", SDL_SCANCODE_UP, 0, {SDL_SCANCODE_UP}) \

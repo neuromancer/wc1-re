@@ -1,5 +1,5 @@
-#ifndef WC1_SWC_H
-#define WC1_SWC_H
+#ifndef SDL_PORT_SWC_H
+#define SDL_PORT_SWC_H
 
 #ifndef SDL_PORT
 #error SWC support is available only in the SDL2 build.

@@ -2,8 +2,8 @@
  * launcher. Positions are JOYINFO values, 0-65535. j.cal holds seven words:
  * the joystick, upper-left X and Y, lower-right X and Y, centre X and Y. The
  * dead zone is a percentage of travel; 11, 22 and 33 are the original's. */
-#ifndef WC1_SDL_JOYSTICK_CALIBRATION_H
-#define WC1_SDL_JOYSTICK_CALIBRATION_H
+#ifndef SDL_PORT_JOYSTICK_CALIBRATION_H
+#define SDL_PORT_JOYSTICK_CALIBRATION_H
 
 #include <SDL.h>
 

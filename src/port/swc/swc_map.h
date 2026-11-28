@@ -1,6 +1,6 @@
 /* Shared SDL presentation of CODE_14 BuildMap's two Mac layouts. */
-#ifndef SDL_SWC_MAP_H
-#define SDL_SWC_MAP_H
+#ifndef SDL_PORT_SWC_MAP_H
+#define SDL_PORT_SWC_MAP_H
 
 typedef struct SwcNavEntry {
     FixedVector position;

@@ -91,12 +91,17 @@ structure. Port files may be split, merged and moved freely.
 | `launcher/` | The Slint launcher (C++) |
 
 - Original files reach the host only through port functions; SDL calls stay in
-  `src/port/`. `include/wc1sdl.h` declares what original files call.
+  `src/port/`.
 - An `SDL_PORT` block in an original file is a call into the port, or a short
   behaviour fix that names its reason (usually an issue number). Longer logic
   belongs in `src/port/`.
-- A port file keeps its state `static` and offers functions through a header. It
-  does not reach into another file's state.
+- A port file keeps its state `static` and declares what it offers in a header
+  beside it (`joystick.c`, `joystick.h`). It does not reach into another file's
+  state. `include/wc1sdl.h` includes these headers for the original files;
+  `platform/win32.h` holds the Win32 types and functions the game uses, and
+  `game/original_globals.h` the original units' globals the port shares.
+- A header compiles on its own: it includes what it uses and forward-declares
+  the game's structs.
 - Names: keep existing names. New port functions take the `Sdl` prefix and
   PascalCase, like the names around them.
 - Format: as the original files.
